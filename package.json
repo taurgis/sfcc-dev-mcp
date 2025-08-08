@@ -7,20 +7,34 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
+    "convert-docs": "node scripts/convert-docs.js",
+    "convert-docs:test": "node scripts/convert-docs.js --test",
+    "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["mcp", "salesforce", "commerce-cloud", "sfcc", "development", "logs", "debugging", "webdav"],
+  "keywords": [
+    "mcp",
+    "salesforce",
+    "commerce-cloud",
+    "sfcc",
+    "development",
+    "logs",
+    "debugging",
+    "webdav"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.1.0",
-    "webdav": "^5.7.1",
-    "commander": "^12.1.0"
+    "axios": "^1.11.0",
+    "cheerio": "^1.1.2",
+    "commander": "^12.1.0",
+    "webdav": "^5.7.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
-    "typescript": "^5.5.0",
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
   }
 }
