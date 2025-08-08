@@ -9,6 +9,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { CacheManager } from './cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,10 +49,12 @@ export interface SFCCClassDetails {
 export class SFCCDocumentationClient {
   private docsPath: string;
   private classCache: Map<string, SFCCClassInfo> = new Map();
+  private cacheManager: CacheManager;
   private initialized = false;
 
   constructor() {
     this.docsPath = path.join(__dirname, '..', 'docs');
+    this.cacheManager = new CacheManager();
   }
 
   /**
@@ -119,13 +122,24 @@ export class SFCCDocumentationClient {
    */
   async searchClasses(query: string): Promise<string[]> {
     await this.initialize();
-    const lowercaseQuery = query.toLowerCase();
 
-    return Array.from(this.classCache.keys())
+    // Check cache first
+    const cacheKey = `search:classes:${query.toLowerCase()}`;
+    const cachedResult = this.cacheManager.getSearchResults(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
+    const lowercaseQuery = query.toLowerCase();
+    const results = Array.from(this.classCache.keys())
       .filter(className =>
         className.toLowerCase().includes(lowercaseQuery)
       )
       .sort();
+
+    // Cache the results
+    this.cacheManager.setSearchResults(cacheKey, results);
+    return results;
   }
 
   /**
@@ -134,32 +148,96 @@ export class SFCCDocumentationClient {
   async getClassDocumentation(className: string): Promise<string | null> {
     await this.initialize();
 
-    // Try exact match first
-    let classInfo = this.classCache.get(className);
+    // Normalize class name to support both formats (dw.content.ContentMgr -> dw_content.ContentMgr)
+    const normalizedClassName = this.normalizeClassName(className);
+
+    // Check cache first
+    const cacheKey = `content:${normalizedClassName}`;
+    const cachedContent = this.cacheManager.getFileContent(cacheKey);
+    if (cachedContent !== undefined) {
+      return cachedContent || null;
+    }
+
+    // Try exact match first with normalized name
+    let classInfo = this.classCache.get(normalizedClassName);
 
     // If not found, try to find by class name only (without package)
     if (!classInfo) {
+      const simpleClassName = this.extractSimpleClassName(normalizedClassName);
       const matches = Array.from(this.classCache.entries())
-        .filter(([key, info]) => info.className === className);
+        .filter(([, info]) => info.className === simpleClassName);
 
       if (matches.length === 1) {
         classInfo = matches[0][1];
       } else if (matches.length > 1) {
-        throw new Error(`Multiple classes found with name "${className}": ${matches.map(([key]) => key).join(', ')}`);
+        throw new Error(`Multiple classes found with name "${simpleClassName}": ${matches.map(([key]) => key).join(', ')}`);
       }
     }
 
-    return classInfo ? classInfo.content : null;
+    const content = classInfo ? classInfo.content : null;
+
+    // Cache the result (including null results to avoid repeated lookups)
+    this.cacheManager.setFileContent(cacheKey, content || '');
+
+    return content;
+  }
+
+  /**
+   * Normalize class name to handle both dot and underscore formats
+   * Examples:
+   * - dw.content.ContentMgr -> dw_content.ContentMgr
+   * - dw_content.ContentMgr -> dw_content.ContentMgr (unchanged)
+   * - ContentMgr -> ContentMgr (unchanged)
+   */
+  private normalizeClassName(className: string): string {
+    // If it contains dots but not underscores in the package part, convert dots to underscores
+    if (className.includes('.') && !className.includes('_')) {
+      // Split by dots and convert package parts (all but last) to use underscores
+      const parts = className.split('.');
+      if (parts.length > 1) {
+        const packageParts = parts.slice(0, -1);
+        const simpleClassName = parts[parts.length - 1];
+        return `${packageParts.join('_')}.${simpleClassName}`;
+      }
+    }
+    return className;
+  }
+
+  /**
+   * Extract simple class name from full class name
+   * Examples:
+   * - dw_content.ContentMgr -> ContentMgr
+   * - ContentMgr -> ContentMgr
+   */
+  private extractSimpleClassName(className: string): string {
+    const parts = className.split('.');
+    return parts[parts.length - 1];
   }
 
   /**
    * Parse class documentation and extract structured information
    */
   async getClassDetails(className: string): Promise<SFCCClassDetails | null> {
-    const content = await this.getClassDocumentation(className);
-    if (!content) return null;
+    // Check cache first
+    const cacheKey = `details:${className}`;
+    const cachedDetails = this.cacheManager.getClassDetails(cacheKey);
+    if (cachedDetails !== undefined) {
+      return cachedDetails;
+    }
 
-    return this.parseClassContent(content);
+    const content = await this.getClassDocumentation(className);
+    if (!content) {
+      // Cache null results to avoid repeated parsing attempts
+      this.cacheManager.setClassDetails(cacheKey, null);
+      return null;
+    }
+
+    const details = this.parseClassContent(content);
+
+    // Cache the parsed details
+    this.cacheManager.setClassDetails(cacheKey, details);
+
+    return details;
   }
 
   /**
@@ -336,14 +414,26 @@ export class SFCCDocumentationClient {
    * Get class details with optional expansion of referenced types
    */
   async getClassDetailsExpanded(className: string, expand: boolean = false): Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
+    // Check cache first for expanded details
+    const cacheKey = `details-expanded:${className}:${expand}`;
+    const cachedResult = this.cacheManager.getClassDetails(cacheKey);
+    if (cachedResult !== undefined) {
+      return cachedResult;
+    }
+
     const classDetails = await this.getClassDetails(className);
     if (!classDetails || !expand) {
-      return classDetails;
+      const result = classDetails;
+      this.cacheManager.setClassDetails(cacheKey, result);
+      return result;
     }
 
     // Get the raw content to extract referenced types
     const content = await this.getClassDocumentation(className);
-    if (!content) return classDetails;
+    if (!content) {
+      this.cacheManager.setClassDetails(cacheKey, classDetails);
+      return classDetails;
+    }
 
     const referencedTypeNames = this.extractReferencedTypes(content);
     const referencedTypes: SFCCClassDetails[] = [];
@@ -366,10 +456,14 @@ export class SFCCDocumentationClient {
       }
     }
 
-    return {
+    const result = {
       ...classDetails,
       referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined
     };
+
+    // Cache the expanded result
+    this.cacheManager.setClassDetails(cacheKey, result);
+    return result;
   }
 
   /**
@@ -393,17 +487,51 @@ export class SFCCDocumentationClient {
    */
   async searchMethods(methodName: string): Promise<{ className: string; method: SFCCMethod }[]> {
     await this.initialize();
+
+    // Check cache first
+    const cacheKey = `search:methods:${methodName.toLowerCase()}`;
+    const cachedResult = this.cacheManager.getMethodSearch(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     const results: { className: string; method: SFCCMethod }[] = [];
 
     for (const [fullClassName] of this.classCache) {
       const methods = await this.getClassMethods(fullClassName);
       for (const method of methods) {
         if (method.name.toLowerCase().includes(methodName.toLowerCase())) {
-          results.push({ className: fullClassName, method });
+          results.push({
+            className: fullClassName,
+            method
+          });
         }
       }
     }
 
+    // Cache the search results
+    this.cacheManager.setMethodSearch(cacheKey, results);
     return results;
+  }
+
+  /**
+   * Get cache statistics for monitoring performance
+   */
+  getCacheStats(): ReturnType<CacheManager['getAllStats']> {
+    return this.cacheManager.getAllStats();
+  }
+
+  /**
+   * Clear all caches
+   */
+  clearCache(): void {
+    this.cacheManager.clearAll();
+  }
+
+  /**
+   * Cleanup resources and destroy caches
+   */
+  destroy(): void {
+    this.cacheManager.destroy();
   }
 }
