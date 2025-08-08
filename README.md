@@ -1,15 +1,24 @@
-# SFCC Logs MCP Server
+# SFCC Development MCP Server
 
-An MCP (Model Context Protocol) server that provides access to Salesforce B2C Commerce Cloud features. This allows AI agents to, for example, analyze server logs for debugging and monitoring purposes.
+An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and more.
 
 ## Features
 
+### Log Analysis & Monitoring
 - **Get Latest Errors**: Retrieve the most recent error messages from SFCC logs
 - **Get Latest Warnings**: Fetch recent warning messages
 - **Get Latest Info**: Access recent info-level log entries  
 - **Summarize Logs**: Get an overview of log activity with error counts and key issues
 - **Search Logs**: Search for specific patterns across log files
 - **List Log Files**: View available log files with metadata
+
+### Future Development Features
+This server is designed to be extensible and will support additional SFCC development assistance features such as:
+- Code analysis and suggestions
+- Cartridge dependency management
+- Business Manager configuration assistance
+- Performance optimization recommendations
+- And more...
 
 ## Installation
 
@@ -36,7 +45,7 @@ To use this MCP server with GitHub Copilot, add it to your MCP settings:
 ```json
 {
   "mcpServers": {
-    "sfcc-logs": {
+    "sfcc-dev": {
       "command": "node",
       "args": [
         "/path/to/sfcc-dev-mcp/dist/index.js",
@@ -54,7 +63,7 @@ For OAuth authentication, use:
 ```json
 {
   "mcpServers": {
-    "sfcc-logs": {
+    "sfcc-dev": {
       "command": "node",
       "args": [
         "/path/to/sfcc-dev-mcp/dist/index.js",
@@ -81,7 +90,7 @@ To use this MCP server with Claude Desktop, edit your `claude_desktop_config.jso
 ```json
 {
   "mcpServers": {
-    "sfcc-logs": {
+    "sfcc-dev": {
       "command": "node",
       "args": [
         "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
@@ -98,7 +107,7 @@ To use this MCP server with Claude Desktop, edit your `claude_desktop_config.jso
 ```json
 {
   "mcpServers": {
-    "sfcc-logs": {
+    "sfcc-dev": {
       "command": "node",
       "args": [
         "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
@@ -135,7 +144,7 @@ SFCC_PASSWORD=your-password
 ```json
 {
   "mcpServers": {
-    "sfcc-logs": {
+    "sfcc-dev": {
       "command": "node",
       "args": [
         "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
@@ -216,6 +225,8 @@ The server requires the following parameters:
 
 ## MCP Tools
 
+### Log Analysis Tools
+
 ### get_latest_errors
 Get the latest error messages from SFCC logs.
 
@@ -270,27 +281,32 @@ Log entries are parsed based on the GMT timestamp and log level format:
 
 ## WebDAV Access
 
-The server connects to the SFCC WebDAV logs endpoint:
+The server connects to the SFCC WebDAV endpoint for various development features:
 ```
-https://{hostname}/on/demandware.servlet/webdav/Sites/Logs/
+https://{hostname}/on/demandware.servlet/webdav/Sites/
 ```
 
-Ensure your credentials have appropriate permissions to access the logs directory.
+Ensure your credentials have appropriate permissions to access the required directories.
 
 ## Troubleshooting
 
 1. **Authentication Errors**: Verify your credentials and ensure they have WebDAV access permissions
 2. **Connection Issues**: Check the hostname format and network connectivity
-3. **No Log Files Found**: Ensure the date format is correct (YYYYMMDD) and logs exist for the specified date
-4. **Permission Denied**: Verify your user account has access to the Sites/Logs WebDAV directory
+3. **No Data Found**: Ensure the date format is correct and data exists for the specified date
+4. **Permission Denied**: Verify your user account has access to the required WebDAV directories
 
 ## Development
 
 To modify or extend the server:
 
-1. Edit the TypeScript source in `src/index.ts`
+1. Edit the TypeScript source files in the `src/` directory
 2. Build with `npm run build`
 3. Test with `npm run dev`
+
+The server is designed to be modular and extensible. New SFCC development features can be easily added by:
+- Adding new tool definitions in `server.ts`
+- Implementing the corresponding functionality
+- Following the established patterns for authentication and WebDAV access
 
 ## License
 

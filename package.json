@@ -1,7 +1,7 @@
 {
   "name": "sfcc-dev-mcp",
   "version": "1.0.0",
-  "description": "MCP server for Salesforce B2C Commerce Cloud logs access via WebDAV",
+  "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -9,7 +9,7 @@
     "dev": "tsx src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["mcp", "salesforce", "commerce-cloud", "logs", "webdav"],
+  "keywords": ["mcp", "salesforce", "commerce-cloud", "sfcc", "development", "logs", "debugging", "webdav"],
   "author": "",
   "license": "ISC",
   "type": "module",
