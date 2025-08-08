@@ -164,7 +164,7 @@ export class SFCCDevServer {
           // SFCC Documentation Tools
           {
             name: "get_sfcc_class_info",
-            description: "Get detailed information about an SFCC class including properties, methods, and description",
+            description: "Get detailed information about an SFCC class including properties, methods, and description. This is specifically for SFCC server-side code used within cartridges (controllers, scripts, templates, rest-apis) and covers the dw.* API available in the SFCC Rhino environment.",
             inputSchema: {
               type: "object",
               properties: {
@@ -183,7 +183,7 @@ export class SFCCDevServer {
           },
           {
             name: "search_sfcc_classes",
-            description: "Search for SFCC classes by name",
+            description: "Search for SFCC classes by name. These are server-side classes available in SFCC cartridge code (controllers, scripts, templates, rest-apis) within the Rhino JavaScript environment.",
             inputSchema: {
               type: "object",
               properties: {
@@ -197,7 +197,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_sfcc_class_methods",
-            description: "Get all methods for a specific SFCC class",
+            description: "Get all methods for a specific SFCC class. This covers server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
             inputSchema: {
               type: "object",
               properties: {
@@ -211,7 +211,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_sfcc_class_properties",
-            description: "Get all properties for a specific SFCC class",
+            description: "Get all properties for a specific SFCC class. This covers server-side API properties available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
             inputSchema: {
               type: "object",
               properties: {
@@ -225,7 +225,7 @@ export class SFCCDevServer {
           },
           {
             name: "search_sfcc_methods",
-            description: "Search for methods across all SFCC classes",
+            description: "Search for methods across all SFCC classes. This searches server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
             inputSchema: {
               type: "object",
               properties: {
@@ -239,7 +239,7 @@ export class SFCCDevServer {
           },
           {
             name: "list_sfcc_classes",
-            description: "List all available SFCC classes",
+            description: "List all available SFCC classes. These are server-side classes available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino JavaScript environment.",
             inputSchema: {
               type: "object",
               properties: {},
@@ -247,7 +247,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_sfcc_class_documentation",
-            description: "Get the raw documentation content for an SFCC class",
+            description: "Get the raw documentation content for an SFCC class. This provides detailed documentation for server-side classes used in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
             inputSchema: {
               type: "object",
               properties: {
