@@ -287,6 +287,92 @@ export class SFCCDocumentationClient {
   }
 
   /**
+   * Parse markdown content and extract referenced types from a class
+   */
+  private extractReferencedTypes(content: string): string[] {
+    const referencedTypes = new Set<string>();
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      // Extract types from property definitions
+      const propTypeMatch = line.match(/\*\*Type:\*\*\s*([A-Za-z][A-Za-z0-9.]*)/);
+      if (propTypeMatch) {
+        const type = propTypeMatch[1];
+        // Only include SFCC types (those that start with uppercase or contain dots)
+        if (/^[A-Z]/.test(type) || type.includes('.')) {
+          referencedTypes.add(type);
+        }
+      }
+
+      // Extract return types from method signatures
+      const methodReturnMatch = line.match(/:\s*([A-Za-z][A-Za-z0-9.]*)\s*$/);
+      if (methodReturnMatch) {
+        const type = methodReturnMatch[1];
+        if (/^[A-Z]/.test(type) || type.includes('.')) {
+          referencedTypes.add(type);
+        }
+      }
+
+      // Extract parameter types from method signatures
+      const paramMatches = line.match(/\(\s*([^)]+)\s*\)/);
+      if (paramMatches) {
+        const params = paramMatches[1];
+        const typeMatches = params.match(/:\s*([A-Za-z][A-Za-z0-9.]*)/g);
+        if (typeMatches) {
+          typeMatches.forEach(match => {
+            const type = match.replace(/:\s*/, '');
+            if (/^[A-Z]/.test(type) || type.includes('.')) {
+              referencedTypes.add(type);
+            }
+          });
+        }
+      }
+    }
+
+    return Array.from(referencedTypes);
+  }
+
+  /**
+   * Get class details with optional expansion of referenced types
+   */
+  async getClassDetailsExpanded(className: string, expand: boolean = false): Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
+    const classDetails = await this.getClassDetails(className);
+    if (!classDetails || !expand) {
+      return classDetails;
+    }
+
+    // Get the raw content to extract referenced types
+    const content = await this.getClassDocumentation(className);
+    if (!content) return classDetails;
+
+    const referencedTypeNames = this.extractReferencedTypes(content);
+    const referencedTypes: SFCCClassDetails[] = [];
+
+    // Get details for each referenced type
+    for (const typeName of referencedTypeNames) {
+      // Skip if it's the same class to avoid circular references
+      if (typeName === className || typeName.endsWith(`.${className}`)) {
+        continue;
+      }
+
+      try {
+        const typeDetails = await this.getClassDetails(typeName);
+        if (typeDetails) {
+          referencedTypes.push(typeDetails);
+        }
+      } catch (error) {
+        // Silently skip types that can't be found
+        console.warn(`Could not find details for referenced type: ${typeName}`);
+      }
+    }
+
+    return {
+      ...classDetails,
+      referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined
+    };
+  }
+
+  /**
    * Get methods for a specific class
    */
   async getClassMethods(className: string): Promise<SFCCMethod[]> {

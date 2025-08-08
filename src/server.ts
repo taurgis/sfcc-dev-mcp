@@ -172,6 +172,11 @@ export class SFCCDevServer {
                   type: "string",
                   description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
                 },
+                expand: {
+                  type: "boolean",
+                  description: "Whether to include detailed information about referenced types used by this class (default: false)",
+                  default: false,
+                },
               },
               required: ["className"],
             },
@@ -361,7 +366,8 @@ export class SFCCDevServer {
             if (!args?.className) {
               throw new Error("className is required");
             }
-            const classDetails = await this.docsClient.getClassDetails(args.className as string);
+            const expand = args?.expand as boolean || false;
+            const classDetails = await this.docsClient.getClassDetailsExpanded(args.className as string, expand);
             if (!classDetails) {
               throw new Error(`Class "${args.className}" not found`);
             }
