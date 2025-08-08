@@ -9,15 +9,14 @@
  * backwards compatibility and provides a clean interface for the package.
  */
 
-// Re-export main types for external consumers
-export { SFCCConfig, DwJsonConfig, LogLevel, LogFileInfo, LogSummary } from "./types.js";
+/**
+ * Main exports for the SFCC Development MCP Server
+ */
 
-// Re-export main classes for library usage
+export { SFCCDevServer } from "./server.js";
 export { SFCCLogClient } from "./log-client.js";
-export { SFCCLogsServer } from "./server.js";
-
-// Re-export configuration utilities
-export { loadDwJsonConfig, validateConfig } from "./config.js";
+export { SFCCDocumentationClient } from "./docs-client.js";
+export type { SFCCConfig, LogLevel, LogFileInfo, LogSummary } from "./types.js";
 
 // For direct execution, delegate to main.ts
 import "./main.js";

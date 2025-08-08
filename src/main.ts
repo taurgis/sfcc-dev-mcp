@@ -1,84 +1,133 @@
 #!/usr/bin/env node
 
 /**
- * SFCC MCP Server - Main Entry Point
+ * Main entry point for the SFCC Development MCP Server
  *
- * This is the main entry point for the SFCC (Salesforce B2C Commerce Cloud) MCP server.
- * It handles command-line argument parsing, configuration loading, and server initialization.
- * The server provides comprehensive development assistance including log analysis, debugging,
- * monitoring, and extensible tools for SFCC development workflows.
+ * This script initializes and starts the MCP server with SFCC development capabilities
+ * including log analysis and comprehensive documentation querying.
  *
- * The server can be configured either through a dw.json file (standard SFCC format)
- * or through individual command-line options.
+ * Usage:
+ *   node build/main.js
+ *   npm start
+ *   npm run start -- --dw-json /path/to/dw.json
+ *   npm run start -- --dw-json ./dw.json
  */
 
-import { Command } from "commander";
-import { resolve } from "path";
+import { SFCCDevServer } from "./server.js";
 import { SFCCConfig } from "./types.js";
-import { loadDwJsonConfig, validateConfig } from "./config.js";
-import { SFCCLogsServer } from "./server.js";
+import { SFCCLogClient } from "./log-client.js";
+import { loadDwJsonConfig } from "./config.js";
+import { existsSync } from "fs";
+import { resolve } from "path";
 
 /**
- * Main application entry point
- * Handles command-line parsing and server initialization
+ * Parse command line arguments to extract configuration options
  */
-async function main(): Promise<void> {
-  const program = new Command();
+function parseCommandLineArgs(): { dwJsonPath?: string } {
+  const args = process.argv.slice(2);
+  const options: { dwJsonPath?: string } = {};
 
-  // Define command-line interface
-  program
-    .name("sfcc-logs-mcp")
-    .description("MCP server for Salesforce B2C Commerce Cloud logs")
-    .option("--dw-json <path>", "Path to dw.json file (alternative to individual options)")
-    .option("--hostname <hostname>", "SFCC hostname (e.g., zziu-006.dx.commercecloud.salesforce.com)")
-    .option("--username <username>", "Username for basic authentication")
-    .option("--password <password>", "Password for basic authentication")
-    .option("--api-key <apiKey>", "API key for OAuth authentication")
-    .option("--api-secret <apiSecret>", "API secret for OAuth authentication");
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
 
-  program.parse();
-  const options = program.opts();
+    if (arg === "--dw-json" && i + 1 < args.length) {
+      options.dwJsonPath = args[i + 1];
+      i++; // Skip the next argument since we consumed it
+    }
+  }
 
-  let config: SFCCConfig;
+  return options;
+}
 
+/**
+ * Load configuration from various sources in order of preference:
+ * 1. Command line --dw-json argument
+ * 2. ./dw.json in current directory
+ * 3. Environment variables
+ * 4. Default values
+ */
+function loadConfiguration(): SFCCConfig {
+  const { dwJsonPath } = parseCommandLineArgs();
+
+  // 1. Try command line argument first
+  if (dwJsonPath) {
+    const resolvedPath = resolve(dwJsonPath);
+
+    if (!existsSync(resolvedPath)) {
+      console.error(`Error: dw.json file not found at: ${resolvedPath}`);
+      process.exit(1);
+    }
+
+    console.log(`Loading configuration from: ${resolvedPath}`);
+    return loadDwJsonConfig(resolvedPath);
+  }
+
+  // 2. Try ./dw.json in current directory
+  const defaultDwJsonPath = "./dw.json";
+  if (existsSync(defaultDwJsonPath)) {
+    console.log(`Loading configuration from: ${resolve(defaultDwJsonPath)}`);
+    return loadDwJsonConfig(defaultDwJsonPath);
+  }
+
+  // 3. Fall back to environment variables
+  console.log("Loading configuration from environment variables");
+  const config: SFCCConfig = {
+    hostname: process.env.SFCC_HOSTNAME || "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+    clientId: process.env.SFCC_CLIENT_ID || "",
+    clientSecret: process.env.SFCC_CLIENT_SECRET || "",
+    username: process.env.SFCC_USERNAME || "",
+    password: process.env.SFCC_PASSWORD || "",
+    siteId: process.env.SFCC_SITE_ID || "RefArch",
+  };
+
+  return config;
+}
+
+async function main() {
   try {
-    // Priority: dw.json file takes precedence over individual options
-    if (options.dwJson) {
-      config = loadDwJsonConfig(options.dwJson);
-      console.error(`✅ Loaded configuration from: ${resolve(options.dwJson)}`);
-    } else {
-      // Fall back to individual command-line options
-      if (!options.hostname) {
-        console.error("❌ Error: Either --dw-json or --hostname is required");
-        process.exit(1);
-      }
+    // Load configuration from dw.json or environment variables
+    const config = loadConfiguration();
 
-      config = {
-        hostname: options.hostname,
-        username: options.username,
-        password: options.password,
-        apiKey: options.apiKey,
-        apiSecret: options.apiSecret,
-      };
+    console.log(config);
 
-      // Validate the manually provided configuration
-      validateConfig(config);
-      console.error("✅ Configuration loaded from command-line options");
+    // Validate that we have the minimum required configuration
+    if (!config.hostname) {
+      console.error("Error: SFCC hostname is required. Please provide it via:");
+      console.error("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
+      console.error("  2. Environment variable: SFCC_HOSTNAME=your-instance.com npm start");
+      process.exit(1);
+    }
+
+    if (!config.username && !config.clientId) {
+      console.error("Error: Authentication credentials are required. Please provide either:");
+      console.error("  1. Username/password in dw.json or via SFCC_USERNAME/SFCC_PASSWORD");
+      console.error("  2. Client ID/secret via SFCC_CLIENT_ID/SFCC_CLIENT_SECRET");
+      process.exit(1);
     }
 
     // Initialize and start the MCP server
-    const server = new SFCCLogsServer(config);
-    await server.run();
+    const server = new SFCCDevServer(config);
 
+    console.log("Starting SFCC Development MCP Server...");
+    console.log(`Connected to: ${config.hostname}`);
+    console.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
+
+    await server.run();
   } catch (error) {
-    console.error(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
+    console.error("Failed to start SFCC Development MCP server:", error);
     process.exit(1);
   }
 }
 
-// Always run main() when this module is imported (since it's only imported by index.js for execution)
-console.error("🚀 Starting SFCC MCP Server...");
-main().catch((error) => {
-  console.error("❌ Unexpected error:", error);
-  process.exit(1);
+// Handle graceful shutdown
+process.on("SIGINT", () => {
+  console.error("Received SIGINT, shutting down gracefully...");
+  process.exit(0);
 });
+
+process.on("SIGTERM", () => {
+  console.error("Received SIGTERM, shutting down gracefully...");
+  process.exit(0);
+});
+
+main();

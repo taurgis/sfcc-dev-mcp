@@ -14,6 +14,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { SFCCConfig, LogLevel } from "./types.js";
 import { SFCCLogClient } from "./log-client.js";
+import { SFCCDocumentationClient } from "./docs-client.js";
 
 /**
  * MCP Server implementation for SFCC development assistance
@@ -21,20 +22,22 @@ import { SFCCLogClient } from "./log-client.js";
  * This class sets up the MCP server, defines available tools, and handles
  * requests from MCP clients (like AI assistants) to interact with SFCC development features.
  */
-export class SFCCLogsServer {
+export class SFCCDevServer {
   private server: Server;
   private logClient: SFCCLogClient;
+  private docsClient: SFCCDocumentationClient;
 
   /**
-   * Initialize the SFCC Logs MCP Server
+   * Initialize the SFCC Development MCP Server
    *
    * @param config - SFCC configuration for connecting to the logging system
    */
   constructor(config: SFCCConfig) {
     this.logClient = new SFCCLogClient(config);
+    this.docsClient = new SFCCDocumentationClient();
     this.server = new Server(
       {
-        name: "sfcc-logs-server",
+        name: "sfcc-dev-server",
         version: "1.0.0",
       },
       {
@@ -48,139 +51,413 @@ export class SFCCLogsServer {
   }
 
   /**
-   * Set up MCP tool handlers for log operations
-   * Defines all available tools and their request/response handling
-   *
-   * @private
+   * Set up MCP tool handlers for SFCC operations
    */
   private setupToolHandlers(): void {
-    // Define available tools for the MCP client
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
-        {
-          name: "get_latest_errors",
-          description: "Get the latest error messages from SFCC logs",
-          inputSchema: {
-            type: "object",
-            properties: {
-              limit: {
-                type: "number",
-                description: "Number of error entries to return (default: 10)",
-                default: 10,
-              },
-              date: {
-                type: "string",
-                description: "Date in YYYYMMDD format (default: today)",
-              },
-            },
-          },
-        },
-        {
-          name: "get_latest_warnings",
-          description: "Get the latest warning messages from SFCC logs",
-          inputSchema: {
-            type: "object",
-            properties: {
-              limit: {
-                type: "number",
-                description: "Number of warning entries to return (default: 10)",
-                default: 10,
-              },
-              date: {
-                type: "string",
-                description: "Date in YYYYMMDD format (default: today)",
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          // SFCC Log Tools
+          {
+            name: "get_latest_errors",
+            description: "Get the latest error messages from SFCC logs",
+            inputSchema: {
+              type: "object",
+              properties: {
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+                limit: {
+                  type: "number",
+                  description: "Number of error entries to return (default: 10)",
+                  default: 10,
+                },
               },
             },
           },
-        },
-        {
-          name: "get_latest_info",
-          description: "Get the latest info messages from SFCC logs",
-          inputSchema: {
-            type: "object",
-            properties: {
-              limit: {
-                type: "number",
-                description: "Number of info entries to return (default: 10)",
-                default: 10,
-              },
-              date: {
-                type: "string",
-                description: "Date in YYYYMMDD format (default: today)",
-              },
-            },
-          },
-        },
-        {
-          name: "summarize_logs",
-          description: "Summarize the latest logs with error counts and key issues",
-          inputSchema: {
-            type: "object",
-            properties: {
-              date: {
-                type: "string",
-                description: "Date in YYYYMMDD format (default: today)",
+          {
+            name: "get_latest_warnings",
+            description: "Get the latest warning messages from SFCC logs",
+            inputSchema: {
+              type: "object",
+              properties: {
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+                limit: {
+                  type: "number",
+                  description: "Number of warning entries to return (default: 10)",
+                  default: 10,
+                },
               },
             },
           },
-        },
-        {
-          name: "search_logs",
-          description: "Search for specific patterns in the logs",
-          inputSchema: {
-            type: "object",
-            properties: {
-              pattern: {
-                type: "string",
-                description: "Search pattern or keyword",
-              },
-              logLevel: {
-                type: "string",
-                description: "Log level to search in (error, warn, info)",
-                enum: ["error", "warn", "info"],
-              },
-              limit: {
-                type: "number",
-                description: "Number of matching entries to return (default: 20)",
-                default: 20,
-              },
-              date: {
-                type: "string",
-                description: "Date in YYYYMMDD format (default: today)",
+          {
+            name: "get_latest_info",
+            description: "Get the latest info messages from SFCC logs",
+            inputSchema: {
+              type: "object",
+              properties: {
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+                limit: {
+                  type: "number",
+                  description: "Number of info entries to return (default: 10)",
+                  default: 10,
+                },
               },
             },
-            required: ["pattern"],
           },
-        },
-        {
-          name: "list_log_files",
-          description: "List available log files",
-          inputSchema: {
-            type: "object",
-            properties: {},
+          {
+            name: "summarize_logs",
+            description: "Summarize the latest logs with error counts and key issues",
+            inputSchema: {
+              type: "object",
+              properties: {
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+              },
+            },
           },
-        },
-      ],
-    }));
+          {
+            name: "search_logs",
+            description: "Search for specific patterns in the logs",
+            inputSchema: {
+              type: "object",
+              properties: {
+                pattern: {
+                  type: "string",
+                  description: "Search pattern or keyword",
+                },
+                logLevel: {
+                  type: "string",
+                  enum: ["error", "warn", "info"],
+                  description: "Log level to search in",
+                },
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+                limit: {
+                  type: "number",
+                  description: "Number of matching entries to return (default: 20)",
+                  default: 20,
+                },
+              },
+              required: ["pattern"],
+            },
+          },
+          {
+            name: "list_log_files",
+            description: "List available log files",
+            inputSchema: {
+              type: "object",
+              properties: {},
+            },
+          },
+          // SFCC Documentation Tools
+          {
+            name: "get_sfcc_class_info",
+            description: "Get detailed information about an SFCC class including properties, methods, and description",
+            inputSchema: {
+              type: "object",
+              properties: {
+                className: {
+                  type: "string",
+                  description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
+                },
+              },
+              required: ["className"],
+            },
+          },
+          {
+            name: "search_sfcc_classes",
+            description: "Search for SFCC classes by name",
+            inputSchema: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "string",
+                  description: "Search query for class names",
+                },
+              },
+              required: ["query"],
+            },
+          },
+          {
+            name: "get_sfcc_class_methods",
+            description: "Get all methods for a specific SFCC class",
+            inputSchema: {
+              type: "object",
+              properties: {
+                className: {
+                  type: "string",
+                  description: "The SFCC class name",
+                },
+              },
+              required: ["className"],
+            },
+          },
+          {
+            name: "get_sfcc_class_properties",
+            description: "Get all properties for a specific SFCC class",
+            inputSchema: {
+              type: "object",
+              properties: {
+                className: {
+                  type: "string",
+                  description: "The SFCC class name",
+                },
+              },
+              required: ["className"],
+            },
+          },
+          {
+            name: "search_sfcc_methods",
+            description: "Search for methods across all SFCC classes",
+            inputSchema: {
+              type: "object",
+              properties: {
+                methodName: {
+                  type: "string",
+                  description: "Method name to search for",
+                },
+              },
+              required: ["methodName"],
+            },
+          },
+          {
+            name: "list_sfcc_classes",
+            description: "List all available SFCC classes",
+            inputSchema: {
+              type: "object",
+              properties: {},
+            },
+          },
+          {
+            name: "get_sfcc_class_documentation",
+            description: "Get the raw documentation content for an SFCC class",
+            inputSchema: {
+              type: "object",
+              properties: {
+                className: {
+                  type: "string",
+                  description: "The SFCC class name",
+                },
+              },
+              required: ["className"],
+            },
+          },
+        ],
+      };
+    });
 
-    // Handle tool execution requests
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
       try {
         switch (name) {
+          // Log-related tools
           case "get_latest_errors":
-            return await this.handleGetLatestLogs("error", args);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.getLatestLogs("error", (args?.limit as number) || 10, args?.date as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case "get_latest_warnings":
-            return await this.handleGetLatestLogs("warn", args);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.getLatestLogs("warn", (args?.limit as number) || 10, args?.date as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case "get_latest_info":
-            return await this.handleGetLatestLogs("info", args);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.getLatestLogs("info", (args?.limit as number) || 10, args?.date as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case "summarize_logs":
-            return await this.handleSummarizeLogs(args);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.summarizeLogs(args?.date as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case "search_logs":
-            return await this.handleSearchLogs(args);
+            if (!args?.pattern) {
+              throw new Error("Pattern is required for log search");
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.searchLogs(
+                      args.pattern as string,
+                      args.logLevel as LogLevel,
+                      (args.limit as number) || 20,
+                      args.date as string
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case "list_log_files":
-            return await this.handleListLogFiles();
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.logClient.listLogFiles(),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          // Documentation-related tools
+          case "get_sfcc_class_info":
+            if (!args?.className) {
+              throw new Error("className is required");
+            }
+            const classDetails = await this.docsClient.getClassDetails(args.className as string);
+            if (!classDetails) {
+              throw new Error(`Class "${args.className}" not found`);
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(classDetails, null, 2),
+                },
+              ],
+            };
+
+          case "search_sfcc_classes":
+            if (!args?.query) {
+              throw new Error("query is required");
+            }
+            const searchResults = await this.docsClient.searchClasses(args.query as string);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(searchResults, null, 2),
+                },
+              ],
+            };
+
+          case "get_sfcc_class_methods":
+            if (!args?.className) {
+              throw new Error("className is required");
+            }
+            const methods = await this.docsClient.getClassMethods(args.className as string);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(methods, null, 2),
+                },
+              ],
+            };
+
+          case "get_sfcc_class_properties":
+            if (!args?.className) {
+              throw new Error("className is required");
+            }
+            const properties = await this.docsClient.getClassProperties(args.className as string);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(properties, null, 2),
+                },
+              ],
+            };
+
+          case "search_sfcc_methods":
+            if (!args?.methodName) {
+              throw new Error("methodName is required");
+            }
+            const methodResults = await this.docsClient.searchMethods(args.methodName as string);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(methodResults, null, 2),
+                },
+              ],
+            };
+
+          case "list_sfcc_classes":
+            const allClasses = await this.docsClient.getAvailableClasses();
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(allClasses, null, 2),
+                },
+              ],
+            };
+
+          case "get_sfcc_class_documentation":
+            if (!args?.className) {
+              throw new Error("className is required");
+            }
+            const documentation = await this.docsClient.getClassDocumentation(args.className as string);
+            if (!documentation) {
+              throw new Error(`Documentation for class "${args.className}" not found`);
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: documentation,
+                },
+              ],
+            };
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -192,110 +469,18 @@ export class SFCCLogsServer {
               text: `Error: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
+          isError: true,
         };
       }
     });
   }
 
   /**
-   * Handle requests for latest logs of a specific level
-   *
-   * @param level - Log level to fetch
-   * @param args - Request arguments containing limit and date
-   * @returns MCP response with log content
-   * @private
-   */
-  private async handleGetLatestLogs(level: LogLevel, args: any) {
-    const limit = args?.limit || 10;
-    const date = args?.date;
-    const result = await this.logClient.getLatestLogs(level, limit, date);
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: result,
-        },
-      ],
-    };
-  }
-
-  /**
-   * Handle log summarization requests
-   *
-   * @param args - Request arguments containing date
-   * @returns MCP response with log summary
-   * @private
-   */
-  private async handleSummarizeLogs(args: any) {
-    const date = args?.date;
-    const result = await this.logClient.summarizeLogs(date);
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: result,
-        },
-      ],
-    };
-  }
-
-  /**
-   * Handle log search requests
-   *
-   * @param args - Request arguments containing pattern, logLevel, limit, and date
-   * @returns MCP response with search results
-   * @private
-   */
-  private async handleSearchLogs(args: any) {
-    const pattern = args?.pattern;
-    const logLevel = args?.logLevel as LogLevel | undefined;
-    const limit = args?.limit || 20;
-    const date = args?.date;
-
-    if (!pattern) {
-      throw new Error("Search pattern is required");
-    }
-
-    const result = await this.logClient.searchLogs(pattern, logLevel, limit, date);
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: result,
-        },
-      ],
-    };
-  }
-
-  /**
-   * Handle log file listing requests
-   *
-   * @returns MCP response with log file list
-   * @private
-   */
-  private async handleListLogFiles() {
-    const result = await this.logClient.listLogFiles();
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: result,
-        },
-      ],
-    };
-  }
-
-  /**
    * Start the MCP server
-   * Connects to stdio transport and begins handling requests
    */
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error("SFCC Logs MCP server running on stdio");
+    console.error("SFCC Development MCP server running on stdio");
   }
 }

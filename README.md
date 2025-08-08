@@ -1,8 +1,17 @@
 # SFCC Development MCP Server
 
-An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and more.
+An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and **SFCC documentation querying**.
 
 ## Features
+
+### SFCC Documentation Querying
+- **Get Class Information**: Retrieve detailed information about any SFCC class including properties, methods, and descriptions
+- **Search Classes**: Find SFCC classes by name with partial matching
+- **Get Class Methods**: List all methods for a specific SFCC class with signatures
+- **Get Class Properties**: List all properties for a specific SFCC class with types and modifiers
+- **Search Methods**: Find methods across all SFCC classes by name
+- **List All Classes**: Get a complete list of available SFCC classes
+- **Get Raw Documentation**: Access the complete Markdown documentation for any class
 
 ### Log Analysis & Monitoring
 - **Get Latest Errors**: Retrieve the most recent error messages from SFCC logs
@@ -12,14 +21,6 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 - **Search Logs**: Search for specific patterns across log files
 - **List Log Files**: View available log files with metadata
 
-### Future Development Features
-This server is designed to be extensible and will support additional SFCC development assistance features such as:
-- Code analysis and suggestions
-- Cartridge dependency management
-- Business Manager configuration assistance
-- Performance optimization recommendations
-- And more...
-
 ## Installation
 
 1. Clone this repository
@@ -27,287 +28,197 @@ This server is designed to be extensible and will support additional SFCC develo
    ```bash
    npm install
    ```
-3. Build the project:
+3. Build the TypeScript code:
    ```bash
    npm run build
    ```
 
-## Configuration with AI Assistants
+## Configuration
 
-### GitHub Copilot Configuration
+### Using dw.json (Recommended)
 
-To use this MCP server with GitHub Copilot, add it to your MCP settings:
-
-1. Open your GitHub Copilot settings
-2. Navigate to the MCP servers configuration
-3. Add a new server entry:
+The server supports the standard SFCC `dw.json` configuration format used by Commerce Cloud development tools. Create a `dw.json` file in your project root:
 
 ```json
 {
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "node",
-      "args": [
-        "/path/to/sfcc-dev-mcp/dist/index.js",
-        "--hostname", "your-instance.dx.commercecloud.salesforce.com",
-        "--username", "your-username",
-        "--password", "your-password"
-      ],
-      "env": {}
-    }
-  }
+  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "your-username",
+  "password": "your-password",
+  "client-id": "your-client-id",
+  "client-secret": "your-client-secret",
+  "code-version": "version1"
 }
 ```
 
-For OAuth authentication, use:
-```json
-{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "node",
-      "args": [
-        "/path/to/sfcc-dev-mcp/dist/index.js",
-        "--hostname", "your-instance.dx.commercecloud.salesforce.com",
-        "--api-key", "your-api-key",
-        "--api-secret", "your-api-secret"
-      ],
-      "env": {}
-    }
-  }
-}
-```
+**Required fields:**
+- `hostname`: Your SFCC instance hostname
+- `username`: Your SFCC username
+- `password`: Your SFCC password
 
-### Claude Desktop Configuration
+**Optional fields:**
+- `client-id`: OAuth client ID (for API access)
+- `client-secret`: OAuth client secret (for API access)
+- `code-version`: Code version to use
 
-To use this MCP server with Claude Desktop, edit your `claude_desktop_config.json` file:
+### Using Environment Variables
 
-**Location:**
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+Alternatively, you can configure the server using environment variables:
 
-**Configuration with Basic Auth:**
-```json
-{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
-        "--hostname", "your-instance.dx.commercecloud.salesforce.com",
-        "--username", "your-username",
-        "--password", "your-password"
-      ]
-    }
-  }
-}
-```
-
-**Configuration with OAuth:**
-```json
-{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
-        "--hostname", "your-instance.dx.commercecloud.salesforce.com",
-        "--api-key", "your-api-key",
-        "--api-secret", "your-api-secret"
-      ]
-    }
-  }
-}
-```
-
-**Important Notes:**
-- Use absolute paths in the configuration
-- Replace `your-instance.dx.commercecloud.salesforce.com` with your actual SFCC hostname
-- Replace credentials with your actual SFCC credentials
-- Restart Claude Desktop after making configuration changes
-
-### Environment Variables (Recommended)
-
-For better security, you can use environment variables for credentials:
-
-1. Create a `.env` file in your project directory:
 ```bash
-SFCC_HOSTNAME=your-instance.dx.commercecloud.salesforce.com
-SFCC_USERNAME=your-username
-SFCC_PASSWORD=your-password
-# OR for OAuth:
-# SFCC_API_KEY=your-api-key
-# SFCC_API_SECRET=your-api-secret
-```
-
-2. Modify your configuration to use environment variables:
-```json
-{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/sfcc-dev-mcp/dist/index.js",
-        "--hostname", "${SFCC_HOSTNAME}",
-        "--username", "${SFCC_USERNAME}",
-        "--password", "${SFCC_PASSWORD}"
-      ],
-      "env": {
-        "SFCC_HOSTNAME": "your-instance.dx.commercecloud.salesforce.com",
-        "SFCC_USERNAME": "your-username",
-        "SFCC_PASSWORD": "your-password"
-      }
-    }
-  }
-}
+export SFCC_HOSTNAME="your-instance.sandbox.us01.dx.commercecloud.salesforce.com"
+export SFCC_USERNAME="your-username"
+export SFCC_PASSWORD="your-password"
+export SFCC_CLIENT_ID="your-client-id"
+export SFCC_CLIENT_SECRET="your-client-secret"
+export SFCC_SITE_ID="RefArch"
 ```
 
 ## Usage
 
-### Using dw.json Configuration (Recommended)
-
-The easiest way to configure the server is using an existing `dw.json` file from your SFCC project:
+### Starting the Server
 
 ```bash
-node dist/index.js --dw-json ./dw.json
+# Using npm
+npm start
+
+# Or directly with node
+node build/main.js
 ```
 
-**Example dw.json file:**
+### MCP Client Configuration
+
+Add this server to your MCP client configuration. For example, in Claude Desktop's config:
+
 ```json
 {
-    "hostname": "zzxx-006.sandbox.us03.dx.commercecloud.salesforce.com",
-    "username": "user@forward.eu",
-    "password": "your-password",
-    "code-version": "SFRA_AP_01_24_2024",
-    "client-id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "client-secret": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "node",
+      "args": ["/path/to/sfcc-dev-mcp/build/main.js"],
+      "cwd": "/path/to/sfcc-dev-mcp"
+    }
+  }
 }
 ```
 
-**Required fields in dw.json:**
-- `hostname`: Your SFCC instance hostname
-- `username`: Your SFCC username  
-- `password`: Your SFCC password
+## Available Tools
 
-**Optional fields:**
-- `client-id` and `client-secret`: If present, these will be used as API credentials for OAuth authentication
-- `code-version`: Not used by the MCP server but commonly present in SFCC projects
+### SFCC Documentation Tools
 
-### Manual Configuration
+1. **`get_sfcc_class_info`** - Get comprehensive information about an SFCC class
+   ```json
+   {
+     "className": "Catalog"
+   }
+   ```
 
-Alternatively, you can specify credentials directly via command-line arguments:
+2. **`search_sfcc_classes`** - Search for classes by name
+   ```json
+   {
+     "query": "product"
+   }
+   ```
 
-### Basic Authentication
-```bash
-node dist/index.js --hostname your-instance.dx.commercecloud.salesforce.com --username your-username --password your-password
-```
+3. **`get_sfcc_class_methods`** - Get all methods for a class
+   ```json
+   {
+     "className": "dw.catalog.Product"
+   }
+   ```
 
-### OAuth Authentication (API Key/Secret)
-```bash
-node dist/index.js --hostname your-instance.dx.commercecloud.salesforce.com --api-key your-api-key --api-secret your-api-secret
-```
+4. **`get_sfcc_class_properties`** - Get all properties for a class
+   ```json
+   {
+     "className": "dw.catalog.Catalog"
+   }
+   ```
 
-### Development Mode
-```bash
-npm run dev -- --dw-json ./dw.json
-```
+5. **`search_sfcc_methods`** - Find methods across all classes
+   ```json
+   {
+     "methodName": "getPrice"
+   }
+   ```
 
-**Note:** When using `--dw-json`, it takes precedence over individual command-line options.
+6. **`list_sfcc_classes`** - List all available SFCC classes
 
-## Configuration
-
-The server requires the following parameters:
-
-- `--hostname`: Your SFCC instance hostname (e.g., `zziu-006.dx.commercecloud.salesforce.com`)
-- Authentication (choose one):
-  - `--username` and `--password`: For basic authentication
-  - `--api-key` and `--api-secret`: For OAuth authentication
-
-## MCP Tools
+7. **`get_sfcc_class_documentation`** - Get raw documentation
+   ```json
+   {
+     "className": "dw.catalog.Product"
+   }
+   ```
 
 ### Log Analysis Tools
 
-### get_latest_errors
-Get the latest error messages from SFCC logs.
+1. **`get_latest_errors`** - Get recent error messages
+2. **`get_latest_warnings`** - Get recent warning messages  
+3. **`get_latest_info`** - Get recent info messages
+4. **`summarize_logs`** - Get log summary with counts
+5. **`search_logs`** - Search for patterns in logs
+6. **`list_log_files`** - List available log files
 
-**Parameters:**
-- `limit` (number, optional): Number of entries to return (default: 10)
-- `date` (string, optional): Date in YYYYMMDD format (default: today)
+## Example AI Assistant Interactions
 
-### get_latest_warnings
-Get the latest warning messages from SFCC logs.
+With this MCP server, AI assistants can now answer questions like:
 
-**Parameters:**
-- `limit` (number, optional): Number of entries to return (default: 10)
-- `date` (string, optional): Date in YYYYMMDD format (default: today)
+**"How does the Catalog class work in SFCC?"**
+- The assistant queries `get_sfcc_class_info` for the Catalog class
+- Gets back structured information about properties (description, displayName, ID, root) and methods (getDescription, getDisplayName, etc.)
+- Provides a comprehensive explanation of the class functionality
 
-### get_latest_info
-Get the latest info messages from SFCC logs.
+**"Find all classes related to products"**
+- The assistant uses `search_sfcc_classes` with query "product"
+- Returns classes like `dw.catalog.Product`, `dw.catalog.ProductMgr`, `dw.catalog.ProductOption`, etc.
 
-**Parameters:**
-- `limit` (number, optional): Number of entries to return (default: 10)
-- `date` (string, optional): Date in YYYYMMDD format (default: today)
+**"What methods are available for managing customers?"**
+- The assistant calls `search_sfcc_methods` with "customer"
+- Gets back customer-related methods from multiple classes across the SFCC API
 
-### summarize_logs
-Provide a summary of log activity including error counts and key issues.
+## Documentation Coverage
 
-**Parameters:**
-- `date` (string, optional): Date in YYYYMMDD format (default: today)
+The server includes comprehensive documentation for all SFCC packages:
+- `dw.campaign` - Campaign and promotion management
+- `dw.catalog` - Product and catalog management
+- `dw.content` - Content management
+- `dw.customer` - Customer management
+- `dw.order` - Order processing
+- `dw.system` - System utilities
+- `dw.web` - Web framework
+- And many more...
 
-### search_logs
-Search for specific patterns in the logs.
+## Security Notes
 
-**Parameters:**
-- `pattern` (string, required): Search pattern or keyword
-- `logLevel` (string, optional): Log level to search in (error, warn, info)
-- `limit` (number, optional): Number of matching entries to return (default: 20)
-- `date` (string, optional): Date in YYYYMMDD format (default: today)
-
-### list_log_files
-List all available log files with metadata.
-
-**Parameters:** None
-
-## Log File Format
-
-The server expects SFCC log files in the standard format:
-- Filename pattern: `{level}-{pod}-{server}-{date}.log`
-- Example: `error-odspod-0-appserver-20250807.log`
-
-Log entries are parsed based on the GMT timestamp and log level format:
-```
-[2025-08-07 07:23:30.552 GMT] ERROR main system.core - - - - 1084480730520973312 - Error message here
-```
-
-## WebDAV Access
-
-The server connects to the SFCC WebDAV endpoint for various development features:
-```
-https://{hostname}/on/demandware.servlet/webdav/Sites/
-```
-
-Ensure your credentials have appropriate permissions to access the required directories.
-
-## Troubleshooting
-
-1. **Authentication Errors**: Verify your credentials and ensure they have WebDAV access permissions
-2. **Connection Issues**: Check the hostname format and network connectivity
-3. **No Data Found**: Ensure the date format is correct and data exists for the specified date
-4. **Permission Denied**: Verify your user account has access to the required WebDAV directories
+- Store your `dw.json` file securely and never commit it to version control
+- Add `dw.json` to your `.gitignore` file
+- Use environment variables in production environments
+- Ensure your SFCC credentials have appropriate permissions
 
 ## Development
 
-To modify or extend the server:
+### Building from Source
 
-1. Edit the TypeScript source files in the `src/` directory
-2. Build with `npm run build`
-3. Test with `npm run dev`
+```bash
+npm run build
+```
 
-The server is designed to be modular and extensible. New SFCC development features can be easily added by:
-- Adding new tool definitions in `server.ts`
-- Implementing the corresponding functionality
-- Following the established patterns for authentication and WebDAV access
+### Running Tests
 
-## License
+```bash
+npm test
+```
 
-ISC
+### Documentation Generation
+
+The SFCC documentation is automatically converted from the official SFCC documentation using the included scraping script:
+
+```bash
+# Convert SFCC documentation (with rate limiting)
+node scripts/convert-docs.js
+
+# Test mode (limited conversion)
+node scripts/convert-docs.js --test
+
+# Conservative rate limiting
+node scripts/convert-docs.js --slow
+```

@@ -7,7 +7,7 @@
 
 /**
  * Configuration interface for SFCC connection
- * Supports both basic authentication (username/password) and OAuth (apiKey/apiSecret)
+ * Supports both basic authentication (username/password) and OAuth (clientId/clientSecret)
  */
 export interface SFCCConfig {
   /** SFCC hostname (e.g., zziu-006.dx.commercecloud.salesforce.com) */
@@ -16,10 +16,16 @@ export interface SFCCConfig {
   username?: string;
   /** Password for basic authentication (optional if using OAuth) */
   password?: string;
-  /** API key for OAuth authentication (optional if using basic auth) */
+  /** Client ID for OAuth authentication (optional if using basic auth) */
+  clientId?: string;
+  /** Client secret for OAuth authentication (optional if using basic auth) */
+  clientSecret?: string;
+  /** API key for OAuth authentication (alternative to clientId) */
   apiKey?: string;
-  /** API secret for OAuth authentication (optional if using basic auth) */
+  /** API secret for OAuth authentication (alternative to clientSecret) */
   apiSecret?: string;
+  /** Site ID for SFCC instance */
+  siteId?: string;
 }
 
 /**
