@@ -103,14 +103,26 @@ async function main() {
     const { debug } = parseCommandLineArgs();
 
     // Create a new logger with debug setting from command line
-    const mainLogger = new Logger('SFCC-MCP-Server', true, debug || false);
+    const mainLogger = new Logger('SFCC-MCP-Server', true, debug ?? false);
 
     // Load configuration from dw.json or environment variables
     const config = loadConfiguration();
 
-    mainLogger.log("Configuration loaded:", config);
-    if (debug !== undefined) {
-      mainLogger.log(`Debug logging: ${debug ? 'enabled' : 'disabled'}`);
+    // Create a safe version of config for logging (mask sensitive data)
+    const safeConfig = {
+      hostname: config.hostname,
+      username: config.username ? '***masked***' : '',
+      password: config.password ? '***masked***' : '',
+      clientId: config.clientId ? '***masked***' : '',
+      clientSecret: config.clientSecret ? '***masked***' : '',
+      apiKey: config.apiKey ? '***masked***' : '',
+      apiSecret: config.apiSecret ? '***masked***' : '',
+      siteId: config.siteId,
+    };
+
+    mainLogger.log("Configuration loaded successfully");
+    if (debug) {
+      mainLogger.debug("Configuration details:", JSON.stringify(safeConfig, null, 2));
     }
 
     // Validate that we have the minimum required configuration

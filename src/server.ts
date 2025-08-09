@@ -636,7 +636,7 @@ export class SFCCDevServer {
           contentType: result.content?.[0]?.type,
           contentLength: result.content?.[0]?.text?.length || 0,
           responsePreview: result.content?.[0]?.text?.substring(0, 200) + (result.content?.[0]?.text?.length > 200 ? '...' : ''),
-          fullResponse: JSON.stringify(result.content?.[0]?.text),
+          fullResponse: result.content?.[0]?.text,
         });
 
         return result;
