@@ -16,6 +16,7 @@ import { SFCCConfig, LogLevel } from "./types.js";
 import { SFCCLogClient } from "./log-client.js";
 import { SFCCDocumentationClient } from "./docs-client.js";
 import { SFCCBestPracticesClient } from "./best-practices-client.js";
+import { Logger } from "./logger.js";
 
 /**
  * MCP Server implementation for SFCC development assistance
@@ -28,6 +29,7 @@ export class SFCCDevServer {
   private logClient: SFCCLogClient;
   private docsClient: SFCCDocumentationClient;
   private bestPracticesClient: SFCCBestPracticesClient;
+  private logger: Logger;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -38,6 +40,7 @@ export class SFCCDevServer {
     this.logClient = new SFCCLogClient(config);
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
+    this.logger = new Logger("Server");
     this.server = new Server(
       {
         name: "sfcc-dev-server",
@@ -609,6 +612,6 @@ export class SFCCDevServer {
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.log("SFCC Development MCP server running on stdio");
+    this.logger.log("SFCC Development MCP server running on stdio");
   }
 }

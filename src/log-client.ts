@@ -15,6 +15,10 @@ import {
   extractUniqueErrors,
   normalizeFilePath
 } from "./utils.js";
+import { Logger } from "./logger.js";
+
+// Create a logger instance for this module
+const logger = new Logger("LogClient");
 
 /**
  * Client for accessing SFCC logs via WebDAV
@@ -162,7 +166,7 @@ export class SFCCLogClient {
           summary.keyIssues.push(...uniqueErrors);
         }
       } catch (error) {
-        console.error(`Error reading file ${file}:`, error);
+        logger.error(`Error reading file ${file}:`, error);
       }
     }
 
@@ -206,7 +210,7 @@ export class SFCCLogClient {
           }
         }
       } catch (error) {
-        console.error(`Error searching file ${file}:`, error);
+        logger.error(`Error searching file ${file}:`, error);
       }
     }
 

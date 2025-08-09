@@ -10,6 +10,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { CacheManager } from './cache.js';
+import { Logger } from './logger.js';
+
+// Create a logger instance for this module
+const logger = new Logger('DocsClient');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,7 +108,7 @@ export class SFCCDocumentationClient {
           }
         }
       } catch (error) {
-        console.warn(`Warning: Could not read package ${packageName}: ${error}`);
+        logger.warn(`Warning: Could not read package ${packageName}: ${error}`);
       }
     }
   }
@@ -455,7 +459,7 @@ export class SFCCDocumentationClient {
         }
       } catch (error) {
         // Silently skip types that can't be found
-        console.warn(`Could not find details for referenced type: ${typeName}`);
+        logger.warn(`Could not find details for referenced type: ${typeName}`);
       }
     }
 
