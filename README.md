@@ -82,7 +82,7 @@ export SFCC_SITE_ID="RefArch"
 npm start
 
 # Or directly with node
-node build/main.js
+node dist/main.js
 ```
 
 ### MCP Client Configuration
@@ -94,8 +94,7 @@ Add this server to your MCP client configuration. For example, in Claude Desktop
   "mcpServers": {
     "sfcc-dev": {
       "command": "node",
-      "args": ["/path/to/sfcc-dev-mcp/build/main.js"],
-      "cwd": "/path/to/sfcc-dev-mcp"
+      "args": ["/path/to/sfcc-dev-mcp/dist/main.js"]
     }
   }
 }

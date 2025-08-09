@@ -135,7 +135,10 @@ export class SFCCDocumentationClient {
       .filter(className =>
         className.toLowerCase().includes(lowercaseQuery)
       )
-      .sort();
+      .sort()
+        // Return the official . notation for class names (e.g., dw.content.ContentMgr)
+      .map(className => className.replace(/_/g, '.'))
+    ;
 
     // Cache the results
     this.cacheManager.setSearchResults(cacheKey, results);
