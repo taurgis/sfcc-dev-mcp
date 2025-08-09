@@ -315,6 +315,10 @@ You can configure the MCP client to use npx, which automatically handles package
 
 With this MCP server, AI assistants can now answer questions like:
 
+**"Create a new cartridge called "plugin_example" with a controller and ISML template"**
+- The assistant uses `get_best_practice_guide` to retrieve the best practices for cartridge creation.
+- It then generates the necessary files and directories based on the best practices, including a controller and ISML template.
+
 **"How does the Catalog class work in SFCC?"**
 - The assistant queries `get_sfcc_class_info` for the Catalog class
 - Gets back structured information about properties (description, displayName, ID, root) and methods (getDescription, getDisplayName, etc.)

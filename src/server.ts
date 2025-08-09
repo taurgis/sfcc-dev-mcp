@@ -265,7 +265,7 @@ export class SFCCDevServer {
           // SFCC Best Practices Tools
           {
             name: "get_available_best_practice_guides",
-            description: "Get a list of all available SFCC best practice and how to guides including OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
+            description: "Get a list of all available SFCC best practice and how to guides including Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
             inputSchema: {
               type: "object",
               properties: {},
@@ -273,14 +273,14 @@ export class SFCCDevServer {
           },
           {
             name: "get_best_practice_guide",
-            description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
+            description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
             inputSchema: {
               type: "object",
               properties: {
                 guideName: {
                   type: "string",
-                  description: "The guide name (e.g., 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
-                  enum: ["ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
+                  description: "The guide name (e.g., 'cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
+                  enum: ["cartridge_creation", "ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
                 },
               },
               required: ["guideName"],
