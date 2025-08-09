@@ -4,6 +4,12 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 
 ## Features
 
+### SFCC Best Practices Guides
+- **Get Available Guides**: List all available SFCC best practice guides covering OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
+- **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas
+- **Search Best Practices**: Search across all best practice guides for specific terms, concepts, or patterns
+- **Get Hook Reference**: Access detailed hook reference tables for OCAPI and SCAPI hooks with endpoints and extension points
+
 ### SFCC Documentation Querying
 - **Get Class Information**: Retrieve detailed information about any SFCC class including properties, methods, and descriptions
 - **Search Classes**: Find SFCC classes by name with partial matching
@@ -148,6 +154,34 @@ Add this server to your MCP client configuration. For example, in Claude Desktop
    }
    ```
 
+### SFCC Best Practices Tools
+
+1. **`get_available_best_practice_guides`** - List all available best practice guides
+   ```json
+   {}
+   ```
+
+2. **`get_best_practice_guide`** - Get a complete best practice guide
+   ```json
+   {
+     "guideName": "sfra_controllers"
+   }
+   ```
+
+3. **`search_best_practices`** - Search across all best practice guides
+   ```json
+   {
+     "query": "validation"
+   }
+   ```
+
+4. **`get_hook_reference`** - Get hook reference tables for OCAPI/SCAPI
+   ```json
+   {
+     "guideName": "ocapi_hooks"
+   }
+   ```
+
 ### Log Analysis Tools
 
 1. **`get_latest_errors`** - Get recent error messages
@@ -173,6 +207,29 @@ With this MCP server, AI assistants can now answer questions like:
 **"What methods are available for managing customers?"**
 - The assistant calls `search_sfcc_methods` with "customer"
 - Gets back customer-related methods from multiple classes across the SFCC API
+
+**"How do I implement SFRA controller extensions properly?"**
+- The assistant uses `get_best_practice_guide` with "sfra_controllers"
+- Returns comprehensive best practices including server.append(), server.prepend(), and server.replace() patterns
+- Provides code examples and architectural guidance for SFRA development
+
+**"What are the security best practices for OCAPI hooks?"**
+- The assistant calls `search_best_practices` with query "security"
+- Finds security-related content across all best practice guides
+- Returns specific guidance on input validation, authorization, and data integrity
+
+**"Show me all available SCAPI hook extension points"**
+- The assistant uses `get_hook_reference` with "scapi_hooks"
+- Returns comprehensive tables of all SCAPI hook endpoints and their available extension points
+- Provides structured reference for implementing custom hook logic
+
+## Best Practices Coverage
+
+The server includes comprehensive best practices guides for all major SFCC development areas:
+- **OCAPI Hooks** - Legacy API extension patterns and implementation guidance
+- **SCAPI Hooks** - Modern API hooks with transactional integrity and performance considerations
+- **SFRA Controllers** - Storefront controller patterns, middleware chains, and extension strategies
+- **Custom SCAPI Endpoints** - Three-pillar architecture for building new API endpoints
 
 ## Documentation Coverage
 

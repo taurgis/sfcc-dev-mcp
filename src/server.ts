@@ -15,6 +15,7 @@ import {
 import { SFCCConfig, LogLevel } from "./types.js";
 import { SFCCLogClient } from "./log-client.js";
 import { SFCCDocumentationClient } from "./docs-client.js";
+import { SFCCBestPracticesClient } from "./best-practices-client.js";
 
 /**
  * MCP Server implementation for SFCC development assistance
@@ -26,6 +27,7 @@ export class SFCCDevServer {
   private server: Server;
   private logClient: SFCCLogClient;
   private docsClient: SFCCDocumentationClient;
+  private bestPracticesClient: SFCCBestPracticesClient;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -35,6 +37,7 @@ export class SFCCDevServer {
   constructor(config: SFCCConfig) {
     this.logClient = new SFCCLogClient(config);
     this.docsClient = new SFCCDocumentationClient();
+    this.bestPracticesClient = new SFCCBestPracticesClient();
     this.server = new Server(
       {
         name: "sfcc-dev-server",
@@ -259,6 +262,59 @@ export class SFCCDevServer {
               required: ["className"],
             },
           },
+          // SFCC Best Practices Tools
+          {
+            name: "get_available_best_practice_guides",
+            description: "Get a list of all available SFCC best practice guides including OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
+            inputSchema: {
+              type: "object",
+              properties: {},
+            },
+          },
+          {
+            name: "get_best_practice_guide",
+            description: "Get a complete best practice guide with all sections and content. These guides cover specific areas of SFCC development such as OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                guideName: {
+                  type: "string",
+                  description: "The guide name (e.g., 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
+                  enum: ["ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
+                },
+              },
+              required: ["guideName"],
+            },
+          },
+          {
+            name: "search_best_practices",
+            description: "Search across all best practice guides for specific terms or concepts",
+            inputSchema: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "string",
+                  description: "Search term or concept (e.g., 'validation', 'security', 'performance')",
+                },
+              },
+              required: ["query"],
+            },
+          },
+          {
+            name: "get_hook_reference",
+            description: "Get comprehensive hook reference tables for OCAPI or SCAPI hooks including endpoints and extension points",
+            inputSchema: {
+              type: "object",
+              properties: {
+                guideName: {
+                  type: "string",
+                  description: "The hook guide name",
+                  enum: ["ocapi_hooks", "scapi_hooks"],
+                },
+              },
+              required: ["guideName"],
+            },
+          },
         ],
       };
     });
@@ -460,6 +516,72 @@ export class SFCCDevServer {
                 {
                   type: "text",
                   text: documentation,
+                },
+              ],
+            };
+
+          // Best Practices-related tools
+          case "get_available_best_practice_guides":
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.bestPracticesClient.getAvailableGuides(),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case "get_best_practice_guide":
+            if (!args?.guideName) {
+              throw new Error("guideName is required");
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.bestPracticesClient.getBestPracticeGuide(args.guideName as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case "search_best_practices":
+            if (!args?.query) {
+              throw new Error("query is required");
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.bestPracticesClient.searchBestPractices(args.query as string),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case "get_hook_reference":
+            if (!args?.guideName) {
+              throw new Error("guideName is required");
+            }
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(
+                    await this.bestPracticesClient.getHookReference(args.guideName as string),
+                    null,
+                    2
+                  ),
                 },
               ],
             };
