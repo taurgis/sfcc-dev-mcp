@@ -265,7 +265,7 @@ export class SFCCDevServer {
           // SFCC Best Practices Tools
           {
             name: "get_available_best_practice_guides",
-            description: "Get a list of all available SFCC best practice guides including OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
+            description: "Get a list of all available SFCC best practice and how to guides including OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
             inputSchema: {
               type: "object",
               properties: {},
@@ -273,7 +273,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_best_practice_guide",
-            description: "Get a complete best practice guide with all sections and content. These guides cover specific areas of SFCC development such as OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints.",
+            description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
             inputSchema: {
               type: "object",
               properties: {
@@ -288,7 +288,7 @@ export class SFCCDevServer {
           },
           {
             name: "search_best_practices",
-            description: "Search across all best practice guides for specific terms or concepts",
+            description: "Search across all best practice and how to guides for specific terms or concepts",
             inputSchema: {
               type: "object",
               properties: {
