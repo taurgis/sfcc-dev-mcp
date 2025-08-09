@@ -9,6 +9,18 @@ export default {
       useESM: true
     }],
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(webdav|@modelcontextprotocol)/)'
+  ],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^webdav$': '<rootDir>/tests/__mocks__/webdav.js'
+  },
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/main.ts',
