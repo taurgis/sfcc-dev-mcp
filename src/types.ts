@@ -81,3 +81,43 @@ export interface LogSummary {
   /** List of log files analyzed */
   files: string[];
 }
+
+/**
+ * OAuth 2.0 token response from SFCC authorization server
+ */
+export interface OAuthTokenResponse {
+  /** Token expiration time in seconds */
+  expires_in: number;
+  /** Token type (always "Bearer" for SFCC) */
+  token_type: string;
+  /** The actual access token */
+  access_token: string;
+}
+
+/**
+ * OAuth token with expiration tracking
+ */
+export interface OAuthToken {
+  /** The access token */
+  accessToken: string;
+  /** Token type */
+  tokenType: string;
+  /** When the token expires (timestamp) */
+  expiresAt: number;
+}
+
+/**
+ * OCAPI client configuration
+ */
+export interface OCAPIConfig {
+  /** SFCC hostname */
+  hostname: string;
+  /** OAuth client ID */
+  clientId: string;
+  /** OAuth client secret */
+  clientSecret: string;
+  /** Site ID (optional, for shop API) */
+  siteId?: string;
+  /** API version (default: v21_3) */
+  version?: string;
+}

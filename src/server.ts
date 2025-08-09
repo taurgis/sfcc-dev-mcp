@@ -16,6 +16,7 @@ import { SFCCConfig, LogLevel } from "./types.js";
 import { SFCCLogClient } from "./log-client.js";
 import { SFCCDocumentationClient } from "./docs-client.js";
 import { SFCCBestPracticesClient } from "./best-practices-client.js";
+import { OCAPIClient } from "./ocapi-client.js";
 import { Logger } from "./logger.js";
 
 /**
@@ -29,6 +30,7 @@ export class SFCCDevServer {
   private logClient: SFCCLogClient;
   private docsClient: SFCCDocumentationClient;
   private bestPracticesClient: SFCCBestPracticesClient;
+  private ocapiClient: OCAPIClient | null = null;
   private logger: Logger;
 
   /**
@@ -44,6 +46,27 @@ export class SFCCDevServer {
     this.logClient = new SFCCLogClient(config);
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
+
+    // Initialize OCAPI client if OAuth credentials are available
+    if (config.clientId && config.clientSecret) {
+      this.ocapiClient = new OCAPIClient({
+        hostname: config.hostname,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        version: "v23_2" // Use latest version for system object definitions
+      });
+      this.logger.debug("OCAPI client initialized with OAuth credentials");
+    } else if (config.apiKey && config.apiSecret) {
+      this.ocapiClient = new OCAPIClient({
+        hostname: config.hostname,
+        clientId: config.apiKey,
+        clientSecret: config.apiSecret,
+        version: "v23_2"
+      });
+      this.logger.debug("OCAPI client initialized with API key credentials");
+    } else {
+      this.logger.debug("OCAPI client not initialized - OAuth credentials not provided");
+    }
 
     this.server = new Server(
       {
@@ -269,6 +292,129 @@ export class SFCCDevServer {
               },
               required: ["className"],
             },
+          },
+          // SFCC System Object Definition Tools
+          {
+            name: "get_system_object_definitions",
+            description: "Get all system object definitions from SFCC. This returns a list of all system objects with their metadata, useful for discovering what system objects exist and their custom attributes. Requires OAuth credentials.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                start: {
+                  type: "number",
+                  description: "Optional start index for retrieving items from a given index (default: 0)",
+                  default: 0,
+                },
+                count: {
+                  type: "number",
+                  description: "Optional count for retrieving only a subset of items (default: 200)",
+                  default: 200,
+                },
+                select: {
+                  type: "string",
+                  description: "The property selector (e.g., '(**)' for all properties)",
+                },
+              },
+            },
+          },
+          {
+            name: "get_system_object_definition",
+            description: "Get detailed information about a specific SFCC system object definition by object type. This returns comprehensive metadata including all attributes, useful for inspecting custom attributes added to standard SFCC objects like Product, Customer, Order, etc. Requires OAuth credentials.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                objectType: {
+                  type: "string",
+                  description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
+                },
+              },
+              required: ["objectType"],
+            },
+          },
+          {
+            name: "search_system_object_definitions",
+            description: "Search for system object definitions using complex queries. Allows for targeted searches instead of fetching all system objects. Supports text queries, term queries, and sorting on object_type, display_name, description, and read_only fields. Requires OAuth credentials.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "object",
+                  description: "Search query object",
+                  properties: {
+                    text_query: {
+                      type: "object",
+                      description: "Text-based search query",
+                      properties: {
+                        fields: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "Fields to search in: object_type, display_name, description"
+                        },
+                        search_phrase: {
+                          type: "string",
+                          description: "The phrase to search for"
+                        }
+                      },
+                      required: ["fields", "search_phrase"]
+                    },
+                    term_query: {
+                      type: "object",
+                      description: "Term-based search query",
+                      properties: {
+                        fields: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "Fields to search in"
+                        },
+                        operator: {
+                          type: "string",
+                          enum: ["is", "one_of", "not_in"],
+                          description: "Query operator"
+                        },
+                        values: {
+                          type: "array",
+                          description: "Values to search for"
+                        }
+                      },
+                      required: ["fields", "operator", "values"]
+                    }
+                  }
+                },
+                sorts: {
+                  type: "array",
+                  description: "Array of sort specifications",
+                  items: {
+                    type: "object",
+                    properties: {
+                      field: {
+                        type: "string",
+                        description: "Field to sort by: object_type, display_name, description, read_only"
+                      },
+                      sort_order: {
+                        type: "string",
+                        enum: ["asc", "desc"],
+                        description: "Sort order (default: asc)"
+                      }
+                    },
+                    required: ["field"]
+                  }
+                },
+                start: {
+                  type: "number",
+                  description: "Optional start index for pagination (default: 0)",
+                  default: 0
+                },
+                count: {
+                  type: "number",
+                  description: "Optional count for pagination (default: 25)",
+                  default: 25
+                },
+                select: {
+                  type: "string",
+                  description: "The property selector (e.g., '(**)' for all properties)"
+                }
+              }
+            }
           },
           // SFCC Best Practices Tools
           {
@@ -621,6 +767,86 @@ export class SFCCDevServer {
                 {
                   type: "text",
                   text: JSON.stringify(hookResult, null, 2),
+                },
+              ],
+            };
+            break;
+
+          // System Object Definition-related tools
+          case "get_system_object_definitions":
+            if (!this.ocapiClient) {
+              throw new Error("OCAPI client not available. OAuth credentials (clientId and clientSecret) are required for system object definition tools.");
+            }
+            this.logger.debug(`Getting all system object definitions with start: ${args?.start || 0}, count: ${args?.count || 25}, select: ${args?.select || 'default'}`);
+            const allSystemObjects = await this.ocapiClient.getSystemObjectDefinitions({
+              start: args?.start as number,
+              count: args?.count as number,
+              select: args?.select as string
+            });
+            this.logger.timing(`get_system_object_definitions`, startTime);
+            this.logger.debug(`Retrieved ${allSystemObjects.total || allSystemObjects.data?.length || 0} system object definitions`);
+            result = {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(allSystemObjects, null, 2),
+                },
+              ],
+            };
+            break;
+
+          case "get_system_object_definition":
+            if (!this.ocapiClient) {
+              throw new Error("OCAPI client not available. OAuth credentials (clientId and clientSecret) are required for system object definition tools.");
+            }
+            if (!args?.objectType) {
+              throw new Error("objectType is required");
+            }
+            this.logger.debug(`Getting system object definition for: "${args.objectType}"`);
+            const systemObjectDef = await this.ocapiClient.getSystemObjectDefinition(args.objectType as string);
+            this.logger.timing(`get_system_object_definition`, startTime);
+            this.logger.debug(`Retrieved system object definition for "${args.objectType}" with ${systemObjectDef.attribute_definition_count || 0} attributes`);
+            result = {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(systemObjectDef, null, 2),
+                },
+              ],
+            };
+            break;
+
+          case "search_system_object_definitions":
+            if (!this.ocapiClient) {
+              throw new Error("OCAPI client not available. OAuth credentials (clientId and clientSecret) are required for system object definition tools.");
+            }
+            this.logger.debug(`Searching system object definitions with query: ${JSON.stringify(args?.query)}, start: ${args?.start || 0}, count: ${args?.count || 25}`);
+            const searchRequest: any = {};
+
+            if (args?.query) {
+              searchRequest.query = args.query;
+            }
+            if (args?.sorts) {
+              searchRequest.sorts = args.sorts;
+            }
+            if (args?.start !== undefined) {
+              searchRequest.start = args.start;
+            }
+            if (args?.count !== undefined) {
+              searchRequest.count = args.count;
+            }
+            if (args?.select) {
+              searchRequest.select = args.select;
+            }
+
+            const searchSystemObjectsResult = await this.ocapiClient.searchSystemObjectDefinitions(searchRequest);
+            this.logger.timing(`search_system_object_definitions`, startTime);
+            this.logger.debug(`Found ${searchSystemObjectsResult.total || searchSystemObjectsResult.hits?.length || 0} matching system object definitions`);
+            result = {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(searchSystemObjectsResult, null, 2),
                 },
               ],
             };

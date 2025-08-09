@@ -19,6 +19,13 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 - **List All Classes**: Get a complete list of available SFCC classes
 - **Get Raw Documentation**: Access the complete Markdown documentation for any class
 
+### SFCC System Object Definitions
+- **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
+- **Get System Object Definition**: Get detailed information about a specific system object (Product, Customer, Order, etc.) including all attributes
+- **Search System Objects**: Perform targeted searches for system objects using complex queries with text search, filtering, and sorting capabilities
+
+*Note: System object definition tools require OAuth credentials (clientId and clientSecret) and are useful for discovering custom attributes added to standard SFCC objects.*
+
 ### Log Analysis & Monitoring
 - **Get Latest Errors**: Retrieve the most recent error messages from SFCC logs
 - **Get Latest Warnings**: Fetch recent warning messages
@@ -77,6 +84,109 @@ export SFCC_PASSWORD="your-password"
 export SFCC_CLIENT_ID="your-client-id"
 export SFCC_CLIENT_SECRET="your-client-secret"
 export SFCC_SITE_ID="RefArch"
+```
+
+## Data API Configuration
+
+### Business Manager Setup for System Object Definition Tools
+
+To use the system object definition tools (`get_system_object_definitions`, `get_system_object_definition`, `search_system_object_definitions`), you need to configure Data API access in Business Manager:
+
+#### Step 1: Create API Client in Account Manager
+
+1. Log into **Account Manager** (not Business Manager)
+2. Navigate to **API Client** section
+3. Click **Add API Client**
+4. Configure the API client:
+   - **Name**: `SFCC Dev MCP Server` (or any descriptive name)
+   - **Password**: Generate a secure password
+   - **Scopes**: Select **SFCC** scope
+   - **Roles**: Assign appropriate roles for your organization
+
+#### Step 2: Configure Data API Access in Business Manager
+
+1. Log into **Business Manager** for your instance
+2. Navigate to **Administration > Site Development > Open Commerce API Settings**
+3. Click on **Data API** tab
+4. Configure the following settings:
+
+**Client Configuration:**
+```json
+{
+  "_v": "23.2",
+  "clients": [
+    {
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resources": [
+        {
+          "resource_id": "/system_object_definitions",
+          "methods": [
+            "get"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/system_object_definitions/*",
+          "methods": [
+            "get"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/system_object_definition_search",
+          "methods": [
+            "post"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Required Settings:**
+- **Client ID**: Your API client ID (e.g., `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`)
+- **Resource ID**: `/system_object_definitions/*` (allows access to all system object definition endpoints)
+- **Methods**: `get` and `post` (required for retrieving and searching system objects)
+- **Read Attributes**: `(**)` (allows reading all attributes)
+- **Write Attributes**: `(**)` (may be required for some operations)
+
+#### Step 3: Update Your Configuration
+
+Add the client credentials to your `dw.json`:
+
+```json
+{
+  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "your-username",
+  "password": "your-password",
+  "client-id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "client-secret": "your-api-client-password",
+  "code-version": "version1"
+}
+```
+
+#### Troubleshooting Data API Access
+
+**Common Issues:**
+- **403 Forbidden**: Check that your API client has the correct scopes and roles
+- **401 Unauthorized**: Verify your client credentials are correct
+- **Resource not found**: Ensure the resource ID pattern matches `/system_object_definitions/*`
+
+**Testing Your Configuration:**
+You can test your Data API access using the MCP tools:
+```json
+{
+  "tool": "get_system_object_definitions",
+  "parameters": {
+    "count": 5,
+    "select": "(**)"
+  }
+}
 ```
 
 ## Usage
