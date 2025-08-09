@@ -22,6 +22,7 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 ### SFCC System Object Definitions
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
 - **Get System Object Definition**: Get detailed information about a specific system object (Product, Customer, Order, etc.) including all attributes
+- **Get System Object Attribute Definitions**: Get comprehensive attribute definitions for a specific system object type with detailed information about all attributes including custom attributes, their types, constraints, and metadata. This provides more detailed attribute information than the basic system object definition.
 - **Search System Objects**: Perform targeted searches for system objects using complex queries with text search, filtering, and sorting capabilities
 
 *Note: System object definition tools require OAuth credentials (clientId and clientSecret) and are useful for discovering custom attributes added to standard SFCC objects.*
@@ -127,7 +128,7 @@ To use the system object definition tools (`get_system_object_definitions`, `get
           "write_attributes": "(**)"
         },
         {
-          "resource_id": "/system_object_definitions/*",
+          "resource_id": "/system_object_definitions/*/attribute_definitions",
           "methods": [
             "get"
           ],

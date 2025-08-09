@@ -380,6 +380,40 @@ export class OCAPIClient {
   }
 
   /**
+   * Get attribute definitions for a specific system object type
+   * Returns detailed information about all attributes for a system object including custom attributes
+   * This provides more detailed attribute information than the basic system object definition
+   */
+  async getSystemObjectAttributeDefinitions(
+    objectType: string,
+    options?: {
+      start?: number;
+      count?: number;
+      select?: string;
+    }
+  ): Promise<any> {
+    if (!objectType || objectType.trim().length === 0) {
+      throw new Error('Object type is required and cannot be empty');
+    }
+
+    const queryParams = new URLSearchParams();
+    if (options?.start !== undefined) {
+      queryParams.append('start', options.start.toString());
+    }
+    if (options?.count !== undefined) {
+      queryParams.append('count', options.count.toString());
+    }
+    if (options?.select) {
+      queryParams.append('select', options.select);
+    }
+
+    const endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_definitions`;
+    const url = queryParams.toString() ? `${endpoint}?${queryParams.toString()}` : endpoint;
+
+    return this.get(url);
+  }
+
+  /**
    * Get current token expiration for debugging
    */
   getTokenExpiration(): Date | null {

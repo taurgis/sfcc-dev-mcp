@@ -332,89 +332,32 @@ export class SFCCDevServer {
             },
           },
           {
-            name: "search_system_object_definitions",
-            description: "Search for system object definitions using complex queries. Allows for targeted searches instead of fetching all system objects. Supports text queries, term queries, and sorting on object_type, display_name, description, and read_only fields. Requires OAuth credentials.",
+            name: "get_system_object_attribute_definitions",
+            description: "Get detailed attribute definitions for a specific SFCC system object type. This returns comprehensive information about all attributes including custom attributes with their types, constraints, and metadata. This provides more detailed attribute information than the basic system object definition.",
             inputSchema: {
               type: "object",
               properties: {
-                query: {
-                  type: "object",
-                  description: "Search query object",
-                  properties: {
-                    text_query: {
-                      type: "object",
-                      description: "Text-based search query",
-                      properties: {
-                        fields: {
-                          type: "array",
-                          items: { type: "string" },
-                          description: "Fields to search in: object_type, display_name, description"
-                        },
-                        search_phrase: {
-                          type: "string",
-                          description: "The phrase to search for"
-                        }
-                      },
-                      required: ["fields", "search_phrase"]
-                    },
-                    term_query: {
-                      type: "object",
-                      description: "Term-based search query",
-                      properties: {
-                        fields: {
-                          type: "array",
-                          items: { type: "string" },
-                          description: "Fields to search in"
-                        },
-                        operator: {
-                          type: "string",
-                          enum: ["is", "one_of", "not_in"],
-                          description: "Query operator"
-                        },
-                        values: {
-                          type: "array",
-                          description: "Values to search for"
-                        }
-                      },
-                      required: ["fields", "operator", "values"]
-                    }
-                  }
-                },
-                sorts: {
-                  type: "array",
-                  description: "Array of sort specifications",
-                  items: {
-                    type: "object",
-                    properties: {
-                      field: {
-                        type: "string",
-                        description: "Field to sort by: object_type, display_name, description, read_only"
-                      },
-                      sort_order: {
-                        type: "string",
-                        enum: ["asc", "desc"],
-                        description: "Sort order (default: asc)"
-                      }
-                    },
-                    required: ["field"]
-                  }
+                objectType: {
+                  type: "string",
+                  description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
                 },
                 start: {
                   type: "number",
-                  description: "Optional start index for pagination (default: 0)",
-                  default: 0
+                  description: "Optional start index for retrieving items from a given index (default: 0)",
+                  default: 0,
                 },
                 count: {
                   type: "number",
-                  description: "Optional count for pagination (default: 25)",
-                  default: 25
+                  description: "Optional count for retrieving only a subset of items (default: 200)",
+                  default: 200,
                 },
                 select: {
                   type: "string",
-                  description: "The property selector (e.g., '(**)' for all properties)"
-                }
-              }
-            }
+                  description: "The property selector (e.g., '(**)' for all properties)",
+                },
+              },
+              required: ["objectType"],
+            },
           },
           // SFCC Best Practices Tools
           {
@@ -811,6 +754,31 @@ export class SFCCDevServer {
                 {
                   type: "text",
                   text: JSON.stringify(systemObjectDef, null, 2),
+                },
+              ],
+            };
+            break;
+
+          case "get_system_object_attribute_definitions":
+            if (!this.ocapiClient) {
+              throw new Error("OCAPI client not available. OAuth credentials (clientId and clientSecret) are required for system object definition tools.");
+            }
+            if (!args?.objectType) {
+              throw new Error("objectType is required");
+            }
+            this.logger.debug(`Getting system object attribute definitions for: "${args.objectType}"`);
+            const attributeDefsResult = await this.ocapiClient.getSystemObjectAttributeDefinitions(args.objectType as string, {
+              start: args?.start as number,
+              count: args?.count as number,
+              select: args?.select as string
+            });
+            this.logger.timing(`get_system_object_attribute_definitions`, startTime);
+            this.logger.debug(`Retrieved ${attributeDefsResult.length} attribute definitions for object type "${args.objectType}"`);
+            result = {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(attributeDefsResult, null, 2),
                 },
               ],
             };
