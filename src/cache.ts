@@ -39,7 +39,12 @@ export class InMemoryCache<T> {
   set(key: string, value: T): void {
     const now = Date.now();
 
-    // If at max capacity, remove LRU item
+    // Handle zero max size - don't store anything
+    if (this.maxSize === 0) {
+      return;
+    }
+
+    // If at max capacity and adding a new key, remove LRU item first
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       this.evictLRU();
     }
