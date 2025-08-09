@@ -132,9 +132,28 @@ node dist/main.js
 node dist/main.js --dw-json ./config/production.json
 ```
 
+### Using with npx
+
+You can also run the server directly using npx without installing it locally:
+
+```bash
+# Run with npx (uses ./dw.json or environment variables)
+npx sfcc-dev-mcp
+
+# Run with npx and custom dw.json file
+npx sfcc-dev-mcp --dw-json /path/to/custom/dw.json
+
+# Run with npx and relative path
+npx sfcc-dev-mcp --dw-json ./config/dw.json
+```
+
+**Note:** When using npx, make sure your `dw.json` file is in the current working directory or specify the full path using the `--dw-json` parameter.
+
 ### MCP Client Configuration
 
 Add this server to your MCP client configuration. For example, in Claude Desktop's config:
+
+#### Using Local Installation
 
 ```json
 {
@@ -146,6 +165,66 @@ Add this server to your MCP client configuration. For example, in Claude Desktop
   }
 }
 ```
+
+#### Using npx (Recommended)
+
+You can configure the MCP client to use npx, which automatically handles package installation and updates:
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "sfcc-dev-mcp",
+        "--dw-json",
+        "/path/to/your/dw.json"
+      ]
+    }
+  }
+}
+```
+
+**Example configurations:**
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": [
+        "sfcc-dev-mcp",
+        "--dw-json",
+        "/Users/username/Documents/Projects/my-sfcc-project/dw.json"
+      ]
+    }
+  }
+}
+```
+
+**For automatic configuration detection (uses ./dw.json in working directory):**
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["sfcc-dev-mcp"],
+      "cwd": "/path/to/your/sfcc/project"
+    }
+  }
+}
+```
+
+**Benefits of using npx in MCP configuration:**
+- Automatically installs the latest version if not present
+- No need to manually clone or build the project
+- Automatic updates when new versions are released
+- Consistent behavior across different environments
+- Easy to share configurations with team members
 
 ## Available Tools
 

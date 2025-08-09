@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "main": "dist/index.js",
+  "bin": {
+    "sfcc-dev-mcp": "./dist/main.js"
+  },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
+    "start": "node dist/main.js",
+    "dev": "tsx src/main.ts",
     "convert-docs": "node scripts/convert-docs.js",
     "convert-docs:test": "node scripts/convert-docs.js --test",
     "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
