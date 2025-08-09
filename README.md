@@ -81,14 +81,55 @@ export SFCC_SITE_ID="RefArch"
 
 ## Usage
 
+### Launch Parameters and Command Line Options
+
+The server supports several command line parameters to customize its behavior:
+
+#### `--dw-json <path>`
+
+Specify a custom path to your `dw.json` configuration file:
+
+```bash
+# Using npm with custom dw.json path
+npm start -- --dw-json /path/to/your/dw.json
+
+# Using npm with relative path
+npm start -- --dw-json ./config/dw.json
+
+# Using node directly
+node dist/main.js --dw-json /path/to/your/dw.json
+```
+
+#### Configuration Loading Priority
+
+The server loads configuration in the following order of preference:
+
+1. **Command line `--dw-json` argument** (highest priority)
+   - Allows you to specify a custom path to your dw.json file
+   - Useful for different environments or project configurations
+
+2. **`./dw.json` file in current directory**
+   - Automatically detected if present in the working directory
+   - Standard SFCC development workflow
+
+3. **Environment variables** (lowest priority)
+   - Falls back to environment variables if no dw.json is found
+   - See the "Using Environment Variables" section below
+
 ### Starting the Server
 
 ```bash
-# Using npm
+# Basic start (uses ./dw.json or environment variables)
 npm start
+
+# Start with custom dw.json file
+npm start -- --dw-json /path/to/custom/dw.json
 
 # Or directly with node
 node dist/main.js
+
+# Or with custom configuration
+node dist/main.js --dw-json ./config/production.json
 ```
 
 ### MCP Client Configuration
