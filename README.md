@@ -100,6 +100,30 @@ npm start -- --dw-json ./config/dw.json
 node dist/main.js --dw-json /path/to/your/dw.json
 ```
 
+#### `--debug <true|false>`
+
+Control debug logging output to customize the verbosity of server logs:
+
+```bash
+# Enable debug logging (shows detailed debug messages, method entry/exit, timing info)
+npm start -- --debug true
+npm start -- --debug  # shorthand for true
+
+# Disable debug logging (shows only essential info, warnings, and errors)
+npm start -- --debug false
+
+# Combine with other options
+npm start -- --dw-json ./config/dw.json --debug false
+```
+
+**Debug logging includes:**
+- Method entry and exit logs
+- Detailed timing information for operations
+- Full response previews for debugging
+- Additional context for troubleshooting
+
+**Production usage:** Use `--debug false` in production environments to reduce log noise and improve performance.
+
 #### Configuration Loading Priority
 
 The server loads configuration in the following order of preference:

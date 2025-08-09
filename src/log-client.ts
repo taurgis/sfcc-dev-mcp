@@ -78,15 +78,23 @@ export class SFCCLogClient {
    */
   async getLogFiles(date?: string): Promise<string[]> {
     const targetDate = date || getCurrentDate();
-    const contents = await this.webdavClient.getDirectoryContents("/");
+    logger.methodEntry("getLogFiles", { date: targetDate });
 
-    return contents
+    const startTime = Date.now();
+    const contents = await this.webdavClient.getDirectoryContents("/");
+    logger.timing("webdav_getDirectoryContents", startTime);
+
+    const logFiles = contents
       .filter((item: any) =>
         item.type === "file" &&
         item.filename.includes(targetDate) &&
         item.filename.endsWith(".log")
       )
       .map((item: any) => item.filename);
+
+    logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles);
+    logger.methodExit("getLogFiles", { count: logFiles.length });
+    return logFiles;
   }
 
   /**
@@ -99,6 +107,9 @@ export class SFCCLogClient {
    */
   async getLatestLogs(level: LogLevel, limit: number, date?: string): Promise<string> {
     const targetDate = date || getCurrentDate();
+    logger.methodEntry("getLatestLogs", { level, limit, date: targetDate });
+
+    const startTime = Date.now();
     const logFiles = await this.getLogFiles(targetDate);
 
     // Filter files for the specific log level
@@ -107,17 +118,30 @@ export class SFCCLogClient {
       return filename.startsWith(level + '-');
     });
 
+    logger.debug(`Filtered to ${levelFiles.length} ${level} log files:`, levelFiles);
+
     if (levelFiles.length === 0) {
       const availableFiles = logFiles.map(f => normalizeFilePath(f)).join(', ');
-      return `No ${level} log files found for date ${targetDate}. Available files: ${availableFiles}`;
+      const result = `No ${level} log files found for date ${targetDate}. Available files: ${availableFiles}`;
+      logger.warn(result);
+      logger.methodExit("getLatestLogs", { result: "no_files" });
+      return result;
     }
 
     // Get the most recent log file (sort by filename, latest timestamp should be last)
     const latestFile = levelFiles.sort().pop();
+    logger.debug(`Processing latest file: ${latestFile}`);
+
+    const fileStartTime = Date.now();
     const logContent = await this.webdavClient.getFileContents(latestFile, { format: "text" });
+    logger.timing("webdav_getFileContents", fileStartTime);
 
     const logEntries = parseLogEntries(logContent as string, level.toUpperCase());
     const latestEntries = logEntries.slice(-limit).reverse();
+
+    logger.debug(`Parsed ${logEntries.length} total entries, returning latest ${latestEntries.length}`);
+    logger.timing("getLatestLogs", startTime);
+    logger.methodExit("getLatestLogs", { entriesReturned: latestEntries.length });
 
     return `Latest ${limit} ${level} messages from ${normalizeFilePath(latestFile!)}:\n\n${latestEntries.join('\n\n---\n\n')}`;
   }

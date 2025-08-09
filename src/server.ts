@@ -35,12 +35,16 @@ export class SFCCDevServer {
    * Initialize the SFCC Development MCP Server
    *
    * @param config - SFCC configuration for connecting to the logging system
+   * @param debug - Whether to enable debug logging (default: true)
    */
-  constructor(config: SFCCConfig) {
+  constructor(config: SFCCConfig, debug: boolean = false) {
+    this.logger = new Logger("Server", true, debug);
+    this.logger.methodEntry("constructor", { hostname: config.hostname, hasAuth: !!(config.username || config.clientId), debug });
+
     this.logClient = new SFCCLogClient(config);
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
-    this.logger = new Logger("Server");
+
     this.server = new Server(
       {
         name: "sfcc-dev-server",
@@ -54,6 +58,7 @@ export class SFCCDevServer {
     );
 
     this.setupToolHandlers();
+    this.logger.methodExit("constructor");
   }
 
   /**
@@ -324,101 +329,105 @@ export class SFCCDevServer {
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
+      const startTime = Date.now();
+
+      this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
+        let result: any;
         switch (name) {
           // Log-related tools
           case "get_latest_errors":
-            return {
+            this.logger.debug(`Fetching latest errors with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
+            const errorResult = await this.logClient.getLatestLogs("error", (args?.limit as number) || 10, args?.date as string);
+            this.logger.timing(`get_latest_errors`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.getLatestLogs("error", (args?.limit as number) || 10, args?.date as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(errorResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "get_latest_warnings":
-            return {
+            this.logger.debug(`Fetching latest warnings with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
+            const warningResult = await this.logClient.getLatestLogs("warn", (args?.limit as number) || 10, args?.date as string);
+            this.logger.timing(`get_latest_warnings`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.getLatestLogs("warn", (args?.limit as number) || 10, args?.date as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(warningResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "get_latest_info":
-            return {
+            this.logger.debug(`Fetching latest info logs with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
+            const infoResult = await this.logClient.getLatestLogs("info", (args?.limit as number) || 10, args?.date as string);
+            this.logger.timing(`get_latest_info`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.getLatestLogs("info", (args?.limit as number) || 10, args?.date as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(infoResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "summarize_logs":
-            return {
+            this.logger.debug(`Summarizing logs for date: ${args?.date || 'today'}`);
+            const summaryResult = await this.logClient.summarizeLogs(args?.date as string);
+            this.logger.timing(`summarize_logs`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.summarizeLogs(args?.date as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(summaryResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "search_logs":
             if (!args?.pattern) {
               throw new Error("Pattern is required for log search");
             }
-            return {
+            this.logger.debug(`Searching logs for pattern: "${args.pattern}", logLevel: ${args.logLevel || 'all'}, limit: ${(args.limit as number) || 20}`);
+            const searchResult = await this.logClient.searchLogs(
+              args.pattern as string,
+              args.logLevel as LogLevel,
+              (args.limit as number) || 20,
+              args.date as string
+            );
+            this.logger.timing(`search_logs`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.searchLogs(
-                      args.pattern as string,
-                      args.logLevel as LogLevel,
-                      (args.limit as number) || 20,
-                      args.date as string
-                    ),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(searchResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "list_log_files":
-            return {
+            this.logger.debug("Listing all available log files");
+            const logFilesResult = await this.logClient.listLogFiles();
+            this.logger.timing(`list_log_files`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.logClient.listLogFiles(),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(logFilesResult, null, 2),
                 },
               ],
             };
+            break;
 
           // Documentation-related tools
           case "get_sfcc_class_info":
@@ -426,11 +435,14 @@ export class SFCCDevServer {
               throw new Error("className is required");
             }
             const expand = args?.expand as boolean || false;
+            this.logger.debug(`Getting class info for: "${args.className}", expand: ${expand}`);
             const classDetails = await this.docsClient.getClassDetailsExpanded(args.className as string, expand);
             if (!classDetails) {
               throw new Error(`Class "${args.className}" not found`);
             }
-            return {
+            this.logger.timing(`get_sfcc_class_info`, startTime);
+            this.logger.debug(`Retrieved class info with ${classDetails.methods?.length || 0} methods and ${classDetails.properties?.length || 0} properties`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -438,13 +450,17 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "search_sfcc_classes":
             if (!args?.query) {
               throw new Error("query is required");
             }
+            this.logger.debug(`Searching SFCC classes for query: "${args.query}"`);
             const searchResults = await this.docsClient.searchClasses(args.query as string);
-            return {
+            this.logger.timing(`search_sfcc_classes`, startTime);
+            this.logger.debug(`Found ${searchResults.length} matching classes`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -452,13 +468,17 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "get_sfcc_class_methods":
             if (!args?.className) {
               throw new Error("className is required");
             }
+            this.logger.debug(`Getting methods for class: "${args.className}"`);
             const methods = await this.docsClient.getClassMethods(args.className as string);
-            return {
+            this.logger.timing(`get_sfcc_class_methods`, startTime);
+            this.logger.debug(`Retrieved ${methods.length} methods for class "${args.className}"`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -466,13 +486,17 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "get_sfcc_class_properties":
             if (!args?.className) {
               throw new Error("className is required");
             }
+            this.logger.debug(`Getting properties for class: "${args.className}"`);
             const properties = await this.docsClient.getClassProperties(args.className as string);
-            return {
+            this.logger.timing(`get_sfcc_class_properties`, startTime);
+            this.logger.debug(`Retrieved ${properties.length} properties for class "${args.className}"`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -480,13 +504,17 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "search_sfcc_methods":
             if (!args?.methodName) {
               throw new Error("methodName is required");
             }
+            this.logger.debug(`Searching for methods with name: "${args.methodName}"`);
             const methodResults = await this.docsClient.searchMethods(args.methodName as string);
-            return {
+            this.logger.timing(`search_sfcc_methods`, startTime);
+            this.logger.debug(`Found ${methodResults.length} methods matching "${args.methodName}"`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -494,10 +522,14 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "list_sfcc_classes":
+            this.logger.debug("Listing all available SFCC classes");
             const allClasses = await this.docsClient.getAvailableClasses();
-            return {
+            this.logger.timing(`list_sfcc_classes`, startTime);
+            this.logger.debug(`Retrieved ${allClasses.length} available classes`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -505,16 +537,20 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           case "get_sfcc_class_documentation":
             if (!args?.className) {
               throw new Error("className is required");
             }
+            this.logger.debug(`Getting raw documentation for class: "${args.className}"`);
             const documentation = await this.docsClient.getClassDocumentation(args.className as string);
             if (!documentation) {
               throw new Error(`Documentation for class "${args.className}" not found`);
             }
-            return {
+            this.logger.timing(`get_sfcc_class_documentation`, startTime);
+            this.logger.debug(`Retrieved documentation for "${args.className}" (${documentation.length} characters)`);
+            result = {
               content: [
                 {
                   type: "text",
@@ -522,78 +558,92 @@ export class SFCCDevServer {
                 },
               ],
             };
+            break;
 
           // Best Practices-related tools
           case "get_available_best_practice_guides":
-            return {
+            this.logger.debug("Getting list of available best practice guides");
+            const guidesResult = await this.bestPracticesClient.getAvailableGuides();
+            this.logger.timing(`get_available_best_practice_guides`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.bestPracticesClient.getAvailableGuides(),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(guidesResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "get_best_practice_guide":
             if (!args?.guideName) {
               throw new Error("guideName is required");
             }
-            return {
+            this.logger.debug(`Getting best practice guide: "${args.guideName}"`);
+            const guideResult = await this.bestPracticesClient.getBestPracticeGuide(args.guideName as string);
+            this.logger.timing(`get_best_practice_guide`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.bestPracticesClient.getBestPracticeGuide(args.guideName as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(guideResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "search_best_practices":
             if (!args?.query) {
               throw new Error("query is required");
             }
-            return {
+            this.logger.debug(`Searching best practices for query: "${args.query}"`);
+            const practicesResult = await this.bestPracticesClient.searchBestPractices(args.query as string);
+            this.logger.timing(`search_best_practices`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.bestPracticesClient.searchBestPractices(args.query as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(practicesResult, null, 2),
                 },
               ],
             };
+            break;
 
           case "get_hook_reference":
             if (!args?.guideName) {
               throw new Error("guideName is required");
             }
-            return {
+            this.logger.debug(`Getting hook reference for: "${args.guideName}"`);
+            const hookResult = await this.bestPracticesClient.getHookReference(args.guideName as string);
+            this.logger.timing(`get_hook_reference`, startTime);
+            result = {
               content: [
                 {
                   type: "text",
-                  text: JSON.stringify(
-                    await this.bestPracticesClient.getHookReference(args.guideName as string),
-                    null,
-                    2
-                  ),
+                  text: JSON.stringify(hookResult, null, 2),
                 },
               ],
             };
+            break;
 
           default:
+            this.logger.error(`Unknown tool requested: ${name}`);
             throw new Error(`Unknown tool: ${name}`);
         }
+
+        // Log the full response in debug mode
+        this.logger.debug(`Full response for ${name}:`, {
+          contentType: result.content?.[0]?.type,
+          contentLength: result.content?.[0]?.text?.length || 0,
+          responsePreview: result.content?.[0]?.text?.substring(0, 200) + (result.content?.[0]?.text?.length > 200 ? '...' : ''),
+          fullResponse: JSON.stringify(result.content?.[0]?.text),
+        });
+
+        return result;
       } catch (error) {
-        return {
+        this.logger.error(`Error handling tool "${name}":`, error);
+        this.logger.timing(`${name}_error`, startTime);
+        const errorResult = {
           content: [
             {
               type: "text",
@@ -602,6 +652,13 @@ export class SFCCDevServer {
           ],
           isError: true,
         };
+
+        // Log error response in debug mode
+        this.logger.debug(`Error response for ${name}:`, errorResult);
+
+        return errorResult;
+      } finally {
+        this.logger.methodExit(`handleToolRequest:${name}`);
       }
     });
   }

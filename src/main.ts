@@ -11,6 +11,10 @@
  *   npm start
  *   npm run start -- --dw-json /path/to/dw.json
  *   npm run start -- --dw-json ./dw.json
+ *   npm run start -- --debug true
+ *   npm run start -- --debug false
+ *   npm run start -- --debug
+ *   npm run start -- --dw-json ./dw.json --debug false
  */
 
 import { SFCCDevServer } from "./server.js";
@@ -26,9 +30,9 @@ const logger = new Logger('SFCC-MCP-Server');
 /**
  * Parse command line arguments to extract configuration options
  */
-function parseCommandLineArgs(): { dwJsonPath?: string } {
+function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
   const args = process.argv.slice(2);
-  const options: { dwJsonPath?: string } = {};
+  const options: { dwJsonPath?: string; debug?: boolean } = {};
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -36,6 +40,13 @@ function parseCommandLineArgs(): { dwJsonPath?: string } {
     if (arg === "--dw-json" && i + 1 < args.length) {
       options.dwJsonPath = args[i + 1];
       i++; // Skip the next argument since we consumed it
+    } else if (arg === "--debug" && i + 1 < args.length) {
+      const debugValue = args[i + 1].toLowerCase();
+      options.debug = debugValue === "true" || debugValue === "1" || debugValue === "yes";
+      i++; // Skip the next argument since we consumed it
+    } else if (arg === "--debug") {
+      // Allow --debug without a value to default to true
+      options.debug = true;
     }
   }
 
@@ -88,36 +99,46 @@ function loadConfiguration(): SFCCConfig {
 
 async function main() {
   try {
+    // Parse command line arguments to get debug flag
+    const { debug } = parseCommandLineArgs();
+
+    // Create a new logger with debug setting from command line
+    const mainLogger = new Logger('SFCC-MCP-Server', true, debug || false);
+
     // Load configuration from dw.json or environment variables
     const config = loadConfiguration();
 
-    logger.log("Configuration loaded:", config);
+    mainLogger.log("Configuration loaded:", config);
+    if (debug !== undefined) {
+      mainLogger.log(`Debug logging: ${debug ? 'enabled' : 'disabled'}`);
+    }
 
     // Validate that we have the minimum required configuration
     if (!config.hostname) {
-      logger.error("Error: SFCC hostname is required. Please provide it via:");
-      logger.error("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
-      logger.error("  2. Environment variable: SFCC_HOSTNAME=your-instance.com npm start");
+      mainLogger.error("Error: SFCC hostname is required. Please provide it via:");
+      mainLogger.error("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
+      mainLogger.error("  2. Environment variable: SFCC_HOSTNAME=your-instance.com npm start");
       process.exit(1);
     }
 
     if (!config.username && !config.clientId) {
-      logger.error("Error: Authentication credentials are required. Please provide either:");
-      logger.error("  1. Username/password in dw.json or via SFCC_USERNAME/SFCC_PASSWORD");
-      logger.error("  2. Client ID/secret via SFCC_CLIENT_ID/SFCC_CLIENT_SECRET");
+      mainLogger.error("Error: Authentication credentials are required. Please provide either:");
+      mainLogger.error("  1. Username/password in dw.json or via SFCC_USERNAME/SFCC_PASSWORD");
+      mainLogger.error("  2. Client ID/secret via SFCC_CLIENT_ID/SFCC_CLIENT_SECRET");
       process.exit(1);
     }
 
-    // Initialize and start the MCP server
-    const server = new SFCCDevServer(config);
+    const server = new SFCCDevServer(config, debug ?? false);
 
-    logger.log("Starting SFCC Development MCP Server...");
-    logger.log(`Connected to: ${config.hostname}`);
-    logger.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
+    mainLogger.log("Starting SFCC Development MCP Server...");
+    mainLogger.log(`Connected to: ${config.hostname}`);
+    mainLogger.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
 
     await server.run();
   } catch (error) {
-    logger.error("Failed to start SFCC Development MCP server:", error);
+    // Use a basic logger for error cases
+    const errorLogger = new Logger('SFCC-MCP-Server');
+    errorLogger.error("Failed to start SFCC Development MCP server:", error);
     process.exit(1);
   }
 }
