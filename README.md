@@ -1,5 +1,27 @@
 # SFCC Development MCP Server
 
+## TL;DR - Quick Setup
+
+To use this MCP server with Claude Desktop or other MCP clients, add the following to your MCP settings file:
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+    }
+  }
+}
+```
+
+**Required**: 
+- Create a `dw.json` file with your SFCC credentials (see Configuration section below)
+
+**Alternative**: If you prefer environment variables instead of `dw.json`, remove the `--dw-json` argument and add `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET`, and `SFCC_INSTANCE_URL` to the `env` section.
+
+---
+
 An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and **SFCC documentation querying**.
 
 ## Features
