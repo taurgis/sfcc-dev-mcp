@@ -304,6 +304,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         select: {
           type: "string",
           description: "The property selector (e.g., '(**)' for all properties)",
+          default: "(**)"
         },
       },
     },
