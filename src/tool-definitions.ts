@@ -8,7 +8,7 @@
 export const SFCC_DOCUMENTATION_TOOLS = [
   {
     name: "get_sfcc_class_info",
-    description: "Get detailed information about an SFCC class including properties, methods, and description. This is specifically for SFCC server-side code used within cartridges (controllers, scripts, templates, rest-apis) and covers the dw.* API available in the SFCC Rhino environment.",
+    description: "Get detailed information about an SFCC class including properties, methods, and description. Use this when you need to understand what a specific SFCC class does, what methods/properties are available, or when implementing features that use SFCC APIs. Essential for cartridge development (controllers, scripts, templates, rest-apis) using the dw.* namespace in the SFCC Rhino environment.",
     inputSchema: {
       type: "object",
       properties: {
@@ -27,7 +27,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "search_sfcc_classes",
-    description: "Search for SFCC classes by name. These are server-side classes available in SFCC cartridge code (controllers, scripts, templates, rest-apis) within the Rhino JavaScript environment.",
+    description: "Search for SFCC classes by name or functionality. Use this when you know part of a class name or need to find classes related to specific functionality (e.g., search 'catalog' to find catalog-related classes). Perfect starting point when you're unsure of the exact class name or exploring available APIs for a feature area.",
     inputSchema: {
       type: "object",
       properties: {
@@ -41,7 +41,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "get_sfcc_class_methods",
-    description: "Get all methods for a specific SFCC class. This covers server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
+    description: "Get all methods for a specific SFCC class with their signatures and descriptions. Use this when you know the class but need to see all available methods, understand method parameters, or find the right method for your use case. Essential when implementing business logic that calls SFCC APIs.",
     inputSchema: {
       type: "object",
       properties: {
@@ -55,7 +55,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "get_sfcc_class_properties",
-    description: "Get all properties for a specific SFCC class. This covers server-side API properties available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
+    description: "Get all properties for a specific SFCC class with their types and descriptions. Use this when you need to access or read data from SFCC objects, understand what data is available on an object, or when working with object attributes in templates or scripts.",
     inputSchema: {
       type: "object",
       properties: {
@@ -69,7 +69,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "search_sfcc_methods",
-    description: "Search for methods across all SFCC classes. This searches server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
+    description: "Search for methods across all SFCC classes by method name. Use this when you know the method name but not which class it belongs to, or when looking for similar methods across different classes. Helpful for discovering all available methods that perform similar operations.",
     inputSchema: {
       type: "object",
       properties: {
@@ -83,7 +83,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "list_sfcc_classes",
-    description: "List all available SFCC classes. These are server-side classes available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino JavaScript environment.",
+    description: "Get a complete list of all available SFCC classes. Use this for exploration and discovery when you need to understand the full scope of SFCC APIs, or when you're new to SFCC development and want to see what's available. Good starting point for understanding the SFCC class hierarchy.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -91,7 +91,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: "get_sfcc_class_documentation",
-    description: "Get the raw documentation content for an SFCC class. This provides detailed documentation for server-side classes used in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
+    description: "Get the complete raw documentation for an SFCC class. Use this when you need comprehensive details about a class including examples, detailed descriptions, and full context. Best for in-depth understanding when the basic class info isn't sufficient.",
     inputSchema: {
       type: "object",
       properties: {
@@ -108,7 +108,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
 export const BEST_PRACTICES_TOOLS = [
   {
     name: "get_available_best_practice_guides",
-    description: "Get a list of all available SFCC best practice and how to guides including Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
+    description: "Get a list of all available SFCC best practice and how-to guides. Use this first to discover what guidance is available before implementing any SFCC features. Essential for understanding what best practice resources exist for cartridge creation, hooks, controllers, and custom endpoints",
     inputSchema: {
       type: "object",
       properties: {},
@@ -116,7 +116,7 @@ export const BEST_PRACTICES_TOOLS = [
   },
   {
     name: "get_best_practice_guide",
-    description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
+    description: "Get a complete best practice and how-to guide with all sections and content. Use this when implementing specific SFCC features like cartridges, OCAPI/SCAPI hooks, SFRA controllers, or custom endpoints. Always consult the relevant guide before writing code to ensure you follow SFCC best practices, security guidelines, and proper architecture patterns.",
     inputSchema: {
       type: "object",
       properties: {
@@ -131,7 +131,7 @@ export const BEST_PRACTICES_TOOLS = [
   },
   {
     name: "search_best_practices",
-    description: "Search across all best practice and how to guides for specific terms or concepts",
+    description: "Search across all best practice guides for specific terms, patterns, or concepts. Use this when you need guidance on specific topics like validation, security, performance optimization, error handling, or any development pattern. Perfect for finding relevant best practices without reading entire guides.",
     inputSchema: {
       type: "object",
       properties: {
@@ -145,7 +145,7 @@ export const BEST_PRACTICES_TOOLS = [
   },
   {
     name: "get_hook_reference",
-    description: "Get comprehensive hook reference tables for OCAPI or SCAPI hooks including endpoints and extension points",
+    description: "Get comprehensive hook reference tables showing all available OCAPI or SCAPI hook endpoints and extension points. Use this when implementing hooks to see all available extension points, understand hook signatures, and ensure you're using the correct hook for your use case. Essential reference when extending SFCC APIs.",
     inputSchema: {
       type: "object",
       properties: {
@@ -287,7 +287,7 @@ export const LOG_TOOLS = [
 export const SYSTEM_OBJECT_TOOLS = [
   {
     name: "get_system_object_definitions",
-    description: "Get all system object definitions from SFCC. This returns a list of all system objects with their metadata, useful for discovering what system objects exist and their custom attributes. Requires OAuth credentials.",
+    description: "Get all system object definitions from SFCC with their main metadata, not including all attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.",
     inputSchema: {
       type: "object",
       properties: {
@@ -310,7 +310,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: "get_system_object_definition",
-    description: "Get detailed information about a specific SFCC system object definition by object type. This returns comprehensive metadata including all attributes, useful for inspecting custom attributes added to standard SFCC objects like Product, Customer, Order, etc. Requires OAuth credentials.",
+    description: "Get detailed information about a specific SFCC system object definition including basic attributes and metadata. Use this when working with specific objects like Product, Customer, Order, Category, or Site to understand their structure and understand data relationships. Perfect for implementing features that interact with specific SFCC objects.",
     inputSchema: {
       type: "object",
       properties: {
@@ -324,7 +324,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: "get_system_object_attribute_definitions",
-    description: "Get detailed attribute definitions for a specific SFCC system object type. This returns comprehensive information about all attributes including custom attributes with their types, constraints, and metadata. This provides more detailed attribute information than the basic system object definition.",
+    description: "Get comprehensive attribute definitions for a specific SFCC system object type including custom attributes with their types, constraints, validation rules, and metadata. Use this when you need detailed information about object attributes for data validation, form building, API interactions, or understanding custom attribute configurations. Provides more detailed attribute information than basic object definitions.",
     inputSchema: {
       type: "object",
       properties: {
