@@ -1,4 +1,4 @@
-import { loadDwJsonConfig, validateConfig } from '../src/config';
+import { loadDwJsonConfig } from '../src/config';
 import { SFCCConfig, DwJsonConfig } from '../src/types';
 import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
 import { resolve, join } from 'path';
@@ -236,153 +236,8 @@ describe('config.ts', () => {
     });
   });
 
-  describe('validateConfig', () => {
-    it('should pass validation with valid basic auth config', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        username: 'testuser',
-        password: 'testpass'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).not.toThrow();
-    });
-
-    it('should pass validation with valid OAuth config', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        clientId: 'test-client-id',
-        clientSecret: 'test-client-secret'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).not.toThrow();
-    });
-
-    it('should pass validation with both basic auth and OAuth', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        username: 'testuser',
-        password: 'testpass',
-        clientId: 'test-client-id',
-        clientSecret: 'test-client-secret'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).not.toThrow();
-    });
-
-    it('should throw error when hostname is missing', () => {
-      const config: SFCCConfig = {
-        username: 'testuser',
-        password: 'testpass'
-      } as SFCCConfig; // Type assertion to bypass TypeScript checking
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Hostname is required');
-    });
-
-    it('should throw error when hostname is empty string', () => {
-      const config: SFCCConfig = {
-        hostname: '',
-        username: 'testuser',
-        password: 'testpass'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Hostname is required');
-    });
-
-    it('should throw error when no authentication credentials are provided', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should throw error when only username is provided', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        username: 'testuser'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should throw error when only password is provided', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        password: 'testpass'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should throw error when only clientId is provided', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        clientId: 'test-client-id'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should throw error when only clientSecret is provided', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        clientSecret: 'test-client-secret'
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should handle empty string credentials correctly', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        username: '',
-        password: '',
-        clientId: '',
-        clientSecret: ''
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-
-    it('should handle undefined vs empty string credentials', () => {
-      const config: SFCCConfig = {
-        hostname: 'test.demandware.net',
-        username: undefined,
-        password: '',
-        clientId: '',
-        clientSecret: undefined
-      };
-
-      expect(() => {
-        validateConfig(config);
-      }).toThrow('Either username/password or clientId/clientSecret must be provided');
-    });
-  });
-
   describe('Integration tests', () => {
-    it('should load and validate a complete workflow', () => {
+    it('should load a complete workflow', () => {
       const validDwJson: DwJsonConfig = {
         hostname: 'integration-test.demandware.net',
         username: 'integrationuser',
@@ -396,11 +251,6 @@ describe('config.ts', () => {
 
       // Load config
       const config = loadDwJsonConfig(testFile);
-
-      // Validate config
-      expect(() => {
-        validateConfig(config);
-      }).not.toThrow();
 
       // Verify all fields are properly mapped
       expect(config.hostname).toBe('integration-test.demandware.net');
@@ -430,11 +280,6 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('  whitespace-test.demandware.net  ');
       expect(config.username).toBe('  whitespaceuser  ');
       expect(config.password).toBe('  whitespacepass  ');
-
-      // But validation should still pass
-      expect(() => {
-        validateConfig(config);
-      }).not.toThrow();
 
       unlinkSync(testFile);
     });

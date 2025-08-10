@@ -96,15 +96,19 @@ export class ConfigurationFactory {
    * Validate configuration
    */
   private static validate(config: SFCCConfig): void {
-    if (!config.hostname) {
-      throw new Error("Hostname is required");
-    }
-
     const hasBasicAuth = config.username && config.password;
     const hasOAuth = (config.clientId && config.clientSecret);
+    const hasHostname = config.hostname && config.hostname.trim() !== '';
 
-    if (!hasBasicAuth && !hasOAuth) {
-      throw new Error("Either username/password or OAuth credentials (clientId/clientSecret) must be provided");
+    // Allow local mode if no credentials or hostname are provided
+    if (!hasBasicAuth && !hasOAuth && !hasHostname) {
+      // Local mode - only class documentation available
+      return;
+    }
+
+    // If hostname is provided, require credentials
+    if (hasHostname && !hasBasicAuth && !hasOAuth) {
+      throw new Error("When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided");
     }
   }
 
@@ -115,6 +119,7 @@ export class ConfigurationFactory {
     canAccessLogs: boolean;
     canAccessOCAPI: boolean;
     canAccessWebDAV: boolean;
+    isLocalMode: boolean;
   } {
     // WebDAV/Logs can work with either basic auth OR OAuth credentials
     const hasWebDAVCredentials = !!(config.username && config.password) ||
@@ -123,10 +128,15 @@ export class ConfigurationFactory {
     // OCAPI specifically requires OAuth credentials
     const hasOAuthCredentials = !!(config.clientId && config.clientSecret);
 
+    // Local mode when no hostname or credentials are provided
+    const hasHostname = !!(config.hostname && config.hostname.trim() !== '');
+    const isLocalMode = !hasHostname && !hasWebDAVCredentials;
+
     return {
-      canAccessLogs: hasWebDAVCredentials,
-      canAccessOCAPI: hasOAuthCredentials,
-      canAccessWebDAV: hasWebDAVCredentials,
+      canAccessLogs: hasWebDAVCredentials && hasHostname,
+      canAccessOCAPI: hasOAuthCredentials && hasHostname,
+      canAccessWebDAV: hasWebDAVCredentials && hasHostname,
+      isLocalMode: isLocalMode,
     };
   }
 }

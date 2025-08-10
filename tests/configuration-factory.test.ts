@@ -85,16 +85,41 @@ describe('ConfigurationFactory', () => {
       expect(config.siteId).toBe('test-site');
     });
 
-    it('should validate configuration and throw error for missing hostname', () => {
-      expect(() => {
-        ConfigurationFactory.create({ username: 'testuser', password: 'testpass' });
-      }).toThrow('Hostname is required');
+    it('should allow configuration without credentials for local mode', () => {
+      const config = ConfigurationFactory.create({});
+      expect(config.hostname).toBe('');
+      expect(config.username).toBeUndefined();
+      expect(config.password).toBeUndefined();
+      expect(config.clientId).toBeUndefined();
+      expect(config.clientSecret).toBeUndefined();
     });
 
-    it('should validate configuration and throw error for missing credentials', () => {
+    it('should validate configuration and throw error for hostname without credentials', () => {
       expect(() => {
         ConfigurationFactory.create({ hostname: 'test-instance.demandware.net' });
-      }).toThrow('Either username/password or OAuth credentials (clientId/clientSecret) must be provided');
+      }).toThrow('When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided');
+    });
+
+    it('should validate configuration and allow hostname with basic auth', () => {
+      const config = ConfigurationFactory.create({
+        hostname: 'test-instance.demandware.net',
+        username: 'testuser',
+        password: 'testpass'
+      });
+      expect(config.hostname).toBe('test-instance.demandware.net');
+      expect(config.username).toBe('testuser');
+      expect(config.password).toBe('testpass');
+    });
+
+    it('should validate configuration and allow hostname with OAuth', () => {
+      const config = ConfigurationFactory.create({
+        hostname: 'test-instance.demandware.net',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret'
+      });
+      expect(config.hostname).toBe('test-instance.demandware.net');
+      expect(config.clientId).toBe('test-client-id');
+      expect(config.clientSecret).toBe('test-client-secret');
     });
   });
 
@@ -111,6 +136,7 @@ describe('ConfigurationFactory', () => {
       expect(capabilities.canAccessLogs).toBe(true);
       expect(capabilities.canAccessOCAPI).toBe(false);
       expect(capabilities.canAccessWebDAV).toBe(true);
+      expect(capabilities.isLocalMode).toBe(false);
     });
 
     it('should return correct capabilities for OAuth', () => {
@@ -125,6 +151,7 @@ describe('ConfigurationFactory', () => {
       expect(capabilities.canAccessLogs).toBe(true);
       expect(capabilities.canAccessOCAPI).toBe(true);
       expect(capabilities.canAccessWebDAV).toBe(true);
+      expect(capabilities.isLocalMode).toBe(false);
     });
 
     it('should return correct capabilities for both basic auth and OAuth', () => {
@@ -141,9 +168,10 @@ describe('ConfigurationFactory', () => {
       expect(capabilities.canAccessLogs).toBe(true);
       expect(capabilities.canAccessOCAPI).toBe(true);
       expect(capabilities.canAccessWebDAV).toBe(true);
+      expect(capabilities.isLocalMode).toBe(false);
     });
 
-    it('should return false capabilities for empty config', () => {
+    it('should return local mode capabilities for empty config', () => {
         const config: SFCCConfig = {};
 
         const capabilities = ConfigurationFactory.getCapabilities(config);
@@ -151,6 +179,22 @@ describe('ConfigurationFactory', () => {
         expect(capabilities.canAccessLogs).toBe(false);
         expect(capabilities.canAccessOCAPI).toBe(false);
         expect(capabilities.canAccessWebDAV).toBe(false);
+        expect(capabilities.isLocalMode).toBe(true);
+    });
+
+    it('should return local mode capabilities for config without hostname', () => {
+        const config: SFCCConfig = {
+          hostname: '',
+          username: undefined,
+          password: undefined
+        };
+
+        const capabilities = ConfigurationFactory.getCapabilities(config);
+
+        expect(capabilities.canAccessLogs).toBe(false);
+        expect(capabilities.canAccessOCAPI).toBe(false);
+        expect(capabilities.canAccessWebDAV).toBe(false);
+        expect(capabilities.isLocalMode).toBe(true);
     });
   });
 });

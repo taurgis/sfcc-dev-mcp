@@ -88,8 +88,14 @@ async function main(): Promise<void> {
 
     // Log configuration summary (without sensitive data)
     const capabilities = ConfigurationFactory.getCapabilities(config);
-    logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
-    logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}`);
+
+    if (capabilities.isLocalMode) {
+      logger.log("Running in Local Mode - SFCC class documentation only");
+      logger.log("To access SFCC logs and OCAPI, provide hostname and credentials");
+    } else {
+      logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
+      logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
+    }
 
     // Create and start the server
     const server = new SFCCDevServer(config, debug);

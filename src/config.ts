@@ -56,22 +56,3 @@ export function loadDwJsonConfig(dwJsonPath: string): SFCCConfig {
     throw error;
   }
 }
-
-/**
- * Validate that the provided configuration has the necessary authentication credentials
- *
- * @param config - SFCC configuration to validate
- * @throws Error if neither basic auth nor OAuth credentials are provided
- */
-export function validateConfig(config: SFCCConfig): void {
-  if (!config.hostname) {
-    throw new Error("Hostname is required");
-  }
-
-  const hasBasicAuth = config.username && config.password;
-  const hasOAuth = config.clientId && config.clientSecret;
-
-  if (!hasBasicAuth && !hasOAuth) {
-    throw new Error("Either username/password or clientId/clientSecret must be provided");
-  }
-}

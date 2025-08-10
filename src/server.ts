@@ -73,7 +73,7 @@ export class SFCCDevServer {
 
     if (this.capabilities.canAccessOCAPI) {
       this.ocapiClient = new OCAPIClient({
-        hostname: config.hostname,
+        hostname: config.hostname!,
         clientId: config.clientId!,
         clientSecret: config.clientSecret!,
         version: "v23_2"
