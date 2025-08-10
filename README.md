@@ -181,6 +181,14 @@ To use the system object definition tools (`get_system_object_definitions`, `get
           "write_attributes": "(**)"
         },
         {
+          "resource_id": "/system_object_definitions/*",
+          "methods": [
+            "get"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
           "resource_id": "/system_object_definitions/*/attribute_definitions",
           "methods": [
             "get"
