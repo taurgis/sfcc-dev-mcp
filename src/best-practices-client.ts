@@ -7,7 +7,7 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { PathResolver } from './path-resolver.js';
 import { CacheManager } from './cache.js';
 
 export interface BestPracticeGuide {
@@ -26,11 +26,7 @@ export class SFCCBestPracticesClient {
 
   constructor() {
     this.cache = new CacheManager();
-
-    // ES module compatible way to get __dirname
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    this.docsPath = path.join(__dirname, '..', 'docs', 'best-practices');
+    this.docsPath = PathResolver.getBestPracticesPath();
   }
 
   /**

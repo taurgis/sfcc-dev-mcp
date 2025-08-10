@@ -8,15 +8,12 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { PathResolver } from './path-resolver.js';
 import { CacheManager } from './cache.js';
 import { Logger } from './logger.js';
 
 // Create a logger instance for this module
 const logger = new Logger('DocsClient');
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface SFCCClassInfo {
   className: string;
@@ -57,7 +54,7 @@ export class SFCCDocumentationClient {
   private initialized = false;
 
   constructor() {
-    this.docsPath = path.join(__dirname, '..', 'docs');
+    this.docsPath = PathResolver.getDocsPath();
     this.cacheManager = new CacheManager();
   }
 
