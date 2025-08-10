@@ -20,10 +20,6 @@ export interface SFCCConfig {
   clientId?: string;
   /** Client secret for OAuth authentication (optional if using basic auth) */
   clientSecret?: string;
-  /** API key for OAuth authentication (alternative to clientId) */
-  apiKey?: string;
-  /** API secret for OAuth authentication (alternative to clientSecret) */
-  apiSecret?: string;
   /** Site ID for SFCC instance */
   siteId?: string;
 }

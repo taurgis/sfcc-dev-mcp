@@ -57,14 +57,14 @@ export class SFCCLogClient {
         username: this.config.username,
         password: this.config.password,
       };
-    } else if (this.config.apiKey && this.config.apiSecret) {
-      // OAuth authentication (using API key as username and secret as password for WebDAV)
+    } else if (this.config.clientId && this.config.clientSecret) {
+      // OAuth authentication (using client ID as username and client secret as password for WebDAV)
       authConfig = {
-        username: this.config.apiKey,
-        password: this.config.apiSecret,
+        username: this.config.clientId,
+        password: this.config.clientSecret,
       };
     } else {
-      throw new Error("Either username/password or apiKey/apiSecret must be provided");
+      throw new Error("Either username/password or clientId/clientSecret must be provided");
     }
 
     this.webdavClient = createClient(webdavUrl, authConfig);

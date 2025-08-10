@@ -52,8 +52,8 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('test-instance.demandware.net');
       expect(config.username).toBe('testuser');
       expect(config.password).toBe('testpass');
-      expect(config.apiKey).toBeUndefined();
-      expect(config.apiSecret).toBeUndefined();
+      expect(config.clientId).toBeUndefined();
+      expect(config.clientSecret).toBeUndefined();
     });
 
     it('should load a valid dw.json file with OAuth credentials', () => {
@@ -73,8 +73,8 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('oauth-instance.demandware.net');
       expect(config.username).toBe('oauthuser');
       expect(config.password).toBe('oauthpass');
-      expect(config.apiKey).toBe('test-client-id');
-      expect(config.apiSecret).toBe('test-client-secret');
+      expect(config.clientId).toBe('test-client-id');
+      expect(config.clientSecret).toBe('test-client-secret');
     });
 
     it('should resolve relative paths correctly', () => {
@@ -188,8 +188,8 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('test.demandware.net');
       expect(config.username).toBe('testuser');
       expect(config.password).toBe('testpass');
-      expect(config.apiKey).toBeUndefined();
-      expect(config.apiSecret).toBeUndefined();
+      expect(config.clientId).toBeUndefined();
+      expect(config.clientSecret).toBeUndefined();
 
       unlinkSync(testFile);
     });
@@ -211,8 +211,8 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('test.demandware.net');
       expect(config.username).toBe('testuser');
       expect(config.password).toBe('testpass');
-      expect(config.apiKey).toBeUndefined();
-      expect(config.apiSecret).toBeUndefined();
+      expect(config.clientId).toBeUndefined();
+      expect(config.clientSecret).toBeUndefined();
 
       unlinkSync(testFile);
     });
@@ -252,8 +252,8 @@ describe('config.ts', () => {
     it('should pass validation with valid OAuth config', () => {
       const config: SFCCConfig = {
         hostname: 'test.demandware.net',
-        apiKey: 'test-api-key',
-        apiSecret: 'test-api-secret'
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret'
       };
 
       expect(() => {
@@ -266,8 +266,8 @@ describe('config.ts', () => {
         hostname: 'test.demandware.net',
         username: 'testuser',
         password: 'testpass',
-        apiKey: 'test-api-key',
-        apiSecret: 'test-api-secret'
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret'
       };
 
       expect(() => {
@@ -305,7 +305,7 @@ describe('config.ts', () => {
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
     it('should throw error when only username is provided', () => {
@@ -316,7 +316,7 @@ describe('config.ts', () => {
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
     it('should throw error when only password is provided', () => {
@@ -327,29 +327,29 @@ describe('config.ts', () => {
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
-    it('should throw error when only apiKey is provided', () => {
+    it('should throw error when only clientId is provided', () => {
       const config: SFCCConfig = {
         hostname: 'test.demandware.net',
-        apiKey: 'test-api-key'
+        clientId: 'test-client-id'
       };
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
-    it('should throw error when only apiSecret is provided', () => {
+    it('should throw error when only clientSecret is provided', () => {
       const config: SFCCConfig = {
         hostname: 'test.demandware.net',
-        apiSecret: 'test-api-secret'
+        clientSecret: 'test-client-secret'
       };
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
     it('should handle empty string credentials correctly', () => {
@@ -357,13 +357,13 @@ describe('config.ts', () => {
         hostname: 'test.demandware.net',
         username: '',
         password: '',
-        apiKey: '',
-        apiSecret: ''
+        clientId: '',
+        clientSecret: ''
       };
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
 
     it('should handle undefined vs empty string credentials', () => {
@@ -371,13 +371,13 @@ describe('config.ts', () => {
         hostname: 'test.demandware.net',
         username: undefined,
         password: '',
-        apiKey: '',
-        apiSecret: undefined
+        clientId: '',
+        clientSecret: undefined
       };
 
       expect(() => {
         validateConfig(config);
-      }).toThrow('Either username/password or apiKey/apiSecret must be provided');
+      }).toThrow('Either username/password or clientId/clientSecret must be provided');
     });
   });
 
@@ -406,8 +406,8 @@ describe('config.ts', () => {
       expect(config.hostname).toBe('integration-test.demandware.net');
       expect(config.username).toBe('integrationuser');
       expect(config.password).toBe('integrationpass');
-      expect(config.apiKey).toBe('integration-client-id');
-      expect(config.apiSecret).toBe('integration-client-secret');
+      expect(config.clientId).toBe('integration-client-id');
+      expect(config.clientSecret).toBe('integration-client-secret');
 
       unlinkSync(testFile);
     });

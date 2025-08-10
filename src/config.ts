@@ -42,10 +42,10 @@ export function loadDwJsonConfig(dwJsonPath: string): SFCCConfig {
       password: dwConfig.password,
     };
 
-    // If client-id and client-secret are present, use them as API credentials
+    // If client-id and client-secret are present, use them as OAuth credentials
     if (dwConfig["client-id"] && dwConfig["client-secret"]) {
-      config.apiKey = dwConfig["client-id"];
-      config.apiSecret = dwConfig["client-secret"];
+      config.clientId = dwConfig["client-id"];
+      config.clientSecret = dwConfig["client-secret"];
     }
 
     return config;
@@ -69,9 +69,9 @@ export function validateConfig(config: SFCCConfig): void {
   }
 
   const hasBasicAuth = config.username && config.password;
-  const hasOAuth = config.apiKey && config.apiSecret;
+  const hasOAuth = config.clientId && config.clientSecret;
 
   if (!hasBasicAuth && !hasOAuth) {
-    throw new Error("Either username/password or apiKey/apiSecret must be provided");
+    throw new Error("Either username/password or clientId/clientSecret must be provided");
   }
 }

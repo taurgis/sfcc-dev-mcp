@@ -70,11 +70,11 @@ describe('SFCCLogClient', () => {
       );
     });
 
-    it('should create client with API key/secret authentication', () => {
+    it('should create client with OAuth authentication', () => {
       const config: SFCCConfig = {
         hostname: 'test.demandware.net',
-        apiKey: 'testkey',
-        apiSecret: 'testsecret',
+        clientId: 'testclientid',
+        clientSecret: 'testclientsecret',
       };
 
       new SFCCLogClient(config);
@@ -82,8 +82,8 @@ describe('SFCCLogClient', () => {
       expect(webdav.createClient).toHaveBeenCalledWith(
         'https://test.demandware.net/on/demandware.servlet/webdav/Sites/Logs/',
         {
-          username: 'testkey',
-          password: 'testsecret',
+          username: 'testclientid',
+          password: 'testclientsecret',
         }
       );
     });
@@ -94,7 +94,7 @@ describe('SFCCLogClient', () => {
       };
 
       expect(() => new SFCCLogClient(config)).toThrow(
-        'Either username/password or apiKey/apiSecret must be provided'
+        'Either username/password or clientId/clientSecret must be provided'
       );
     });
   });

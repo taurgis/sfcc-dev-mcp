@@ -81,7 +81,7 @@ export abstract class BaseClient {
       return params;
     }
 
-    const sensitiveFields = ['password', 'clientSecret', 'apiSecret', 'token', 'auth'];
+    const sensitiveFields = ['password', 'clientSecret', 'token', 'auth'];
     const sanitized = { ...params };
 
     for (const field of sensitiveFields) {

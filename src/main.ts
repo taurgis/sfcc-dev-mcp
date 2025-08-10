@@ -84,8 +84,6 @@ async function main(): Promise<void> {
       password: process.env.SFCC_PASSWORD,
       clientId: process.env.SFCC_CLIENT_ID,
       clientSecret: process.env.SFCC_CLIENT_SECRET,
-      apiKey: process.env.SFCC_API_KEY,
-      apiSecret: process.env.SFCC_API_SECRET,
     });
 
     // Log configuration summary (without sensitive data)

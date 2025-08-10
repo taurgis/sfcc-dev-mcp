@@ -19,8 +19,6 @@ export class ConfigurationFactory {
     password?: string;
     clientId?: string;
     clientSecret?: string;
-    apiKey?: string;
-    apiSecret?: string;
     siteId?: string;
   }): SFCCConfig {
     let config: SFCCConfig;
@@ -36,8 +34,6 @@ export class ConfigurationFactory {
         password: options.password,
         clientId: options.clientId,
         clientSecret: options.clientSecret,
-        apiKey: options.apiKey,
-        apiSecret: options.apiSecret,
         siteId: options.siteId,
       };
     }
@@ -48,8 +44,6 @@ export class ConfigurationFactory {
     if (options.password) config.password = options.password;
     if (options.clientId) config.clientId = options.clientId;
     if (options.clientSecret) config.clientSecret = options.clientSecret;
-    if (options.apiKey) config.apiKey = options.apiKey;
-    if (options.apiSecret) config.apiSecret = options.apiSecret;
     if (options.siteId) config.siteId = options.siteId;
 
     this.validate(config);
@@ -107,10 +101,10 @@ export class ConfigurationFactory {
     }
 
     const hasBasicAuth = config.username && config.password;
-    const hasOAuth = (config.clientId && config.clientSecret) || (config.apiKey && config.apiSecret);
+    const hasOAuth = (config.clientId && config.clientSecret);
 
     if (!hasBasicAuth && !hasOAuth) {
-      throw new Error("Either username/password or OAuth credentials (clientId/clientSecret or apiKey/apiSecret) must be provided");
+      throw new Error("Either username/password or OAuth credentials (clientId/clientSecret) must be provided");
     }
   }
 
@@ -124,11 +118,10 @@ export class ConfigurationFactory {
   } {
     // WebDAV/Logs can work with either basic auth OR OAuth credentials
     const hasWebDAVCredentials = !!(config.username && config.password) ||
-                                 !!(config.apiKey && config.apiSecret);
+                                 !!(config.clientId && config.clientSecret);
 
     // OCAPI specifically requires OAuth credentials
-    const hasOAuthCredentials = !!(config.clientId && config.clientSecret) ||
-                               !!(config.apiKey && config.apiSecret);
+    const hasOAuthCredentials = !!(config.clientId && config.clientSecret);
 
     return {
       canAccessLogs: hasWebDAVCredentials,
