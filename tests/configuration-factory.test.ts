@@ -142,5 +142,15 @@ describe('ConfigurationFactory', () => {
       expect(capabilities.canAccessOCAPI).toBe(true);
       expect(capabilities.canAccessWebDAV).toBe(true);
     });
+
+    it('should return false capabilities for empty config', () => {
+        const config: SFCCConfig = {};
+
+        const capabilities = ConfigurationFactory.getCapabilities(config);
+
+        expect(capabilities.canAccessLogs).toBe(false);
+        expect(capabilities.canAccessOCAPI).toBe(false);
+        expect(capabilities.canAccessWebDAV).toBe(false);
+    });
   });
 });

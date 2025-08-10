@@ -11,7 +11,7 @@
  */
 export interface SFCCConfig {
   /** SFCC hostname (e.g., zziu-006.dx.commercecloud.salesforce.com) */
-  hostname: string;
+  hostname?: string;
   /** Username for basic authentication (optional if using OAuth) */
   username?: string;
   /** Password for basic authentication (optional if using OAuth) */
