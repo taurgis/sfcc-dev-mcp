@@ -263,7 +263,7 @@ export class SFCCDevServer {
         tools.push(
           {
             name: "get_latest_errors",
-            description: "Get the latest error messages from SFCC logs",
+            description: "Get the latest error messages from SFCC logs. Use this when debugging failed operations, investigating crashes, exceptions, or when code is not working as expected. Essential for troubleshooting critical issues, API failures, database connection problems, or when users report bugs. Errors indicate something went wrong and needs immediate attention.",
             inputSchema: {
               type: "object",
               properties: {
@@ -281,7 +281,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_latest_warnings",
-            description: "Get the latest warning messages from SFCC logs",
+            description: "Get the latest warning messages from SFCC logs. Use this to identify potential issues, deprecated features being used, performance concerns, or configurations that might cause problems later. Warnings help prevent future errors and optimize code quality. Check warnings when code works but performance is slow or when preparing for production deployment.",
             inputSchema: {
               type: "object",
               properties: {
@@ -299,7 +299,7 @@ export class SFCCDevServer {
           },
           {
             name: "get_latest_info",
-            description: "Get the latest info messages from SFCC logs",
+            description: "Get the latest info messages from SFCC logs. Use this to understand application flow, verify that operations completed successfully, track business logic execution, or monitor normal system behavior. Info logs help confirm that features are working correctly and provide context about what the system is doing during normal operation.",
             inputSchema: {
               type: "object",
               properties: {
@@ -316,8 +316,26 @@ export class SFCCDevServer {
             },
           },
           {
+            name: "get_latest_debug",
+            description: "Get the latest debug messages from SFCC logs. Use this for detailed troubleshooting when you need to trace code execution step-by-step, inspect variable values, understand complex business logic flow, or investigate subtle bugs. Debug logs provide the most detailed information and are essential when standard error logs don't provide enough context to solve the problem.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                date: {
+                  type: "string",
+                  description: "Date in YYYYMMDD format (default: today)",
+                },
+                limit: {
+                  type: "number",
+                  description: "Number of debug entries to return (default: 10)",
+                  default: 10,
+                },
+              },
+            },
+          },
+          {
             name: "summarize_logs",
-            description: "Summarize the latest logs with error counts and key issues",
+            description: "Get a comprehensive overview of all log activity with counts and key issues for a specific date. Use this as the first step when investigating problems to quickly understand the overall health of the system, identify the most frequent errors, and get a high-level view before diving into specific log types. Perfect for daily health checks, incident response, or when you need to quickly assess if there are any major issues.",
             inputSchema: {
               type: "object",
               properties: {
@@ -330,18 +348,18 @@ export class SFCCDevServer {
           },
           {
             name: "search_logs",
-            description: "Search for specific patterns in the logs",
+            description: "Search for specific patterns, keywords, or error messages across SFCC logs. Use this when you know what you're looking for - specific error messages, function names, API calls, user IDs, order numbers, or any custom identifiers. Essential for tracking down specific issues, following a transaction through the system, or finding all instances of a particular problem pattern.",
             inputSchema: {
               type: "object",
               properties: {
                 pattern: {
                   type: "string",
-                  description: "Search pattern or keyword",
+                  description: "Search pattern or keyword to find in logs",
                 },
                 logLevel: {
                   type: "string",
-                  enum: ["error", "warn", "info"],
-                  description: "Log level to search in",
+                  enum: ["error", "warn", "info", "debug"],
+                  description: "Restrict search to specific log level for more focused results",
                 },
                 date: {
                   type: "string",
@@ -358,7 +376,7 @@ export class SFCCDevServer {
           },
           {
             name: "list_log_files",
-            description: "List available log files",
+            description: "List all available log files with metadata including sizes and modification dates. Use this to understand what log data is available, check if logs are being generated properly, or when you need to investigate issues from specific time periods. Helpful for determining log retention and identifying the best date range for investigation.",
             inputSchema: {
               type: "object",
               properties: {},
@@ -497,6 +515,23 @@ export class SFCCDevServer {
                 {
                   type: "text",
                   text: JSON.stringify(infoResult, null, 2),
+                },
+              ],
+            };
+            break;
+
+          case "get_latest_debug":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
+            this.logger.debug(`Fetching latest debug logs with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
+            const debugResult = await this.logClient.getLatestLogs("debug", (args?.limit as number) || 10, args?.date as string);
+            this.logger.timing(`get_latest_debug`, startTime);
+            result = {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(debugResult, null, 2),
                 },
               ],
             };

@@ -50,7 +50,7 @@ export interface DwJsonConfig {
 /**
  * Log levels supported by the SFCC logging system
  */
-export type LogLevel = "error" | "warn" | "info";
+export type LogLevel = "error" | "warn" | "info" | "debug";
 
 /**
  * Structure for log file metadata
@@ -76,6 +76,8 @@ export interface LogSummary {
   warningCount: number;
   /** Number of info entries found */
   infoCount: number;
+  /** Number of debug entries found */
+  debugCount: number;
   /** List of unique error patterns identified */
   keyIssues: string[];
   /** List of log files analyzed */

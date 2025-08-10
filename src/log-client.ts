@@ -165,6 +165,7 @@ export class SFCCLogClient {
       errorCount: 0,
       warningCount: 0,
       infoCount: 0,
+      debugCount: 0,
       keyIssues: [],
       files: logFiles,
     };
@@ -180,6 +181,7 @@ export class SFCCLogClient {
           if (line.includes(' ERROR ')) summary.errorCount++;
           if (line.includes(' WARN ')) summary.warningCount++;
           if (line.includes(' INFO ')) summary.infoCount++;
+          if (line.includes(' DEBUG ')) summary.debugCount++;
         }
 
         // Extract key error patterns from error files
@@ -279,7 +281,8 @@ export class SFCCLogClient {
            `📊 Counts:\n` +
            `- Errors: ${summary.errorCount}\n` +
            `- Warnings: ${summary.warningCount}\n` +
-           `- Info: ${summary.infoCount}\n\n` +
+           `- Info: ${summary.infoCount}\n` +
+           `- Debug: ${summary.debugCount}\n\n` +
            `📁 Log Files (${summary.files.length}):\n` +
            `${summary.files.map((f: string) => `- ${f}`).join('\n')}\n\n` +
            `🔥 Key Issues:\n` +

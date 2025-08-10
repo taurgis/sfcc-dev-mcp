@@ -105,6 +105,7 @@ describe('SFCCLogClient', () => {
         { type: 'file', filename: 'error-20240809-blade1-001.log' },
         { type: 'file', filename: 'warn-20240809-blade1-001.log' },
         { type: 'file', filename: 'info-20240809-blade1-001.log' },
+        { type: 'file', filename: 'debug-20240809-blade1-001.log' },
         { type: 'file', filename: 'error-20240808-blade1-001.log' }, // Different date
         { type: 'directory', filename: 'somedir' }, // Directory
         { type: 'file', filename: 'not-a-log.txt' }, // Not a log file
@@ -118,6 +119,7 @@ describe('SFCCLogClient', () => {
         'error-20240809-blade1-001.log',
         'warn-20240809-blade1-001.log',
         'info-20240809-blade1-001.log',
+        'debug-20240809-blade1-001.log',
       ]);
       expect(mockWebdavClient.getDirectoryContents).toHaveBeenCalledWith('/');
     });
@@ -187,6 +189,26 @@ describe('SFCCLogClient', () => {
         { format: 'text' }
       );
     });
+
+    it('should return latest debug logs', async () => {
+      const mockContents = [
+        { type: 'file', filename: 'debug-20240809-blade1-001.log' },
+        { type: 'file', filename: 'debug-20240809-blade1-002.log' },
+      ];
+      mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
+
+      const mockLogContent = 'DEBUG Line 1\nDEBUG Line 2\nDEBUG Line 3';
+      mockWebdavClient.getFileContents.mockResolvedValue(mockLogContent);
+
+      const result = await logClient.getLatestLogs('debug' as LogLevel, 2, '20240809');
+
+      expect(result).toContain('Latest 2 debug messages');
+      expect(result).toContain('debug-20240809-blade1-002.log'); // Should use the latest file
+      expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
+        'debug-20240809-blade1-002.log',
+        { format: 'text' }
+      );
+    });
   });
 
   describe('summarizeLogs', () => {
@@ -203,17 +225,20 @@ describe('SFCCLogClient', () => {
         { type: 'file', filename: 'error-20240809-blade1-001.log' },
         { type: 'file', filename: 'warn-20240809-blade1-001.log' },
         { type: 'file', filename: 'info-20240809-blade1-001.log' },
+        { type: 'file', filename: 'debug-20240809-blade1-001.log' },
       ];
       mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
 
       const mockErrorContent = ' ERROR Something went wrong\n ERROR Another error\n INFO Some info';
       const mockWarnContent = ' WARN Warning message\n INFO Info message';
       const mockInfoContent = ' INFO First info\n INFO Second info\n INFO Third info';
+      const mockDebugContent = ' DEBUG Debug message 1\n DEBUG Debug message 2\n DEBUG Debug message 3';
 
       mockWebdavClient.getFileContents
         .mockResolvedValueOnce(mockErrorContent)
         .mockResolvedValueOnce(mockWarnContent)
-        .mockResolvedValueOnce(mockInfoContent);
+        .mockResolvedValueOnce(mockInfoContent)
+        .mockResolvedValueOnce(mockDebugContent);
 
       const result = await logClient.summarizeLogs('20240809');
 
@@ -221,7 +246,8 @@ describe('SFCCLogClient', () => {
       expect(result).toContain('Errors: 2'); // The parseLogEntries mock filters properly
       expect(result).toContain('Warnings: 1');
       expect(result).toContain('Info: 5');
-      expect(result).toContain('Log Files (3)');
+      expect(result).toContain('Debug: 3');
+      expect(result).toContain('Log Files (4)');
       expect(result).toContain('ERROR Something went wrong'); // Key issues section
       expect(result).toContain('ERROR Another error');
     });
@@ -237,6 +263,7 @@ describe('SFCCLogClient', () => {
 
       expect(result).toContain('Log Summary for 20240809');
       expect(result).toContain('Errors: 0'); // Should handle the error and continue
+      expect(result).toContain('Debug: 0'); // Should initialize debug count to 0
     });
   });
 
@@ -305,6 +332,26 @@ describe('SFCCLogClient', () => {
       // Should only return 10 matches despite 50 being available
       const matches = result.split('\n\n').length - 1; // Subtract header line
       expect(matches).toBeLessThanOrEqual(11); // 10 matches + header
+    });
+
+    it('should filter by debug log level when specified', async () => {
+      const mockContents = [
+        { type: 'file', filename: 'debug-20240809-blade1-001.log' },
+        { type: 'file', filename: 'error-20240809-blade1-001.log' },
+      ];
+      mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
+
+      const mockDebugContent = 'DEBUG: Database query executed';
+      mockWebdavClient.getFileContents.mockResolvedValue(mockDebugContent);
+
+      const result = await logClient.searchLogs('database', 'debug' as LogLevel, 20, '20240809');
+
+      expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(1);
+      expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
+        'debug-20240809-blade1-001.log',
+        { format: 'text' }
+      );
+      expect(result).toContain('Database query executed');
     });
   });
 
