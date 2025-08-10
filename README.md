@@ -4,6 +4,19 @@
 
 To use this MCP server with Claude Desktop or other MCP clients, add the following to your MCP settings file:
 
+**Documentation-Only Mode** (No SFCC credentials needed):
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp"]
+    }
+  }
+}
+```
+
+**Full Mode** (With SFCC credentials for log analysis and system object tools):
 ```json
 {
   "mcpServers": {
@@ -15,10 +28,28 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 }
 ```
 
-**Required**: 
-- Create a `dw.json` file with your SFCC credentials (see Configuration section below)
+**For Full Mode**, create a `dw.json` file with your SFCC credentials:
 
-**Alternative**: If you prefer environment variables instead of `dw.json`, remove the `--dw-json` argument and add `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET`, and `SFCC_INSTANCE_URL` to the `env` section.
+```json
+{
+  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "your-username",
+  "password": "your-password",
+  "client-id": "your-client-id",
+  "client-secret": "your-client-secret"
+}
+```
+
+### Available Tools by Mode
+
+| Tool Category | Documentation-Only Mode | Full Mode |
+|---------------|------------------------|-----------|
+| **SFCC Documentation** (7 tools) | ✅ Available | ✅ Available |
+| **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
+| **Log Analysis** (6 tools) | ❌ Requires credentials | ✅ Available |
+| **System Object Definitions** (3 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
+
+**Get started immediately**: The server works without any credentials - just use `npx sfcc-dev-mcp` to access all documentation and best practices tools!
 
 ---
 

@@ -58,7 +58,7 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
  * 1. Command line --dw-json argument
  * 2. ./dw.json in current directory
  * 3. Environment variables
- * 4. Default values
+ * 4. Default values (empty config for docs-only mode)
  */
 function loadConfiguration(): SFCCConfig {
   const { dwJsonPath } = parseCommandLineArgs();
@@ -83,18 +83,37 @@ function loadConfiguration(): SFCCConfig {
     return loadDwJsonConfig(defaultDwJsonPath);
   }
 
-  // 3. Fall back to environment variables
-  logger.log("Loading configuration from environment variables");
-  const config: SFCCConfig = {
-    hostname: process.env.SFCC_HOSTNAME || "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
-    clientId: process.env.SFCC_CLIENT_ID || "",
-    clientSecret: process.env.SFCC_CLIENT_SECRET || "",
-    username: process.env.SFCC_USERNAME || "",
-    password: process.env.SFCC_PASSWORD || "",
-    siteId: process.env.SFCC_SITE_ID || "RefArch",
-  };
+  // 3. Try environment variables
+  const envHostname = process.env.SFCC_HOSTNAME;
+  const envUsername = process.env.SFCC_USERNAME;
+  const envPassword = process.env.SFCC_PASSWORD;
+  const envClientId = process.env.SFCC_CLIENT_ID;
+  const envClientSecret = process.env.SFCC_CLIENT_SECRET;
 
-  return config;
+  // Check if we have any environment configuration
+  if (envHostname || envUsername || envClientId) {
+    logger.log("Loading configuration from environment variables");
+    const config: SFCCConfig = {
+      hostname: envHostname || "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+      clientId: envClientId || "",
+      clientSecret: envClientSecret || "",
+      username: envUsername || "",
+      password: envPassword || "",
+      siteId: process.env.SFCC_SITE_ID || "RefArch",
+    };
+    return config;
+  }
+
+  // 4. Return empty config for docs-only mode
+  logger.log("No SFCC credentials found - running in documentation-only mode");
+  return {
+    hostname: "",
+    clientId: "",
+    clientSecret: "",
+    username: "",
+    password: "",
+    siteId: "",
+  };
 }
 
 async function main() {
@@ -110,14 +129,14 @@ async function main() {
 
     // Create a safe version of config for logging (mask sensitive data)
     const safeConfig = {
-      hostname: config.hostname,
-      username: config.username ? '***masked***' : '',
-      password: config.password ? '***masked***' : '',
-      clientId: config.clientId ? '***masked***' : '',
-      clientSecret: config.clientSecret ? '***masked***' : '',
-      apiKey: config.apiKey ? '***masked***' : '',
-      apiSecret: config.apiSecret ? '***masked***' : '',
-      siteId: config.siteId,
+      hostname: config.hostname || '(not configured)',
+      username: config.username ? '***masked***' : '(not configured)',
+      password: config.password ? '***masked***' : '(not configured)',
+      clientId: config.clientId ? '***masked***' : '(not configured)',
+      clientSecret: config.clientSecret ? '***masked***' : '(not configured)',
+      apiKey: config.apiKey ? '***masked***' : '(not configured)',
+      apiSecret: config.apiSecret ? '***masked***' : '(not configured)',
+      siteId: config.siteId || '(not configured)',
     };
 
     mainLogger.log("Configuration loaded successfully");
@@ -125,26 +144,24 @@ async function main() {
       mainLogger.debug("Configuration details:", JSON.stringify(safeConfig, null, 2));
     }
 
-    // Validate that we have the minimum required configuration
-    if (!config.hostname) {
-      mainLogger.error("Error: SFCC hostname is required. Please provide it via:");
-      mainLogger.error("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
-      mainLogger.error("  2. Environment variable: SFCC_HOSTNAME=your-instance.com npm start");
-      process.exit(1);
-    }
-
-    if (!config.username && !config.clientId) {
-      mainLogger.error("Error: Authentication credentials are required. Please provide either:");
-      mainLogger.error("  1. Username/password in dw.json or via SFCC_USERNAME/SFCC_PASSWORD");
-      mainLogger.error("  2. Client ID/secret via SFCC_CLIENT_ID/SFCC_CLIENT_SECRET");
-      process.exit(1);
-    }
+    // Determine the server mode based on available configuration
+    const hasCredentials = !!(config.hostname && (config.username || config.clientId));
+    const serverMode = hasCredentials ? "Full Mode" : "Documentation-Only Mode";
 
     const server = new SFCCDevServer(config, debug ?? false);
 
     mainLogger.log("Starting SFCC Development MCP Server...");
-    mainLogger.log(`Connected to: ${config.hostname}`);
-    mainLogger.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
+    mainLogger.log(`Server Mode: ${serverMode}`);
+
+    if (hasCredentials) {
+      mainLogger.log(`Connected to: ${config.hostname}`);
+      mainLogger.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
+    } else {
+      mainLogger.log("No SFCC credentials provided - only documentation tools will be available");
+      mainLogger.log("To enable log analysis and system object tools, provide SFCC credentials via:");
+      mainLogger.log("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
+      mainLogger.log("  2. Environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD");
+    }
 
     await server.run();
   } catch (error) {

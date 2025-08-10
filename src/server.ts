@@ -27,11 +27,12 @@ import { Logger } from "./logger.js";
  */
 export class SFCCDevServer {
   private server: Server;
-  private logClient: SFCCLogClient;
+  private logClient: SFCCLogClient | null = null;
   private docsClient: SFCCDocumentationClient;
   private bestPracticesClient: SFCCBestPracticesClient;
   private ocapiClient: OCAPIClient | null = null;
   private logger: Logger;
+  private hasCredentials: boolean;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -43,9 +44,20 @@ export class SFCCDevServer {
     this.logger = new Logger("Server", true, debug);
     this.logger.methodEntry("constructor", { hostname: config.hostname, hasAuth: !!(config.username || config.clientId), debug });
 
-    this.logClient = new SFCCLogClient(config);
+    // Check if we have credentials for SFCC operations
+    this.hasCredentials = !!(config.hostname && (config.username || config.clientId));
+
+    // Always initialize documentation and best practices clients (they don't need credentials)
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
+
+    // Only initialize log client if we have credentials
+    if (this.hasCredentials) {
+      this.logClient = new SFCCLogClient(config);
+      this.logger.debug("Log client initialized with SFCC credentials");
+    } else {
+      this.logger.debug("Log client not initialized - no SFCC credentials provided");
+    }
 
     // Initialize OCAPI client if OAuth credentials are available
     if (config.clientId && config.clientSecret) {
@@ -89,9 +101,166 @@ export class SFCCDevServer {
    */
   private setupToolHandlers(): void {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return {
-        tools: [
-          // SFCC Log Tools
+      const tools = [];
+
+      // Always available tools (documentation and best practices)
+      tools.push(
+        // SFCC Documentation Tools
+        {
+          name: "get_sfcc_class_info",
+          description: "Get detailed information about an SFCC class including properties, methods, and description. This is specifically for SFCC server-side code used within cartridges (controllers, scripts, templates, rest-apis) and covers the dw.* API available in the SFCC Rhino environment.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              className: {
+                type: "string",
+                description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
+              },
+              expand: {
+                type: "boolean",
+                description: "Whether to include detailed information about referenced types used by this class (default: false)",
+                default: false,
+              },
+            },
+            required: ["className"],
+          },
+        },
+        {
+          name: "search_sfcc_classes",
+          description: "Search for SFCC classes by name. These are server-side classes available in SFCC cartridge code (controllers, scripts, templates, rest-apis) within the Rhino JavaScript environment.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query for class names",
+              },
+            },
+            required: ["query"],
+          },
+        },
+        {
+          name: "get_sfcc_class_methods",
+          description: "Get all methods for a specific SFCC class. This covers server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              className: {
+                type: "string",
+                description: "The SFCC class name",
+              },
+            },
+            required: ["className"],
+          },
+        },
+        {
+          name: "get_sfcc_class_properties",
+          description: "Get all properties for a specific SFCC class. This covers server-side API properties available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              className: {
+                type: "string",
+                description: "The SFCC class name",
+              },
+            },
+            required: ["className"],
+          },
+        },
+        {
+          name: "search_sfcc_methods",
+          description: "Search for methods across all SFCC classes. This searches server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              methodName: {
+                type: "string",
+                description: "Method name to search for",
+              },
+            },
+            required: ["methodName"],
+          },
+        },
+        {
+          name: "list_sfcc_classes",
+          description: "List all available SFCC classes. These are server-side classes available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino JavaScript environment.",
+          inputSchema: {
+            type: "object",
+            properties: {},
+          },
+        },
+        {
+          name: "get_sfcc_class_documentation",
+          description: "Get the raw documentation content for an SFCC class. This provides detailed documentation for server-side classes used in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              className: {
+                type: "string",
+                description: "The SFCC class name",
+              },
+            },
+            required: ["className"],
+          },
+        },
+        // SFCC Best Practices Tools
+        {
+          name: "get_available_best_practice_guides",
+          description: "Get a list of all available SFCC best practice and how to guides including Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
+          inputSchema: {
+            type: "object",
+            properties: {},
+          },
+        },
+        {
+          name: "get_best_practice_guide",
+          description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              guideName: {
+                type: "string",
+                description: "The guide name (e.g., 'cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
+                enum: ["cartridge_creation", "ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
+              },
+            },
+            required: ["guideName"],
+          },
+        },
+        {
+          name: "search_best_practices",
+          description: "Search across all best practice and how to guides for specific terms or concepts",
+          inputSchema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search term or concept (e.g., 'validation', 'security', 'performance')",
+              },
+            },
+            required: ["query"],
+          },
+        },
+        {
+          name: "get_hook_reference",
+          description: "Get comprehensive hook reference tables for OCAPI or SCAPI hooks including endpoints and extension points",
+          inputSchema: {
+            type: "object",
+            properties: {
+              guideName: {
+                type: "string",
+                description: "The hook guide name",
+                enum: ["ocapi_hooks", "scapi_hooks"],
+              },
+            },
+            required: ["guideName"],
+          },
+        }
+      );
+
+      // Add log tools only if log client is available
+      if (this.logClient) {
+        tools.push(
           {
             name: "get_latest_errors",
             description: "Get the latest error messages from SFCC logs",
@@ -194,106 +363,13 @@ export class SFCCDevServer {
               type: "object",
               properties: {},
             },
-          },
-          // SFCC Documentation Tools
-          {
-            name: "get_sfcc_class_info",
-            description: "Get detailed information about an SFCC class including properties, methods, and description. This is specifically for SFCC server-side code used within cartridges (controllers, scripts, templates, rest-apis) and covers the dw.* API available in the SFCC Rhino environment.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                className: {
-                  type: "string",
-                  description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
-                },
-                expand: {
-                  type: "boolean",
-                  description: "Whether to include detailed information about referenced types used by this class (default: false)",
-                  default: false,
-                },
-              },
-              required: ["className"],
-            },
-          },
-          {
-            name: "search_sfcc_classes",
-            description: "Search for SFCC classes by name. These are server-side classes available in SFCC cartridge code (controllers, scripts, templates, rest-apis) within the Rhino JavaScript environment.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                query: {
-                  type: "string",
-                  description: "Search query for class names",
-                },
-              },
-              required: ["query"],
-            },
-          },
-          {
-            name: "get_sfcc_class_methods",
-            description: "Get all methods for a specific SFCC class. This covers server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                className: {
-                  type: "string",
-                  description: "The SFCC class name",
-                },
-              },
-              required: ["className"],
-            },
-          },
-          {
-            name: "get_sfcc_class_properties",
-            description: "Get all properties for a specific SFCC class. This covers server-side API properties available in cartridge code (controllers, scripts, templates, rest-apis) using the dw.* namespace.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                className: {
-                  type: "string",
-                  description: "The SFCC class name",
-                },
-              },
-              required: ["className"],
-            },
-          },
-          {
-            name: "search_sfcc_methods",
-            description: "Search for methods across all SFCC classes. This searches server-side API methods available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                methodName: {
-                  type: "string",
-                  description: "Method name to search for",
-                },
-              },
-              required: ["methodName"],
-            },
-          },
-          {
-            name: "list_sfcc_classes",
-            description: "List all available SFCC classes. These are server-side classes available in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino JavaScript environment.",
-            inputSchema: {
-              type: "object",
-              properties: {},
-            },
-          },
-          {
-            name: "get_sfcc_class_documentation",
-            description: "Get the raw documentation content for an SFCC class. This provides detailed documentation for server-side classes used in cartridge code (controllers, scripts, templates, rest-apis) within the SFCC Rhino environment.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                className: {
-                  type: "string",
-                  description: "The SFCC class name",
-                },
-              },
-              required: ["className"],
-            },
-          },
-          // SFCC System Object Definition Tools
+          }
+        );
+      }
+
+      // Add system object definition tools only if OCAPI client is available
+      if (this.ocapiClient) {
+        tools.push(
           {
             name: "get_system_object_definitions",
             description: "Get all system object definitions from SFCC. This returns a list of all system objects with their metadata, useful for discovering what system objects exist and their custom attributes. Requires OAuth credentials.",
@@ -358,62 +434,11 @@ export class SFCCDevServer {
               },
               required: ["objectType"],
             },
-          },
-          // SFCC Best Practices Tools
-          {
-            name: "get_available_best_practice_guides",
-            description: "Get a list of all available SFCC best practice and how to guides including Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints",
-            inputSchema: {
-              type: "object",
-              properties: {},
-            },
-          },
-          {
-            name: "get_best_practice_guide",
-            description: "Get a complete best practice and how to guide with all sections and content. These guides cover specific areas of SFCC development such as Cartridge Creation, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints. Always check these guides when creating new code or implementing features in any of these areas.",
-            inputSchema: {
-              type: "object",
-              properties: {
-                guideName: {
-                  type: "string",
-                  description: "The guide name (e.g., 'cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
-                  enum: ["cartridge_creation", "ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
-                },
-              },
-              required: ["guideName"],
-            },
-          },
-          {
-            name: "search_best_practices",
-            description: "Search across all best practice and how to guides for specific terms or concepts",
-            inputSchema: {
-              type: "object",
-              properties: {
-                query: {
-                  type: "string",
-                  description: "Search term or concept (e.g., 'validation', 'security', 'performance')",
-                },
-              },
-              required: ["query"],
-            },
-          },
-          {
-            name: "get_hook_reference",
-            description: "Get comprehensive hook reference tables for OCAPI or SCAPI hooks including endpoints and extension points",
-            inputSchema: {
-              type: "object",
-              properties: {
-                guideName: {
-                  type: "string",
-                  description: "The hook guide name",
-                  enum: ["ocapi_hooks", "scapi_hooks"],
-                },
-              },
-              required: ["guideName"],
-            },
-          },
-        ],
-      };
+          }
+        );
+      }
+
+      return { tools };
     });
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -427,6 +452,9 @@ export class SFCCDevServer {
         switch (name) {
           // Log-related tools
           case "get_latest_errors":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             this.logger.debug(`Fetching latest errors with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
             const errorResult = await this.logClient.getLatestLogs("error", (args?.limit as number) || 10, args?.date as string);
             this.logger.timing(`get_latest_errors`, startTime);
@@ -441,6 +469,9 @@ export class SFCCDevServer {
             break;
 
           case "get_latest_warnings":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             this.logger.debug(`Fetching latest warnings with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
             const warningResult = await this.logClient.getLatestLogs("warn", (args?.limit as number) || 10, args?.date as string);
             this.logger.timing(`get_latest_warnings`, startTime);
@@ -455,6 +486,9 @@ export class SFCCDevServer {
             break;
 
           case "get_latest_info":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             this.logger.debug(`Fetching latest info logs with limit: ${(args?.limit as number) || 10}, date: ${args?.date || 'today'}`);
             const infoResult = await this.logClient.getLatestLogs("info", (args?.limit as number) || 10, args?.date as string);
             this.logger.timing(`get_latest_info`, startTime);
@@ -469,6 +503,9 @@ export class SFCCDevServer {
             break;
 
           case "summarize_logs":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             this.logger.debug(`Summarizing logs for date: ${args?.date || 'today'}`);
             const summaryResult = await this.logClient.summarizeLogs(args?.date as string);
             this.logger.timing(`summarize_logs`, startTime);
@@ -483,6 +520,9 @@ export class SFCCDevServer {
             break;
 
           case "search_logs":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             if (!args?.pattern) {
               throw new Error("Pattern is required for log search");
             }
@@ -505,6 +545,9 @@ export class SFCCDevServer {
             break;
 
           case "list_log_files":
+            if (!this.logClient) {
+              throw new Error("Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.");
+            }
             this.logger.debug("Listing all available log files");
             const logFilesResult = await this.logClient.listLogFiles();
             this.logger.timing(`list_log_files`, startTime);
