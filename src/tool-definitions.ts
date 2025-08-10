@@ -287,7 +287,7 @@ export const LOG_TOOLS = [
 export const SYSTEM_OBJECT_TOOLS = [
   {
     name: "get_system_object_definitions",
-    description: "Get all system object definitions from SFCC with their main metadata, not including all attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.",
+    description: "Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.",
     inputSchema: {
       type: "object",
       properties: {
@@ -310,7 +310,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: "get_system_object_definition",
-    description: "Get detailed information about a specific SFCC system object definition including basic attributes and metadata. Use this when working with specific objects like Product, Customer, Order, Category, or Site to understand their structure and understand data relationships. Perfect for implementing features that interact with specific SFCC objects.",
+    description: "Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead.",
     inputSchema: {
       type: "object",
       properties: {
