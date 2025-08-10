@@ -1,6 +1,6 @@
 {
   "name": "sfcc-dev-mcp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "main": "dist/index.js",
   "bin": {
@@ -15,7 +15,8 @@
     "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",

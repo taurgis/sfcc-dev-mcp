@@ -2,29 +2,14 @@
 
 /**
  * Main entry point for the SFCC Development MCP Server
- *
- * This script initializes and starts the MCP server with SFCC development capabilities
- * including log analysis and comprehensive documentation querying.
- *
- * Usage:
- *   node build/main.js
- *   npm start
- *   npm run start -- --dw-json /path/to/dw.json
- *   npm run start -- --dw-json ./dw.json
- *   npm run start -- --debug true
- *   npm run start -- --debug false
- *   npm run start -- --debug
- *   npm run start -- --dw-json ./dw.json --debug false
  */
 
 import { SFCCDevServer } from "./server.js";
-import { SFCCConfig } from "./types.js";
+import { ConfigurationFactory } from "./configuration-factory.js";
 import { Logger } from "./logger.js";
-import { loadDwJsonConfig } from "./config.js";
 import { existsSync } from "fs";
 import { resolve } from "path";
 
-// Create a logger instance for this module
 const logger = new Logger('SFCC-MCP-Server');
 
 /**
@@ -54,133 +39,81 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
 }
 
 /**
- * Load configuration from various sources in order of preference:
- * 1. Command line --dw-json argument
- * 2. ./dw.json in current directory
- * 3. Environment variables
- * 4. Default values (empty config for docs-only mode)
+ * Find dw.json file in common locations
  */
-function loadConfiguration(): SFCCConfig {
-  const { dwJsonPath } = parseCommandLineArgs();
+function findDwJsonFile(): string | undefined {
+  const commonPaths = [
+    "./dw.json",
+    "../dw.json",
+    "../../dw.json",
+    process.env.HOME ? resolve(process.env.HOME, "dw.json") : null,
+  ].filter(Boolean) as string[];
 
-  // 1. Try command line argument first
-  if (dwJsonPath) {
-    const resolvedPath = resolve(dwJsonPath);
-
-    if (!existsSync(resolvedPath)) {
-      logger.error(`Error: dw.json file not found at: ${resolvedPath}`);
-      process.exit(1);
+  for (const path of commonPaths) {
+    if (existsSync(path)) {
+      logger.debug(`Found dw.json at: ${path}`);
+      return path;
     }
-
-    logger.log(`Loading configuration from: ${resolvedPath}`);
-    return loadDwJsonConfig(resolvedPath);
   }
 
-  // 2. Try ./dw.json in current directory
-  const defaultDwJsonPath = "./dw.json";
-  if (existsSync(defaultDwJsonPath)) {
-    logger.log(`Loading configuration from: ${resolve(defaultDwJsonPath)}`);
-    return loadDwJsonConfig(defaultDwJsonPath);
-  }
-
-  // 3. Try environment variables
-  const envHostname = process.env.SFCC_HOSTNAME;
-  const envUsername = process.env.SFCC_USERNAME;
-  const envPassword = process.env.SFCC_PASSWORD;
-  const envClientId = process.env.SFCC_CLIENT_ID;
-  const envClientSecret = process.env.SFCC_CLIENT_SECRET;
-
-  // Check if we have any environment configuration
-  if (envHostname || envUsername || envClientId) {
-    logger.log("Loading configuration from environment variables");
-    const config: SFCCConfig = {
-      hostname: envHostname || "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
-      clientId: envClientId || "",
-      clientSecret: envClientSecret || "",
-      username: envUsername || "",
-      password: envPassword || "",
-      siteId: process.env.SFCC_SITE_ID || "RefArch",
-    };
-    return config;
-  }
-
-  // 4. Return empty config for docs-only mode
-  logger.log("No SFCC credentials found - running in documentation-only mode");
-  return {
-    hostname: "",
-    clientId: "",
-    clientSecret: "",
-    username: "",
-    password: "",
-    siteId: "",
-  };
+  return undefined;
 }
 
-async function main() {
+/**
+ * Main application entry point
+ */
+async function main(): Promise<void> {
   try {
-    // Parse command line arguments to get debug flag
-    const { debug } = parseCommandLineArgs();
+    const options = parseCommandLineArgs();
+    const debug = options.debug ?? false;
 
-    // Create a new logger with debug setting from command line
-    const mainLogger = new Logger('SFCC-MCP-Server', true, debug ?? false);
-
-    // Load configuration from dw.json or environment variables
-    const config = loadConfiguration();
-
-    // Create a safe version of config for logging (mask sensitive data)
-    const safeConfig = {
-      hostname: config.hostname || '(not configured)',
-      username: config.username ? '***masked***' : '(not configured)',
-      password: config.password ? '***masked***' : '(not configured)',
-      clientId: config.clientId ? '***masked***' : '(not configured)',
-      clientSecret: config.clientSecret ? '***masked***' : '(not configured)',
-      apiKey: config.apiKey ? '***masked***' : '(not configured)',
-      apiSecret: config.apiSecret ? '***masked***' : '(not configured)',
-      siteId: config.siteId || '(not configured)',
-    };
-
-    mainLogger.log("Configuration loaded successfully");
+    logger.log("Starting SFCC Development MCP Server...");
     if (debug) {
-      mainLogger.debug("Configuration details:", JSON.stringify(safeConfig, null, 2));
+      logger.log("Debug mode enabled");
     }
 
-    // Determine the server mode based on available configuration
-    const hasCredentials = !!(config.hostname && (config.username || config.clientId));
-    const serverMode = hasCredentials ? "Full Mode" : "Documentation-Only Mode";
+    // Try to find dw.json if not explicitly provided
+    const dwJsonPath = options.dwJsonPath || findDwJsonFile();
 
-    const server = new SFCCDevServer(config, debug ?? false);
+    // Create configuration using the factory
+    const config = ConfigurationFactory.create({
+      dwJsonPath,
+      // Add support for environment variables as fallback
+      hostname: process.env.SFCC_HOSTNAME,
+      username: process.env.SFCC_USERNAME,
+      password: process.env.SFCC_PASSWORD,
+      clientId: process.env.SFCC_CLIENT_ID,
+      clientSecret: process.env.SFCC_CLIENT_SECRET,
+      apiKey: process.env.SFCC_API_KEY,
+      apiSecret: process.env.SFCC_API_SECRET,
+    });
 
-    mainLogger.log("Starting SFCC Development MCP Server...");
-    mainLogger.log(`Server Mode: ${serverMode}`);
+    // Log configuration summary (without sensitive data)
+    const capabilities = ConfigurationFactory.getCapabilities(config);
+    logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
+    logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}`);
 
-    if (hasCredentials) {
-      mainLogger.log(`Connected to: ${config.hostname}`);
-      mainLogger.log(`Authentication: ${config.username ? "Username/Password" : "Client ID/Secret"}`);
-    } else {
-      mainLogger.log("No SFCC credentials provided - only documentation tools will be available");
-      mainLogger.log("To enable log analysis and system object tools, provide SFCC credentials via:");
-      mainLogger.log("  1. dw.json file: npm run start -- --dw-json /path/to/dw.json");
-      mainLogger.log("  2. Environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD");
-    }
-
+    // Create and start the server
+    const server = new SFCCDevServer(config, debug);
     await server.run();
   } catch (error) {
-    // Use a basic logger for error cases
-    const errorLogger = new Logger('SFCC-MCP-Server');
-    errorLogger.error("Failed to start SFCC Development MCP server:", error);
+    logger.error("Failed to start SFCC Development MCP Server:", error);
+
+    if (error instanceof Error) {
+      if (error.message.includes("not found")) {
+        logger.log("\nConfiguration Help:");
+        logger.log("1. Create a dw.json file with your SFCC credentials");
+        logger.log("2. Use --dw-json /path/to/dw.json");
+        logger.log("3. Set environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD");
+      }
+    }
+
     process.exit(1);
   }
 }
 
-// Handle graceful shutdown
-process.on("SIGINT", () => {
-  logger.log("Received SIGINT, shutting down gracefully...");
-  process.exit(0);
+// Run the main function
+main().catch((error) => {
+  logger.error("Unhandled error:", error);
+  process.exit(1);
 });
-
-process.on("SIGTERM", () => {
-  logger.log("Received SIGTERM, shutting down gracefully...");
-  process.exit(0);
-});
-
-main();
