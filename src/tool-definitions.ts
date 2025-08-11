@@ -122,8 +122,8 @@ export const BEST_PRACTICES_TOOLS = [
       properties: {
         guideName: {
           type: 'string',
-          description: "The guide name (e.g., 'cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
-          enum: ['cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint'],
+          enum: ['cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint', 'performance'],
+          description: 'The guide name (e.g., \'cartridge_creation\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'scapi_custom_endpoint\', \'performance\')',
         },
       },
       required: ['guideName'],

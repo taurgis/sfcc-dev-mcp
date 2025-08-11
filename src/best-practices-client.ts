@@ -63,6 +63,11 @@ export class SFCCBestPracticesClient {
         title: 'SFRA Controllers Best Practices',
         description: 'Best practices and code patterns for developing SFRA controllers',
       },
+      {
+        name: 'performance',
+        title: 'Performance and Stability Best Practices',
+        description: 'Comprehensive performance optimization strategies, coding standards, and stability guidelines for SFCC development including caching, index-friendly APIs, and job development',
+      },
     ];
 
     this.cache.setSearchResults(cacheKey, guides);

@@ -2,7 +2,7 @@
 
 This document provides instructions to create, configure, and deploy a new custom cartridge for Salesforce B2C Commerce using the Storefront Reference Architecture (SFRA).
 
-NOTE: When doing this, also request best practices for controller creation from this MCP server.
+**NOTE**: When doing this, also request best practices for controller creation from this MCP server. Additionally, consult the **Performance and Stability Best Practices** guide from this MCP server to ensure your cartridge follows performance optimization strategies and coding standards.
 
 ## 1. Core Principles
 

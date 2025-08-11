@@ -2,6 +2,8 @@
 
 This guide provides a concise overview of best practices and examples for creating custom Salesforce Commerce API (SCAPI) endpoints in B2C Commerce Cloud.
 
+**IMPORTANT**: Before implementing custom SCAPI endpoints, consult the **Performance and Stability Best Practices** guide from this MCP server. Pay special attention to the external system integration guidelines, timeout requirements, and caching strategies for optimal endpoint performance.
+
 ## 1. Core Concept: The Three Pillars of a Custom API
 
 Every Custom SCAPI Endpoint is built from three mandatory files, located within a dedicated cartridge directory: `your_cartridge/cartridge/rest-apis/{api-name}/`.

@@ -2,6 +2,8 @@
 
 This guide provides best practices and examples for implementing OCAPI hooks in Salesforce B2C Commerce Cloud.
 
+**IMPORTANT**: Before implementing OCAPI hooks, consult the **Performance and Stability Best Practices** guide from this MCP server. Pay special attention to the OCAPI-specific performance requirements and hook development guidelines to ensure optimal performance and avoid database-intensive operations.
+
 ## 1. Core Concepts
 
 OCAPI hooks are server-side extension points that allow you to inject custom B2C Commerce Script logic into the lifecycle of an OCAPI request. They are used to augment, validate, or modify the behavior of existing API endpoints.

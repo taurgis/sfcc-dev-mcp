@@ -2,6 +2,8 @@
 
 This guide provides essential best practices and code examples for implementing Salesforce Commerce API (SCAPI) hooks. It is designed to be a quick reference for development with AI code assistants.
 
+**IMPORTANT**: Before implementing SCAPI hooks, consult the **Performance and Stability Best Practices** guide from this MCP server. Review the index-friendly APIs section and job development standards to ensure your hooks follow SFCC performance requirements and avoid database-intensive operations.
+
 ## 1. Core Concepts
 
 SCAPI hooks are server-side scripts that intercept SCAPI requests to add custom logic. They are used to augment, validate, or modify the behavior of existing API endpoints. For creating entirely new endpoints, use Custom APIs.
