@@ -102,6 +102,51 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 
 ## Configuration
 
+### Overriding the Working Directory
+
+The server uses the current working directory (cwd) to locate documentation files. By default, it expects to find a `docs/` folder in the directory where the server is started. If you need to use documentation from a different location, you have several options:
+
+**Option 1: Start the server from the correct directory**
+```bash
+cd /path/to/sfcc-dev-mcp
+npx sfcc-dev-mcp
+```
+
+**Option 2: Use the --cwd flag (if your MCP client supports it)**
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp"],
+      "cwd": "/path/to/sfcc-dev-mcp"
+    }
+  }
+}
+```
+
+**Option 3: Create symbolic links**
+```bash
+# Create a symbolic link to the docs folder in your desired location
+ln -s /path/to/sfcc-dev-mcp/docs /your/desired/location/docs
+cd /your/desired/location
+npx sfcc-dev-mcp
+```
+
+**Expected Directory Structure:**
+The server expects the following structure relative to the working directory:
+```
+./docs/
+├── best-practices/
+│   ├── cartridge_creation.md
+│   ├── ocapi_hooks.md
+│   ├── scapi_hooks.md
+│   └── ...
+├── dw_catalog/
+├── dw_order/
+└── ... (other SFCC class documentation folders)
+```
+
 ### Using dw.json (Recommended)
 
 The server supports the standard SFCC `dw.json` configuration format used by Commerce Cloud development tools. Create a `dw.json` file in your project root:

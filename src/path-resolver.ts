@@ -1,48 +1,39 @@
 /**
  * Path Resolver Helper
  *
- * Provides utilities for resolving file and directory paths in ES modules.
- * This abstraction allows for easier mocking in tests by centralizing
- * the import.meta.url usage.
+ * Provides utilities for resolving file and directory paths based on the current working directory.
+ * This abstraction allows for easier path management and testing.
  */
 
-import { fileURLToPath } from 'url';
 import path from 'path';
 
 export class PathResolver {
   /**
-   * Get the current file path from import.meta.url
+   * Get the current working directory
    */
-  static getCurrentFilePath(importMetaUrl: string): string {
-    return fileURLToPath(importMetaUrl);
+  static getCurrentWorkingDir(): string {
+    return process.cwd();
   }
 
   /**
-   * Get the current directory path from import.meta.url
+   * Get a path relative to the current working directory
    */
-  static getCurrentDirPath(importMetaUrl: string): string {
-    return path.dirname(fileURLToPath(importMetaUrl));
-  }
-
-  /**
-   * Get a path relative to the current directory
-   */
-  static getRelativePath(importMetaUrl: string, ...pathSegments: string[]): string {
-    const currentDir = this.getCurrentDirPath(importMetaUrl);
+  static getRelativePath(...pathSegments: string[]): string {
+    const currentDir = this.getCurrentWorkingDir();
     return path.join(currentDir, ...pathSegments);
   }
 
   /**
-   * Get the docs directory path relative to the current file
+   * Get the docs directory path relative to the current working directory
    */
-  static getDocsPath(importMetaUrl: string = import.meta.url): string {
-    return this.getRelativePath(importMetaUrl, '..', 'docs');
+  static getDocsPath(): string {
+    return this.getRelativePath('docs');
   }
 
   /**
-   * Get the best practices docs directory path relative to the current file
+   * Get the best practices docs directory path relative to the current working directory
    */
-  static getBestPracticesPath(importMetaUrl: string = import.meta.url): string {
-    return this.getRelativePath(importMetaUrl, '..', 'docs', 'best-practices');
+  static getBestPracticesPath(): string {
+    return this.getRelativePath('docs', 'best-practices');
   }
 }
