@@ -28,6 +28,8 @@ export interface SFCCMethod {
   description: string;
   parameters?: string[];
   returnType?: string;
+  deprecated?: boolean;
+  deprecationMessage?: string;
 }
 
 export interface SFCCProperty {
@@ -35,6 +37,8 @@ export interface SFCCProperty {
   type: string;
   description: string;
   modifiers?: string[];
+  deprecated?: boolean;
+  deprecationMessage?: string;
 }
 
 export interface SFCCClassDetails {
@@ -296,6 +300,8 @@ export class SFCCDocumentationClient {
         let propType = '';
         let propDesc = '';
         const modifiers: string[] = [];
+        let deprecated = false;
+        let deprecationMessage = '';
 
         // Look for type and description in following lines
         for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
@@ -308,6 +314,26 @@ export class SFCCDocumentationClient {
               if (typeInfo.includes('(Read Only)')) {modifiers.push('Read Only');}
               if (typeInfo.includes('(Static)')) {modifiers.push('Static');}
             }
+          } else if (nextLine.startsWith('**Deprecated:**')) {
+            deprecated = true;
+            // Check if there's a message on the same line
+            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
+            if (sameLineMessage) {
+              deprecationMessage = sameLineMessage;
+            } else {
+              // Look for the deprecation message on subsequent lines until next ** marker
+              const depLines: string[] = [];
+              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
+                const depLine = lines[k].trim();
+                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
+                  break; // Stop at next ** marker
+                }
+                if (depLine && !depLine.startsWith('---')) {
+                  depLines.push(depLine);
+                }
+              }
+              deprecationMessage = depLines.join(' ').trim();
+            }
           } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#')) {
             propDesc += `${nextLine  } `;
           }
@@ -318,6 +344,8 @@ export class SFCCDocumentationClient {
           type: propType,
           description: propDesc.trim(),
           modifiers: modifiers.length > 0 ? modifiers : undefined,
+          deprecated: deprecated || undefined,
+          deprecationMessage: deprecationMessage || undefined,
         });
       }
 
@@ -326,6 +354,8 @@ export class SFCCDocumentationClient {
         const methodName = line.replace('### ', '').trim();
         let signature = '';
         let methodDesc = '';
+        let deprecated = false;
+        let deprecationMessage = '';
 
         // Look for signature and description in following lines
         for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
@@ -337,6 +367,26 @@ export class SFCCDocumentationClient {
             }
           } else if (nextLine.startsWith('**Description:**')) {
             methodDesc = nextLine.replace('**Description:**', '').trim();
+          } else if (nextLine.startsWith('**Deprecated:**')) {
+            deprecated = true;
+            // Check if there's a message on the same line
+            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
+            if (sameLineMessage) {
+              deprecationMessage = sameLineMessage;
+            } else {
+              // Look for the deprecation message on subsequent lines until next ** marker
+              const depLines: string[] = [];
+              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
+                const depLine = lines[k].trim();
+                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
+                  break; // Stop at next ** marker
+                }
+                if (depLine && !depLine.startsWith('---')) {
+                  depLines.push(depLine);
+                }
+              }
+              deprecationMessage = depLines.join(' ').trim();
+            }
           } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#') && !nextLine.startsWith('---')) {
             if (!methodDesc && !nextLine.includes('Signature:')) {
               methodDesc += `${nextLine  } `;
@@ -348,6 +398,8 @@ export class SFCCDocumentationClient {
           name: methodName,
           signature: signature || methodName,
           description: methodDesc.trim(),
+          deprecated: deprecated || undefined,
+          deprecationMessage: deprecationMessage || undefined,
         });
       }
 
@@ -467,8 +519,9 @@ export class SFCCDocumentationClient {
       referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined,
     };
 
-    // Cache the expanded result
+    // Cache the result
     this.cacheManager.setClassDetails(cacheKey, result);
+
     return result;
   }
 
