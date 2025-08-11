@@ -50,17 +50,18 @@ npm install
 A new cartridge should be created using the provided scaffolding tool. The core structure is as follows:
 
 ```
+dw.json               
 cartridges/
 └── your_cartridge_name/
     └── cartridge/
-        ├── client/             # Client-side JS and SCSS [8, 14]
+        ├── client/             
         │   └── default/
         │       ├── js/
         │       └── scss/
-        ├── controllers/        # Server-side controllers (PascalCase) [3, 15]
-        ├── models/             # Data access logic [8, 15]
-        ├── scripts/            # Reusable server-side helper scripts [3, 16]
-        └── templates/          # ISML view templates [3, 15]
+        ├── controllers/        
+        ├── models/             
+        ├── scripts/            
+        └── templates/       
             └── default/
 ```
 
@@ -77,7 +78,7 @@ Place these files in the project's root directory.
 
 ### dw.json (Deployment Credentials)
 
-This file contains sandbox credentials. It must be added to .gitignore.
+This file contains sandbox credentials. It must be added to .gitignore. This file lives in the root of the project.
 
 ```json
 {

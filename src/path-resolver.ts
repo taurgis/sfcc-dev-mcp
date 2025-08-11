@@ -6,13 +6,19 @@
  */
 
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export class PathResolver {
   /**
-   * Get the current working directory
+   * Get the current working directory (project root)
    */
   static getCurrentWorkingDir(): string {
-    return process.cwd();
+    // Get the directory of the current module file
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    // Return the parent directory (project root)
+    return path.resolve(__dirname, '..');
   }
 
   /**
@@ -20,6 +26,7 @@ export class PathResolver {
    */
   static getRelativePath(...pathSegments: string[]): string {
     const currentDir = this.getCurrentWorkingDir();
+
     return path.join(currentDir, ...pathSegments);
   }
 
