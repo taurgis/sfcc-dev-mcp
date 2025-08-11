@@ -248,6 +248,14 @@ To use the system object definition tools (`get_system_object_definitions`, `get
           ],
           "read_attributes": "(**)",
           "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/system_object_definitions/*/attribute_definition_search",
+          "methods": [
+            "post"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
         }
       ]
     }

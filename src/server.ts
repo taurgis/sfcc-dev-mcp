@@ -325,6 +325,16 @@ export class SFCCDevServer {
         });
         this.logger.debug(`Retrieved ${result.length} attribute definitions for object type "${args.objectType}"`);
         break;
+      case 'search_system_object_attribute_definitions':
+        if (!args?.objectType) {throw new Error('objectType is required');}
+        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
+        logMessage = `Searching attribute definitions for object type: "${args.objectType}"`;
+        result = await this.ocapiClient?.searchSystemObjectAttributeDefinitions(
+          args.objectType as string,
+          args.searchRequest,
+        );
+        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute definitions for object type "${args.objectType}"`);
+        break;
       default:
         throw new Error(`Unknown system object tool: ${toolName}`);
     }
@@ -376,7 +386,7 @@ export class SFCCDevServer {
           'search_best_practices', 'get_hook_reference'].includes(name)) {
           result = await this.handleBestPracticesTool(name, args, startTime);
         } else if (['get_system_object_definitions', 'get_system_object_definition',
-          'get_system_object_attribute_definitions'].includes(name)) {
+          'get_system_object_attribute_definitions', 'search_system_object_attribute_definitions'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);

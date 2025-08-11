@@ -351,4 +351,117 @@ export const SYSTEM_OBJECT_TOOLS = [
       required: ['objectType'],
     },
   },
+  {
+    name: 'search_system_object_attribute_definitions',
+    description: 'Search for specific attribute definitions within a system object type using complex queries. Use this when you need to find attributes by name, type, or other properties rather than retrieving all attributes. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        objectType: {
+          type: 'string',
+          description: "The system object type to search within (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
+        },
+        searchRequest: {
+          type: 'object',
+          description: 'The search request with query, sorting, and pagination options',
+          properties: {
+            query: {
+              type: 'object',
+              description: 'Query to filter attribute definitions',
+              properties: {
+                text_query: {
+                  type: 'object',
+                  description: 'Search for text in specific fields',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
+                    },
+                    search_phrase: {
+                      type: 'string',
+                      description: 'Text to search for',
+                    },
+                  },
+                  required: ['fields', 'search_phrase'],
+                },
+                term_query: {
+                  type: 'object',
+                  description: 'Search for exact term matches',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in',
+                    },
+                    operator: {
+                      type: 'string',
+                      description: 'Query operator (e.g., "is", "one_of")',
+                    },
+                    values: {
+                      type: 'array',
+                      description: 'Values to match',
+                    },
+                  },
+                  required: ['fields', 'operator', 'values'],
+                },
+                bool_query: {
+                  type: 'object',
+                  description: 'Combine multiple queries with boolean logic',
+                  properties: {
+                    must: {
+                      type: 'array',
+                      description: 'Queries that must match (AND)',
+                    },
+                    must_not: {
+                      type: 'array',
+                      description: 'Queries that must not match',
+                    },
+                    should: {
+                      type: 'array',
+                      description: 'Queries that should match (OR)',
+                    },
+                  },
+                },
+              },
+            },
+            sorts: {
+              type: 'array',
+              description: 'Sort criteria',
+              items: {
+                type: 'object',
+                properties: {
+                  field: {
+                    type: 'string',
+                    description: 'Field to sort by',
+                  },
+                  sort_order: {
+                    type: 'string',
+                    enum: ['asc', 'desc'],
+                    description: 'Sort order (default: asc)',
+                  },
+                },
+                required: ['field'],
+              },
+            },
+            start: {
+              type: 'number',
+              description: 'Start index for pagination (default: 0)',
+              default: 0,
+            },
+            count: {
+              type: 'number',
+              description: 'Number of results to return (default: 200)',
+              default: 200,
+            },
+            select: {
+              type: 'string',
+              description: "Property selector (e.g., '(**)' for all properties)",
+            },
+          },
+        },
+      },
+      required: ['objectType', 'searchRequest'],
+    },
+  },
 ];

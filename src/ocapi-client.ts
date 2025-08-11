@@ -414,6 +414,58 @@ export class OCAPIClient {
   }
 
   /**
+   * Search attribute definitions for a specific system object type using complex queries
+   * Allows searching for specific attributes by id, display_name, description, type, and other properties
+   * Supports text queries, term queries, filtered queries, and boolean queries
+   *
+   * Searchable attributes are grouped into buckets:
+   * - Main: id, display_name, description, key, mandatory, searchable, system, visible
+   * - Definition version: localizable, site_specific, value_type
+   * - Group: group
+   *
+   * Only attributes in the same bucket can be joined using OR operations
+   */
+  async searchSystemObjectAttributeDefinitions(
+    objectType: string,
+    searchRequest: {
+      query?: {
+        text_query?: {
+          fields: string[];
+          search_phrase: string;
+        };
+        term_query?: {
+          fields: string[];
+          operator: string;
+          values: any[];
+        };
+        filtered_query?: {
+          filter: any;
+          query: any;
+        };
+        bool_query?: {
+          must?: any[];
+          must_not?: any[];
+          should?: any[];
+        };
+      };
+      sorts?: Array<{
+        field: string;
+        sort_order?: 'asc' | 'desc';
+      }>;
+      start?: number;
+      count?: number;
+      select?: string;
+    },
+  ): Promise<any> {
+    if (!objectType || objectType.trim().length === 0) {
+      throw new Error('Object type is required and cannot be empty');
+    }
+
+    const endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_definition_search`;
+    return this.post(endpoint, searchRequest);
+  }
+
+  /**
    * Get current token expiration for debugging
    */
   getTokenExpiration(): Date | null {
