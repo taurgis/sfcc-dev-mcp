@@ -30,7 +30,6 @@ the profile, basket, or order history.
 - **Authorization**: After authenticating, verify the user owns the data they are trying to access or modify (e.g., check if `basket.customerNo` matches `req.currentCustomer.profile.customerNo`). 
 
 ```javascript
-  // File: cartridges/app\_custom\_storefront/cartridge/controllers/Account.js
 
 var server = require('server');
 var userLoggedIn = require('\*/cartridge/scripts/middleware/userLoggedIn');
@@ -122,8 +121,8 @@ Hooks are powerful but dangerous. They run in a privileged context *after* initi
 ### Authorization Example (`beforePATCH` hook)
 
 ```javascript
-// File: cartridge/scripts/basket/productItemHooks.js
 'use strict';
+
 var Status = require('dw/system/Status');
 var Logger = require('dw/system/Logger');
 
@@ -167,7 +166,6 @@ Define security in the OAS contract using `securitySchemes` and apply them to en
 <!-- end list -->
 
 ```yaml
-# File: cartridge/rest-apis/loyalty-api/api.oas.yml
 openapi: 3.0.0
 info:
   title: Custom Loyalty API
@@ -217,3 +215,60 @@ components:
             c_loyalty.read: "Read shopper loyalty data."
             c_loyalty.write: "Modify shopper loyalty data."
 ```
+
+## 4\. Advanced Secrets Management
+
+Hardcoding secrets such as API keys, credentials, or encryption keys in source code is a severe vulnerability. The platform provides specific, secure locations for storing different types of secrets:
+
+- **Service Credentials (`dw.svc.ServiceCredential`)**: The most secure and appropriate method for storing secrets used to authenticate to external services (e.g., payment gateways, tax providers, shipping services). Credentials are created and managed in Business Manager (`Administration > Operations > Services`). In code, they are accessed as a read-only `dw.svc.ServiceCredential` object, and their values are never exposed in logs or to the client. This should be the default choice for any third-party integration credential.
+
+- **Encrypted Custom Object Attributes**: For storing other types of sensitive data that are not service credentials, create a custom attribute on a system or custom object and set its type to `PASSWORD`. The platform automatically encrypts the value of this attribute at rest.
+
+- **Custom Site Preferences**: Suitable for storing non-secret configuration values, such as feature toggles, endpoint URLs, or less sensitive identifiers. While a vast improvement over hardcoding, they are not encrypted in the same way as `ServiceCredential` or `PASSWORD` attributes and should not be the first choice for highly sensitive secrets like private keys or primary authentication credentials.
+
+## 5. Modern Cryptography with dw.crypto
+
+All cryptographic operations must be performed using the APIs provided in the dw.crypto package. This package provides access to industry-standard, Salesforce-maintained cryptographic libraries.
+
+A critical security mandate is to avoid all deprecated Weak* classes, such as WeakCipher, WeakMac, and WeakMessageDigest. These classes use outdated and insecure algorithms that are vulnerable to attack. Some older third-party cartridges may still contain references to them; these cartridges must be updated or replaced.
+
+All new development must use the modern classes like dw.crypto.Cipher. The following is a secure example of symmetric encryption using AES with a GCM block mode, which provides both confidentiality and authenticity.
+
+```javascript
+var Cipher = require('dw/crypto/Cipher');
+var Encoding = require('dw/crypto/Encoding');
+var SecureRandom = require('dw/crypto/SecureRandom');
+
+// Key must be a securely generated, Base64-encoded 256-bit (32-byte) key.
+// It should be stored securely using Service Credentials or an encrypted attribute.
+var base64Key = 'YOUR_SECURE_BASE64_ENCODED_KEY_HERE';
+
+// Plaintext to be encrypted
+var plainText = 'This is sensitive data.';
+
+// 1. Generate a cryptographically secure random Initialization Vector (IV).
+// For AES/GCM, a 12-byte (96-bit) IV is recommended.
+var ivBytes = new SecureRandom().nextBytes(12);
+var ivBase64 = Encoding.toBase64(ivBytes);
+
+// 2. Encrypt the data using a strong, authenticated encryption algorithm.
+var aesGcmCipher = new Cipher();
+var encryptedBase64 = aesGcmCipher.encrypt(plainText, base64Key, 'AES/GCM/NoPadding', ivBase64, 0);
+
+// To decrypt, you need the encrypted data, the key, and the same IV.
+// var decryptedText = aesGcmCipher.decrypt(encryptedBase64, base64Key, 'AES/GCM/NoPadding', ivBase64, 0);
+```
+
+### Cryptographic Best Practices
+
+- **Use Strong Algorithms**: Always use AES with GCM mode for symmetric encryption, RSA with OAEP padding for asymmetric encryption, and SHA-256 or higher for hashing.
+
+- **Generate Secure Random Values**: Use `dw.crypto.SecureRandom` for generating cryptographically secure random numbers, IVs, and salts.
+
+- **Proper Key Management**: Store encryption keys securely using Service Credentials or encrypted custom object attributes. Never hardcode keys in source code.
+
+- **Use Authenticated Encryption**: Prefer AES/GCM mode which provides both confidentiality and authenticity, preventing tampering with encrypted data.
+
+- **Unique IVs**: Always generate a unique, random IV for each encryption operation. Never reuse IVs with the same key.
+
+- **Avoid Weak Classes**: Never use WeakCipher, WeakMac, WeakMessageDigest, or any other deprecated cryptographic classes.
