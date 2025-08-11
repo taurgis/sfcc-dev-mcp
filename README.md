@@ -51,6 +51,17 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 
 **Get started immediately**: The server works without any credentials - just use `npx sfcc-dev-mcp` to access all documentation and best practices tools!
 
+## 🤖 AI Assistant Integration
+
+For optimal AI assistance when working with SFCC projects, copy the [`sfcc-ai-instructions.md`](./sfcc-ai-instructions.md) file to your SFCC project directory and rename it to `copilot-instructions.md`, `claude.md`, or similar. This file provides comprehensive guidance to AI assistants on:
+
+- **When to use MCP tools** vs. relying on general AI knowledge
+- **Specific tool recommendations** for common SFCC development tasks
+- **Workflow patterns** for debugging, implementation, and best practices
+- **Error reduction** by encouraging use of current, verified SFCC information
+
+This significantly improves AI assistance accuracy and reduces hallucination when working on SFCC development tasks.
+
 ---
 
 An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and **SFCC documentation querying**.
