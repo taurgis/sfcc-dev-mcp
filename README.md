@@ -643,3 +643,19 @@ node scripts/convert-docs.js --test
 # Conservative rate limiting
 node scripts/convert-docs.js --slow
 ```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Setting up the development environment
+- Code style and conventions
+- Testing requirements
+- Pull request process
+- Types of contributions we're looking for
+
+Whether you're fixing bugs, adding features, improving documentation, or enhancing the best practices guides, your contributions help make SFCC development more accessible for everyone.
+
+## License
+
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
