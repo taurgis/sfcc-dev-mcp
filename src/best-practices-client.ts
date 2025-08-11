@@ -68,6 +68,11 @@ export class SFCCBestPracticesClient {
         title: 'Performance and Stability Best Practices',
         description: 'Comprehensive performance optimization strategies, coding standards, and stability guidelines for SFCC development including caching, index-friendly APIs, and job development',
       },
+      {
+        name: 'security',
+        title: 'Security Best Practices',
+        description: 'Comprehensive security best practices for SFCC development covering SFRA Controllers, OCAPI/SCAPI Hooks, and Custom SCAPI Endpoints with OWASP compliance guidelines',
+      },
     ];
 
     this.cache.setSearchResults(cacheKey, guides);
