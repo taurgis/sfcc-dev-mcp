@@ -4,9 +4,9 @@
  * Centralized configuration management with validation and defaults
  */
 
-import { readFileSync, existsSync } from "fs";
-import { resolve } from "path";
-import { SFCCConfig, DwJsonConfig } from "./types.js";
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
+import { SFCCConfig, DwJsonConfig } from './types.js';
 
 export class ConfigurationFactory {
   /**
@@ -29,7 +29,7 @@ export class ConfigurationFactory {
     } else {
       // Create from provided options
       config = {
-        hostname: options.hostname || '',
+        hostname: options.hostname ?? '',
         username: options.username,
         password: options.password,
         clientId: options.clientId,
@@ -39,12 +39,12 @@ export class ConfigurationFactory {
     }
 
     // Override with any provided options
-    if (options.hostname) config.hostname = options.hostname;
-    if (options.username) config.username = options.username;
-    if (options.password) config.password = options.password;
-    if (options.clientId) config.clientId = options.clientId;
-    if (options.clientSecret) config.clientSecret = options.clientSecret;
-    if (options.siteId) config.siteId = options.siteId;
+    if (options.hostname) {config.hostname = options.hostname;}
+    if (options.username) {config.username = options.username;}
+    if (options.password) {config.password = options.password;}
+    if (options.clientId) {config.clientId = options.clientId;}
+    if (options.clientSecret) {config.clientSecret = options.clientSecret;}
+    if (options.siteId) {config.siteId = options.siteId;}
 
     this.validate(config);
     return config;
@@ -84,9 +84,9 @@ export class ConfigurationFactory {
     };
 
     // Map OAuth credentials if present
-    if (dwConfig["client-id"] && dwConfig["client-secret"]) {
-      config.clientId = dwConfig["client-id"];
-      config.clientSecret = dwConfig["client-secret"];
+    if (dwConfig['client-id'] && dwConfig['client-secret']) {
+      config.clientId = dwConfig['client-id'];
+      config.clientSecret = dwConfig['client-secret'];
     }
 
     return config;
@@ -108,7 +108,7 @@ export class ConfigurationFactory {
 
     // If hostname is provided, require credentials
     if (hasHostname && !hasBasicAuth && !hasOAuth) {
-      throw new Error("When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided");
+      throw new Error('When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided');
     }
   }
 
@@ -136,7 +136,7 @@ export class ConfigurationFactory {
       canAccessLogs: hasWebDAVCredentials && hasHostname,
       canAccessOCAPI: hasOAuthCredentials && hasHostname,
       canAccessWebDAV: hasWebDAVCredentials && hasHostname,
-      isLocalMode: isLocalMode,
+      isLocalMode,
     };
   }
 }

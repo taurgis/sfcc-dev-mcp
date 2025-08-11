@@ -23,6 +23,7 @@ describe('ConfigurationFactory', () => {
           unlinkSync(filePath);
         }
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // Ignore cleanup errors
     }
@@ -35,7 +36,7 @@ describe('ConfigurationFactory', () => {
         username: 'testuser',
         password: 'testpass',
         'client-id': 'test-client-id',
-        'client-secret': 'test-client-secret'
+        'client-secret': 'test-client-secret',
       };
 
       const testFile = join(testDir, 'valid-dw.json');
@@ -74,7 +75,7 @@ describe('ConfigurationFactory', () => {
         password: 'testpass',
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        siteId: 'test-site'
+        siteId: 'test-site',
       });
 
       expect(config.hostname).toBe('test-instance.demandware.net');
@@ -104,7 +105,7 @@ describe('ConfigurationFactory', () => {
       const config = ConfigurationFactory.create({
         hostname: 'test-instance.demandware.net',
         username: 'testuser',
-        password: 'testpass'
+        password: 'testpass',
       });
       expect(config.hostname).toBe('test-instance.demandware.net');
       expect(config.username).toBe('testuser');
@@ -115,7 +116,7 @@ describe('ConfigurationFactory', () => {
       const config = ConfigurationFactory.create({
         hostname: 'test-instance.demandware.net',
         clientId: 'test-client-id',
-        clientSecret: 'test-client-secret'
+        clientSecret: 'test-client-secret',
       });
       expect(config.hostname).toBe('test-instance.demandware.net');
       expect(config.clientId).toBe('test-client-id');
@@ -128,7 +129,7 @@ describe('ConfigurationFactory', () => {
       const config: SFCCConfig = {
         hostname: 'test-instance.demandware.net',
         username: 'testuser',
-        password: 'testpass'
+        password: 'testpass',
       };
 
       const capabilities = ConfigurationFactory.getCapabilities(config);
@@ -143,7 +144,7 @@ describe('ConfigurationFactory', () => {
       const config: SFCCConfig = {
         hostname: 'test-instance.demandware.net',
         clientId: 'test-client-id',
-        clientSecret: 'test-client-secret'
+        clientSecret: 'test-client-secret',
       };
 
       const capabilities = ConfigurationFactory.getCapabilities(config);
@@ -160,7 +161,7 @@ describe('ConfigurationFactory', () => {
         username: 'testuser',
         password: 'testpass',
         clientId: 'test-client-id',
-        clientSecret: 'test-client-secret'
+        clientSecret: 'test-client-secret',
       };
 
       const capabilities = ConfigurationFactory.getCapabilities(config);
@@ -172,29 +173,29 @@ describe('ConfigurationFactory', () => {
     });
 
     it('should return local mode capabilities for empty config', () => {
-        const config: SFCCConfig = {};
+      const config: SFCCConfig = {};
 
-        const capabilities = ConfigurationFactory.getCapabilities(config);
+      const capabilities = ConfigurationFactory.getCapabilities(config);
 
-        expect(capabilities.canAccessLogs).toBe(false);
-        expect(capabilities.canAccessOCAPI).toBe(false);
-        expect(capabilities.canAccessWebDAV).toBe(false);
-        expect(capabilities.isLocalMode).toBe(true);
+      expect(capabilities.canAccessLogs).toBe(false);
+      expect(capabilities.canAccessOCAPI).toBe(false);
+      expect(capabilities.canAccessWebDAV).toBe(false);
+      expect(capabilities.isLocalMode).toBe(true);
     });
 
     it('should return local mode capabilities for config without hostname', () => {
-        const config: SFCCConfig = {
-          hostname: '',
-          username: undefined,
-          password: undefined
-        };
+      const config: SFCCConfig = {
+        hostname: '',
+        username: undefined,
+        password: undefined,
+      };
 
-        const capabilities = ConfigurationFactory.getCapabilities(config);
+      const capabilities = ConfigurationFactory.getCapabilities(config);
 
-        expect(capabilities.canAccessLogs).toBe(false);
-        expect(capabilities.canAccessOCAPI).toBe(false);
-        expect(capabilities.canAccessWebDAV).toBe(false);
-        expect(capabilities.isLocalMode).toBe(true);
+      expect(capabilities.canAccessLogs).toBe(false);
+      expect(capabilities.canAccessOCAPI).toBe(false);
+      expect(capabilities.canAccessWebDAV).toBe(false);
+      expect(capabilities.isLocalMode).toBe(true);
     });
   });
 });

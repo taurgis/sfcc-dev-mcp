@@ -5,8 +5,8 @@
  * using OAuth 2.0 Client Credentials grant flow. It handles automatic token management and refresh.
  */
 
-import { OCAPIConfig, OAuthTokenResponse } from "./types.js";
-import { TokenManager } from "./oauth-token.js";
+import { OCAPIConfig, OAuthTokenResponse } from './types.js';
+import { TokenManager } from './oauth-token.js';
 
 /**
  * OCAPI Client with OAuth 2.0 authentication
@@ -18,8 +18,8 @@ export class OCAPIClient {
 
   constructor(config: OCAPIConfig) {
     this.config = {
-      version: "v21_3",
-      ...config
+      version: 'v21_3',
+      ...config,
     };
     this.tokenManager = TokenManager.getInstance();
     this.baseUrl = `https://${this.config.hostname}/s/-/dw/data/${this.config.version}`;
@@ -36,7 +36,7 @@ export class OCAPIClient {
       return existingToken;
     }
 
-    const authUrl = `https://account.demandware.com/dwsso/oauth2/access_token`;
+    const authUrl = 'https://account.demandware.com/dwsso/oauth2/access_token';
 
     // Create Basic Auth header using client credentials
     const credentials = `${this.config.clientId}:${this.config.clientSecret}`;
@@ -48,7 +48,7 @@ export class OCAPIClient {
         'Authorization': `Basic ${encodedCredentials}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: 'grant_type=client_credentials'
+      body: 'grant_type=client_credentials',
     });
 
     if (!response.ok) {
@@ -369,7 +369,7 @@ export class OCAPIClient {
     };
     sorts?: Array<{
       field: string;
-      sort_order?: "asc" | "desc";
+      sort_order?: 'asc' | 'desc';
     }>;
     start?: number;
     count?: number;
@@ -390,7 +390,7 @@ export class OCAPIClient {
       start?: number;
       count?: number;
       select?: string;
-    }
+    },
   ): Promise<any> {
     if (!objectType || objectType.trim().length === 0) {
       throw new Error('Object type is required and cannot be empty');

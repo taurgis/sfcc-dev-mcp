@@ -4,11 +4,11 @@
  * Main entry point for the SFCC Development MCP Server
  */
 
-import { SFCCDevServer } from "./server.js";
-import { ConfigurationFactory } from "./configuration-factory.js";
-import { Logger } from "./logger.js";
-import { existsSync } from "fs";
-import { resolve } from "path";
+import { SFCCDevServer } from './server.js';
+import { ConfigurationFactory } from './configuration-factory.js';
+import { Logger } from './logger.js';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 
 const logger = new Logger('SFCC-MCP-Server');
 
@@ -22,14 +22,14 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
 
-    if (arg === "--dw-json" && i + 1 < args.length) {
+    if (arg === '--dw-json' && i + 1 < args.length) {
       options.dwJsonPath = args[i + 1];
       i++; // Skip the next argument since we consumed it
-    } else if (arg === "--debug" && i + 1 < args.length) {
+    } else if (arg === '--debug' && i + 1 < args.length) {
       const debugValue = args[i + 1].toLowerCase();
-      options.debug = debugValue === "true" || debugValue === "1" || debugValue === "yes";
+      options.debug = debugValue === 'true' || debugValue === '1' || debugValue === 'yes';
       i++; // Skip the next argument since we consumed it
-    } else if (arg === "--debug") {
+    } else if (arg === '--debug') {
       // Allow --debug without a value to default to true
       options.debug = true;
     }
@@ -43,10 +43,10 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
  */
 function findDwJsonFile(): string | undefined {
   const commonPaths = [
-    "./dw.json",
-    "../dw.json",
-    "../../dw.json",
-    process.env.HOME ? resolve(process.env.HOME, "dw.json") : null,
+    './dw.json',
+    '../dw.json',
+    '../../dw.json',
+    process.env.HOME ? resolve(process.env.HOME, 'dw.json') : null,
   ].filter(Boolean) as string[];
 
   for (const path of commonPaths) {
@@ -67,13 +67,13 @@ async function main(): Promise<void> {
     const options = parseCommandLineArgs();
     const debug = options.debug ?? false;
 
-    logger.log("Starting SFCC Development MCP Server...");
+    logger.log('Starting SFCC Development MCP Server...');
     if (debug) {
-      logger.log("Debug mode enabled");
+      logger.log('Debug mode enabled');
     }
 
     // Try to find dw.json if not explicitly provided
-    const dwJsonPath = options.dwJsonPath || findDwJsonFile();
+    const dwJsonPath = options.dwJsonPath ?? findDwJsonFile();
 
     // Create configuration using the factory
     const config = ConfigurationFactory.create({
@@ -90,8 +90,8 @@ async function main(): Promise<void> {
     const capabilities = ConfigurationFactory.getCapabilities(config);
 
     if (capabilities.isLocalMode) {
-      logger.log("Running in Local Mode - SFCC class documentation only");
-      logger.log("To access SFCC logs and OCAPI, provide hostname and credentials");
+      logger.log('Running in Local Mode - SFCC class documentation only');
+      logger.log('To access SFCC logs and OCAPI, provide hostname and credentials');
     } else {
       logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
       logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
@@ -101,14 +101,14 @@ async function main(): Promise<void> {
     const server = new SFCCDevServer(config, debug);
     await server.run();
   } catch (error) {
-    logger.error("Failed to start SFCC Development MCP Server:", error);
+    logger.error('Failed to start SFCC Development MCP Server:', error);
 
     if (error instanceof Error) {
-      if (error.message.includes("not found")) {
-        logger.log("\nConfiguration Help:");
-        logger.log("1. Create a dw.json file with your SFCC credentials");
-        logger.log("2. Use --dw-json /path/to/dw.json");
-        logger.log("3. Set environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD");
+      if (error.message.includes('not found')) {
+        logger.log('\nConfiguration Help:');
+        logger.log('1. Create a dw.json file with your SFCC credentials');
+        logger.log('2. Use --dw-json /path/to/dw.json');
+        logger.log('3. Set environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD');
       }
     }
 
@@ -118,6 +118,6 @@ async function main(): Promise<void> {
 
 // Run the main function
 main().catch((error) => {
-  logger.error("Unhandled error:", error);
+  logger.error('Unhandled error:', error);
   process.exit(1);
 });

@@ -131,7 +131,7 @@ describe('Logger', () => {
         obj,
         arr,
         42,
-        'string'
+        'string',
       );
     });
 
@@ -141,7 +141,7 @@ describe('Logger', () => {
       expect(consoleSpy.log).toHaveBeenCalledWith(
         '[LOG-TEST] Message with null/undefined',
         null,
-        undefined
+        undefined,
       );
     });
   });
@@ -163,7 +163,7 @@ describe('Logger', () => {
 
       expect(consoleSpy.info).toHaveBeenCalledWith(
         '[INFO-TEST] Info with data',
-        { data: 'value' }
+        { data: 'value' },
       );
     });
   });
@@ -185,7 +185,7 @@ describe('Logger', () => {
 
       expect(consoleSpy.warn).toHaveBeenCalledWith(
         '[WARN-TEST] Warning with details',
-        { error: 'details' }
+        { error: 'details' },
       );
     });
   });
@@ -208,7 +208,7 @@ describe('Logger', () => {
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
         '[ERROR-TEST] Error occurred',
-        error
+        error,
       );
     });
 
@@ -220,7 +220,7 @@ describe('Logger', () => {
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
         '[ERROR-TEST] Stack trace error',
-        error
+        error,
       );
     });
   });
@@ -250,7 +250,7 @@ describe('Logger', () => {
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
         '[DEBUG-TEST] [DEBUG] Debug with data',
-        { debug: 'info' }
+        { debug: 'info' },
       );
     });
 
@@ -270,7 +270,7 @@ describe('Logger', () => {
       logger.methodEntry('testMethod');
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Entering method: testMethod'
+        '[METHOD-TEST] [DEBUG] Entering method: testMethod',
       );
     });
 
@@ -289,7 +289,7 @@ describe('Logger', () => {
       logger.methodEntry('testMethod', params);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Entering method: testMethod with params: {"id":123,"name":"test"}'
+        '[METHOD-TEST] [DEBUG] Entering method: testMethod with params: {"id":123,"name":"test"}',
       );
     });
 
@@ -300,7 +300,7 @@ describe('Logger', () => {
 
       // null is falsy, so no params string is shown
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Entering method: testMethod'
+        '[METHOD-TEST] [DEBUG] Entering method: testMethod',
       );
     });
 
@@ -310,7 +310,7 @@ describe('Logger', () => {
       logger.methodEntry('testMethod', undefined);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Entering method: testMethod'
+        '[METHOD-TEST] [DEBUG] Entering method: testMethod',
       );
     });
 
@@ -319,13 +319,13 @@ describe('Logger', () => {
       const complexParams = {
         user: { id: 1, name: 'John' },
         options: { sort: 'asc', limit: 10 },
-        filters: ['active', 'verified']
+        filters: ['active', 'verified'],
       };
 
       logger.methodEntry('complexMethod', complexParams);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Entering method: complexMethod with params: {"user":{"id":1,"name":"John"},"options":{"sort":"asc","limit":10},"filters":["active","verified"]}'
+        '[METHOD-TEST] [DEBUG] Entering method: complexMethod with params: {"user":{"id":1,"name":"John"},"options":{"sort":"asc","limit":10},"filters":["active","verified"]}',
       );
     });
   });
@@ -337,7 +337,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod');
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod',
       );
     });
 
@@ -355,7 +355,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod', 'success');
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: success'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: success',
       );
     });
 
@@ -365,7 +365,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod', 42);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: 42'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: 42',
       );
     });
 
@@ -375,7 +375,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod', true);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: true'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: true',
       );
     });
 
@@ -386,7 +386,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod', result);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: {"success":true,"data":{"id":1}}'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: {"success":true,"data":{"id":1}}',
       );
     });
 
@@ -396,7 +396,7 @@ describe('Logger', () => {
       logger.methodExit('testMethod', null);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: null'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod with result: null',
       );
     });
 
@@ -407,7 +407,7 @@ describe('Logger', () => {
 
       // undefined is explicitly checked with !== undefined, so no result string is shown
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        '[METHOD-TEST] [DEBUG] Exiting method: testMethod'
+        '[METHOD-TEST] [DEBUG] Exiting method: testMethod',
       );
     });
   });
@@ -468,13 +468,13 @@ describe('Logger', () => {
 
       expect(consoleSpy.error).toHaveBeenCalledTimes(3);
       expect(consoleSpy.error).toHaveBeenNthCalledWith(1,
-        '[TRACE-TEST] [DEBUG] Entering method: calculateTotal with params: {"items":[1,2,3],"tax":0.1}'
+        '[TRACE-TEST] [DEBUG] Entering method: calculateTotal with params: {"items":[1,2,3],"tax":0.1}',
       );
       expect(consoleSpy.error).toHaveBeenNthCalledWith(2,
-        '[TRACE-TEST] [DEBUG] Processing items'
+        '[TRACE-TEST] [DEBUG] Processing items',
       );
       expect(consoleSpy.error).toHaveBeenNthCalledWith(3,
-        '[TRACE-TEST] [DEBUG] Exiting method: calculateTotal with result: {"total":6.6,"tax":0.6}'
+        '[TRACE-TEST] [DEBUG] Exiting method: calculateTotal with result: {"total":6.6,"tax":0.6}',
       );
     });
 
@@ -485,9 +485,11 @@ describe('Logger', () => {
       logger.error('Failed to save user data', error, { userId: 123, operation: 'save' });
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[ERROR-CONTEXT\] Failed to save user data$/),
+        expect.stringMatching(
+          /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[ERROR-CONTEXT\] Failed to save user data$/,
+        ),
         error,
-        { userId: 123, operation: 'save' }
+        { userId: 123, operation: 'save' },
       );
     });
 

@@ -35,34 +35,34 @@ export class SFCCBestPracticesClient {
   async getAvailableGuides(): Promise<Array<{name: string; title: string; description: string}>> {
     const cacheKey = 'best-practices:available-guides';
     const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const guides = [
       {
         name: 'cartridge_creation',
         title: 'Cartridge Creation Best Practices',
-        description: 'Instructions and best practices for creating, configuring, and deploying custom SFRA cartridges'
+        description: 'Instructions and best practices for creating, configuring, and deploying custom SFRA cartridges',
       },
       {
         name: 'ocapi_hooks',
         title: 'OCAPI Hooks Best Practices',
-        description: 'Best practices for implementing OCAPI hooks in Salesforce B2C Commerce Cloud'
+        description: 'Best practices for implementing OCAPI hooks in Salesforce B2C Commerce Cloud',
       },
       {
         name: 'scapi_hooks',
         title: 'SCAPI Hooks Best Practices',
-        description: 'Essential best practices for implementing SCAPI hooks with AI development assistance'
+        description: 'Essential best practices for implementing SCAPI hooks with AI development assistance',
       },
       {
         name: 'scapi_custom_endpoint',
         title: 'Custom SCAPI Endpoint Best Practices',
-        description: 'Best practices for creating custom SCAPI endpoints in B2C Commerce Cloud'
+        description: 'Best practices for creating custom SCAPI endpoints in B2C Commerce Cloud',
       },
       {
         name: 'sfra_controllers',
         title: 'SFRA Controllers Best Practices',
-        description: 'Best practices and code patterns for developing SFRA controllers'
-      }
+        description: 'Best practices and code patterns for developing SFRA controllers',
+      },
     ];
 
     this.cache.setSearchResults(cacheKey, guides);
@@ -75,14 +75,14 @@ export class SFCCBestPracticesClient {
   async getBestPracticeGuide(guideName: string): Promise<BestPracticeGuide | null> {
     const cacheKey = `best-practices:guide:${guideName}`;
     const cached = this.cache.getFileContent(cacheKey);
-    if (cached) return JSON.parse(cached);
+    if (cached) {return JSON.parse(cached);}
 
     try {
       const filePath = path.join(this.docsPath, `${guideName}.md`);
       const content = await fs.readFile(filePath, 'utf-8');
 
       const lines = content.split('\n');
-      const title = lines.find(line => line.startsWith('#'))?.replace('#', '').trim() || guideName;
+      const title = lines.find(line => line.startsWith('#'))?.replace('#', '').trim() ?? guideName;
 
       // Extract sections (## headers)
       const sections = lines
@@ -102,7 +102,7 @@ export class SFCCBestPracticesClient {
         title,
         description,
         sections,
-        content
+        content,
       };
 
       this.cache.setFileContent(cacheKey, JSON.stringify(guide));
@@ -123,14 +123,14 @@ export class SFCCBestPracticesClient {
   }>> {
     const cacheKey = `best-practices:search:${query.toLowerCase()}`;
     const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const guides = await this.getAvailableGuides();
     const results = [];
 
     for (const guide of guides) {
       const guideContent = await this.getBestPracticeGuide(guide.name);
-      if (!guideContent) continue;
+      if (!guideContent) {continue;}
 
       const matches = [];
       const lines = guideContent.content.split('\n');
@@ -151,7 +151,7 @@ export class SFCCBestPracticesClient {
 
           matches.push({
             section: currentSection || 'Introduction',
-            content: context
+            content: context,
           });
         }
       }
@@ -160,7 +160,7 @@ export class SFCCBestPracticesClient {
         results.push({
           guide: guide.name,
           title: guide.title,
-          matches
+          matches,
         });
       }
     }
@@ -176,14 +176,14 @@ export class SFCCBestPracticesClient {
     category: string;
     hooks: Array<{endpoint: string; hookPoints: string[]; signature?: string}>;
   }>> {
-    if (!guideName.includes('hooks')) return [];
+    if (!guideName.includes('hooks')) {return [];}
 
     const cacheKey = `best-practices:hook-reference:${guideName}`;
     const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const guide = await this.getBestPracticeGuide(guideName);
-    if (!guide) return [];
+    if (!guide) {return [];}
 
     const reference = [];
     const lines = guide.content.split('\n');
@@ -209,7 +209,7 @@ export class SFCCBestPracticesClient {
       }
 
       // Skip separator line
-      if (line.match(/^\|[\s\-\|]+\|$/)) {
+      if (line.match(/^\|[\s\-|]+\|$/)) {
         continue;
       }
 

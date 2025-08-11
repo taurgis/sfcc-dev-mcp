@@ -7,278 +7,278 @@
 
 export const SFCC_DOCUMENTATION_TOOLS = [
   {
-    name: "get_sfcc_class_info",
-    description: "Get detailed information about an SFCC class including properties, methods, and description. Use this when you need to understand what a specific SFCC class does, what methods/properties are available, or when implementing features that use SFCC APIs. Essential for cartridge development (controllers, scripts, templates, rest-apis) using the dw.* namespace in the SFCC Rhino environment.",
+    name: 'get_sfcc_class_info',
+    description: 'Get detailed information about an SFCC class including properties, methods, and description. Use this when you need to understand what a specific SFCC class does, what methods/properties are available, or when implementing features that use SFCC APIs. Essential for cartridge development (controllers, scripts, templates, rest-apis) using the dw.* namespace in the SFCC Rhino environment.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         className: {
-          type: "string",
+          type: 'string',
           description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
         },
         expand: {
-          type: "boolean",
-          description: "Whether to include detailed information about referenced types used by this class (default: false)",
+          type: 'boolean',
+          description: 'Whether to include detailed information about referenced types used by this class (default: false)',
           default: false,
         },
       },
-      required: ["className"],
+      required: ['className'],
     },
   },
   {
-    name: "search_sfcc_classes",
+    name: 'search_sfcc_classes',
     description: "Search for SFCC classes by name or functionality. Use this when you know part of a class name or need to find classes related to specific functionality (e.g., search 'catalog' to find catalog-related classes). Perfect starting point when you're unsure of the exact class name or exploring available APIs for a feature area.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         query: {
-          type: "string",
-          description: "Search query for class names",
+          type: 'string',
+          description: 'Search query for class names',
         },
       },
-      required: ["query"],
+      required: ['query'],
     },
   },
   {
-    name: "get_sfcc_class_methods",
-    description: "Get all methods for a specific SFCC class with their signatures and descriptions. Use this when you know the class but need to see all available methods, understand method parameters, or find the right method for your use case. Essential when implementing business logic that calls SFCC APIs.",
+    name: 'get_sfcc_class_methods',
+    description: 'Get all methods for a specific SFCC class with their signatures and descriptions. Use this when you know the class but need to see all available methods, understand method parameters, or find the right method for your use case. Essential when implementing business logic that calls SFCC APIs.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         className: {
-          type: "string",
-          description: "The SFCC class name",
+          type: 'string',
+          description: 'The SFCC class name',
         },
       },
-      required: ["className"],
+      required: ['className'],
     },
   },
   {
-    name: "get_sfcc_class_properties",
-    description: "Get all properties for a specific SFCC class with their types and descriptions. Use this when you need to access or read data from SFCC objects, understand what data is available on an object, or when working with object attributes in templates or scripts.",
+    name: 'get_sfcc_class_properties',
+    description: 'Get all properties for a specific SFCC class with their types and descriptions. Use this when you need to access or read data from SFCC objects, understand what data is available on an object, or when working with object attributes in templates or scripts.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         className: {
-          type: "string",
-          description: "The SFCC class name",
+          type: 'string',
+          description: 'The SFCC class name',
         },
       },
-      required: ["className"],
+      required: ['className'],
     },
   },
   {
-    name: "search_sfcc_methods",
-    description: "Search for methods across all SFCC classes by method name. Use this when you know the method name but not which class it belongs to, or when looking for similar methods across different classes. Helpful for discovering all available methods that perform similar operations.",
+    name: 'search_sfcc_methods',
+    description: 'Search for methods across all SFCC classes by method name. Use this when you know the method name but not which class it belongs to, or when looking for similar methods across different classes. Helpful for discovering all available methods that perform similar operations.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         methodName: {
-          type: "string",
-          description: "Method name to search for",
+          type: 'string',
+          description: 'Method name to search for',
         },
       },
-      required: ["methodName"],
+      required: ['methodName'],
     },
   },
   {
-    name: "list_sfcc_classes",
+    name: 'list_sfcc_classes',
     description: "Get a complete list of all available SFCC classes. Use this for exploration and discovery when you need to understand the full scope of SFCC APIs, or when you're new to SFCC development and want to see what's available. Good starting point for understanding the SFCC class hierarchy.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {},
     },
   },
   {
-    name: "get_sfcc_class_documentation",
+    name: 'get_sfcc_class_documentation',
     description: "Get the complete raw documentation for an SFCC class. Use this when you need comprehensive details about a class including examples, detailed descriptions, and full context. Best for in-depth understanding when the basic class info isn't sufficient.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         className: {
-          type: "string",
-          description: "The SFCC class name",
+          type: 'string',
+          description: 'The SFCC class name',
         },
       },
-      required: ["className"],
+      required: ['className'],
     },
   },
 ];
 
 export const BEST_PRACTICES_TOOLS = [
   {
-    name: "get_available_best_practice_guides",
-    description: "Get a list of all available SFCC best practice and how-to guides. Use this first to discover what guidance is available before implementing any SFCC features. Essential for understanding what best practice resources exist for cartridge creation, hooks, controllers, and custom endpoints",
+    name: 'get_available_best_practice_guides',
+    description: 'Get a list of all available SFCC best practice and how-to guides. Use this first to discover what guidance is available before implementing any SFCC features. Essential for understanding what best practice resources exist for cartridge creation, hooks, controllers, and custom endpoints',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {},
     },
   },
   {
-    name: "get_best_practice_guide",
-    description: "Get a complete best practice and how-to guide with all sections and content. Use this when implementing specific SFCC features like cartridges, OCAPI/SCAPI hooks, SFRA controllers, or custom endpoints. Always consult the relevant guide before writing code to ensure you follow SFCC best practices, security guidelines, and proper architecture patterns.",
+    name: 'get_best_practice_guide',
+    description: 'Get a complete best practice and how-to guide with all sections and content. Use this when implementing specific SFCC features like cartridges, OCAPI/SCAPI hooks, SFRA controllers, or custom endpoints. Always consult the relevant guide before writing code to ensure you follow SFCC best practices, security guidelines, and proper architecture patterns.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         guideName: {
-          type: "string",
+          type: 'string',
           description: "The guide name (e.g., 'cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint')",
-          enum: ["cartridge_creation", "ocapi_hooks", "scapi_hooks", "sfra_controllers", "scapi_custom_endpoint"],
+          enum: ['cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint'],
         },
       },
-      required: ["guideName"],
+      required: ['guideName'],
     },
   },
   {
-    name: "search_best_practices",
-    description: "Search across all best practice guides for specific terms, patterns, or concepts. Use this when you need guidance on specific topics like validation, security, performance optimization, error handling, or any development pattern. Perfect for finding relevant best practices without reading entire guides.",
+    name: 'search_best_practices',
+    description: 'Search across all best practice guides for specific terms, patterns, or concepts. Use this when you need guidance on specific topics like validation, security, performance optimization, error handling, or any development pattern. Perfect for finding relevant best practices without reading entire guides.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         query: {
-          type: "string",
+          type: 'string',
           description: "Search term or concept (e.g., 'validation', 'security', 'performance')",
         },
       },
-      required: ["query"],
+      required: ['query'],
     },
   },
   {
-    name: "get_hook_reference",
+    name: 'get_hook_reference',
     description: "Get comprehensive hook reference tables showing all available OCAPI or SCAPI hook endpoints and extension points. Use this when implementing hooks to see all available extension points, understand hook signatures, and ensure you're using the correct hook for your use case. Essential reference when extending SFCC APIs.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         guideName: {
-          type: "string",
-          description: "The hook guide name",
-          enum: ["ocapi_hooks", "scapi_hooks"],
+          type: 'string',
+          description: 'The hook guide name',
+          enum: ['ocapi_hooks', 'scapi_hooks'],
         },
       },
-      required: ["guideName"],
+      required: ['guideName'],
     },
   },
 ];
 
 export const LOG_TOOLS = [
   {
-    name: "get_latest_errors",
-    description: "Get the latest error messages from SFCC logs. Use this when debugging failed operations, investigating crashes, exceptions, or when code is not working as expected. Essential for troubleshooting critical issues, API failures, database connection problems, or when users report bugs. Errors indicate something went wrong and needs immediate attention.",
+    name: 'get_latest_errors',
+    description: 'Get the latest error messages from SFCC logs. Use this when debugging failed operations, investigating crashes, exceptions, or when code is not working as expected. Essential for troubleshooting critical issues, API failures, database connection problems, or when users report bugs. Errors indicate something went wrong and needs immediate attention.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
         limit: {
-          type: "number",
-          description: "Number of error entries to return (default: 10)",
+          type: 'number',
+          description: 'Number of error entries to return (default: 10)',
           default: 10,
         },
       },
     },
   },
   {
-    name: "get_latest_warnings",
-    description: "Get the latest warning messages from SFCC logs. Use this to identify potential issues, deprecated features being used, performance concerns, or configurations that might cause problems later. Warnings help prevent future errors and optimize code quality. Check warnings when code works but performance is slow or when preparing for production deployment.",
+    name: 'get_latest_warnings',
+    description: 'Get the latest warning messages from SFCC logs. Use this to identify potential issues, deprecated features being used, performance concerns, or configurations that might cause problems later. Warnings help prevent future errors and optimize code quality. Check warnings when code works but performance is slow or when preparing for production deployment.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
         limit: {
-          type: "number",
-          description: "Number of warning entries to return (default: 10)",
+          type: 'number',
+          description: 'Number of warning entries to return (default: 10)',
           default: 10,
         },
       },
     },
   },
   {
-    name: "get_latest_info",
-    description: "Get the latest info messages from SFCC logs. Use this to understand application flow, verify that operations completed successfully, track business logic execution, or monitor normal system behavior. Info logs help confirm that features are working correctly and provide context about what the system is doing during normal operation.",
+    name: 'get_latest_info',
+    description: 'Get the latest info messages from SFCC logs. Use this to understand application flow, verify that operations completed successfully, track business logic execution, or monitor normal system behavior. Info logs help confirm that features are working correctly and provide context about what the system is doing during normal operation.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
         limit: {
-          type: "number",
-          description: "Number of info entries to return (default: 10)",
+          type: 'number',
+          description: 'Number of info entries to return (default: 10)',
           default: 10,
         },
       },
     },
   },
   {
-    name: "get_latest_debug",
+    name: 'get_latest_debug',
     description: "Get the latest debug messages from SFCC logs. Use this for detailed troubleshooting when you need to trace code execution step-by-step, inspect variable values, understand complex business logic flow, or investigate subtle bugs. Debug logs provide the most detailed information and are essential when standard error logs don't provide enough context to solve the problem.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
         limit: {
-          type: "number",
-          description: "Number of debug entries to return (default: 10)",
+          type: 'number',
+          description: 'Number of debug entries to return (default: 10)',
           default: 10,
         },
       },
     },
   },
   {
-    name: "summarize_logs",
-    description: "Get a comprehensive overview of all log activity with counts and key issues for a specific date. Use this as the first step when investigating problems to quickly understand the overall health of the system, identify the most frequent errors, and get a high-level view before diving into specific log types. Perfect for daily health checks, incident response, or when you need to quickly assess if there are any major issues.",
+    name: 'summarize_logs',
+    description: 'Get a comprehensive overview of all log activity with counts and key issues for a specific date. Use this as the first step when investigating problems to quickly understand the overall health of the system, identify the most frequent errors, and get a high-level view before diving into specific log types. Perfect for daily health checks, incident response, or when you need to quickly assess if there are any major issues.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
       },
     },
   },
   {
-    name: "search_logs",
+    name: 'search_logs',
     description: "Search for specific patterns, keywords, or error messages across SFCC logs. Use this when you know what you're looking for - specific error messages, function names, API calls, user IDs, order numbers, or any custom identifiers. Essential for tracking down specific issues, following a transaction through the system, or finding all instances of a particular problem pattern.",
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         pattern: {
-          type: "string",
-          description: "Search pattern or keyword to find in logs",
+          type: 'string',
+          description: 'Search pattern or keyword to find in logs',
         },
         logLevel: {
-          type: "string",
-          enum: ["error", "warn", "info", "debug"],
-          description: "Restrict search to specific log level for more focused results",
+          type: 'string',
+          enum: ['error', 'warn', 'info', 'debug'],
+          description: 'Restrict search to specific log level for more focused results',
         },
         date: {
-          type: "string",
-          description: "Date in YYYYMMDD format (default: today)",
+          type: 'string',
+          description: 'Date in YYYYMMDD format (default: today)',
         },
         limit: {
-          type: "number",
-          description: "Number of matching entries to return (default: 20)",
+          type: 'number',
+          description: 'Number of matching entries to return (default: 20)',
           default: 20,
         },
       },
-      required: ["pattern"],
+      required: ['pattern'],
     },
   },
   {
-    name: "list_log_files",
-    description: "List all available log files with metadata including sizes and modification dates. Use this to understand what log data is available, check if logs are being generated properly, or when you need to investigate issues from specific time periods. Helpful for determining log retention and identifying the best date range for investigation.",
+    name: 'list_log_files',
+    description: 'List all available log files with metadata including sizes and modification dates. Use this to understand what log data is available, check if logs are being generated properly, or when you need to investigate issues from specific time periods. Helpful for determining log retention and identifying the best date range for investigation.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {},
     },
   },
@@ -286,69 +286,69 @@ export const LOG_TOOLS = [
 
 export const SYSTEM_OBJECT_TOOLS = [
   {
-    name: "get_system_object_definitions",
-    description: "Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.",
+    name: 'get_system_object_definitions',
+    description: 'Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         start: {
-          type: "number",
-          description: "Optional start index for retrieving items from a given index (default: 0)",
+          type: 'number',
+          description: 'Optional start index for retrieving items from a given index (default: 0)',
           default: 0,
         },
         count: {
-          type: "number",
-          description: "Optional count for retrieving only a subset of items (default: 200)",
+          type: 'number',
+          description: 'Optional count for retrieving only a subset of items (default: 200)',
           default: 200,
         },
         select: {
-          type: "string",
+          type: 'string',
           description: "The property selector (e.g., '(**)' for all properties)",
-          default: "(**)"
+          default: '(**)',
         },
       },
     },
   },
   {
-    name: "get_system_object_definition",
-    description: "Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead.",
+    name: 'get_system_object_definition',
+    description: 'Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         objectType: {
-          type: "string",
+          type: 'string',
           description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
         },
       },
-      required: ["objectType"],
+      required: ['objectType'],
     },
   },
   {
-    name: "get_system_object_attribute_definitions",
-    description: "Get comprehensive attribute definitions for a specific SFCC system object type including custom attributes with their types, constraints, validation rules, and metadata. Use this when you need detailed information about object attributes for data validation, form building, API interactions, or understanding custom attribute configurations. Provides more detailed attribute information than basic object definitions.",
+    name: 'get_system_object_attribute_definitions',
+    description: 'Get comprehensive attribute definitions for a specific SFCC system object type including custom attributes with their types, constraints, validation rules, and metadata. Use this when you need detailed information about object attributes for data validation, form building, API interactions, or understanding custom attribute configurations. Provides more detailed attribute information than basic object definitions.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         objectType: {
-          type: "string",
+          type: 'string',
           description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
         },
         start: {
-          type: "number",
-          description: "Optional start index for retrieving items from a given index (default: 0)",
+          type: 'number',
+          description: 'Optional start index for retrieving items from a given index (default: 0)',
           default: 0,
         },
         count: {
-          type: "number",
-          description: "Optional count for retrieving only a subset of items (default: 200)",
+          type: 'number',
+          description: 'Optional count for retrieving only a subset of items (default: 200)',
           default: 200,
         },
         select: {
-          type: "string",
+          type: 'string',
           description: "The property selector (e.g., '(**)' for all properties)",
         },
       },
-      required: ["objectType"],
+      required: ['objectType'],
     },
   },
 ];

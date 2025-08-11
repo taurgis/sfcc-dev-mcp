@@ -1,4 +1,4 @@
-import { InMemoryCache, CacheManager, CacheEntry, CacheOptions } from '../src/cache';
+import { InMemoryCache, CacheManager } from '../src/cache';
 
 describe('InMemoryCache', () => {
   let cache: InMemoryCache<string>;
@@ -7,7 +7,7 @@ describe('InMemoryCache', () => {
     cache = new InMemoryCache<string>({
       maxSize: 3,
       ttlMs: 1000, // 1 second for testing
-      cleanupIntervalMs: 100 // 100ms for faster testing
+      cleanupIntervalMs: 100, // 100ms for faster testing
     });
   });
 
@@ -28,7 +28,7 @@ describe('InMemoryCache', () => {
       const customCache = new InMemoryCache({
         maxSize: 50,
         ttlMs: 5000,
-        cleanupIntervalMs: 1000
+        cleanupIntervalMs: 1000,
       });
       const stats = customCache.getStats();
 
@@ -125,7 +125,7 @@ describe('InMemoryCache', () => {
     it('should expire entries after TTL', async () => {
       const shortTtlCache = new InMemoryCache<string>({
         ttlMs: 50, // 50ms
-        cleanupIntervalMs: 1000 // Don't auto-cleanup for this test
+        cleanupIntervalMs: 1000, // Don't auto-cleanup for this test
       });
 
       shortTtlCache.set('key1', 'value1');
@@ -141,7 +141,7 @@ describe('InMemoryCache', () => {
     it('should remove expired entries when checking has()', async () => {
       const shortTtlCache = new InMemoryCache<string>({
         ttlMs: 50,
-        cleanupIntervalMs: 1000
+        cleanupIntervalMs: 1000,
       });
 
       shortTtlCache.set('key1', 'value1');
@@ -226,7 +226,7 @@ describe('InMemoryCache', () => {
     it('should automatically cleanup expired entries', async () => {
       const autoCleanupCache = new InMemoryCache<string>({
         ttlMs: 50,
-        cleanupIntervalMs: 60 // Very frequent cleanup
+        cleanupIntervalMs: 60, // Very frequent cleanup
       });
 
       autoCleanupCache.set('key1', 'value1');
@@ -389,7 +389,7 @@ describe('Edge cases and error handling', () => {
     it('should handle zero max size gracefully', () => {
       const zeroSizeCache = new InMemoryCache<string>({
         maxSize: 0,
-        ttlMs: 1000
+        ttlMs: 1000,
       });
 
       zeroSizeCache.set('key1', 'value1');
@@ -403,7 +403,7 @@ describe('Edge cases and error handling', () => {
     it('should handle very short TTL', async () => {
       const shortTtlCache = new InMemoryCache<string>({
         ttlMs: 1, // 1ms
-        cleanupIntervalMs: 1000
+        cleanupIntervalMs: 1000,
       });
 
       shortTtlCache.set('key1', 'value1');

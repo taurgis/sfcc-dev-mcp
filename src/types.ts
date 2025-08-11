@@ -36,17 +36,17 @@ export interface DwJsonConfig {
   /** Password for WebDAV access */
   password: string;
   /** Optional code version */
-  "code-version"?: string;
+  'code-version'?: string;
   /** Optional client ID for OAuth */
-  "client-id"?: string;
+  'client-id'?: string;
   /** Optional client secret for OAuth */
-  "client-secret"?: string;
+  'client-secret'?: string;
 }
 
 /**
  * Log levels supported by the SFCC logging system
  */
-export type LogLevel = "error" | "warn" | "info" | "debug";
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 /**
  * Structure for log file metadata

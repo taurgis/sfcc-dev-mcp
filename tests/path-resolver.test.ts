@@ -51,6 +51,7 @@ describe('PathResolver', () => {
     });
 
     it('should reflect changes when process.cwd() changes', () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const homeDir = require('os').homedir();
 
       process.chdir(homeDir);
@@ -286,12 +287,12 @@ describe('PathResolver', () => {
     it('should throw error for null parameters in getRelativePath', () => {
       // path.join() throws when given null/undefined, which is correct behavior
       expect(() => {
-        // @ts-ignore - Testing runtime behavior
+        // @ts-expect-error - Testing runtime behavior
         PathResolver.getRelativePath(null);
       }).toThrow('The "path" argument must be of type string');
 
       expect(() => {
-        // @ts-ignore - Testing runtime behavior
+        // @ts-expect-error - Testing runtime behavior
         PathResolver.getRelativePath(undefined);
       }).toThrow();
     });
@@ -310,7 +311,7 @@ describe('PathResolver', () => {
         'path-with-dashes',
         'path_with_underscores',
         'path.with.dots',
-        'path123with456numbers'
+        'path123with456numbers',
       ];
 
       specialPaths.forEach(specialPath => {

@@ -62,7 +62,7 @@ export class SFCCDocumentationClient {
    * Initialize the documentation client by scanning all available classes
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {return;}
 
     try {
       await this.scanDocumentation();
@@ -79,7 +79,7 @@ export class SFCCDocumentationClient {
     const packages = await fs.readdir(this.docsPath, { withFileTypes: true });
 
     for (const packageDir of packages) {
-      if (!packageDir.isDirectory()) continue;
+      if (!packageDir.isDirectory()) {continue;}
 
       const packageName = packageDir.name;
       const packagePath = path.join(this.docsPath, packageName);
@@ -99,8 +99,8 @@ export class SFCCDocumentationClient {
                 className,
                 packageName,
                 filePath,
-                content
-              }
+                content,
+              },
             );
           }
         }
@@ -134,10 +134,10 @@ export class SFCCDocumentationClient {
     const lowercaseQuery = query.toLowerCase();
     const results = Array.from(this.classCache.keys())
       .filter(className =>
-        className.toLowerCase().includes(lowercaseQuery)
+        className.toLowerCase().includes(lowercaseQuery),
       )
       .sort()
-        // Return the official . notation for class names (e.g., dw.content.ContentMgr)
+    // Return the official . notation for class names (e.g., dw.content.ContentMgr)
       .map(className => className.replace(/_/g, '.'))
     ;
 
@@ -181,7 +181,7 @@ export class SFCCDocumentationClient {
     const content = classInfo ? classInfo.content : null;
 
     // Cache the result (including null results to avoid repeated lookups)
-    this.cacheManager.setFileContent(cacheKey, content || '');
+    this.cacheManager.setFileContent(cacheKey, content ?? '');
 
     return content;
   }
@@ -279,7 +279,7 @@ export class SFCCDocumentationClient {
 
       // Extract description
       if (currentSection === 'Description' && line && !line.startsWith('#')) {
-        description += line + ' ';
+        description += `${line  } `;
       }
 
       // Extract inheritance hierarchy
@@ -305,11 +305,11 @@ export class SFCCDocumentationClient {
             if (typeMatch) {
               const typeInfo = typeMatch[1];
               propType = typeInfo.split(' ')[0];
-              if (typeInfo.includes('(Read Only)')) modifiers.push('Read Only');
-              if (typeInfo.includes('(Static)')) modifiers.push('Static');
+              if (typeInfo.includes('(Read Only)')) {modifiers.push('Read Only');}
+              if (typeInfo.includes('(Static)')) {modifiers.push('Static');}
             }
           } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#')) {
-            propDesc += nextLine + ' ';
+            propDesc += `${nextLine  } `;
           }
         }
 
@@ -317,7 +317,7 @@ export class SFCCDocumentationClient {
           name: propName,
           type: propType,
           description: propDesc.trim(),
-          modifiers: modifiers.length > 0 ? modifiers : undefined
+          modifiers: modifiers.length > 0 ? modifiers : undefined,
         });
       }
 
@@ -339,7 +339,7 @@ export class SFCCDocumentationClient {
             methodDesc = nextLine.replace('**Description:**', '').trim();
           } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#') && !nextLine.startsWith('---')) {
             if (!methodDesc && !nextLine.includes('Signature:')) {
-              methodDesc += nextLine + ' ';
+              methodDesc += `${nextLine  } `;
             }
           }
         }
@@ -347,13 +347,13 @@ export class SFCCDocumentationClient {
         methods.push({
           name: methodName,
           signature: signature || methodName,
-          description: methodDesc.trim()
+          description: methodDesc.trim(),
         });
       }
 
       // Extract constructor info
       if (currentSection === 'Constructor Summary' && line && !line.startsWith('#')) {
-        constructorInfo += line + ' ';
+        constructorInfo += `${line  } `;
       }
     }
 
@@ -364,7 +364,7 @@ export class SFCCDocumentationClient {
       properties,
       methods,
       inheritance: inheritance.length > 0 ? inheritance : undefined,
-      constructorInfo: constructorInfo.trim() || undefined
+      constructorInfo: constructorInfo.trim() || undefined,
     };
   }
 
@@ -417,7 +417,8 @@ export class SFCCDocumentationClient {
   /**
    * Get class details with optional expansion of referenced types
    */
-  async getClassDetailsExpanded(className: string, expand: boolean = false): Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
+  async getClassDetailsExpanded(className: string, expand: boolean = false):
+      Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
     // Check cache first for expanded details
     const cacheKey = `details-expanded:${className}:${expand}`;
     const cachedResult = this.cacheManager.getClassDetails(cacheKey);
@@ -454,6 +455,7 @@ export class SFCCDocumentationClient {
         if (typeDetails) {
           referencedTypes.push(typeDetails);
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // Silently skip types that can't be found
         logger.warn(`Could not find details for referenced type: ${typeName}`);
@@ -462,7 +464,7 @@ export class SFCCDocumentationClient {
 
     const result = {
       ...classDetails,
-      referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined
+      referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined,
     };
 
     // Cache the expanded result
@@ -475,7 +477,7 @@ export class SFCCDocumentationClient {
    */
   async getClassMethods(className: string): Promise<SFCCMethod[]> {
     const details = await this.getClassDetails(className);
-    return details?.methods || [];
+    return details?.methods ?? [];
   }
 
   /**
@@ -483,7 +485,7 @@ export class SFCCDocumentationClient {
    */
   async getClassProperties(className: string): Promise<SFCCProperty[]> {
     const details = await this.getClassDetails(className);
-    return details?.properties || [];
+    return details?.properties ?? [];
   }
 
   /**
@@ -507,7 +509,7 @@ export class SFCCDocumentationClient {
         if (method.name.toLowerCase().includes(methodName.toLowerCase())) {
           results.push({
             className: fullClassName,
-            method
+            method,
           });
         }
       }

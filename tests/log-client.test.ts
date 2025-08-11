@@ -2,6 +2,7 @@ import { SFCCLogClient } from '../src/log-client';
 import { SFCCConfig, LogLevel } from '../src/types';
 
 // Use manual mock for webdav
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const webdav = require('webdav');
 const mockWebdavClient = webdav.__mockWebdavClient;
 
@@ -66,7 +67,7 @@ describe('SFCCLogClient', () => {
         {
           username: 'testuser',
           password: 'testpass',
-        }
+        },
       );
     });
 
@@ -84,7 +85,7 @@ describe('SFCCLogClient', () => {
         {
           username: 'testclientid',
           password: 'testclientsecret',
-        }
+        },
       );
     });
 
@@ -94,7 +95,7 @@ describe('SFCCLogClient', () => {
       };
 
       expect(() => new SFCCLogClient(config)).toThrow(
-        'Either username/password or clientId/clientSecret must be provided'
+        'Either username/password or clientId/clientSecret must be provided',
       );
     });
   });
@@ -162,7 +163,7 @@ describe('SFCCLogClient', () => {
       expect(result).toContain('error-20240809-blade1-002.log'); // Should use the latest file
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
         'error-20240809-blade1-002.log',
-        { format: 'text' }
+        { format: 'text' },
       );
     });
 
@@ -186,7 +187,7 @@ describe('SFCCLogClient', () => {
 
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
         'warn-20240809-blade1-001.log',
-        { format: 'text' }
+        { format: 'text' },
       );
     });
 
@@ -206,7 +207,7 @@ describe('SFCCLogClient', () => {
       expect(result).toContain('debug-20240809-blade1-002.log'); // Should use the latest file
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
         'debug-20240809-blade1-002.log',
-        { format: 'text' }
+        { format: 'text' },
       );
     });
   });
@@ -295,12 +296,12 @@ describe('SFCCLogClient', () => {
       const mockErrorContent = 'ERROR: Database connection failed';
       mockWebdavClient.getFileContents.mockResolvedValue(mockErrorContent);
 
-      const result = await logClient.searchLogs('database', 'error' as LogLevel, 20, '20240809');
+      await logClient.searchLogs('database', 'error' as LogLevel, 20, '20240809');
 
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(1);
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
         'error-20240809-blade1-001.log',
-        { format: 'text' }
+        { format: 'text' },
       );
     });
 
@@ -349,7 +350,7 @@ describe('SFCCLogClient', () => {
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(1);
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith(
         'debug-20240809-blade1-001.log',
-        { format: 'text' }
+        { format: 'text' },
       );
       expect(result).toContain('Database query executed');
     });

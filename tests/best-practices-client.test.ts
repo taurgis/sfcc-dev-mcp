@@ -36,7 +36,7 @@ describe('SFCCBestPracticesClient', () => {
       getFileContent: jest.fn(),
       setFileContent: jest.fn(),
       clearAll: jest.fn(),
-      destroy: jest.fn()
+      destroy: jest.fn(),
     };
 
     // Mock CacheManager constructor to return our mock
@@ -58,7 +58,7 @@ describe('SFCCBestPracticesClient', () => {
   describe('getAvailableGuides', () => {
     it('should return cached guides if available', async () => {
       const cachedGuides = [
-        { name: 'test_guide', title: 'Test Guide', description: 'Test description' }
+        { name: 'test_guide', title: 'Test Guide', description: 'Test description' },
       ];
       mockCache.getSearchResults.mockReturnValue(cachedGuides);
 
@@ -79,28 +79,28 @@ describe('SFCCBestPracticesClient', () => {
         {
           name: 'cartridge_creation',
           title: 'Cartridge Creation Best Practices',
-          description: 'Instructions and best practices for creating, configuring, and deploying custom SFRA cartridges'
+          description: 'Instructions and best practices for creating, configuring, and deploying custom SFRA cartridges',
         },
         {
           name: 'ocapi_hooks',
           title: 'OCAPI Hooks Best Practices',
-          description: 'Best practices for implementing OCAPI hooks in Salesforce B2C Commerce Cloud'
+          description: 'Best practices for implementing OCAPI hooks in Salesforce B2C Commerce Cloud',
         },
         {
           name: 'scapi_hooks',
           title: 'SCAPI Hooks Best Practices',
-          description: 'Essential best practices for implementing SCAPI hooks with AI development assistance'
+          description: 'Essential best practices for implementing SCAPI hooks with AI development assistance',
         },
         {
           name: 'scapi_custom_endpoint',
           title: 'Custom SCAPI Endpoint Best Practices',
-          description: 'Best practices for creating custom SCAPI endpoints in B2C Commerce Cloud'
+          description: 'Best practices for creating custom SCAPI endpoints in B2C Commerce Cloud',
         },
         {
           name: 'sfra_controllers',
           title: 'SFRA Controllers Best Practices',
-          description: 'Best practices and code patterns for developing SFRA controllers'
-        }
+          description: 'Best practices and code patterns for developing SFRA controllers',
+        },
       ]);
 
       expect(mockCache.setSearchResults).toHaveBeenCalledWith('best-practices:available-guides', result);
@@ -147,7 +147,7 @@ More detailed content.
         title: 'Cached Guide',
         description: 'Cached description',
         sections: ['Section 1'],
-        content: 'cached content'
+        content: 'cached content',
       };
       mockCache.getFileContent.mockReturnValue(JSON.stringify(cachedGuide));
 
@@ -166,19 +166,19 @@ More detailed content.
 
       expect(mockFsReadFile).toHaveBeenCalledWith(
         path.join(testDocsPath, 'test_guide.md'),
-        'utf-8'
+        'utf-8',
       );
 
       expect(result).toEqual({
         title: 'Test Guide Title',
         description: 'This is the description of the test guide. It spans multiple lines for testing.',
         sections: ['Section 1', 'Section 2', '# Subsection 2.1'], // Include the actual parsed sections
-        content: mockContent
+        content: mockContent,
       });
 
       expect(mockCache.setFileContent).toHaveBeenCalledWith(
         'best-practices:guide:test_guide',
-        JSON.stringify(result)
+        JSON.stringify(result),
       );
     });
 
@@ -220,7 +220,7 @@ Just some content without sections.
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         'Error reading best practice guide non_existent_guide:',
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
@@ -265,7 +265,7 @@ Content here.
 
     it('should return cached search results if available', async () => {
       const cachedResults = [
-        { guide: 'guide1', title: 'Guide 1', matches: [] }
+        { guide: 'guide1', title: 'Guide 1', matches: [] },
       ];
       mockCache.getSearchResults.mockReturnValue(cachedResults);
 
@@ -280,7 +280,7 @@ Content here.
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'First guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'First guide' },
       ]);
 
       const guide1Content = `# Guide 1
@@ -300,7 +300,7 @@ Performance optimization techniques.
               title: 'Guide 1',
               description: 'First guide',
               sections: ['Security Section', 'Performance Section'],
-              content: guide1Content
+              content: guide1Content,
             };
           }
           return null;
@@ -324,7 +324,7 @@ Performance optimization techniques.
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test guide' },
       ]);
 
       const guideContent = `# Test Guide
@@ -338,7 +338,7 @@ More Security details here.
         title: 'Test Guide',
         description: 'Test',
         sections: ['Section 1', 'Section 2'],
-        content: guideContent
+        content: guideContent,
       });
 
       const result = await client.searchBestPractices('security');
@@ -352,7 +352,7 @@ More Security details here.
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test guide' },
       ]);
 
       const guideContent = `# Test Guide
@@ -368,7 +368,7 @@ Line 6
         title: 'Test Guide',
         description: 'Test',
         sections: [],
-        content: guideContent
+        content: guideContent,
       });
 
       const result = await client.searchBestPractices('security');
@@ -389,7 +389,7 @@ Line 6
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test guide' },
       ]);
 
       const guideContent = `# Test Guide
@@ -406,7 +406,7 @@ Performance security considerations.
         title: 'Test Guide',
         description: 'Test',
         sections: ['Introduction', 'Security Section', 'Performance Section'],
-        content: guideContent
+        content: guideContent,
       });
 
       const result = await client.searchBestPractices('security');
@@ -426,7 +426,7 @@ Performance security considerations.
 
       // Verify that at least one match contains our search term
       const hasMatchingContent = matches.some(match =>
-        match.content.toLowerCase().includes('security')
+        match.content.toLowerCase().includes('security'),
       );
       expect(hasMatchingContent).toBe(true);
 
@@ -445,7 +445,7 @@ Performance security considerations.
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test guide' },
       ]);
 
       jest.spyOn(client, 'getBestPracticeGuide').mockResolvedValue(null);
@@ -460,14 +460,14 @@ Performance security considerations.
 
       // Mock getAvailableGuides for this specific test
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test guide' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test guide' },
       ]);
 
       jest.spyOn(client, 'getBestPracticeGuide').mockResolvedValue({
         title: 'Test Guide',
         description: 'Test',
         sections: [],
-        content: 'No relevant content here.'
+        content: 'No relevant content here.',
       });
 
       const result = await client.searchBestPractices('nonexistent');
@@ -485,7 +485,7 @@ Performance security considerations.
 
     it('should return cached hook reference if available', async () => {
       const cachedReference = [
-        { category: 'Shop API Hooks', hooks: [] }
+        { category: 'Shop API Hooks', hooks: [] },
       ];
       mockCache.getSearchResults.mockReturnValue(cachedReference);
 
@@ -522,7 +522,7 @@ General information about hooks.
         title: 'OCAPI Hooks',
         description: 'Hook guide',
         sections: [],
-        content: hookGuideContent
+        content: hookGuideContent,
       });
 
       const result = await client.getHookReference('ocapi_hooks');
@@ -578,7 +578,7 @@ General information about hooks.
         title: 'Hook Guide',
         description: 'Test',
         sections: [],
-        content: hookGuideContent
+        content: hookGuideContent,
       });
 
       const result = await client.getHookReference('scapi_hooks');
@@ -602,14 +602,14 @@ General information about hooks.
       mockCache.getSearchResults.mockReturnValue(undefined);
 
       jest.spyOn(client, 'getAvailableGuides').mockResolvedValue([
-        { name: 'guide1', title: 'Guide 1', description: 'Test' }
+        { name: 'guide1', title: 'Guide 1', description: 'Test' },
       ]);
 
       jest.spyOn(client, 'getBestPracticeGuide').mockResolvedValue({
         title: 'Test',
         description: 'Test',
         sections: [],
-        content: 'Content with special chars: !@#$%^&*()'
+        content: 'Content with special chars: !@#$%^&*()',
       });
 
       const result = await client.searchBestPractices('!@#$');
@@ -633,11 +633,11 @@ General information about hooks.
       mockCache.getFileContent.mockReturnValue(undefined);
       mockFsReadFile.mockResolvedValue('# Test\nContent');
 
-      const result = await client.getBestPracticeGuide('guide-with-dashes_and_underscores');
+      await client.getBestPracticeGuide('guide-with-dashes_and_underscores');
 
       expect(mockFsReadFile).toHaveBeenCalledWith(
         path.join(testDocsPath, 'guide-with-dashes_and_underscores.md'),
-        'utf-8'
+        'utf-8',
       );
     });
   });
@@ -669,7 +669,7 @@ General information about hooks.
       await client.getAvailableGuides();
       expect(mockCache.setSearchResults).toHaveBeenCalledWith(
         'best-practices:available-guides',
-        expect.any(Array)
+        expect.any(Array),
       );
 
       // getBestPracticeGuide should cache results
@@ -677,7 +677,7 @@ General information about hooks.
       await client.getBestPracticeGuide('test');
       expect(mockCache.setFileContent).toHaveBeenCalledWith(
         'best-practices:guide:test',
-        expect.any(String)
+        expect.any(String),
       );
     });
   });

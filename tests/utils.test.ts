@@ -3,7 +3,7 @@ import {
   formatBytes,
   parseLogEntries,
   extractUniqueErrors,
-  normalizeFilePath
+  normalizeFilePath,
 } from '../src/utils';
 
 describe('utils.ts', () => {
@@ -206,7 +206,7 @@ describe('utils.ts', () => {
         '[2023-08-09T10:30:00.123 GMT] ERROR ClassName1 - Database connection failed',
         '[2023-08-09T10:31:00.456 GMT] ERROR ClassName2 - File not found',
         '[2023-08-09T10:32:00.789 GMT] ERROR ClassName1 - Database connection failed',
-        '[2023-08-09T10:33:00.012 GMT] ERROR ClassName3 - Permission denied'
+        '[2023-08-09T10:33:00.012 GMT] ERROR ClassName3 - Permission denied',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -236,7 +236,7 @@ describe('utils.ts', () => {
       const errors = [
         'Invalid log format',
         '[2023-08-09T10:30:00.123 GMT] ERROR ClassName - Valid error message',
-        'Another invalid format'
+        'Another invalid format',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -250,7 +250,7 @@ describe('utils.ts', () => {
         `[2023-08-09T10:30:00.123 GMT] ERROR ClassName - Connection timeout
     at database.connect()
     at service.initialize()`,
-        '[2023-08-09T10:31:00.456 GMT] ERROR AnotherClass - File access denied'
+        '[2023-08-09T10:31:00.456 GMT] ERROR AnotherClass - File access denied',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -264,7 +264,7 @@ describe('utils.ts', () => {
       const errors = [
         '[2023-08-09T10:30:00.123 GMT] ERROR dw.system.Pipeline - Pipeline execution failed',
         '[2023-08-09T10:31:00.456 GMT] ERROR CustomClass123 - Custom error occurred',
-        '[2023-08-09T10:32:00.789 GMT] ERROR com.demandware.Core - Core system error'
+        '[2023-08-09T10:32:00.789 GMT] ERROR com.demandware.Core - Core system error',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -277,7 +277,7 @@ describe('utils.ts', () => {
 
     it('should trim extracted error messages', () => {
       const errors = [
-        '[2023-08-09T10:30:00.123 GMT] ERROR ClassName -   Error with extra spaces   '
+        '[2023-08-09T10:30:00.123 GMT] ERROR ClassName -   Error with extra spaces   ',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -290,7 +290,7 @@ describe('utils.ts', () => {
       const errors = [
         '[2023-08-09T10:30:00.123 GMT] ERROR Class1 - Third error alphabetically',
         '[2023-08-09T10:31:00.456 GMT] ERROR Class2 - First error alphabetically',
-        '[2023-08-09T10:32:00.789 GMT] ERROR Class3 - Second error alphabetically'
+        '[2023-08-09T10:32:00.789 GMT] ERROR Class3 - Second error alphabetically',
       ];
 
       const result = extractUniqueErrors(errors);
@@ -388,7 +388,7 @@ describe('utils.ts', () => {
     it('should handle performance with large datasets', () => {
       // Test with larger datasets to ensure reasonable performance
       const largeLogContent = Array(1000).fill(0).map((_, i) =>
-        `[2023-08-09T10:30:${String(i % 60).padStart(2, '0')}.123 GMT] ERROR Class${i % 10} - Error message ${i}`
+        `[2023-08-09T10:30:${String(i % 60).padStart(2, '0')}.123 GMT] ERROR Class${i % 10} - Error message ${i}`,
       ).join('\n');
 
       const start = Date.now();

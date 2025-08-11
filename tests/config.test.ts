@@ -1,6 +1,6 @@
 import { loadDwJsonConfig } from '../src/config';
-import { SFCCConfig, DwJsonConfig } from '../src/types';
-import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
+import { DwJsonConfig } from '../src/types';
+import { existsSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
 import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 
@@ -24,6 +24,7 @@ describe('config.ts', () => {
           unlinkSync(filePath);
         }
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // Ignore cleanup errors
     }
@@ -41,7 +42,7 @@ describe('config.ts', () => {
         username: 'testuser',
         password: 'testpass',
         'client-id': '',
-        'client-secret': ''
+        'client-secret': '',
       };
 
       const testFile = join(testDir, 'valid-dw.json');
@@ -62,7 +63,7 @@ describe('config.ts', () => {
         username: 'oauthuser',
         password: 'oauthpass',
         'client-id': 'test-client-id',
-        'client-secret': 'test-client-secret'
+        'client-secret': 'test-client-secret',
       };
 
       const testFile = join(testDir, 'oauth-dw.json');
@@ -83,7 +84,7 @@ describe('config.ts', () => {
         username: 'relativeuser',
         password: 'relativepass',
         'client-id': '',
-        'client-secret': ''
+        'client-secret': '',
       };
 
       const testFile = join(testDir, 'relative-dw.json');
@@ -123,7 +124,7 @@ describe('config.ts', () => {
     it('should throw error when hostname is missing', () => {
       const incompleteConfig = {
         username: 'testuser',
-        password: 'testpass'
+        password: 'testpass',
         // hostname missing
       };
 
@@ -140,7 +141,7 @@ describe('config.ts', () => {
     it('should throw error when username is missing', () => {
       const incompleteConfig = {
         hostname: 'test.demandware.net',
-        password: 'testpass'
+        password: 'testpass',
         // username missing
       };
 
@@ -157,7 +158,7 @@ describe('config.ts', () => {
     it('should throw error when password is missing', () => {
       const incompleteConfig = {
         hostname: 'test.demandware.net',
-        username: 'testuser'
+        username: 'testuser',
         // password missing
       };
 
@@ -177,7 +178,7 @@ describe('config.ts', () => {
         username: 'testuser',
         password: 'testpass',
         'client-id': '',
-        'client-secret': ''
+        'client-secret': '',
       };
 
       const testFile = join(testDir, 'empty-oauth.json');
@@ -200,7 +201,7 @@ describe('config.ts', () => {
         username: 'testuser',
         password: 'testpass',
         'client-id': 'only-client-id',
-        'client-secret': ''
+        'client-secret': '',
       };
 
       const testFile = join(testDir, 'partial-oauth.json');
@@ -223,6 +224,7 @@ describe('config.ts', () => {
       writeFileSync(testFile, '{"test": "data"}');
 
       // Mock readFileSync to throw a different error
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       jest.spyOn(require('fs'), 'readFileSync').mockImplementation(() => {
         throw new Error('File system error');
       });
@@ -243,7 +245,7 @@ describe('config.ts', () => {
         username: 'integrationuser',
         password: 'integrationpass',
         'client-id': 'integration-client-id',
-        'client-secret': 'integration-client-secret'
+        'client-secret': 'integration-client-secret',
       };
 
       const testFile = join(testDir, 'integration-test.json');

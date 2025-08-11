@@ -5,7 +5,7 @@
  * client implementations, reducing code duplication and ensuring consistency.
  */
 
-import { Logger } from "./logger.js";
+import { Logger } from './logger.js';
 
 /**
  * Abstract base class for all SFCC clients
@@ -26,19 +26,19 @@ export abstract class BaseClient {
     this.logger.error(`${operation} failed:`, error);
 
     if (error.code === 'ENOTFOUND') {
-      throw new Error(`Network error: Unable to connect to SFCC instance. Please check your hostname and network connection.`);
+      throw new Error('Network error: Unable to connect to SFCC instance. Please check your hostname and network connection.');
     }
 
     if (error.status === 401 || error.code === 401) {
-      throw new Error(`Authentication failed: Please check your credentials.`);
+      throw new Error('Authentication failed: Please check your credentials.');
     }
 
     if (error.status === 403 || error.code === 403) {
-      throw new Error(`Access forbidden: You don't have permission to perform this operation.`);
+      throw new Error('Access forbidden: You don\'t have permission to perform this operation.');
     }
 
     if (error.status === 404 || error.code === 404) {
-      throw new Error(`Resource not found: The requested resource does not exist.`);
+      throw new Error('Resource not found: The requested resource does not exist.');
     }
 
     // Re-throw the original error if it's not a common scenario

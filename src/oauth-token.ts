@@ -5,7 +5,7 @@
  * for SFCC OCAPI requests. It handles automatic token refresh when tokens expire.
  */
 
-import { OAuthToken, OAuthTokenResponse } from "./types.js";
+import { OAuthToken, OAuthTokenResponse } from './types.js';
 
 /**
  * Singleton class for managing OAuth tokens
@@ -64,7 +64,7 @@ export class TokenManager {
 
     const key = this.getTokenKey(hostname, clientId);
     const token = this.tokens.get(key);
-    return token?.accessToken || null;
+    return token?.accessToken ?? null;
   }
 
   /**
@@ -77,7 +77,7 @@ export class TokenManager {
     const token: OAuthToken = {
       accessToken: tokenResponse.access_token,
       tokenType: tokenResponse.token_type,
-      expiresAt: now + (tokenResponse.expires_in * 1000) // Convert seconds to milliseconds
+      expiresAt: now + (tokenResponse.expires_in * 1000), // Convert seconds to milliseconds
     };
 
     this.tokens.set(key, token);

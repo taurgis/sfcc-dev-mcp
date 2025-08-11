@@ -34,7 +34,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'test-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const instance1 = TokenManager.getInstance();
@@ -50,7 +50,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'stored-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -63,7 +63,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'expiration-test-token',
         token_type: 'bearer',
-        expires_in: 3600 // 1 hour
+        expires_in: 3600, // 1 hour
       };
 
       const beforeStore = Date.now();
@@ -87,13 +87,13 @@ describe('TokenManager', () => {
       const firstToken: OAuthTokenResponse = {
         access_token: 'first-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const secondToken: OAuthTokenResponse = {
         access_token: 'second-token',
         token_type: 'bearer',
-        expires_in: 7200
+        expires_in: 7200,
       };
 
       tokenManager.storeToken(testHostname, testClientId, firstToken);
@@ -107,19 +107,19 @@ describe('TokenManager', () => {
       const token1: OAuthTokenResponse = {
         access_token: 'token-1',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token2: OAuthTokenResponse = {
         access_token: 'token-2',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token3: OAuthTokenResponse = {
         access_token: 'token-3',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       // Same hostname, different clientId
@@ -145,7 +145,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'valid-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -156,7 +156,7 @@ describe('TokenManager', () => {
       const shortLivedToken: OAuthTokenResponse = {
         access_token: 'short-lived-token',
         token_type: 'bearer',
-        expires_in: 0.001 // Very short expiration (1ms)
+        expires_in: 0.001, // Very short expiration (1ms)
       };
 
       tokenManager.storeToken(testHostname, testClientId, shortLivedToken);
@@ -172,7 +172,7 @@ describe('TokenManager', () => {
       const soonToExpireToken: OAuthTokenResponse = {
         access_token: 'soon-to-expire-token',
         token_type: 'bearer',
-        expires_in: 30 // 30 seconds
+        expires_in: 30, // 30 seconds
       };
 
       tokenManager.storeToken(testHostname, testClientId, soonToExpireToken);
@@ -186,7 +186,7 @@ describe('TokenManager', () => {
       const validToken: OAuthTokenResponse = {
         access_token: 'valid-token-beyond-buffer',
         token_type: 'bearer',
-        expires_in: 120 // 2 minutes
+        expires_in: 120, // 2 minutes
       };
 
       tokenManager.storeToken(testHostname, testClientId, validToken);
@@ -206,7 +206,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'valid-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -217,7 +217,7 @@ describe('TokenManager', () => {
       const shortLivedToken: OAuthTokenResponse = {
         access_token: 'expired-token',
         token_type: 'bearer',
-        expires_in: 0.001 // Very short expiration
+        expires_in: 0.001, // Very short expiration
       };
 
       tokenManager.storeToken(testHostname, testClientId, shortLivedToken);
@@ -232,7 +232,7 @@ describe('TokenManager', () => {
       const soonToExpireToken: OAuthTokenResponse = {
         access_token: 'buffer-test-token',
         token_type: 'bearer',
-        expires_in: 30 // 30 seconds - within buffer
+        expires_in: 30, // 30 seconds - within buffer
       };
 
       tokenManager.storeToken(testHostname, testClientId, soonToExpireToken);
@@ -243,7 +243,7 @@ describe('TokenManager', () => {
       const validToken: OAuthTokenResponse = {
         access_token: 'buffer-safe-token',
         token_type: 'bearer',
-        expires_in: 120 // 2 minutes - beyond buffer
+        expires_in: 120, // 2 minutes - beyond buffer
       };
 
       tokenManager.storeToken(testHostname, testClientId, validToken);
@@ -254,7 +254,7 @@ describe('TokenManager', () => {
       const exactBufferToken: OAuthTokenResponse = {
         access_token: 'exact-buffer-token',
         token_type: 'bearer',
-        expires_in: 60 // Exactly 60 seconds
+        expires_in: 60, // Exactly 60 seconds
       };
 
       tokenManager.storeToken(testHostname, testClientId, exactBufferToken);
@@ -266,7 +266,7 @@ describe('TokenManager', () => {
       const justBeyondBufferToken: OAuthTokenResponse = {
         access_token: 'just-beyond-buffer-token',
         token_type: 'bearer',
-        expires_in: 61 // 61 seconds - just beyond buffer
+        expires_in: 61, // 61 seconds - just beyond buffer
       };
 
       tokenManager.storeToken(testHostname, testClientId, justBeyondBufferToken);
@@ -279,7 +279,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'to-be-cleared',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -294,13 +294,13 @@ describe('TokenManager', () => {
       const token1: OAuthTokenResponse = {
         access_token: 'token-1',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token2: OAuthTokenResponse = {
         access_token: 'token-2',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, token1);
@@ -332,19 +332,19 @@ describe('TokenManager', () => {
       const token1: OAuthTokenResponse = {
         access_token: 'token-1',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token2: OAuthTokenResponse = {
         access_token: 'token-2',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token3: OAuthTokenResponse = {
         access_token: 'token-3',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, token1);
@@ -373,7 +373,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'after-clear-all',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -391,7 +391,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'expiration-date-token',
         token_type: 'bearer',
-        expires_in: 3600 // 1 hour
+        expires_in: 3600, // 1 hour
       };
 
       const beforeStore = Date.now();
@@ -415,13 +415,13 @@ describe('TokenManager', () => {
       const shortToken: OAuthTokenResponse = {
         access_token: 'short-token',
         token_type: 'bearer',
-        expires_in: 1800 // 30 minutes
+        expires_in: 1800, // 30 minutes
       };
 
       const longToken: OAuthTokenResponse = {
         access_token: 'long-token',
         token_type: 'bearer',
-        expires_in: 7200 // 2 hours
+        expires_in: 7200, // 2 hours
       };
 
       tokenManager.storeToken(testHostname, testClientId, shortToken);
@@ -442,7 +442,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'cleared-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       tokenManager.storeToken(testHostname, testClientId, tokenResponse);
@@ -459,13 +459,13 @@ describe('TokenManager', () => {
       const token1: OAuthTokenResponse = {
         access_token: 'unique-test-1',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const token2: OAuthTokenResponse = {
         access_token: 'unique-test-2',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       // Store tokens with similar but different keys
@@ -485,7 +485,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'special-chars-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       const specialHostname = 'test-instance_with.special-chars.demandware.net';
@@ -502,7 +502,7 @@ describe('TokenManager', () => {
       const zeroExpirationToken: OAuthTokenResponse = {
         access_token: 'zero-expiration-token',
         token_type: 'bearer',
-        expires_in: 0
+        expires_in: 0,
       };
 
       tokenManager.storeToken(testHostname, testClientId, zeroExpirationToken);
@@ -516,7 +516,7 @@ describe('TokenManager', () => {
       const negativeExpirationToken: OAuthTokenResponse = {
         access_token: 'negative-expiration-token',
         token_type: 'bearer',
-        expires_in: -100
+        expires_in: -100,
       };
 
       tokenManager.storeToken(testHostname, testClientId, negativeExpirationToken);
@@ -530,7 +530,7 @@ describe('TokenManager', () => {
       const largeExpirationToken: OAuthTokenResponse = {
         access_token: 'large-expiration-token',
         token_type: 'bearer',
-        expires_in: 86400 * 365 // 1 year in seconds
+        expires_in: 86400 * 365, // 1 year in seconds
       };
 
       tokenManager.storeToken(testHostname, testClientId, largeExpirationToken);
@@ -546,7 +546,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'empty-string-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       // Should not throw errors with empty strings
@@ -575,7 +575,7 @@ describe('TokenManager', () => {
       const fractionalExpirationToken: OAuthTokenResponse = {
         access_token: 'fractional-expiration-token',
         token_type: 'bearer',
-        expires_in: 3600.5 // 1 hour and 30 minutes
+        expires_in: 3600.5, // 1 hour and 30 minutes
       };
 
       tokenManager.storeToken(testHostname, testClientId, fractionalExpirationToken);
@@ -590,7 +590,7 @@ describe('TokenManager', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: 'rapid-ops-token',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       // Rapid store/clear/check operations
@@ -606,7 +606,7 @@ describe('TokenManager', () => {
       const baseToken: OAuthTokenResponse = {
         access_token: '',
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       // Store multiple tokens rapidly

@@ -5,9 +5,9 @@
  * and command-line options for connecting to Salesforce B2C Commerce Cloud.
  */
 
-import { readFileSync, existsSync } from "fs";
-import { resolve } from "path";
-import { SFCCConfig, DwJsonConfig } from "./types.js";
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
+import { SFCCConfig, DwJsonConfig } from './types.js';
 
 /**
  * Load configuration from a dw.json file
@@ -43,9 +43,9 @@ export function loadDwJsonConfig(dwJsonPath: string): SFCCConfig {
     };
 
     // If client-id and client-secret are present, use them as OAuth credentials
-    if (dwConfig["client-id"] && dwConfig["client-secret"]) {
-      config.clientId = dwConfig["client-id"];
-      config.clientSecret = dwConfig["client-secret"];
+    if (dwConfig['client-id'] && dwConfig['client-secret']) {
+      config.clientId = dwConfig['client-id'];
+      config.clientSecret = dwConfig['client-secret'];
     }
 
     return config;

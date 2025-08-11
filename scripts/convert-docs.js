@@ -101,6 +101,7 @@ async function fetchHTML(url) {
     } catch (error) {
         if (error.response && error.response.status === 429) {
             console.warn(`Rate limited by server. Waiting 60 seconds before retry...`);
+            // eslint-disable-next-line no-undef
             await new Promise(resolve => setTimeout(resolve, 60000));
             // Retry once after rate limit
             try {
@@ -459,6 +460,7 @@ class RateLimiter {
 
             if (waitTime > 0) {
                 console.log(`Rate limit reached. Waiting ${Math.ceil(waitTime / 1000)} seconds...`);
+                // eslint-disable-next-line no-undef
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             }
         }
@@ -472,6 +474,7 @@ class RateLimiter {
             console.log(`Applying delay: ${Math.ceil(totalDelay)}ms`);
         }
 
+        // eslint-disable-next-line no-undef
         await new Promise(resolve => setTimeout(resolve, totalDelay));
 
         // Record this request
@@ -602,6 +605,7 @@ async function main() {
             const packageDelay = CONFIG.rateLimit.packageDelay;
             const jitter = Math.random() * CONFIG.rateLimit.jitter * packageDelay;
             console.log(`Waiting ${Math.ceil((packageDelay + jitter) / 1000)}s before next package...`);
+            // eslint-disable-next-line no-undef
             await new Promise(resolve => setTimeout(resolve, packageDelay + jitter));
         }
     }

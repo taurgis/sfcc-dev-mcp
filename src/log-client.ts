@@ -6,19 +6,19 @@
  * Salesforce B2C Commerce Cloud logging system.
  */
 
-import { createClient } from "webdav";
-import { SFCCConfig, LogLevel, LogFileInfo, LogSummary } from "./types.js";
+import { createClient } from 'webdav';
+import { SFCCConfig, LogLevel, LogFileInfo, LogSummary } from './types.js';
 import {
   getCurrentDate,
   formatBytes,
   parseLogEntries,
   extractUniqueErrors,
-  normalizeFilePath
-} from "./utils.js";
-import { Logger } from "./logger.js";
+  normalizeFilePath,
+} from './utils.js';
+import { Logger } from './logger.js';
 
 // Create a logger instance for this module
-const logger = new Logger("LogClient");
+const logger = new Logger('LogClient');
 
 /**
  * Client for accessing SFCC logs via WebDAV
@@ -64,7 +64,7 @@ export class SFCCLogClient {
         password: this.config.clientSecret,
       };
     } else {
-      throw new Error("Either username/password or clientId/clientSecret must be provided");
+      throw new Error('Either username/password or clientId/clientSecret must be provided');
     }
 
     this.webdavClient = createClient(webdavUrl, authConfig);
@@ -77,23 +77,23 @@ export class SFCCLogClient {
    * @returns Array of log file names for the specified date
    */
   async getLogFiles(date?: string): Promise<string[]> {
-    const targetDate = date || getCurrentDate();
-    logger.methodEntry("getLogFiles", { date: targetDate });
+    const targetDate = date ?? getCurrentDate();
+    logger.methodEntry('getLogFiles', { date: targetDate });
 
     const startTime = Date.now();
-    const contents = await this.webdavClient.getDirectoryContents("/");
-    logger.timing("webdav_getDirectoryContents", startTime);
+    const contents = await this.webdavClient.getDirectoryContents('/');
+    logger.timing('webdav_getDirectoryContents', startTime);
 
     const logFiles = contents
       .filter((item: any) =>
-        item.type === "file" &&
+        item.type === 'file' &&
         item.filename.includes(targetDate) &&
-        item.filename.endsWith(".log")
+        item.filename.endsWith('.log'),
       )
       .map((item: any) => item.filename);
 
     logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles);
-    logger.methodExit("getLogFiles", { count: logFiles.length });
+    logger.methodExit('getLogFiles', { count: logFiles.length });
     return logFiles;
   }
 
@@ -106,8 +106,8 @@ export class SFCCLogClient {
    * @returns Formatted log entries
    */
   async getLatestLogs(level: LogLevel, limit: number, date?: string): Promise<string> {
-    const targetDate = date || getCurrentDate();
-    logger.methodEntry("getLatestLogs", { level, limit, date: targetDate });
+    const targetDate = date ?? getCurrentDate();
+    logger.methodEntry('getLatestLogs', { level, limit, date: targetDate });
 
     const startTime = Date.now();
     const logFiles = await this.getLogFiles(targetDate);
@@ -115,7 +115,7 @@ export class SFCCLogClient {
     // Filter files for the specific log level
     const levelFiles = logFiles.filter(file => {
       const filename = normalizeFilePath(file);
-      return filename.startsWith(level + '-');
+      return filename.startsWith(`${level  }-`);
     });
 
     logger.debug(`Filtered to ${levelFiles.length} ${level} log files:`, levelFiles);
@@ -124,7 +124,7 @@ export class SFCCLogClient {
       const availableFiles = logFiles.map(f => normalizeFilePath(f)).join(', ');
       const result = `No ${level} log files found for date ${targetDate}. Available files: ${availableFiles}`;
       logger.warn(result);
-      logger.methodExit("getLatestLogs", { result: "no_files" });
+      logger.methodExit('getLatestLogs', { result: 'no_files' });
       return result;
     }
 
@@ -133,15 +133,15 @@ export class SFCCLogClient {
     logger.debug(`Processing latest file: ${latestFile}`);
 
     const fileStartTime = Date.now();
-    const logContent = await this.webdavClient.getFileContents(latestFile, { format: "text" });
-    logger.timing("webdav_getFileContents", fileStartTime);
+    const logContent = await this.webdavClient.getFileContents(latestFile, { format: 'text' });
+    logger.timing('webdav_getFileContents', fileStartTime);
 
     const logEntries = parseLogEntries(logContent as string, level.toUpperCase());
     const latestEntries = logEntries.slice(-limit).reverse();
 
     logger.debug(`Parsed ${logEntries.length} total entries, returning latest ${latestEntries.length}`);
-    logger.timing("getLatestLogs", startTime);
-    logger.methodExit("getLatestLogs", { entriesReturned: latestEntries.length });
+    logger.timing('getLatestLogs', startTime);
+    logger.methodExit('getLatestLogs', { entriesReturned: latestEntries.length });
 
     return `Latest ${limit} ${level} messages from ${normalizeFilePath(latestFile!)}:\n\n${latestEntries.join('\n\n---\n\n')}`;
   }
@@ -153,7 +153,7 @@ export class SFCCLogClient {
    * @returns Detailed log summary with counts and key issues
    */
   async summarizeLogs(date?: string): Promise<string> {
-    const targetDate = date || getCurrentDate();
+    const targetDate = date ?? getCurrentDate();
     const logFiles = await this.getLogFiles(targetDate);
 
     if (logFiles.length === 0) {
@@ -173,15 +173,15 @@ export class SFCCLogClient {
     // Analyze each log file for counts and patterns
     for (const file of logFiles) {
       try {
-        const content = await this.webdavClient.getFileContents(file, { format: "text" });
+        const content = await this.webdavClient.getFileContents(file, { format: 'text' });
         const lines = (content as string).split('\n');
 
         // Count different log levels
         for (const line of lines) {
-          if (line.includes(' ERROR ')) summary.errorCount++;
-          if (line.includes(' WARN ')) summary.warningCount++;
-          if (line.includes(' INFO ')) summary.infoCount++;
-          if (line.includes(' DEBUG ')) summary.debugCount++;
+          if (line.includes(' ERROR ')) {summary.errorCount++;}
+          if (line.includes(' WARN ')) {summary.warningCount++;}
+          if (line.includes(' INFO ')) {summary.infoCount++;}
+          if (line.includes(' DEBUG ')) {summary.debugCount++;}
         }
 
         // Extract key error patterns from error files
@@ -212,14 +212,14 @@ export class SFCCLogClient {
    * @returns Formatted search results
    */
   async searchLogs(pattern: string, logLevel?: LogLevel, limit: number = 20, date?: string): Promise<string> {
-    const targetDate = date || getCurrentDate();
+    const targetDate = date ?? getCurrentDate();
     const logFiles = await this.getLogFiles(targetDate);
 
     let filesToSearch = logFiles;
     if (logLevel) {
       filesToSearch = logFiles.filter(file => {
         const filename = normalizeFilePath(file);
-        return filename.startsWith(logLevel + '-');
+        return filename.startsWith(`${logLevel  }-`);
       });
     }
 
@@ -227,7 +227,7 @@ export class SFCCLogClient {
 
     for (const file of filesToSearch) {
       try {
-        const content = await this.webdavClient.getFileContents(file, { format: "text" });
+        const content = await this.webdavClient.getFileContents(file, { format: 'text' });
         const lines = (content as string).split('\n');
 
         for (const line of lines) {
@@ -252,17 +252,17 @@ export class SFCCLogClient {
    */
   async listLogFiles(): Promise<string> {
     try {
-      const contents = await this.webdavClient.getDirectoryContents("/");
+      const contents = await this.webdavClient.getDirectoryContents('/');
       const logFiles: LogFileInfo[] = contents
-        .filter((item: any) => item.type === "file" && item.filename.endsWith(".log"))
+        .filter((item: any) => item.type === 'file' && item.filename.endsWith('.log'))
         .map((item: any) => ({
           name: item.filename,
           size: item.size,
           lastModified: item.lastmod,
         }));
 
-      return `Available log files:\n\n${logFiles.map((file: LogFileInfo) => 
-        `📄 ${file.name}\n   Size: ${formatBytes(file.size)}\n   Modified: ${file.lastModified}`
+      return `Available log files:\n\n${logFiles.map((file: LogFileInfo) =>
+        `📄 ${file.name}\n   Size: ${formatBytes(file.size)}\n   Modified: ${file.lastModified}`,
       ).join('\n\n')}`;
     } catch (error) {
       throw new Error(`Failed to list log files: ${error instanceof Error ? error.message : String(error)}`);
@@ -278,14 +278,14 @@ export class SFCCLogClient {
    */
   private formatLogSummary(summary: LogSummary): string {
     return `Log Summary for ${summary.date}:\n\n` +
-           `📊 Counts:\n` +
+           '📊 Counts:\n' +
            `- Errors: ${summary.errorCount}\n` +
            `- Warnings: ${summary.warningCount}\n` +
            `- Info: ${summary.infoCount}\n` +
            `- Debug: ${summary.debugCount}\n\n` +
            `📁 Log Files (${summary.files.length}):\n` +
            `${summary.files.map((f: string) => `- ${f}`).join('\n')}\n\n` +
-           `🔥 Key Issues:\n` +
+           '🔥 Key Issues:\n' +
            `${summary.keyIssues.length > 0 ? summary.keyIssues.map((issue: string) => `- ${issue}`).join('\n') : 'No major issues detected'}`;
   }
 }

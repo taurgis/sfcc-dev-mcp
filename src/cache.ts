@@ -53,7 +53,7 @@ export class InMemoryCache<T> {
       value,
       timestamp: now,
       accessCount: 0,
-      lastAccessed: now
+      lastAccessed: now,
     });
   }
 
@@ -123,12 +123,12 @@ export class InMemoryCache<T> {
     maxSize: number;
     hitRate: number;
     entries: Array<{ key: string; accessCount: number; age: number }>;
-  } {
+    } {
     const now = Date.now();
     const entries = Array.from(this.cache.entries()).map(([key, entry]) => ({
       key,
       accessCount: entry.accessCount,
-      age: now - entry.timestamp
+      age: now - entry.timestamp,
     }));
 
     const totalAccesses = entries.reduce((sum, entry) => sum + entry.accessCount, 0);
@@ -138,7 +138,7 @@ export class InMemoryCache<T> {
       size: this.cache.size,
       maxSize: this.maxSize,
       hitRate: totalAccesses > 0 ? totalHits / totalAccesses : 0,
-      entries
+      entries,
     };
   }
 
@@ -203,25 +203,25 @@ export class CacheManager {
     this.fileContentCache = new InMemoryCache<string>({
       maxSize: 500,
       ttlMs: 4 * 60 * 60 * 1000, // 4 hours - raw file content is completely static
-      cleanupIntervalMs: 30 * 60 * 1000 // 30 minutes cleanup interval
+      cleanupIntervalMs: 30 * 60 * 1000, // 30 minutes cleanup interval
     });
 
     this.classDetailsCache = new InMemoryCache({
       maxSize: 300,
       ttlMs: 2 * 60 * 60 * 1000, // 2 hours - parsed data is static
-      cleanupIntervalMs: 20 * 60 * 1000 // 20 minutes cleanup interval
+      cleanupIntervalMs: 20 * 60 * 1000, // 20 minutes cleanup interval
     });
 
     this.searchResultsCache = new InMemoryCache({
       maxSize: 200,
       ttlMs: 60 * 60 * 1000, // 1 hour - search results are static
-      cleanupIntervalMs: 15 * 60 * 1000 // 15 minutes cleanup interval
+      cleanupIntervalMs: 15 * 60 * 1000, // 15 minutes cleanup interval
     });
 
     this.methodSearchCache = new InMemoryCache({
       maxSize: 100,
       ttlMs: 60 * 60 * 1000, // 1 hour - method search results are static
-      cleanupIntervalMs: 15 * 60 * 1000 // 15 minutes cleanup interval
+      cleanupIntervalMs: 15 * 60 * 1000, // 15 minutes cleanup interval
     });
   }
 
@@ -265,12 +265,12 @@ export class CacheManager {
     classDetails: ReturnType<InMemoryCache<any>['getStats']>;
     searchResults: ReturnType<InMemoryCache<any>['getStats']>;
     methodSearch: ReturnType<InMemoryCache<any>['getStats']>;
-  } {
+    } {
     return {
       fileContent: this.fileContentCache.getStats(),
       classDetails: this.classDetailsCache.getStats(),
       searchResults: this.searchResultsCache.getStats(),
-      methodSearch: this.methodSearchCache.getStats()
+      methodSearch: this.methodSearchCache.getStats(),
     };
   }
 

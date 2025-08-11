@@ -15,7 +15,7 @@ describe('OCAPIClient', () => {
     hostname: 'test-instance.demandware.net',
     clientId: 'test-client-id',
     clientSecret: 'test-client-secret',
-    version: 'v21_3'
+    version: 'v21_3',
   };
 
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('OCAPIClient', () => {
       storeToken: jest.fn(),
       clearToken: jest.fn(),
       getTokenExpiration: jest.fn(),
-      isTokenValid: jest.fn()
+      isTokenValid: jest.fn(),
     } as any;
 
     (TokenManager.getInstance as jest.Mock).mockReturnValue(mockTokenManager);
@@ -46,7 +46,7 @@ describe('OCAPIClient', () => {
       const configWithoutVersion = {
         hostname: 'test.demandware.net',
         clientId: 'client-id',
-        clientSecret: 'client-secret'
+        clientSecret: 'client-secret',
       };
 
       const clientWithDefaults = new OCAPIClient(configWithoutVersion);
@@ -67,22 +67,22 @@ describe('OCAPIClient', () => {
       // Mock successful API response
       (fetch as jest.Mock).mockResolvedValue({
         ok: true,
-        json: async () => ({ data: 'test' })
+        json: async () => ({ data: 'test' }),
       });
 
       await client.get('/test-endpoint');
 
       expect(mockTokenManager.getValidToken).toHaveBeenCalledWith(
         mockConfig.hostname,
-        mockConfig.clientId
+        mockConfig.clientId,
       );
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/test-endpoint'),
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': `Bearer ${existingToken}`
-          })
-        })
+            'Authorization': `Bearer ${existingToken}`,
+          }),
+        }),
       );
     });
 
@@ -91,7 +91,7 @@ describe('OCAPIClient', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: newToken,
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       mockTokenManager.getValidToken.mockReturnValue(null);
@@ -100,11 +100,11 @@ describe('OCAPIClient', () => {
       (fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => tokenResponse
+          json: async () => tokenResponse,
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ data: 'test' })
+          json: async () => ({ data: 'test' }),
         });
 
       await client.get('/test-endpoint');
@@ -116,17 +116,17 @@ describe('OCAPIClient', () => {
           method: 'POST',
           headers: {
             'Authorization': `Basic ${Buffer.from(`${mockConfig.clientId}:${mockConfig.clientSecret}`).toString('base64')}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: 'grant_type=client_credentials'
-        }
+          body: 'grant_type=client_credentials',
+        },
       );
 
       // Verify token was stored
       expect(mockTokenManager.storeToken).toHaveBeenCalledWith(
         mockConfig.hostname,
         mockConfig.clientId,
-        tokenResponse
+        tokenResponse,
       );
 
       // Verify API request used new token
@@ -134,9 +134,9 @@ describe('OCAPIClient', () => {
         expect.stringContaining('/test-endpoint'),
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': `Bearer ${newToken}`
-          })
-        })
+            'Authorization': `Bearer ${newToken}`,
+          }),
+        }),
       );
     });
 
@@ -147,11 +147,11 @@ describe('OCAPIClient', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: async () => 'Invalid client credentials'
+        text: async () => 'Invalid client credentials',
       });
 
       await expect(client.get('/test-endpoint')).rejects.toThrow(
-        'OAuth authentication failed: 400 Bad Request - Invalid client credentials'
+        'OAuth authentication failed: 400 Bad Request - Invalid client credentials',
       );
     });
 
@@ -161,7 +161,7 @@ describe('OCAPIClient', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: newToken,
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       mockTokenManager.getValidToken
@@ -172,22 +172,22 @@ describe('OCAPIClient', () => {
         .mockResolvedValueOnce({         // First API call with old token fails
           ok: false,
           status: 401,
-          statusText: 'Unauthorized'
+          statusText: 'Unauthorized',
         })
         .mockResolvedValueOnce({         // OAuth token refresh succeeds
           ok: true,
-          json: async () => tokenResponse
+          json: async () => tokenResponse,
         })
         .mockResolvedValueOnce({         // Retry API call succeeds
           ok: true,
-          json: async () => ({ data: 'success' })
+          json: async () => ({ data: 'success' }),
         });
 
       const result = await client.get('/test-endpoint');
 
       expect(mockTokenManager.clearToken).toHaveBeenCalledWith(
         mockConfig.hostname,
-        mockConfig.clientId
+        mockConfig.clientId,
       );
       expect(result).toEqual({ data: 'success' });
     });
@@ -204,21 +204,21 @@ describe('OCAPIClient', () => {
         .mockResolvedValueOnce({         // First call fails with 401
           ok: false,
           status: 401,
-          statusText: 'Unauthorized'
+          statusText: 'Unauthorized',
         })
         .mockResolvedValueOnce({         // OAuth token refresh succeeds
           ok: true,
-          json: async () => ({ access_token: newToken, token_type: 'bearer', expires_in: 3600 })
+          json: async () => ({ access_token: newToken, token_type: 'bearer', expires_in: 3600 }),
         })
         .mockResolvedValueOnce({         // Retry also fails with 401
           ok: false,
           status: 401,
           statusText: 'Unauthorized',
-          text: async () => 'Still unauthorized'
+          text: async () => 'Still unauthorized',
         });
 
       await expect(client.get('/test-endpoint')).rejects.toThrow(
-        'OCAPI request failed: 401 Unauthorized - Still unauthorized'
+        'OCAPI request failed: 401 Unauthorized - Still unauthorized',
       );
     });
   });
@@ -233,7 +233,7 @@ describe('OCAPIClient', () => {
         const mockResponse = { id: '1', name: 'test' };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.get('/products/test-id');
@@ -244,9 +244,9 @@ describe('OCAPIClient', () => {
             method: 'GET',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
-            }
-          }
+              'Content-Type': 'application/json',
+            },
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -259,7 +259,7 @@ describe('OCAPIClient', () => {
 
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.post('/products', postData);
@@ -270,10 +270,10 @@ describe('OCAPIClient', () => {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
-            body: JSON.stringify(postData)
-          }
+            body: JSON.stringify(postData),
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -283,7 +283,7 @@ describe('OCAPIClient', () => {
 
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.post('/actions/refresh');
@@ -294,9 +294,9 @@ describe('OCAPIClient', () => {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
-            }
-          }
+              'Content-Type': 'application/json',
+            },
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -309,7 +309,7 @@ describe('OCAPIClient', () => {
 
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.put('/products/123', putData);
@@ -320,10 +320,10 @@ describe('OCAPIClient', () => {
             method: 'PUT',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
-            body: JSON.stringify(putData)
-          }
+            body: JSON.stringify(putData),
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -336,7 +336,7 @@ describe('OCAPIClient', () => {
 
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.patch('/products/123', patchData);
@@ -347,10 +347,10 @@ describe('OCAPIClient', () => {
             method: 'PATCH',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
-            body: JSON.stringify(patchData)
-          }
+            body: JSON.stringify(patchData),
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -362,7 +362,7 @@ describe('OCAPIClient', () => {
 
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.delete('/products/123');
@@ -373,9 +373,9 @@ describe('OCAPIClient', () => {
             method: 'DELETE',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
-            }
-          }
+              'Content-Type': 'application/json',
+            },
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -386,11 +386,11 @@ describe('OCAPIClient', () => {
         ok: false,
         status: 404,
         statusText: 'Not Found',
-        text: async () => 'Resource not found'
+        text: async () => 'Resource not found',
       });
 
       await expect(client.get('/products/nonexistent')).rejects.toThrow(
-        'OCAPI request failed: 404 Not Found - Resource not found'
+        'OCAPI request failed: 404 Not Found - Resource not found',
       );
     });
   });
@@ -405,14 +405,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'prod1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getProducts();
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/products',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -421,7 +421,7 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'prod1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const params = {
@@ -429,14 +429,14 @@ describe('OCAPIClient', () => {
           expand: ['prices', 'images'],
           inventory_ids: ['inv1'],
           currency: 'USD',
-          locale: 'en_US'
+          locale: 'en_US',
         };
 
         const result = await client.getProducts(params);
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/products?ids=prod1%2Cprod2&expand=prices%2Cimages&inventory_ids=inv1&currency=USD&locale=en_US',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -445,14 +445,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'prod1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getProducts({ ids: ['prod1'], currency: 'EUR' });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/products?ids=prod1&currency=EUR',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -463,14 +463,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'cat1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getCategories();
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -479,20 +479,20 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'cat1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const params = {
           ids: ['cat1', 'cat2'],
           levels: 2,
-          locale: 'en_US'
+          locale: 'en_US',
         };
 
         const result = await client.getCategories(params);
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories?ids=cat1%2Ccat2&levels=2&locale=en_US',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -501,14 +501,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ id: 'cat1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
-        const result = await client.getCategories({ levels: 0 });
+        await client.getCategories({ levels: 0 });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories?levels=0',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
@@ -518,14 +518,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { hits: [{ id: 'prod1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.searchProducts({ q: 'shoes' });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/product_search?q=shoes',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -534,7 +534,7 @@ describe('OCAPIClient', () => {
         const mockResponse = { hits: [{ id: 'prod1' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const params = {
@@ -545,7 +545,7 @@ describe('OCAPIClient', () => {
           count: 20,
           expand: ['prices'],
           currency: 'USD',
-          locale: 'en_US'
+          locale: 'en_US',
         };
 
         const result = await client.searchProducts(params);
@@ -559,14 +559,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { hits: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
-        const result = await client.searchProducts({ start: 0, count: 0 });
+        await client.searchProducts({ start: 0, count: 0 });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/product_search?start=0&count=0',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
@@ -582,14 +582,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ object_type: 'Product' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getSystemObjectDefinitions();
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -598,20 +598,20 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ object_type: 'Product' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const params = {
           start: 10,
           count: 50,
-          select: '(**)'
+          select: '(**)',
         };
 
         const result = await client.getSystemObjectDefinitions(params);
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions?start=10&count=50&select=%28**%29',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -620,14 +620,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
-        const result = await client.getSystemObjectDefinitions({ start: 0, count: 0 });
+        await client.getSystemObjectDefinitions({ start: 0, count: 0 });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions?start=0&count=0',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
@@ -637,14 +637,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { object_type: 'Product', attributes: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getSystemObjectDefinition('Product');
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -653,24 +653,24 @@ describe('OCAPIClient', () => {
         const mockResponse = { object_type: 'Custom Object' };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
-        const result = await client.getSystemObjectDefinition('Custom Object');
+        await client.getSystemObjectDefinition('Custom Object');
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Custom%20Object',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
 
       it('should throw error for empty object type', async () => {
         await expect(client.getSystemObjectDefinition('')).rejects.toThrow(
-          'Object type is required and cannot be empty'
+          'Object type is required and cannot be empty',
         );
 
         await expect(client.getSystemObjectDefinition('   ')).rejects.toThrow(
-          'Object type is required and cannot be empty'
+          'Object type is required and cannot be empty',
         );
       });
     });
@@ -680,18 +680,18 @@ describe('OCAPIClient', () => {
         const mockResponse = { hits: [{ object_type: 'Product' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const searchRequest = {
           query: {
             text_query: {
               fields: ['object_type', 'display_name'],
-              search_phrase: 'product'
-            }
+              search_phrase: 'product',
+            },
           },
           start: 0,
-          count: 10
+          count: 10,
         };
 
         const result = await client.searchSystemObjectDefinitions(searchRequest);
@@ -702,10 +702,10 @@ describe('OCAPIClient', () => {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
-            body: JSON.stringify(searchRequest)
-          }
+            body: JSON.stringify(searchRequest),
+          },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -714,31 +714,31 @@ describe('OCAPIClient', () => {
         const mockResponse = { hits: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const searchRequest = {
           query: {
             bool_query: {
               must: [
-                { term_query: { fields: ['object_type'], operator: 'is', values: ['Product'] } }
-              ]
-            }
+                { term_query: { fields: ['object_type'], operator: 'is', values: ['Product'] } },
+              ],
+            },
           },
           sorts: [
-            { field: 'object_type', sort_order: 'asc' as const }
+            { field: 'object_type', sort_order: 'asc' as const },
           ],
-          select: '(**)'
+          select: '(**)',
         };
 
-        const result = await client.searchSystemObjectDefinitions(searchRequest);
+        await client.searchSystemObjectDefinitions(searchRequest);
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definition_search',
           expect.objectContaining({
             method: 'POST',
-            body: JSON.stringify(searchRequest)
-          })
+            body: JSON.stringify(searchRequest),
+          }),
         );
       });
     });
@@ -748,14 +748,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ attribute_id: 'name' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const result = await client.getSystemObjectAttributeDefinitions('Product');
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -764,20 +764,20 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [{ attribute_id: 'name' }] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         const options = {
           start: 5,
           count: 25,
-          select: '(**)'
+          select: '(**)',
         };
 
         const result = await client.getSystemObjectAttributeDefinitions('Product', options);
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions?start=5&count=25&select=%28**%29',
-          expect.any(Object)
+          expect.any(Object),
         );
         expect(result).toEqual(mockResponse);
       });
@@ -786,24 +786,24 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
         await client.getSystemObjectAttributeDefinitions('Custom Object Type');
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Custom%20Object%20Type/attribute_definitions',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
 
       it('should throw error for empty object type', async () => {
         await expect(client.getSystemObjectAttributeDefinitions('')).rejects.toThrow(
-          'Object type is required and cannot be empty'
+          'Object type is required and cannot be empty',
         );
 
         await expect(client.getSystemObjectAttributeDefinitions('   ')).rejects.toThrow(
-          'Object type is required and cannot be empty'
+          'Object type is required and cannot be empty',
         );
       });
 
@@ -811,14 +811,14 @@ describe('OCAPIClient', () => {
         const mockResponse = { data: [] };
         (fetch as jest.Mock).mockResolvedValue({
           ok: true,
-          json: async () => mockResponse
+          json: async () => mockResponse,
         });
 
-        const result = await client.getSystemObjectAttributeDefinitions('Product', { start: 0, count: 0 });
+        await client.getSystemObjectAttributeDefinitions('Product', { start: 0, count: 0 });
 
         expect(fetch).toHaveBeenCalledWith(
           'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions?start=0&count=0',
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
@@ -833,7 +833,7 @@ describe('OCAPIClient', () => {
 
       expect(mockTokenManager.getTokenExpiration).toHaveBeenCalledWith(
         mockConfig.hostname,
-        mockConfig.clientId
+        mockConfig.clientId,
       );
       expect(result).toBe(mockDate);
     });
@@ -851,24 +851,24 @@ describe('OCAPIClient', () => {
       const tokenResponse: OAuthTokenResponse = {
         access_token: newToken,
         token_type: 'bearer',
-        expires_in: 3600
+        expires_in: 3600,
       };
 
       (fetch as jest.Mock).mockResolvedValue({
         ok: true,
-        json: async () => tokenResponse
+        json: async () => tokenResponse,
       });
 
       await client.refreshToken();
 
       expect(mockTokenManager.clearToken).toHaveBeenCalledWith(
         mockConfig.hostname,
-        mockConfig.clientId
+        mockConfig.clientId,
       );
       expect(mockTokenManager.storeToken).toHaveBeenCalledWith(
         mockConfig.hostname,
         mockConfig.clientId,
-        tokenResponse
+        tokenResponse,
       );
     });
   });
@@ -889,7 +889,7 @@ describe('OCAPIClient', () => {
         ok: true,
         json: async () => {
           throw new Error('Invalid JSON');
-        }
+        },
       });
 
       await expect(client.get('/test')).rejects.toThrow('Invalid JSON');
@@ -904,7 +904,7 @@ describe('OCAPIClient', () => {
         statusText: 'Internal Server Error',
         text: async () => {
           throw new Error('Failed to read response');
-        }
+        },
       });
 
       await expect(client.get('/test')).rejects.toThrow('Failed to read response');
@@ -913,7 +913,7 @@ describe('OCAPIClient', () => {
     it('should handle empty response body', async () => {
       (fetch as jest.Mock).mockResolvedValue({
         ok: true,
-        json: async () => null
+        json: async () => null,
       });
 
       const result = await client.get('/test');
@@ -928,7 +928,7 @@ describe('OCAPIClient', () => {
         clientId: 'client-id',
         clientSecret: 'client-secret',
         siteId: 'RefArch',
-        version: 'v22_1'
+        version: 'v22_1',
       };
 
       const clientWithSite = new OCAPIClient(configWithSite);
@@ -939,7 +939,7 @@ describe('OCAPIClient', () => {
       const minimalConfig: OCAPIConfig = {
         hostname: 'minimal.demandware.net',
         clientId: 'id',
-        clientSecret: 'secret'
+        clientSecret: 'secret',
       };
 
       const minimalClient = new OCAPIClient(minimalConfig);
