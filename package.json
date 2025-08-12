@@ -6,6 +6,14 @@
   "bin": {
     "sfcc-dev-mcp": "./dist/main.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taurgis/sfcc-dev-mcp.git"
+  },
+  "homepage": "https://github.com/taurgis/sfcc-dev-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/taurgis/sfcc-dev-mcp/issues"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
@@ -33,7 +41,7 @@
     "debugging",
     "webdav"
   ],
-  "author": "",
+  "author": "Thomas Theunen <thomas.theunen@forward.eu>",
   "license": "ISC",
   "type": "module",
   "dependencies": {
