@@ -165,6 +165,69 @@ When working on this project:
 6. **Security First**: Always consider security implications of API access
 7. **Performance Matters**: Implement caching and efficient resource usage
 8. **User Experience**: Design tools that are intuitive and helpful for developers
+9. **Keep Documentation Current**: **Always update both copilot-instructions.md and README.md files** when making changes that affect:
+    - File structure or directory organization
+    - Class responsibilities or module purposes
+    - API interfaces or tool definitions
+    - Configuration options or operating modes
+    - Development workflows or best practices
+    - Tool categories or counts
+    - Installation or setup procedures
+
+### 📝 Documentation Maintenance Requirements
+
+**Critical**: When making any structural or functional changes to the codebase, you **MUST** update the relevant sections in **BOTH** `.github/copilot-instructions.md` and `README.md`:
+
+#### **Required Updates For:**
+- **File Renames/Moves**: Update project structure diagram and component descriptions in copilot-instructions.md; update any file references in README.md
+- **New Classes/Modules**: Add descriptions to the Key Components section in copilot-instructions.md; update feature lists in README.md if user-facing
+- **Changed Responsibilities**: Modify class/module purpose descriptions in copilot-instructions.md; update feature descriptions in README.md
+- **New Tools**: Update tool categories and counts in **both** files; add tool descriptions to README.md features section
+- **Configuration Changes**: Update Operating Modes and Configuration Management sections in copilot-instructions.md; update configuration examples in README.md
+- **New Development Patterns**: Add to Common Development Tasks in copilot-instructions.md
+- **Architecture Changes**: Update Client Architecture and Key Components sections in copilot-instructions.md
+- **Installation/Setup Changes**: Update installation and configuration sections in README.md
+- **New Operating Modes**: Update both files with new mode descriptions and requirements
+- **Tool Count Changes**: Update the "Available Tools by Mode" table in README.md and tool category counts in copilot-instructions.md
+
+#### **Documentation Standards:**
+- **copilot-instructions.md**: Focus on technical architecture, development guidelines, and internal structure
+- **README.md**: Focus on user-facing features, installation, configuration, and usage examples
+- Use clear, descriptive language that helps developers understand the codebase
+- Include specific file paths and references where relevant
+- Maintain consistency with existing documentation style and structure
+- Provide context for why changes were made when updating architectural decisions
+- Keep tool counts and feature lists accurate and current in both files
+
+#### **When to Update:**
+- **Immediately after** making structural changes (file renames, moves, deletions)
+- **Before completing** feature development that adds new capabilities
+- **During refactoring** that changes class responsibilities or module purposes
+- **After adding** new tools, clients, or major functionality
+- **When modifying** configuration systems or authentication flows
+- **When changing** installation procedures or setup requirements
+- **After updating** tool categories or operating modes
+
+#### **Specific File Responsibilities:**
+
+**copilot-instructions.md Updates:**
+- Project structure diagram
+- Key Components descriptions
+- Tool Categories and counts
+- Operating Modes technical details
+- Development Guidelines
+- Common Development Tasks
+- Client Architecture descriptions
+
+**README.md Updates:**
+- Feature lists and descriptions
+- Available Tools by Mode table
+- Installation and setup instructions
+- Configuration examples and options
+- Usage examples and quick start guides
+- Tool descriptions for end users
+
+**Remember**: These documentation files serve as the primary source of truth for understanding the project. copilot-instructions.md guides development practices and architecture, while README.md serves users and contributors. Keeping both current ensures consistent understanding across all stakeholders and maintains professional project standards.
 
 ### 🔍 Common Development Tasks
 
@@ -186,4 +249,4 @@ The new organized structure provides:
 4. **Scalable Architecture**: New features can be added without cluttering
 5. **Professional Standards**: Follows TypeScript/Node.js project conventions
 
-This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality.
+This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
