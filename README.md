@@ -47,7 +47,7 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 | **SFCC Documentation** (7 tools) | ✅ Available | ✅ Available |
 | **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
 | **Log Analysis** (6 tools) | ❌ Requires credentials | ✅ Available |
-| **System Object Definitions** (3 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
+| **System Object Definitions** (6 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
 
 **Get started immediately**: The server works without any credentials - just use `npx sfcc-dev-mcp` to access all documentation and best practices tools!
 
@@ -87,9 +87,11 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
 - **Get System Object Definition**: Get detailed information about a specific system object (Product, Customer, Order, etc.) including all attributes
 - **Get System Object Attribute Definitions**: Get comprehensive attribute definitions for a specific system object type with detailed information about all attributes including custom attributes, their types, constraints, and metadata. This provides more detailed attribute information than the basic system object definition.
-- **Search System Objects**: Perform targeted searches for system objects using complex queries with text search, filtering, and sorting capabilities
+- **Search System Object Attribute Definitions**: Search for specific attribute definitions within a system object type using complex queries. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics.
+- **Search Site Preferences**: Search site preferences across sites in the specified preference group and instance. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Supports complex queries with text search, filtering, and sorting.
+- **Search System Object Attribute Groups**: Search attribute groups for a specific system object type. Essential for discovering site preference groups (use "SitePreferences" as objectType) needed for the site preferences search API. Supports complex queries with text search, filtering, and sorting on group properties.
 
-*Note: System object definition tools require OAuth credentials (clientId and clientSecret) and are useful for discovering custom attributes added to standard SFCC objects.*
+*Note: System object definition tools require OAuth credentials (clientId and clientSecret) and are useful for discovering custom attributes and site preferences added to standard SFCC objects.*
 
 ### Log Analysis & Monitoring
 - **Get Latest Errors**: Retrieve the most recent error messages from SFCC logs
@@ -200,7 +202,7 @@ export SFCC_SITE_ID="RefArch"
 
 ### Business Manager Setup for System Object Definition Tools
 
-To use the system object definition tools (`get_system_object_definitions`, `get_system_object_definition`, `search_system_object_definitions`), you need to configure Data API access in Business Manager:
+To use the system object definition tools (`get_system_object_definitions`, `get_system_object_definition`, `get_system_object_attribute_definitions`, `search_system_object_attribute_definitions`, `search_site_preferences`, `search_system_object_attribute_groups`), you need to configure Data API access in Business Manager:
 
 #### Step 1: Create API Client in Account Manager
 
@@ -267,6 +269,22 @@ To use the system object definition tools (`get_system_object_definitions`, `get
           ],
           "read_attributes": "(**)",
           "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/system_object_definitions/*/attribute_group_search",
+          "methods": [
+            "post"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/site_preferences/preference_groups/*/*/preference_search",
+          "methods": [
+            "post"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
         }
       ]
     }
@@ -277,7 +295,8 @@ To use the system object definition tools (`get_system_object_definitions`, `get
 **Required Settings:**
 - **Client ID**: Your API client ID (e.g., `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`)
 - **Resource ID**: `/system_object_definitions/*` (allows access to all system object definition endpoints)
-- **Methods**: `get` and `post` (required for retrieving and searching system objects)
+- **Resource ID**: `/site_preferences/preference_groups/*/*/preference_search` (allows access to site preferences search)
+- **Methods**: `get` and `post` (required for retrieving and searching system objects and preferences)
 - **Read Attributes**: `(**)` (allows reading all attributes)
 - **Write Attributes**: `(**)` (may be required for some operations)
 
@@ -301,7 +320,7 @@ Add the client credentials to your `dw.json`:
 **Common Issues:**
 - **403 Forbidden**: Check that your API client has the correct scopes and roles
 - **401 Unauthorized**: Verify your client credentials are correct
-- **Resource not found**: Ensure the resource ID pattern matches `/system_object_definitions/*`
+- **Resource not found**: Ensure the resource ID pattern matches `/system_object_definitions/*` and `/site_preferences/preference_groups/*/*/preference_search`
 
 **Testing Your Configuration:**
 You can test your Data API access using the MCP tools:
@@ -311,6 +330,22 @@ You can test your Data API access using the MCP tools:
   "parameters": {
     "count": 5,
     "select": "(**)"
+  }
+}
+```
+
+**Testing Site Preferences Workflow:**
+```json
+{
+  "tool": "search_system_object_attribute_groups",
+  "parameters": {
+    "objectType": "SitePreferences",
+    "searchRequest": {
+      "query": {
+        "match_all_query": {}
+      },
+      "select": "(**)"
+    }
   }
 }
 ```
@@ -562,6 +597,83 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
+### SFCC System Object Definition Tools
+
+1. **`get_system_object_definitions`** - Get all system object definitions
+   ```json
+   {
+     "count": 50,
+     "select": "(**)"
+   }
+   ```
+
+2. **`get_system_object_definition`** - Get specific system object definition
+   ```json
+   {
+     "objectType": "Product"
+   }
+   ```
+
+3. **`get_system_object_attribute_definitions`** - Get attribute definitions for an object type
+   ```json
+   {
+     "objectType": "Product",
+     "count": 100,
+     "select": "(**)"
+   }
+   ```
+
+4. **`search_system_object_attribute_definitions`** - Search attribute definitions
+   ```json
+   {
+     "objectType": "Product",
+     "searchRequest": {
+       "query": {
+         "text_query": {
+           "fields": ["id", "display_name"],
+           "search_phrase": "price"
+         }
+       },
+       "select": "(**)"
+     }
+   }
+   ```
+
+5. **`search_site_preferences`** - Search site preferences
+   ```json
+   {
+     "groupId": "MyPreferenceGroup",
+     "instanceType": "staging",
+     "searchRequest": {
+       "query": {
+         "text_query": {
+           "fields": ["id", "display_name"],
+           "search_phrase": "payment"
+         }
+       },
+       "select": "(**)"
+     },
+     "options": {
+       "expand": "value",
+       "maskPasswords": true
+     }
+   }
+   ```
+
+6. **`search_system_object_attribute_groups`** - Search attribute groups
+   ```json
+   {
+     "objectType": "SitePreferences",
+     "searchRequest": {
+       "query": {
+         "match_all_query": {}
+       },
+       "sorts": [{"field": "display_name", "sort_order": "asc"}],
+       "select": "(**)"
+     }
+   }
+   ```
+
 ### Log Analysis Tools
 
 1. **`get_latest_errors`** - Get recent error messages
@@ -606,6 +718,16 @@ With this MCP server, AI assistants can now answer questions like:
 - The assistant uses `get_hook_reference` with "scapi_hooks"
 - Returns comprehensive tables of all SCAPI hook endpoints and their available extension points
 - Provides structured reference for implementing custom hook logic
+
+*"Find all site preference groups available in my SFCC instance"**
+- The assistant uses `search_system_object_attribute_groups` with objectType "SitePreferences"
+- Returns all available preference groups with their IDs, display names, and descriptions
+- Provides the group IDs needed for subsequent site preference searches
+
+**"Search for payment-related site preferences in the PaymentSettings group"**
+- The assistant first uses `search_system_object_attribute_groups` to find preference groups related to payment
+- Then uses `search_site_preferences` with the discovered group ID and instance type
+- Returns specific site preferences related to payment configuration
 
 ## Best Practices Coverage
 
@@ -678,3 +800,4 @@ Whether you're fixing bugs, adding features, improving documentation, or enhanci
 ## License
 
 This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
+

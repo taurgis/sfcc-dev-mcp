@@ -423,6 +423,11 @@ export const SYSTEM_OBJECT_TOOLS = [
                     },
                   },
                 },
+                match_all_query: {
+                  type: 'object',
+                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
+                  properties: {},
+                },
               },
             },
             sorts: {
@@ -434,6 +439,262 @@ export const SYSTEM_OBJECT_TOOLS = [
                   field: {
                     type: 'string',
                     description: 'Field to sort by',
+                  },
+                  sort_order: {
+                    type: 'string',
+                    enum: ['asc', 'desc'],
+                    description: 'Sort order (default: asc)',
+                  },
+                },
+                required: ['field'],
+              },
+            },
+            start: {
+              type: 'number',
+              description: 'Start index for pagination (default: 0)',
+              default: 0,
+            },
+            count: {
+              type: 'number',
+              description: 'Number of results to return (default: 200)',
+              default: 200,
+            },
+            select: {
+              type: 'string',
+              description: "Property selector (e.g., '(**)' for all properties)",
+            },
+          },
+        },
+      },
+      required: ['objectType', 'searchRequest'],
+    },
+  },
+  {
+    name: 'search_site_preferences',
+    description: 'Search site preferences across sites in the specified preference group and instance. Use this to find specific site preferences by name, description, or value type. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Supports complex queries with text search, filtering, and sorting.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        groupId: {
+          type: 'string',
+          description: 'The ID of the preference group to search within',
+        },
+        instanceType: {
+          type: 'string',
+          enum: ['staging', 'development', 'sandbox', 'production'],
+          description: 'The instance type to search preferences for',
+        },
+        searchRequest: {
+          type: 'object',
+          description: 'The search request with query, sorting, and pagination options',
+          properties: {
+            query: {
+              type: 'object',
+              description: 'Query to filter site preferences',
+              properties: {
+                text_query: {
+                  type: 'object',
+                  description: 'Search for text in specific fields',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
+                    },
+                    search_phrase: {
+                      type: 'string',
+                      description: 'Text to search for',
+                    },
+                  },
+                  required: ['fields', 'search_phrase'],
+                },
+                term_query: {
+                  type: 'object',
+                  description: 'Search for exact term matches',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in',
+                    },
+                    operator: {
+                      type: 'string',
+                      description: 'Query operator (e.g., "is", "one_of")',
+                    },
+                    values: {
+                      type: 'array',
+                      description: 'Values to match',
+                    },
+                  },
+                  required: ['fields', 'operator', 'values'],
+                },
+                bool_query: {
+                  type: 'object',
+                  description: 'Combine multiple queries with boolean logic',
+                  properties: {
+                    must: {
+                      type: 'array',
+                      description: 'Queries that must match (AND)',
+                    },
+                    must_not: {
+                      type: 'array',
+                      description: 'Queries that must not match',
+                    },
+                    should: {
+                      type: 'array',
+                      description: 'Queries that should match (OR)',
+                    },
+                  },
+                },
+                match_all_query: {
+                  type: 'object',
+                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
+                  properties: {},
+                },
+              },
+            },
+            sorts: {
+              type: 'array',
+              description: 'Sort criteria',
+              items: {
+                type: 'object',
+                properties: {
+                  field: {
+                    type: 'string',
+                    description: 'Field to sort by (id, display_name, description, value_type)',
+                  },
+                  sort_order: {
+                    type: 'string',
+                    enum: ['asc', 'desc'],
+                    description: 'Sort order (default: asc)',
+                  },
+                },
+                required: ['field'],
+              },
+            },
+            start: {
+              type: 'number',
+              description: 'Start index for pagination (default: 0)',
+              default: 0,
+            },
+            count: {
+              type: 'number',
+              description: 'Number of results to return (default: 200)',
+              default: 200,
+            },
+            select: {
+              type: 'string',
+              description: "Property selector (e.g., '(**)' for all properties)",
+            },
+          },
+        },
+        options: {
+          type: 'object',
+          description: 'Additional options for the search',
+          properties: {
+            maskPasswords: {
+              type: 'boolean',
+              description: 'Whether to mask password type preference values (default: true)',
+              default: true,
+            },
+            expand: {
+              type: 'string',
+              description: 'Expand options (use "value" to retrieve value definitions)',
+            },
+          },
+        },
+      },
+      required: ['groupId', 'instanceType', 'searchRequest'],
+    },
+  },
+  {
+    name: 'search_system_object_attribute_groups',
+    description: 'Search attribute groups for a specific system object type. Use this to discover available attribute groups, which is essential for finding site preference groups (use "SitePreferences" as objectType) needed for the site preferences search API. Supports complex queries with text search, filtering, and sorting on group properties.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        objectType: {
+          type: 'string',
+          description: 'The system object type to search attribute groups for (e.g., "Product", "Customer", "SitePreferences")',
+        },
+        searchRequest: {
+          type: 'object',
+          description: 'The search request with query, sorting, and pagination options',
+          properties: {
+            query: {
+              type: 'object',
+              description: 'Query to filter attribute groups',
+              properties: {
+                text_query: {
+                  type: 'object',
+                  description: 'Search for text in specific fields',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
+                    },
+                    search_phrase: {
+                      type: 'string',
+                      description: 'Text to search for',
+                    },
+                  },
+                  required: ['fields', 'search_phrase'],
+                },
+                term_query: {
+                  type: 'object',
+                  description: 'Search for exact term matches',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in',
+                    },
+                    operator: {
+                      type: 'string',
+                      description: 'Query operator (e.g., "is", "one_of")',
+                    },
+                    values: {
+                      type: 'array',
+                      description: 'Values to match',
+                    },
+                  },
+                  required: ['fields', 'operator', 'values'],
+                },
+                bool_query: {
+                  type: 'object',
+                  description: 'Combine multiple queries with boolean logic',
+                  properties: {
+                    must: {
+                      type: 'array',
+                      description: 'Queries that must match (AND)',
+                    },
+                    must_not: {
+                      type: 'array',
+                      description: 'Queries that must not match',
+                    },
+                    should: {
+                      type: 'array',
+                      description: 'Queries that should match (OR)',
+                    },
+                  },
+                },
+                match_all_query: {
+                  type: 'object',
+                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
+                  properties: {},
+                },
+              },
+            },
+            sorts: {
+              type: 'array',
+              description: 'Sort criteria',
+              items: {
+                type: 'object',
+                properties: {
+                  field: {
+                    type: 'string',
+                    description: 'Field to sort by (id, display_name, description, position, internal)',
                   },
                   sort_order: {
                     type: 'string',

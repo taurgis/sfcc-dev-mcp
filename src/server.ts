@@ -335,6 +335,29 @@ export class SFCCDevServer {
         );
         this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute definitions for object type "${args.objectType}"`);
         break;
+      case 'search_site_preferences':
+        if (!args?.groupId) {throw new Error('groupId is required');}
+        if (!args?.instanceType) {throw new Error('instanceType is required');}
+        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
+        logMessage = `Searching site preferences for group: "${args.groupId}", instance: "${args.instanceType}"`;
+        result = await this.ocapiClient?.searchSitePreferences(
+          args.groupId as string,
+          args.instanceType as 'staging' | 'development' | 'sandbox' | 'production',
+          args.searchRequest,
+          args.options,
+        );
+        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching site preferences for group "${args.groupId}" in ${args.instanceType} instance`);
+        break;
+      case 'search_system_object_attribute_groups':
+        if (!args?.objectType) {throw new Error('objectType is required');}
+        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
+        logMessage = `Searching attribute groups for object type: "${args.objectType}"`;
+        result = await this.ocapiClient?.searchSystemObjectAttributeGroups(
+          args.objectType as string,
+          args.searchRequest,
+        );
+        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute groups for object type "${args.objectType}"`);
+        break;
       default:
         throw new Error(`Unknown system object tool: ${toolName}`);
     }
@@ -386,7 +409,8 @@ export class SFCCDevServer {
           'search_best_practices', 'get_hook_reference'].includes(name)) {
           result = await this.handleBestPracticesTool(name, args, startTime);
         } else if (['get_system_object_definitions', 'get_system_object_definition',
-          'get_system_object_attribute_definitions', 'search_system_object_attribute_definitions'].includes(name)) {
+          'get_system_object_attribute_definitions', 'search_system_object_attribute_definitions',
+          'search_site_preferences', 'search_system_object_attribute_groups'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);

@@ -366,6 +366,7 @@ export class OCAPIClient {
         must_not?: any[];
         should?: any[];
       };
+      match_all_query?: {};
     };
     sorts?: Array<{
       field: string;
@@ -447,6 +448,7 @@ export class OCAPIClient {
           must_not?: any[];
           should?: any[];
         };
+        match_all_query?: {};
       };
       sorts?: Array<{
         field: string;
@@ -462,6 +464,149 @@ export class OCAPIClient {
     }
 
     const endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_definition_search`;
+    return this.post(endpoint, searchRequest);
+  }
+
+  /**
+   * Search site preferences across sites in the specified preference group and instance
+   * Allows searching for preferences by id, display_name, description, and value_type
+   * Supports text queries, term queries, filtered queries, and boolean queries
+   *
+   * Searchable fields:
+   * - id - String
+   * - display_name - Localized String
+   * - description - Localized String
+   * - value_type - one of {
+   *    string, int, double, text, html, date, image, boolean, money, quantity,
+   *    datetime, email, password, set_of_string, set_of_int, set_of_double, enum_of_string, enum_of_int
+   *  }
+   *
+   * Note: value_type can only be joined with other attributes using a conjunction (AND)
+   * Only searchable attributes can be used in sorting
+   */
+  async searchSitePreferences(
+    groupId: string,
+    instanceType: 'staging' | 'development' | 'sandbox' | 'production',
+    searchRequest: {
+      query?: {
+        text_query?: {
+          fields: string[];
+          search_phrase: string;
+        };
+        term_query?: {
+          fields: string[];
+          operator: string;
+          values: any[];
+        };
+        filtered_query?: {
+          filter: any;
+          query: any;
+        };
+        bool_query?: {
+          must?: any[];
+          must_not?: any[];
+          should?: any[];
+        };
+        match_all_query?: {};
+      };
+      sorts?: Array<{
+        field: string;
+        sort_order?: 'asc' | 'desc';
+      }>;
+      start?: number;
+      count?: number;
+      select?: string;
+    },
+    options?: {
+      maskPasswords?: boolean;
+      expand?: string;
+    },
+  ): Promise<any> {
+    if (!groupId || groupId.trim().length === 0) {
+      throw new Error('Group ID is required and cannot be empty');
+    }
+
+    if (!instanceType || instanceType.trim().length === 0) {
+      throw new Error('Instance type is required and cannot be empty');
+    }
+
+    // Validate instance type
+    const validInstanceTypes = ['staging', 'development', 'sandbox', 'production'];
+    if (!validInstanceTypes.includes(instanceType)) {
+      throw new Error(`Invalid instance type. Must be one of: ${validInstanceTypes.join(', ')}`);
+    }
+
+    let endpoint = `/site_preferences/preference_groups/${encodeURIComponent(groupId)}/${instanceType}/preference_search`;
+
+    // Add query parameters if provided
+    const queryParams = new URLSearchParams();
+    if (options?.maskPasswords !== undefined) {
+      queryParams.append('mask_passwords', options.maskPasswords.toString());
+    }
+    if (options?.expand) {
+      queryParams.append('expand', options.expand);
+    }
+
+    if (queryParams.toString()) {
+      endpoint += `?${queryParams.toString()}`;
+    }
+
+    return this.post(endpoint, searchRequest);
+  }
+
+  /**
+   * Search attribute groups for a specific system object type
+   * Allows searching for attribute groups by id, display_name, description, position, and internal flag
+   * Supports text queries, term queries, filtered queries, boolean queries, and match all queries
+   *
+   * Searchable and sortable fields:
+   * - id - String
+   * - display_name - Localized String
+   * - description - Localized String
+   * - position - Double
+   * - internal - Boolean
+   *
+   * This is particularly useful for discovering site preference groups when using the SitePreferences object type,
+   * as the group ID is required for the site preferences search API.
+   */
+  async searchSystemObjectAttributeGroups(
+    objectType: string,
+    searchRequest: {
+      query?: {
+        text_query?: {
+          fields: string[];
+          search_phrase: string;
+        };
+        term_query?: {
+          fields: string[];
+          operator: string;
+          values: any[];
+        };
+        filtered_query?: {
+          filter: any;
+          query: any;
+        };
+        bool_query?: {
+          must?: any[];
+          must_not?: any[];
+          should?: any[];
+        };
+        match_all_query?: {};
+      };
+      sorts?: Array<{
+        field: string;
+        sort_order?: 'asc' | 'desc';
+      }>;
+      start?: number;
+      count?: number;
+      select?: string;
+    },
+  ): Promise<any> {
+    if (!objectType || objectType.trim().length === 0) {
+      throw new Error('Object type is required and cannot be empty');
+    }
+
+    const endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_group_search`;
     return this.post(endpoint, searchRequest);
   }
 
