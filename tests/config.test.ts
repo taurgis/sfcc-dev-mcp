@@ -1,7 +1,7 @@
 import { loadDwJsonConfig } from '../src/config';
 import { DwJsonConfig } from '../src/types';
 import { existsSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
-import { resolve, join } from 'path';
+import { join } from 'path';
 import { tmpdir } from 'os';
 
 describe('config.ts', () => {
@@ -109,7 +109,7 @@ describe('config.ts', () => {
 
       expect(() => {
         loadDwJsonConfig(nonExistentFile);
-      }).toThrow(`dw.json file not found at: ${resolve(nonExistentFile)}`);
+      }).toThrow('Configuration file not found: non-existent.json');
     });
 
     it('should throw error for invalid JSON', () => {
@@ -118,7 +118,7 @@ describe('config.ts', () => {
 
       expect(() => {
         loadDwJsonConfig(invalidJsonFile);
-      }).toThrow(/Invalid JSON in dw\.json file:/);
+      }).toThrow(/Invalid JSON in configuration file:/);
     });
 
     it('should throw error when hostname is missing', () => {
@@ -133,14 +133,14 @@ describe('config.ts', () => {
 
       expect(() => {
         loadDwJsonConfig(testFile);
-      }).toThrow('dw.json must contain hostname, username, and password fields');
+      }).toThrow('Configuration file must contain hostname, username, and password fields');
 
       unlinkSync(testFile);
     });
 
     it('should throw error when username is missing', () => {
       const incompleteConfig = {
-        hostname: 'test.demandware.net',
+        hostname: 'test-instance.demandware.net',
         password: 'testpass',
         // username missing
       };
@@ -150,14 +150,14 @@ describe('config.ts', () => {
 
       expect(() => {
         loadDwJsonConfig(testFile);
-      }).toThrow('dw.json must contain hostname, username, and password fields');
+      }).toThrow('Configuration file must contain hostname, username, and password fields');
 
       unlinkSync(testFile);
     });
 
     it('should throw error when password is missing', () => {
       const incompleteConfig = {
-        hostname: 'test.demandware.net',
+        hostname: 'test-instance.demandware.net',
         username: 'testuser',
         // password missing
       };
@@ -167,7 +167,7 @@ describe('config.ts', () => {
 
       expect(() => {
         loadDwJsonConfig(testFile);
-      }).toThrow('dw.json must contain hostname, username, and password fields');
+      }).toThrow('Configuration file must contain hostname, username, and password fields');
 
       unlinkSync(testFile);
     });
