@@ -482,7 +482,8 @@ export const SYSTEM_OBJECT_TOOLS = [
         instanceType: {
           type: 'string',
           enum: ['staging', 'development', 'sandbox', 'production'],
-          description: 'The instance type to search preferences for',
+          description: 'The instance type to search preferences for. Since this MCP server is aimed at development and testing, the default is "sandbox".',
+          default: 'sandbox',
         },
         searchRequest: {
           type: 'object',
