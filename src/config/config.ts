@@ -7,7 +7,7 @@
 
 import { readFileSync, existsSync, statSync } from 'fs';
 import { resolve, basename, extname } from 'path';
-import { SFCCConfig, DwJsonConfig } from './types.js';
+import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 
 /**
  * Validates that a file path is safe to access and prevents path traversal attacks

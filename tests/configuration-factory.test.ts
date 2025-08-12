@@ -1,5 +1,5 @@
-import { ConfigurationFactory } from '../src/configuration-factory';
-import { SFCCConfig } from '../src/types';
+import { ConfigurationFactory } from '../src/config/configuration-factory';
+import { SFCCConfig } from '../src/types/types';
 import { writeFileSync, unlinkSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';

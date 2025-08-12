@@ -1,4 +1,4 @@
-import { InMemoryCache, CacheManager } from '../src/cache';
+import { InMemoryCache, CacheManager } from '../src/utils/cache';
 
 describe('InMemoryCache', () => {
   let cache: InMemoryCache<string>;

@@ -8,9 +8,9 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { PathResolver } from './path-resolver.js';
-import { CacheManager } from './cache.js';
-import { Logger } from './logger.js';
+import { PathResolver } from '../utils/path-resolver.js';
+import { CacheManager } from '../utils/cache.js';
+import { Logger } from '../utils/logger.js';
 
 // Create a logger instance for this module
 const logger = new Logger('DocsClient');

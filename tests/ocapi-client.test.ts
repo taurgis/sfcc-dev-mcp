@@ -1,12 +1,12 @@
-import { OCAPIClient } from '../src/ocapi-client';
-import { TokenManager } from '../src/oauth-token';
-import { OCAPIConfig, OAuthTokenResponse } from '../src/types';
+import { OCAPIClient } from '../src/clients/ocapi-client';
+import { TokenManager } from '../src/auth/oauth-token';
+import { OCAPIConfig, OAuthTokenResponse } from '../src/types/types';
 
 // Mock fetch globally
 global.fetch = jest.fn();
 
 // Mock TokenManager
-jest.mock('../src/oauth-token');
+jest.mock('../src/auth/oauth-token');
 
 describe('OCAPIClient', () => {
   let client: OCAPIClient;

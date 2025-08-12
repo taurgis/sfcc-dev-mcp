@@ -4,7 +4,7 @@ import {
   parseLogEntries,
   extractUniqueErrors,
   normalizeFilePath,
-} from '../src/utils';
+} from '../src/utils/utils';
 
 describe('utils.ts', () => {
   describe('getCurrentDate', () => {

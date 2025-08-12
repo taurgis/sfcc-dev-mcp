@@ -1,5 +1,5 @@
-import { loadDwJsonConfig } from '../src/config';
-import { DwJsonConfig } from '../src/types';
+import { loadDwJsonConfig } from '../src/config/config';
+import { DwJsonConfig } from '../src/types/types';
 import { existsSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';

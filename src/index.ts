@@ -9,16 +9,12 @@
  * backwards compatibility and provides a clean interface for the package.
  */
 
-/**
- * Main exports for the SFCC Development MCP Server
- */
-
-export { SFCCDevServer } from './server.js';
-export { SFCCLogClient } from './log-client.js';
-export { SFCCDocumentationClient } from './docs-client.js';
-export { OCAPIClient } from './ocapi-client.js';
-export { TokenManager } from './oauth-token.js';
-export type { SFCCConfig, LogLevel, LogFileInfo, LogSummary, OCAPIConfig, OAuthToken, OAuthTokenResponse } from './types.js';
+export { SFCCDevServer } from './core/server.js';
+export { SFCCLogClient } from './clients/log-client.js';
+export { SFCCDocumentationClient } from './clients/docs-client.js';
+export { OCAPIClient } from './clients/ocapi-client.js';
+export { TokenManager } from './auth/oauth-token.js';
+export type { SFCCConfig, LogLevel, LogFileInfo, LogSummary, OCAPIConfig, OAuthToken, OAuthTokenResponse } from './types/types.js';
 
 // For direct execution, delegate to main.ts
 import './main.js';

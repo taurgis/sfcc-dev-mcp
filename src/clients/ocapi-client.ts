@@ -5,8 +5,8 @@
  * using OAuth 2.0 Client Credentials grant flow. It handles automatic token management and refresh.
  */
 
-import { OCAPIConfig, OAuthTokenResponse } from './types.js';
-import { TokenManager } from './oauth-token.js';
+import { OCAPIConfig, OAuthTokenResponse } from '../types/types.js';
+import { TokenManager } from '../auth/oauth-token.js';
 
 /**
  * OCAPI Client with OAuth 2.0 authentication

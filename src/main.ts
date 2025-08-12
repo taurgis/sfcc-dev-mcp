@@ -4,9 +4,9 @@
  * Main entry point for the SFCC Development MCP Server
  */
 
-import { SFCCDevServer } from './server.js';
-import { ConfigurationFactory } from './configuration-factory.js';
-import { Logger } from './logger.js';
+import { SFCCDevServer } from './core/server.js';
+import { ConfigurationFactory } from './config/configuration-factory.js';
+import { Logger } from './utils/logger.js';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 

@@ -12,14 +12,14 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { SFCCConfig } from './types.js';
-import { SFCCLogClient } from './log-client.js';
-import { SFCCDocumentationClient } from './docs-client.js';
-import { SFCCBestPracticesClient } from './best-practices-client.js';
-import { OCAPIClient } from './ocapi-client.js';
-import { Logger } from './logger.js';
-import { ConfigurationFactory } from './configuration-factory.js';
-import { SERVER_INFO } from './constants.js';
+import { SFCCConfig } from '../types/types.js';
+import { SFCCLogClient } from '../clients/log-client.js';
+import { SFCCDocumentationClient } from '../clients/docs-client.js';
+import { SFCCBestPracticesClient } from '../clients/best-practices-client.js';
+import { OCAPIClient } from '../clients/ocapi-client.js';
+import { Logger } from '../utils/logger.js';
+import { ConfigurationFactory } from '../config/configuration-factory.js';
+import { SERVER_INFO } from '../config/constants.js';
 import {
   SFCC_DOCUMENTATION_TOOLS,
   BEST_PRACTICES_TOOLS,

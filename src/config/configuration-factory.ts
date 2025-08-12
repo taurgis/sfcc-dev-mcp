@@ -6,7 +6,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import { SFCCConfig, DwJsonConfig } from './types.js';
+import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 
 export class ConfigurationFactory {
   /**

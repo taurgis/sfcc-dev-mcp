@@ -1,5 +1,5 @@
-import { SFCCLogClient } from '../src/log-client';
-import { SFCCConfig, LogLevel } from '../src/types';
+import { SFCCLogClient } from '../src/clients/log-client';
+import { SFCCConfig, LogLevel } from '../src/types/types';
 
 // Use manual mock for webdav
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -7,7 +7,7 @@ const webdav = require('webdav');
 const mockWebdavClient = webdav.__mockWebdavClient;
 
 // Mock the logger
-jest.mock('../src/logger', () => ({
+jest.mock('../src/utils/logger', () => ({
   Logger: jest.fn().mockImplementation(() => ({
     methodEntry: jest.fn(),
     methodExit: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('../src/logger', () => ({
 }));
 
 // Mock utils
-jest.mock('../src/utils', () => ({
+jest.mock('../src/utils/utils', () => ({
   getCurrentDate: jest.fn(() => '20240809'),
   formatBytes: jest.fn((bytes: number) => `${bytes} bytes`),
   parseLogEntries: jest.fn((content: string, level: string) => {

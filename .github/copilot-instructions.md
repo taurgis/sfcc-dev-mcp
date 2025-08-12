@@ -48,22 +48,28 @@ The **SFCC Development MCP Server** is a Model Context Protocol server that prov
 sfcc-dev-mcp/
 ├── src/                          # Core TypeScript source code
 │   ├── main.ts                   # CLI entry point and argument parsing
-│   ├── server.ts                 # Main MCP server implementation
 │   ├── index.ts                  # Package exports and compatibility
-│   ├── tool-definitions.ts       # MCP tool schema definitions
-│   ├── types.ts                  # TypeScript type definitions
-│   ├── config.ts                 # Configuration management
-│   ├── configuration-factory.ts  # Config factory for different modes
-│   ├── cache.ts                  # Caching layer for API responses
-│   ├── logger.ts                 # Structured logging system
-│   ├── utils.ts                  # Common utility functions
-│   ├── path-resolver.ts          # File path resolution utilities
-│   ├── base-client.ts            # Base HTTP client with authentication
-│   ├── oauth-token.ts            # OAuth token management
-│   ├── log-client.ts             # SFCC log analysis client
-│   ├── docs-client.ts            # SFCC documentation client
-│   ├── ocapi-client.ts           # OCAPI client for system objects
-│   └── best-practices-client.ts  # Best practices guide client
+│   ├── core/                     # Core MCP server functionality
+│   │   ├── server.ts             # Main MCP server implementation
+│   │   └── tool-definitions.ts   # MCP tool schema definitions
+│   ├── clients/                  # API clients for different services
+│   │   ├── log-client.ts         # SFCC log analysis client
+│   │   ├── docs-client.ts        # SFCC documentation client
+│   │   ├── ocapi-client.ts       # OCAPI client for system objects
+│   │   └── best-practices-client.ts # Best practices guide client
+│   ├── auth/                     # Authentication and OAuth management
+│   │   └── oauth-token.ts        # OAuth token management
+│   ├── config/                   # Configuration management
+│   │   ├── config.ts             # Configuration loading and validation
+│   │   ├── configuration-factory.ts # Config factory for different modes
+│   │   └── constants.ts          # Application constants
+│   ├── utils/                    # Utility functions and helpers
+│   │   ├── cache.ts              # Caching layer for API responses
+│   │   ├── logger.ts             # Structured logging system
+│   │   ├── utils.ts              # Common utility functions
+│   │   └── path-resolver.ts      # File path resolution utilities
+│   └── types/                    # TypeScript type definitions
+│       └── types.ts              # Comprehensive type definitions
 ├── docs/                         # SFCC documentation and guides
 │   ├── best-practices/           # Development best practice guides
 │   │   ├── cartridge_creation.md
@@ -85,23 +91,33 @@ sfcc-dev-mcp/
 
 ### 🔧 Key Components
 
-#### **MCP Server Core** (`server.ts`)
+#### **MCP Server Core** (`core/server.ts`)
 - Implements the Model Context Protocol specification
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
 - Provides error handling and response formatting
 
 #### **Client Architecture**
-- **BaseClient**: Common HTTP client with retry logic and authentication
-- **DocsClient**: Processes SFCC documentation and provides search capabilities
-- **LogClient**: Connects to SFCC instances for log analysis and monitoring
-- **OCAPIClient**: Interfaces with SFCC OCAPI for system object data
-- **BestPracticesClient**: Serves curated development guides and references
+- **DocsClient** (`clients/docs-client.ts`): Processes SFCC documentation and provides search capabilities
+- **LogClient** (`clients/log-client.ts`): Connects to SFCC instances for log analysis and monitoring
+- **OCAPIClient** (`clients/ocapi-client.ts`): Interfaces with SFCC OCAPI for system object data
+- **BestPracticesClient** (`clients/best-practices-client.ts`): Serves curated development guides and references
 
-#### **Authentication & Security**
-- **OAuth Token Management**: Handles SFCC OAuth flows with automatic renewal
+#### **Authentication & Security** (`auth/`)
+- **OAuth Token Management** (`oauth-token.ts`): Handles SFCC OAuth flows with automatic renewal
 - **Credential Security**: Secure handling of SFCC instance credentials
 - **Rate Limiting**: Prevents API abuse and respects SFCC limits
+
+#### **Configuration Management** (`config/`)
+- **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
+- **Config Loader** (`config.ts`): Handles dw.json and environment variable loading
+- **Constants** (`constants.ts`): Application-wide constants and defaults
+
+#### **Utilities** (`utils/`)
+- **Caching System** (`cache.ts`): Efficient caching for API responses and documentation
+- **Logging** (`logger.ts`): Structured logging with debug capabilities
+- **Path Resolution** (`path-resolver.ts`): Secure file path handling
+- **Common Utilities** (`utils.ts`): Shared utility functions
 
 #### **Tool Categories**
 
@@ -152,10 +168,22 @@ When working on this project:
 
 ### 🔍 Common Development Tasks
 
-- **Adding New Tools**: Define schema in `tool-definitions.ts`, implement handler in appropriate client
+- **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate client in `clients/`
 - **Updating Documentation**: Modify files in `docs/` and run conversion scripts
-- **Enhancing Authentication**: Update `oauth-token.ts` and base client authentication logic
-- **Improving Caching**: Enhance `cache.ts` for better performance and data freshness
+- **Enhancing Authentication**: Update `auth/oauth-token.ts` and client authentication logic
+- **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
+- **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory
+- **Adding Utilities**: Extend `utils/` modules for shared functionality
+
+### 📁 Directory Organization Benefits
+
+The new organized structure provides:
+
+1. **Clear Separation of Concerns**: Each directory has a specific responsibility
+2. **Easier Navigation**: Developers can quickly find related functionality
+3. **Better Maintainability**: Changes are isolated to relevant directories
+4. **Scalable Architecture**: New features can be added without cluttering
+5. **Professional Standards**: Follows TypeScript/Node.js project conventions
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality.

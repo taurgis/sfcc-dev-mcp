@@ -15,7 +15,7 @@
     "url": "https://github.com/taurgis/sfcc-dev-mcp/issues"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r ./docs ./dist/docs",
     "start": "node dist/main.js",
     "dev": "tsx src/main.ts",
     "inspector": "npx @modelcontextprotocol/inspector node dist/main.js",

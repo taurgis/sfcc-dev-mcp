@@ -7,15 +7,15 @@
  */
 
 import { createClient } from 'webdav';
-import { SFCCConfig, LogLevel, LogFileInfo, LogSummary } from './types.js';
+import { SFCCConfig, LogLevel, LogFileInfo, LogSummary } from '../types/types.js';
 import {
   getCurrentDate,
   formatBytes,
   parseLogEntries,
   extractUniqueErrors,
   normalizeFilePath,
-} from './utils.js';
-import { Logger } from './logger.js';
+} from '../utils/utils.js';
+import { Logger } from '../utils/logger.js';
 
 // Create a logger instance for this module
 const logger = new Logger('LogClient');

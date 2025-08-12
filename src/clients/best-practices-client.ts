@@ -7,8 +7,8 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PathResolver } from './path-resolver.js';
-import { CacheManager } from './cache.js';
+import { PathResolver } from '../utils/path-resolver.js';
+import { CacheManager } from '../utils/cache.js';
 
 export interface BestPracticeGuide {
   title: string;

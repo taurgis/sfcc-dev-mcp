@@ -1,5 +1,5 @@
-import { TokenManager } from '../src/oauth-token';
-import { OAuthTokenResponse } from '../src/types';
+import { TokenManager } from '../src/auth/oauth-token';
+import { OAuthTokenResponse } from '../src/types/types';
 
 describe('TokenManager', () => {
   let tokenManager: TokenManager;
