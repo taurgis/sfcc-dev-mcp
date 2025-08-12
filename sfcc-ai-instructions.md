@@ -31,6 +31,7 @@ When providing assistance:
 3. **Provide working examples** with proper error handling and validation
 4. **Explain the "why"** behind architectural decisions
 5. **Reference official documentation** and best practices
+6. **Cartridge Creation**: When asked to create a cartridge, follow the instructions in the MCP (especially creating the structure using sgmf-scripts, don't try to do this yourself)
 
 ---
 
