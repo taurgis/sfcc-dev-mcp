@@ -50,9 +50,15 @@ npm install
 A new cartridge should be created using the provided scaffolding tool. The core structure is as follows:
 
 ```
-dw.json               
+package.json
+.eslintrc.json
+.eslintignore
+.gitignore
+README.md
+dw.json    
+webpack.config.js           
 cartridges/
-└── your_cartridge_name/
+└── plugin_my_custom_cartridge/
     └── cartridge/
         ├── client/             
         │   └── default/
@@ -74,7 +80,90 @@ Optional but common directories:
 
 ## 5. Configuration Files
 
-Place these files in the project's root directory.
+Place these files in the project's root directory. These should off course be adapted to your specific project needs.
+
+**Note:** If these files already exist, do not overwrite them.
+
+### .eslintrc.json (ESLint Configuration)
+
+```json
+{
+  "root": true,
+  "extends": [
+    "airbnb-base/legacy",
+    "prettier"
+  ],
+  "rules": {
+    "import/no-unresolved": "off",
+    "indent": ["error", 4, { "SwitchCase": 1, "VariableDeclarator": 1 }],
+    "func-names": "off",
+    "require-jsdoc": "error",
+    "valid-jsdoc": ["error", { "preferType": { "Boolean": "boolean", "Number": "number", "object": "Object", "String": "string" }, "requireReturn": false}],
+    "vars-on-top": "off",
+    "global-require": "off",
+    "no-shadow": ["error", { "allow": ["err", "callback"]}],
+    "max-len": "off",
+    "no-plusplus": "off"
+  }
+}
+```
+
+### .eslintignore (ESLint Ignore Configuration)
+
+```plaintext
+node_modules/
+cartridges/**/cartridge/static/
+coverage/
+doc/
+bin/
+codecept.conf.js
+```
+
+### package.json (Main Configuration)
+
+```json
+{
+  "name": "plugin_my_custom_cartridge",
+  "version": "1.0.0",
+  "description": "A custom cartridge, for your SFRA project",
+  "main": "index.js",
+  "scripts": {
+    "test": "sgmf-scripts --test test/unit/**/*.js",
+    "lint": "sgmf-scripts --lint js",
+    "upload": "sgmf-scripts --upload -- ",
+    "uploadCartridge": "sgmf-scripts --uploadCartridge plugin_dynamicurl && sgmf-scripts --uploadCartridge bm_dynamicurl_sitemap",
+    "lint:isml": "./node_modules/.bin/isml-linter",
+    "build:isml": "./node_modules/.bin/isml-linter --build",
+    "fix:isml": "./node_modules/.bin/isml-linter --autofix",
+    "watch": "sgmf-scripts --watch",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "app-module-path": "2.2.0",
+    "chai": "4.3.6",
+    "chai-subset": "1.6.0",
+    "dw-api-mock": "git+https://bitbucket.org/theunth/dw-api-mock.git",
+    "eslint": "8.56.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-plugin-import": "2.29.0",
+    "eslint-plugin-sitegenesis": "1.0.0",
+    "husky": "8.0.1",
+    "isml-linter": "5.40.3",
+    "lodash": "4.17.21",
+    "mocha": "10.1.0",
+    "proxyquire": "2.1.3",
+    "sgmf-scripts": "3.0.0",
+    "sinon": "17.0.1"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "ie >= 10"
+  ],
+  "paths": {
+    "base": "../storefront-reference-architecture/cartridges/app_storefront_base/"
+  }
+}
+```
 
 ### dw.json (Deployment Credentials)
 
@@ -89,30 +178,64 @@ This file contains sandbox credentials. It must be added to .gitignore. This fil
 }
 ```
 
-### package.json (Build Configuration)
+### webpack.config.js (Webpack Configuration)
 
-This file manages dependencies and defines build scripts. The "paths" object is critical for the compiler to resolve imports across cartridges.
+```javascript
+'use strict';
 
-```json
-{
-  "name": "my-sfra-project",
-  "version": "1.0.0",
-  "scripts": {
-    "compile:js": "sgmf-scripts --compile js",
-    "compile:scss": "sgmf-scripts --compile css",
-    "upload": "sgmf-scripts --upload",
-    "uploadCartridge": "sgmf-scripts --uploadCartridge",
-    "watch": "sgmf-scripts --watch"
-  },
-  "devDependencies": {
-    "sgmf-scripts": "^2.4.1",
-    "webpack": "^5.91.0"
-  },
-  "paths": {
-    "base": "./storefront-reference-architecture/cartridges/app_storefront_base",
-    "app_helloworld": "./cartridges/app_helloworld"
-  }
-}
+var path = require('path');
+var ExtractTextPlugin = require('sgmf-scripts')['extract-text-webpack-plugin'];
+var sgmfScripts = require('sgmf-scripts');
+
+module.exports = [{
+    mode: 'production',
+    name: 'js',
+    entry: sgmfScripts.createJsPath(),
+    output: {
+        path: path.resolve('./cartridges/plugin_my_custom_cartridge/cartridge/static'),
+        filename: '[name].js'
+    }
+}, {
+    mode: 'none',
+    name: 'scss',
+    entry: sgmfScripts.createScssPath(),
+    output: {
+        path: path.resolve('./cartridges/plugin_my_custom_cartridge/cartridge/static'),
+        filename: '[name].css'
+    },
+    module: {
+        rules: [{
+            test: /\.scss$/,
+            use: ExtractTextPlugin.extract({
+                use: [{
+                    loader: 'css-loader',
+                    options: {
+                        url: false,
+                        minimize: true
+                    }
+                }, {
+                    loader: 'postcss-loader',
+                    options: {
+                        plugins: [
+                            require('autoprefixer')()
+                        ]
+                    }
+                }, {
+                    loader: 'sass-loader',
+                    options: {
+                        includePaths: [
+                            path.resolve(process.cwd(), '../storefront-reference-architecture/node_modules/'),
+                            path.resolve(process.cwd(), '../storefront-reference-architecture/node_modules/flag-icon-css/sass')
+                        ]
+                    }
+                }]
+            })
+        }]
+    },
+    plugins: [
+        new ExtractTextPlugin({ filename: '[name].css' })
+    ]
+}];
 ```
 
 ## 6. "Hello, World" Example
@@ -122,12 +245,14 @@ This file manages dependencies and defines build scripts. The "paths" object is 
 From the project root, run:
 
 ```bash
-node node_modules/sgmf-scripts/index.js --createCartridge app_helloworld
+npm install
+
+node sgmf-scripts --createCartridge plugin_my_custom_cartridge
 ```
 
 ### Step 2: Create the Controller
 
-**File:** `cartridges/app_helloworld/cartridge/controllers/Hello.js`
+**File:** `cartridges/plugin_my_custom_cartridge/cartridge/controllers/Hello.js`
 
 ```javascript
 'use strict';
@@ -147,7 +272,7 @@ module.exports = server.exports();
 
 ### Step 3: Create the ISML Template
 
-**File:** `cartridges/app_helloworld/cartridge/templates/default/hello/helloTemplate.isml`
+**File:** `cartridges/plugin_my_custom_cartridge/cartridge/templates/default/hello/helloTemplate.isml`
 
 ```html
 <iscontent type="text/html" charset="UTF-8" compact="true"/>
@@ -163,7 +288,7 @@ module.exports = server.exports();
 
 ### Step 4: Update package.json
 
-Ensure the app_helloworld cartridge is added to the "paths" object in the root package.json file, as shown in the example in Section 5.
+Ensure the plugin_my_custom_cartridge cartridge is added to the "paths" object in the root package.json file, as shown in the example in Section 5.
 
 ## 7. Deployment and Registration
 
@@ -172,7 +297,7 @@ Ensure the app_helloworld cartridge is added to the "paths" object in the root p
 From the project root, run:
 
 ```bash
-npm run uploadCartridge app_helloworld
+npm run uploadCartridge plugin_my_custom_cartridge
 ```
 
 For continuous development, use `npm run watch`.
