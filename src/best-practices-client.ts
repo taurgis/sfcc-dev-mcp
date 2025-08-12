@@ -89,7 +89,23 @@ export class SFCCBestPracticesClient {
 
     try {
       const filePath = path.join(this.docsPath, `${guideName}.md`);
+
+      // Basic security validation
+      if (filePath.includes('..') || filePath.includes('\0')) {
+        throw new Error(`Invalid guide name: ${guideName}`);
+      }
+
       const content = await fs.readFile(filePath, 'utf-8');
+
+      // Basic content validation
+      if (!content.trim()) {
+        throw new Error(`Empty best practice guide: ${guideName}`);
+      }
+
+      // Check for binary content
+      if (content.includes('\0')) {
+        throw new Error(`Invalid content in best practice guide: ${guideName}`);
+      }
 
       const lines = content.split('\n');
       const title = lines.find(line => line.startsWith('#'))?.replace('#', '').trim() ?? guideName;

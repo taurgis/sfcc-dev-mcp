@@ -95,17 +95,40 @@ export class SFCCDocumentationClient {
           if (file.endsWith('.md')) {
             const className = file.replace('.md', '');
             const filePath = path.join(packagePath, file);
-            const content = await fs.readFile(filePath, 'utf-8');
 
-            this.classCache.set(
-              `${packageName}.${className}`,
-              {
-                className,
-                packageName,
-                filePath,
-                content,
-              },
-            );
+            try {
+              // Basic security validation
+              if (filePath.includes('..') || filePath.includes('\0')) {
+                logger.warn(`Warning: Suspicious file path detected: ${file}`);
+                continue;
+              }
+
+              const content = await fs.readFile(filePath, 'utf-8');
+
+              // Basic content validation
+              if (!content.trim()) {
+                logger.warn(`Warning: Empty documentation file: ${file}`);
+                continue;
+              }
+
+              // Check for binary content
+              if (content.includes('\0')) {
+                logger.warn(`Warning: Binary content detected in: ${file}`);
+                continue;
+              }
+
+              this.classCache.set(
+                `${packageName}.${className}`,
+                {
+                  className,
+                  packageName,
+                  filePath,
+                  content,
+                },
+              );
+            } catch (fileError) {
+              logger.warn(`Warning: Could not read file ${file}: ${fileError}`);
+            }
           }
         }
       } catch (error) {
