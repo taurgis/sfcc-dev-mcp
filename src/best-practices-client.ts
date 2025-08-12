@@ -88,14 +88,42 @@ export class SFCCBestPracticesClient {
     if (cached) {return JSON.parse(cached);}
 
     try {
-      const filePath = path.join(this.docsPath, `${guideName}.md`);
-
-      // Basic security validation
-      if (filePath.includes('..') || filePath.includes('\0')) {
-        throw new Error(`Invalid guide name: ${guideName}`);
+      // Enhanced security validation - validate guideName before path construction
+      if (!guideName || typeof guideName !== 'string') {
+        throw new Error('Invalid guide name: must be a non-empty string');
       }
 
-      const content = await fs.readFile(filePath, 'utf-8');
+      // Prevent null bytes and dangerous characters in the guide name itself
+      if (guideName.includes('\0') || guideName.includes('\x00')) {
+        throw new Error('Invalid guide name: contains null bytes');
+      }
+
+      // Prevent path traversal sequences in the guide name
+      if (guideName.includes('..') || guideName.includes('/') || guideName.includes('\\')) {
+        throw new Error('Invalid guide name: contains path traversal sequences');
+      }
+
+      // Only allow alphanumeric characters, underscores, and hyphens
+      if (!/^[a-zA-Z0-9_-]+$/.test(guideName)) {
+        throw new Error('Invalid guide name: contains invalid characters');
+      }
+
+      const filePath = path.join(this.docsPath, `${guideName}.md`);
+
+      // Additional security validation - ensure the resolved path is within the docs directory
+      const resolvedPath = path.resolve(filePath);
+      const resolvedDocsPath = path.resolve(this.docsPath);
+
+      if (!resolvedPath.startsWith(resolvedDocsPath)) {
+        throw new Error('Invalid guide name: path outside allowed directory');
+      }
+
+      // Ensure the file still ends with .md after path resolution
+      if (!resolvedPath.toLowerCase().endsWith('.md')) {
+        throw new Error('Invalid guide name: must reference a markdown file');
+      }
+
+      const content = await fs.readFile(resolvedPath, 'utf-8');
 
       // Basic content validation
       if (!content.trim()) {

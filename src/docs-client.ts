@@ -97,13 +97,48 @@ export class SFCCDocumentationClient {
             const filePath = path.join(packagePath, file);
 
             try {
-              // Basic security validation
-              if (filePath.includes('..') || filePath.includes('\0')) {
-                logger.warn(`Warning: Suspicious file path detected: ${file}`);
+              // Enhanced security validation - validate file name before path operations
+              if (!file || typeof file !== 'string') {
+                logger.warn(`Warning: Invalid file name type: ${file}`);
                 continue;
               }
 
-              const content = await fs.readFile(filePath, 'utf-8');
+              // Prevent null bytes and dangerous characters in the file name itself
+              if (file.includes('\0') || file.includes('\x00')) {
+                logger.warn(`Warning: File name contains null bytes: ${file}`);
+                continue;
+              }
+
+              // Prevent path traversal sequences in the file name
+              if (file.includes('..') || file.includes('/') || file.includes('\\')) {
+                logger.warn(`Warning: File name contains path traversal sequences: ${file}`);
+                continue;
+              }
+
+              // Only allow alphanumeric characters, underscores, hyphens, and dots for file names
+              if (!/^[a-zA-Z0-9_.-]+$/.test(file)) {
+                logger.warn(`Warning: File name contains invalid characters: ${file}`);
+                continue;
+              }
+
+              // Additional security validation - ensure the resolved path is within the package directory
+              const resolvedPath = path.resolve(filePath);
+              const resolvedPackagePath = path.resolve(packagePath);
+              const resolvedDocsPath = path.resolve(this.docsPath);
+
+              // Ensure the file is within the package directory and docs directory
+              if (!resolvedPath.startsWith(resolvedPackagePath) || !resolvedPath.startsWith(resolvedDocsPath)) {
+                logger.warn(`Warning: File path outside allowed directory: ${file}`);
+                continue;
+              }
+
+              // Ensure the file still ends with .md after path resolution
+              if (!resolvedPath.toLowerCase().endsWith('.md')) {
+                logger.warn(`Warning: File does not reference a markdown file: ${file}`);
+                continue;
+              }
+
+              const content = await fs.readFile(resolvedPath, 'utf-8');
 
               // Basic content validation
               if (!content.trim()) {
