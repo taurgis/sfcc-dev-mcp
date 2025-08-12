@@ -57,7 +57,7 @@ describe('ConfigurationFactory', () => {
 
       expect(() => {
         ConfigurationFactory.create({ dwJsonPath: testFile });
-      }).toThrow(/Invalid JSON in dw\.json file:/);
+      }).toThrow(/Invalid JSON in configuration file:/);
     });
 
     it('should throw an error if dw.json file is missing', () => {

@@ -1,13 +1,13 @@
 /**
  * Configuration loader for SFCC MCP Server
  *
- * This module handles loading and validating configuration from dw.json files
- * and command-line options for connecting to Salesforce B2C Commerce Cloud.
+ * This module handles secure loading and validation of dw.json files
+ * with comprehensive security checks for file access.
  */
 
 import { readFileSync, existsSync, statSync } from 'fs';
 import { resolve, basename, extname } from 'path';
-import { SFCCConfig, DwJsonConfig } from '../types/types.js';
+import { DwJsonConfig } from '../types/types.js';
 
 /**
  * Validates that a file path is safe to access and prevents path traversal attacks
@@ -76,16 +76,36 @@ function validateFileSize(filePath: string): void {
 }
 
 /**
- * Load configuration from a dw.json file
+ * Validates the content of a dw.json configuration
  *
- * The dw.json file is the standard configuration format used by Salesforce Commerce Cloud
- * development tools. This function reads and validates the configuration.
+ * @param dwConfig - The parsed dw.json configuration
+ * @throws Error if required fields are missing or invalid
+ */
+function validateDwJsonContent(dwConfig: DwJsonConfig): void {
+  // Validate required fields
+  if (!dwConfig.hostname || !dwConfig.username || !dwConfig.password) {
+    throw new Error('Configuration file must contain hostname, username, and password fields');
+  }
+
+  // Additional validation for hostname format (trim whitespace first)
+  const trimmedHostname = dwConfig.hostname.trim();
+  if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+$/)) {
+    throw new Error('Invalid hostname format in configuration');
+  }
+}
+
+/**
+ * Securely loads and parses a dw.json file with comprehensive validation
+ *
+ * This function handles all security aspects of file loading including path validation,
+ * file size checks, and content validation. It returns the raw parsed JSON without
+ * any transformation to SFCCConfig format.
  *
  * @param dwJsonPath - Path to the dw.json file
- * @returns Parsed and validated SFCC configuration
- * @throws Error if file doesn't exist, is invalid JSON, or missing required fields
+ * @returns Parsed and validated dw.json configuration
+ * @throws Error if file doesn't exist, is invalid, or fails security checks
  */
-export function loadDwJsonConfig(dwJsonPath: string): SFCCConfig {
+export function loadSecureDwJson(dwJsonPath: string): DwJsonConfig {
   let resolvedPath: string;
 
   try {
@@ -126,31 +146,10 @@ export function loadDwJsonConfig(dwJsonPath: string): SFCCConfig {
 
     const dwConfig: DwJsonConfig = JSON.parse(dwJsonContent);
 
-    // Validate required fields
-    if (!dwConfig.hostname || !dwConfig.username || !dwConfig.password) {
-      throw new Error('Configuration file must contain hostname, username, and password fields');
-    }
+    // Validate the parsed configuration
+    validateDwJsonContent(dwConfig);
 
-    // Additional validation for hostname format (trim whitespace first)
-    const trimmedHostname = dwConfig.hostname.trim();
-    if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+$/)) {
-      throw new Error('Invalid hostname format in configuration');
-    }
-
-    // Map dw.json config to SFCCConfig (use original hostname to preserve user input)
-    const config: SFCCConfig = {
-      hostname: dwConfig.hostname,
-      username: dwConfig.username,
-      password: dwConfig.password,
-    };
-
-    // If client-id and client-secret are present, use them as OAuth credentials
-    if (dwConfig['client-id'] && dwConfig['client-secret']) {
-      config.clientId = dwConfig['client-id'];
-      config.clientSecret = dwConfig['client-secret'];
-    }
-
-    return config;
+    return dwConfig;
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new Error(`Invalid JSON in configuration file: ${error.message}`);

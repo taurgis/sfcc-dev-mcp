@@ -19,7 +19,6 @@ import { SFCCBestPracticesClient } from '../clients/best-practices-client.js';
 import { OCAPIClient } from '../clients/ocapi-client.js';
 import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
-import { SERVER_INFO } from '../config/constants.js';
 import {
   SFCC_DOCUMENTATION_TOOLS,
   BEST_PRACTICES_TOOLS,
@@ -85,8 +84,8 @@ export class SFCCDevServer {
   private initializeServer(): void {
     this.server = new Server(
       {
-        name: SERVER_INFO.NAME,
-        version: SERVER_INFO.VERSION,
+        name: 'SFCC Development MCP Server',
+        version: '1.0.9',
       },
       {
         capabilities: {

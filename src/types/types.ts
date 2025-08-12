@@ -41,6 +41,8 @@ export interface DwJsonConfig {
   'client-id'?: string;
   /** Optional client secret for OAuth */
   'client-secret'?: string;
+  /** Optional site ID for SFCC instance */
+  'site-id'?: string;
 }
 
 /**
