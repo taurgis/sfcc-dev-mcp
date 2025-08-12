@@ -1,0 +1,65 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run linting
+        run: npm run lint:check
+
+      - name: Build project
+        run: npm run build
+
+      - name: Extract version and create release branch
+        run: |
+          # Extract version from the release tag (remove 'v' prefix if present)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          echo "Setting package version to: $VERSION"
+          
+          # Create and switch to release branch
+          BRANCH_NAME="release/v$VERSION"
+          echo "Creating release branch: $BRANCH_NAME"
+          git checkout -b $BRANCH_NAME
+          
+          # Update package version
+          npm version $VERSION --no-git-tag-version
+          
+          # Commit the version update
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to $VERSION for release"
+          
+          # Push the release branch
+          git push origin $BRANCH_NAME
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
