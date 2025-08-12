@@ -471,7 +471,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_site_preferences',
-    description: 'Search site preferences across sites in the specified preference group and instance. Use this to find specific site preferences by name, description, or value type. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Supports complex queries with text search, filtering, and sorting.',
+    description: 'Search site preferences across sites in the specified preference group and instance. Use this to find specific site preferences by name, description, or value type. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Use this tool when generating or debugging code that accesses site preferences (e.g., dw.system.Site.current.preferences.custom.yourPreference, Site.getCurrent().getCustomPreferenceValue()) to validate preference names, understand their data types, discover available preferences in a group, or troubleshoot preference-related issues. Supports complex queries with text search, filtering, and sorting.',
     inputSchema: {
       type: 'object',
       properties: {
