@@ -124,7 +124,7 @@ export class SFCCDevServer {
       content: [
         {
           type: 'text',
-          text: isText ? JSON.stringify(data, null, 2) : data,
+          text: isText ? JSON.stringify(data) : data,
         },
       ],
     };
