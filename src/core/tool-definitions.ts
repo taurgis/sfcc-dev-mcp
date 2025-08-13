@@ -160,6 +160,76 @@ export const BEST_PRACTICES_TOOLS = [
   },
 ];
 
+export const SFRA_DOCUMENTATION_TOOLS = [
+  {
+    name: 'get_available_sfra_documents',
+    description: 'Get a list of all available SFRA (Storefront Reference Architecture) documentation. Use this to discover what SFRA classes and modules are documented, including Server, Request, Response, QueryString, and render module. Essential for understanding SFRA architecture and available controller functionality.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
+    name: 'get_sfra_document',
+    description: 'Get complete SFRA class or module documentation with detailed information about properties, methods, and usage examples. Use this when working with SFRA controllers, middleware, or when you need to understand how SFRA components work together. Perfect for implementing SFRA-based features.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentName: {
+          type: 'string',
+          enum: ['server', 'request', 'response', 'querystring', 'render'],
+          description: 'The SFRA document name (e.g., \'server\', \'request\', \'response\', \'querystring\', \'render\')',
+        },
+      },
+      required: ['documentName'],
+    },
+  },
+  {
+    name: 'search_sfra_documentation',
+    description: 'Search across all SFRA documentation for specific terms, concepts, or functionality. Use this when you need to find specific SFRA features, understand how to implement controller patterns, or locate information about routing, middleware, request handling, or response management.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: "Search term or concept (e.g., 'middleware', 'routing', 'render', 'querystring', 'cache')",
+        },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'get_sfra_class_methods',
+    description: 'Get all methods for a specific SFRA class with detailed signatures, parameters, and descriptions. Use this when you need to understand what methods are available on SFRA classes like Server, Request, Response, or QueryString, and how to use them in your controllers.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        className: {
+          type: 'string',
+          enum: ['server', 'request', 'response', 'querystring'],
+          description: 'The SFRA class name (e.g., \'server\', \'request\', \'response\', \'querystring\')',
+        },
+      },
+      required: ['className'],
+    },
+  },
+  {
+    name: 'get_sfra_class_properties',
+    description: 'Get all properties for a specific SFRA class with their types and descriptions. Use this when you need to access data from SFRA objects, understand what information is available on Request/Response objects, or when working with SFRA class properties in controllers and middleware.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        className: {
+          type: 'string',
+          enum: ['server', 'request', 'response', 'querystring'],
+          description: 'The SFRA class name (e.g., \'server\', \'request\', \'response\', \'querystring\')',
+        },
+      },
+      required: ['className'],
+    },
+  },
+];
+
 export const LOG_TOOLS = [
   {
     name: 'get_latest_error',

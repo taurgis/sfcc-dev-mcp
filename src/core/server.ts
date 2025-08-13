@@ -16,12 +16,14 @@ import { SFCCConfig } from '../types/types.js';
 import { SFCCLogClient } from '../clients/log-client.js';
 import { SFCCDocumentationClient } from '../clients/docs-client.js';
 import { SFCCBestPracticesClient } from '../clients/best-practices-client.js';
+import { SFRAClient } from '../clients/sfra-client.js';
 import { OCAPIClient } from '../clients/ocapi-client.js';
 import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
 import {
   SFCC_DOCUMENTATION_TOOLS,
   BEST_PRACTICES_TOOLS,
+  SFRA_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
   SYSTEM_OBJECT_TOOLS,
 } from './tool-definitions.js';
@@ -37,6 +39,7 @@ export class SFCCDevServer {
   private logClient: SFCCLogClient | null = null;
   private docsClient!: SFCCDocumentationClient;
   private bestPracticesClient!: SFCCBestPracticesClient;
+  private sfraClient!: SFRAClient;
   private ocapiClient: OCAPIClient | null = null;
   private logger: Logger;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
@@ -63,6 +66,7 @@ export class SFCCDevServer {
     // Always available clients
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
+    this.sfraClient = new SFRAClient();
 
     // Conditional clients based on capabilities
     if (this.capabilities.canAccessLogs) {
@@ -365,6 +369,46 @@ export class SFCCDevServer {
   }
 
   /**
+   * Handle SFRA documentation tools with common pattern
+   */
+  private async handleSFRATool(toolName: string, args: any, startTime: number): Promise<any> {
+    let logMessage: string;
+    let result: any;
+
+    switch (toolName) {
+      case 'get_available_sfra_documents':
+        logMessage = 'Getting list of available SFRA documents';
+        result = await this.sfraClient.getAvailableDocuments();
+        break;
+      case 'get_sfra_document':
+        if (!args?.documentName) {throw new Error('documentName is required');}
+        logMessage = `Getting SFRA document: "${args.documentName}"`;
+        result = await this.sfraClient.getSFRADocument(args.documentName as string);
+        if (!result) {throw new Error(`SFRA document "${args.documentName}" not found`);}
+        break;
+      case 'search_sfra_documentation':
+        if (!args?.query) {throw new Error('query is required');}
+        logMessage = `Searching SFRA documentation for query: "${args.query}"`;
+        result = await this.sfraClient.searchSFRADocumentation(args.query as string);
+        break;
+      case 'get_sfra_class_methods':
+        if (!args?.className) {throw new Error('className is required');}
+        logMessage = `Getting SFRA class methods for: "${args.className}"`;
+        result = await this.sfraClient.getSFRAClassMethods(args.className as string);
+        break;
+      case 'get_sfra_class_properties':
+        if (!args?.className) {throw new Error('className is required');}
+        logMessage = `Getting SFRA class properties for: "${args.className}"`;
+        result = await this.sfraClient.getSFRAClassProperties(args.className as string);
+        break;
+      default:
+        throw new Error(`Unknown SFRA tool: ${toolName}`);
+    }
+
+    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
+  }
+
+  /**
    * Set up MCP tool handlers for SFCC operations
    */
   private setupToolHandlers(): void {
@@ -374,6 +418,7 @@ export class SFCCDevServer {
       // Always available tools
       tools.push(...SFCC_DOCUMENTATION_TOOLS);
       tools.push(...BEST_PRACTICES_TOOLS);
+      tools.push(...SFRA_DOCUMENTATION_TOOLS);
 
       // Conditional tools based on available clients
       if (this.logClient) {
@@ -411,6 +456,9 @@ export class SFCCDevServer {
           'get_system_object_attribute_definitions', 'search_system_object_attribute_definitions',
           'search_site_preferences', 'search_system_object_attribute_groups'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
+        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
+          'get_sfra_class_methods', 'get_sfra_class_properties'].includes(name)) {
+          result = await this.handleSFRATool(name, args, startTime);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new Error(`Unknown tool: ${name}`);

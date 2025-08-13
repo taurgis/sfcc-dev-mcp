@@ -62,6 +62,7 @@ sfcc-dev-mcp/
 │   │   │   └── system-objects-client.ts # System object definitions
 │   │   ├── log-client.ts         # SFCC log analysis client
 │   │   ├── docs-client.ts        # SFCC documentation client
+│   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
 │   │   └── best-practices-client.ts # Best practices guide client
 │   ├── config/                   # Configuration management
@@ -86,6 +87,12 @@ sfcc-dev-mcp/
 │   │   ├── scapi_custom_endpoint.md
 │   │   ├── performance.md
 │   │   └── security.md
+│   ├── sfra/                    # SFRA documentation
+│   │   ├── server.md
+│   │   ├── request.md
+│   │   ├── response.md
+│   │   ├── querystring.md
+│   │   └── render.md
 │   ├── dw_catalog/              # SFCC Catalog API documentation
 │   ├── dw_customer/             # SFCC Customer API documentation
 │   ├── dw_order/                # SFCC Order API documentation
@@ -118,6 +125,7 @@ sfcc-dev-mcp/
 ##### **Service Clients** (`clients/`)
 - **DocsClient** (`docs-client.ts`): Processes SFCC documentation and provides search capabilities across all namespaces
 - **LogClient** (`log-client.ts`): Connects to SFCC instances for real-time log analysis and monitoring
+- **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
 - **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides, security recommendations, and hook references
 
@@ -144,12 +152,17 @@ sfcc-dev-mcp/
    - Security and performance recommendations
    - Hook reference tables and examples
 
-3. **Log Analysis Tools** (6 tools)
+3. **SFRA Documentation Tools** (5 tools)
+   - SFRA class and module documentation
+   - Server, Request, Response, QueryString, and render module details
+   - Method signatures and property information for SFRA components
+
+4. **Log Analysis Tools** (6 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
 
-4. **System Object Tools** (6 tools)
+5. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration

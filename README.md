@@ -46,6 +46,7 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 |---------------|------------------------|-----------|
 | **SFCC Documentation** (7 tools) | ✅ Available | ✅ Available |
 | **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
+| **SFRA Documentation** (5 tools) | ✅ Available | ✅ Available |
 | **Log Analysis** (6 tools) | ❌ Requires credentials | ✅ Available |
 | **System Object Definitions** (6 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
 
@@ -82,6 +83,13 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 - **Search Methods**: Find methods across all SFCC classes by name
 - **List All Classes**: Get a complete list of available SFCC classes
 - **Get Raw Documentation**: Access the complete Markdown documentation for any class
+
+### SFRA Documentation Access
+- **Get Available SFRA Documents**: List all available SFRA (Storefront Reference Architecture) documentation including Server, Request, Response, QueryString, and render module
+- **Get SFRA Document**: Retrieve complete SFRA class or module documentation with detailed information about properties, methods, and usage examples
+- **Search SFRA Documentation**: Search across all SFRA documentation for specific terms, concepts, or functionality related to routing, middleware, request handling, or response management
+- **Get SFRA Class Methods**: Get all methods for a specific SFRA class (Server, Request, Response, QueryString) with detailed signatures, parameters, and descriptions
+- **Get SFRA Class Properties**: Get all properties for a specific SFRA class with their types and descriptions for understanding Request/Response objects and SFRA class properties in controllers
 
 ### SFCC System Object Definitions
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
@@ -155,6 +163,12 @@ The server expects the following structure relative to the working directory:
 │   ├── ocapi_hooks.md
 │   ├── scapi_hooks.md
 │   └── ...
+├── sfra/
+│   ├── server.md
+│   ├── request.md
+│   ├── response.md
+│   ├── querystring.md
+│   └── render.md
 ├── dw_catalog/
 ├── dw_order/
 └── ... (other SFCC class documentation folders)
@@ -594,6 +608,41 @@ You can configure the MCP client to use npx, which automatically handles package
    ```json
    {
      "guideName": "ocapi_hooks"
+   }
+   ```
+
+### SFCC SFRA Documentation Tools
+
+1. **`get_available_sfra_documents`** - List all available SFRA documents
+   ```json
+   {}
+   ```
+
+2. **`get_sfra_document`** - Get complete SFRA class or module documentation
+   ```json
+   {
+     "documentName": "server"
+   }
+   ```
+
+3. **`search_sfra_documentation`** - Search across all SFRA documentation
+   ```json
+   {
+     "query": "middleware"
+   }
+   ```
+
+4. **`get_sfra_class_methods`** - Get all methods for an SFRA class
+   ```json
+   {
+     "className": "server"
+   }
+   ```
+
+5. **`get_sfra_class_properties`** - Get all properties for an SFRA class
+   ```json
+   {
+     "className": "request"
    }
    ```
 

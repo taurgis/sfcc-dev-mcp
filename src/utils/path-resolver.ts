@@ -43,4 +43,11 @@ export class PathResolver {
   static getBestPracticesPath(): string {
     return this.getRelativePath('docs', 'best-practices');
   }
+
+  /**
+   * Get the SFRA docs directory path relative to the current working directory
+   */
+  static getSFRADocsPath(): string {
+    return this.getRelativePath('docs', 'sfra');
+  }
 }
