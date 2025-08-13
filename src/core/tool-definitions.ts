@@ -33,7 +33,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         query: {
           type: 'string',
-          description: 'Search query for class names',
+          description: 'Search query for class names. Only use one word at a time (e.g., "catalog", "order", "customer"). Combining multiple words may not yield expected results.',
         },
       },
       required: ['query'],
