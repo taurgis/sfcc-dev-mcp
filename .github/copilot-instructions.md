@@ -14,8 +14,8 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 
 ### 💼 Professional Standards
 - **Code Quality**: Write clean, well-documented TypeScript with comprehensive error handling
-- **Security First**: Implement proper credential management, OAuth flows, and secure API communication
-- **Performance Optimization**: Design efficient caching, rate limiting, and resource management
+- **Local Security**: Implement proper credential management and secure API communication for local development
+- **Resource Efficiency**: Design efficient caching and reasonable resource usage for single-developer workloads
 - **User Experience**: Create intuitive tool interfaces that developers can easily understand and use
 - **Testing & Reliability**: Ensure robust testing coverage and reliable error recovery
 - **Documentation**: Maintain clear, comprehensive documentation for both users and contributors
@@ -26,21 +26,21 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 3. **Error Handling**: Implement comprehensive error handling with meaningful messages
 4. **Modular Design**: Create loosely coupled, highly cohesive modules
 5. **Testing Coverage**: Write thorough unit and integration tests
-6. **Security Awareness**: Always consider security implications of API integrations
+6. **Local Security**: Focus on protecting developer credentials and preventing accidental network exposure
 
 ---
 
 ## 📋 Project Overview
 
-The **SFCC Development MCP Server** is a Model Context Protocol server that provides AI agents with comprehensive access to Salesforce B2C Commerce Cloud development tools and resources. This project bridges the gap between AI assistants and SFCC development workflows.
+The **SFCC Development MCP Server** is a **local development** Model Context Protocol server that provides AI agents with comprehensive access to Salesforce B2C Commerce Cloud development tools and resources. This project bridges the gap between AI assistants and SFCC development workflows **for individual developers working on their local machines**.
 
 ### 🎯 Project Goals
 
-1. **Enable AI-Assisted SFCC Development**: Provide AI agents with real-time access to SFCC documentation, logs, and system objects
-2. **Reduce Development Time**: Eliminate the need to manually search through documentation or logs
-3. **Improve Code Quality**: Provide access to current best practices and development guidelines
-4. **Enhance Debugging**: Offer real-time log analysis and error investigation tools
-5. **Support Multiple Use Cases**: Work in both documentation-only and full-credential modes
+1. **Enable AI-Assisted SFCC Development**: Provide AI agents with real-time access to SFCC documentation, logs, and system objects **during local development**
+2. **Reduce Development Time**: Eliminate the need to manually search through documentation or logs **while coding**
+3. **Improve Code Quality**: Provide access to current best practices and development guidelines **for personal projects**
+4. **Enhance Local Debugging**: Offer real-time log analysis and error investigation tools **for developer sandbox instances**
+5. **Support Multiple Use Cases**: Work in both documentation-only and full-credential modes **for different development scenarios**
 
 ### 🏗️ Project Structure
 
@@ -104,9 +104,10 @@ sfcc-dev-mcp/
 - **BestPracticesClient** (`clients/best-practices-client.ts`): Serves curated development guides and references
 
 #### **Authentication & Security** (`auth/`)
-- **OAuth Token Management** (`oauth-token.ts`): Handles SFCC OAuth flows with automatic renewal
-- **Credential Security**: Secure handling of SFCC instance credentials
-- **Rate Limiting**: Prevents API abuse and respects SFCC limits
+- **OAuth Token Management** (`oauth-token.ts`): Handles SFCC OAuth flows with automatic renewal for local development
+- **Credential Security**: Secure local storage and handling of SFCC instance credentials  
+- **Local Protection**: Prevents accidental credential exposure and limits network access to localhost
+- **Rate Limiting**: Implements reasonable rate limiting to avoid overwhelming developer sandbox instances
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
@@ -162,9 +163,9 @@ When working on this project:
 3. **Handle Errors Gracefully**: Provide meaningful error messages and recovery strategies
 4. **Test Thoroughly**: Write comprehensive tests for all new features
 5. **Document Changes**: Update documentation for any new tools or capabilities
-6. **Security First**: Always consider security implications of API access
-7. **Performance Matters**: Implement caching and efficient resource usage
-8. **User Experience**: Design tools that are intuitive and helpful for developers
+6. **Local Security Focus**: Protect developer credentials, prevent accidental network exposure, and avoid resource exhaustion
+7. **Reasonable Performance**: Implement efficient caching and resource usage appropriate for single-developer workloads
+8. **User Experience**: Design tools that are intuitive and helpful for individual developers
 9. **Keep Documentation Current**: **Always update both copilot-instructions.md and README.md files** when making changes that affect:
     - File structure or directory organization
     - Class responsibilities or module purposes
