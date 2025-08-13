@@ -412,6 +412,14 @@ exports.afterStep = function (success, parameters, stepExecution) {
                 "@supports-organization-context": false,
                 "description": "Updates product prices from CSV file in chunks",
                 "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "before-chunk-function": "beforeChunk",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-chunk-function": "afterChunk",
+                "after-step-function": "afterStep",
                 "chunk-size": 200,
                 "transactional": false,
                 "parameters": [
@@ -428,7 +436,14 @@ exports.afterStep = function (success, parameters, stepExecution) {
                         "@default": true,
                         "description": "Whether CSV file has header row"
                     }
-                ]
+                ],
+                "status-codes": {
+                    "status": [
+                        { "@code": "OK", "description": "Processing completed successfully" },
+                        { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
+                        { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
+                    ]
+                }
             }
         ]
     }
@@ -713,6 +728,248 @@ exports.process = function (item, parameters, stepExecution) {
 
 ## Deployment and Configuration Best Practices
 
+### Steptypes.json Configuration File
+
+#### File Placement and Structure
+
+Custom step types are registered in the SFCC system using a `steptypes.json` file. This file defines the step types, their parameters, and status codes for your cartridge.
+
+**Critical Requirements:**
+- File must be named **exactly** `steptypes.json`
+- Must be placed in the **root folder** of your custom cartridge (not inside the cartridge subfolder)
+- Only **one** `steptypes.json` file per cartridge is allowed
+- Cannot coexist with `steptypes.xml` - choose one format only
+
+**Correct File Structure:**
+```
+my_cartridge/
+├── cartridge/
+│   ├── controllers/
+│   ├── scripts/
+│   ├── (other cartridge folders)
+│   └── my_cartridge.properties
+└── steptypes.json ← Must be here, not inside cartridge/
+```
+
+#### Root Structure
+
+All steptypes.json files must follow this root structure:
+
+```json
+{
+  "step-types": {
+    "script-module-step": [],
+    "chunk-script-module-step": [],
+    "pipeline-step": []
+  }
+}
+```
+
+**Note**: You must define at least one step type category, but all three are optional as long as one is present.
+
+### Task-Oriented Job Configuration (script-module-step)
+
+#### Complete Attribute Reference
+
+```json
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.DeactivateProducts",
+        "@supports-parallel-execution": true,
+        "@supports-site-context": true,
+        "@supports-organization-context": false,
+        "description": "Deactivates all online products in a specified category",
+        "module": "cartridge/scripts/jobs/deactivateProducts.js",
+        "function": "execute",
+        "transactional": false,
+        "timeout-in-seconds": 900,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "categoryID",
+              "@type": "string",
+              "@required": true,
+              "description": "ID of the category containing products to deactivate"
+            },
+            {
+              "@name": "dryRun",
+              "@type": "boolean", 
+              "@required": false,
+              "@default": false,
+              "description": "If true, only logs what would be deactivated"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            { "@code": "OK", "description": "Products deactivated successfully" },
+            { "@code": "CATEGORY_NOT_FOUND", "description": "Specified category does not exist" },
+            { "@code": "NO_PRODUCTS", "description": "No products found in category" },
+            { "@code": "PARTIAL_SUCCESS", "description": "Some products could not be deactivated" }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Attribute Details
+
+| Attribute | Required | Description | Validation Rules |
+|-----------|----------|-------------|------------------|
+| `@type-id` | ✅ **Required** | Unique identifier for the step type | Must start with `custom.`, max 100 chars, no whitespace, unique across all cartridges |
+| `@supports-parallel-execution` | Optional | Enables parallel execution with other steps | `true` or `false` (default: `true`) |
+| `@supports-site-context` | Optional | Can be used in site-scoped flows | `true` or `false` (default: `true`) |
+| `@supports-organization-context` | Optional | Can be used in organization-scoped flows | `true` or `false` (default: `true`) |
+| `description` | Optional | Internal description (not shown in Business Manager) | Max 4000 characters |
+| `module` | ✅ **Required** | Path to script module | No leading/trailing whitespace |
+| `function` | ✅ **Required** | Function name to execute | No leading/trailing whitespace, defaults to `execute` |
+| `transactional` | Optional | Wraps execution in single transaction | `true` or `false` (default: `false`) |
+| `timeout-in-seconds` | Optional | Execution timeout limit | Integer > 0, no default |
+| `parameters` | Optional | User-configurable parameters | Contains `parameter` array |
+| `status-codes` | Optional | Custom status code definitions | Contains `status` array |
+
+**Important Notes:**
+- `@supports-site-context` and `@supports-organization-context` cannot both be `true` or both be `false`
+- `@type-id` cannot conflict with system step types like `ExecutePipeline` or `IncludeStepsFromJob`
+- Setting `transactional: true` creates one large transaction - avoid for performance reasons
+
+### Chunk-Oriented Job Configuration (chunk-script-module-step)
+
+#### Complete Attribute Reference
+
+```json
+{
+  "step-types": {
+    "chunk-script-module-step": [
+      {
+        "@type-id": "custom.BulkPriceUpdate",
+        "@supports-parallel-execution": false,
+        "@supports-site-context": true,
+        "@supports-organization-context": false,
+        "description": "Updates product prices from CSV file in chunks",
+        "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
+        "before-step-function": "beforeStep",
+        "total-count-function": "getTotalCount",
+        "before-chunk-function": "beforeChunk",
+        "read-function": "read",
+        "process-function": "process",
+        "write-function": "write",
+        "after-chunk-function": "afterChunk",
+        "after-step-function": "afterStep",
+        "chunk-size": 200,
+        "transactional": false,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "inputFileName",
+              "@type": "string",
+              "@required": true,
+              "description": "Name of CSV file in IMPEX folder"
+            },
+            {
+              "@name": "hasHeader",
+              "@type": "boolean",
+              "@required": false,
+              "@default": true,
+              "description": "Whether CSV file has header row"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            { "@code": "OK", "description": "Processing completed successfully" },
+            { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
+            { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Chunk-Specific Attributes
+
+| Attribute | Required | Description | Default Function |
+|-----------|----------|-------------|------------------|
+| `before-step-function` | Optional | Setup function before processing starts | None |
+| `total-count-function` | Optional | Returns total items for progress tracking | None |
+| `before-chunk-function` | Optional | Setup before each chunk | None |
+| `read-function` | Optional | Reads next item from data source | `read` |
+| `process-function` | Optional | Processes individual items | `process` |
+| `write-function` | Optional | Writes processed chunk | `write` |
+| `after-chunk-function` | Optional | Cleanup after each chunk | None |
+| `after-step-function` | Optional | Final cleanup after all chunks | None |
+| `chunk-size` | ✅ **Required** | Number of items per chunk | Must be numeric > 0 |
+
+### Parameter Configuration
+
+Parameters allow Business Manager users to configure job execution. Each parameter supports these attributes:
+
+```json
+{
+  "@name": "parameterName",
+  "@type": "string|boolean|number|password",
+  "@required": true,
+  "@default": "defaultValue",
+  "description": "User-friendly description shown in Business Manager"
+}
+```
+
+#### Supported Parameter Types
+- `string`: Text input
+- `boolean`: Checkbox (true/false)
+- `number`: Numeric input
+- `password`: Masked text input (use for sensitive data)
+
+### Status Code Configuration
+
+Custom status codes enable sophisticated flow control in Business Manager:
+
+```json
+{
+  "status-codes": {
+    "status": [
+      { "@code": "OK", "description": "Standard success" },
+      { "@code": "CUSTOM_STATUS", "description": "Custom workflow trigger" },
+      { "@code": "ERROR", "description": "Processing failed" }
+    ]
+  }
+}
+```
+
+**Flow Control Usage:**
+- Use custom status codes to branch job flows
+- Configure different follow-up steps based on status
+- Enable conditional processing in complex workflows
+
+### Pipeline Step Configuration
+
+For legacy pipeline-based steps (not recommended for new development):
+
+```json
+{
+  "step-types": {
+    "pipeline-step": [
+      {
+        "@type-id": "custom.LegacyPipelineStep",
+        "@supports-site-context": true,
+        "@supports-organization-context": false,
+        "description": "Legacy pipeline step",
+        "pipeline": "cartridge/pipelines/jobs/LegacyPipeline.xml",
+        "start-node": "Start"
+      }
+    ]
+  }
+}
+```
+
+**Note**: Pipeline steps are legacy - use script-module-step or chunk-script-module-step for new development.
+
 ### Resource Management
 
 #### 1. Proper Resource Locking
@@ -733,9 +990,7 @@ Configure resource locks in Business Manager to prevent conflicts:
 // Monitor total job execution time per day
 ```
 
-### Environment-Specific Considerations
-
-#### 1. Sandbox vs Production
+#### 3. Environment-Specific Considerations
 
 ```javascript
 exports.beforeStep = function (parameters, stepExecution) {
@@ -750,17 +1005,6 @@ exports.beforeStep = function (parameters, stepExecution) {
         // Minimal logging for performance
     }
 };
-```
-
-#### 2. Configuration Management
-
-```javascript
-// Use site preferences for environment-specific configuration
-var Site = require('dw/system/Site');
-var site = Site.getCurrent();
-
-var batchSize = site.getCustomPreferenceValue('jobBatchSize') || 250;
-var maxRetries = site.getCustomPreferenceValue('jobMaxRetries') || 3;
 ```
 
 ## Advanced Patterns and Integration
