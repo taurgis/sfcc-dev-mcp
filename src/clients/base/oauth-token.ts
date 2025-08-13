@@ -5,7 +5,7 @@
  * for SFCC OCAPI requests. It handles automatic token refresh when tokens expire.
  */
 
-import { OAuthToken, OAuthTokenResponse } from '../types/types.js';
+import { OAuthToken, OAuthTokenResponse } from '../../types/types.js';
 
 /**
  * Singleton class for managing OAuth tokens

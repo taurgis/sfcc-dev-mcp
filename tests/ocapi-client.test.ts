@@ -4,14 +4,14 @@
  */
 
 import { OCAPIClient } from '../src/clients/ocapi-client.js';
-import { TokenManager } from '../src/auth/oauth-token.js';
+import { TokenManager } from '../src/clients/base/oauth-token.js';
 import { OCAPIConfig } from '../src/types/types.js';
 
 // Mock fetch globally
 global.fetch = jest.fn();
 
 // Mock TokenManager
-jest.mock('../src/auth/oauth-token.js');
+jest.mock('../src/clients/base/oauth-token.js');
 
 // Mock the specialized clients
 jest.mock('../src/clients/ocapi/system-objects-client.js');

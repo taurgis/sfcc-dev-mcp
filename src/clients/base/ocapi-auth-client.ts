@@ -6,7 +6,7 @@
  */
 
 import { OCAPIConfig, OAuthTokenResponse } from '../../types/types.js';
-import { TokenManager } from '../../auth/oauth-token.js';
+import { TokenManager } from './oauth-token.js';
 import { BaseHttpClient } from './http-client.js';
 
 // OCAPI authentication constants
