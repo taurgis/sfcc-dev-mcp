@@ -433,7 +433,6 @@ exports.afterStep = function (success, parameters, stepExecution) {
                         "@name": "hasHeader",
                         "@type": "boolean",
                         "@required": false,
-                        "@default": true,
                         "description": "Whether CSV file has header row"
                     }
                 ],
@@ -797,7 +796,6 @@ All steptypes.json files must follow this root structure:
               "@name": "dryRun",
               "@type": "boolean", 
               "@required": false,
-              "@default": false,
               "description": "If true, only logs what would be deactivated"
             }
           ]
@@ -874,7 +872,6 @@ All steptypes.json files must follow this root structure:
               "@name": "hasHeader",
               "@type": "boolean",
               "@required": false,
-              "@default": true,
               "description": "Whether CSV file has header row"
             }
           ]
@@ -915,7 +912,6 @@ Parameters allow Business Manager users to configure job execution. Each paramet
   "@name": "parameterName",
   "@type": "string|boolean|number|password",
   "@required": true,
-  "@default": "defaultValue",
   "description": "User-friendly description shown in Business Manager"
 }
 ```
