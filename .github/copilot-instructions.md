@@ -53,12 +53,18 @@ sfcc-dev-mcp/
 │   │   ├── server.ts             # Main MCP server implementation
 │   │   └── tool-definitions.ts   # MCP tool schema definitions
 │   ├── clients/                  # API clients for different services
+│   │   ├── base/                 # Base client classes and shared functionality
+│   │   │   ├── http-client.ts    # Base HTTP client with authentication
+│   │   │   ├── ocapi-auth-client.ts # OCAPI OAuth authentication client
+│   │   │   └── oauth-token.ts    # OAuth token management for OCAPI
+│   │   ├── ocapi/                # Specialized OCAPI clients
+│   │   │   ├── catalog-client.ts # OCAPI catalog operations
+│   │   │   ├── site-preferences-client.ts # Site preferences management
+│   │   │   └── system-objects-client.ts # System object definitions
 │   │   ├── log-client.ts         # SFCC log analysis client
 │   │   ├── docs-client.ts        # SFCC documentation client
-│   │   ├── ocapi-client.ts       # OCAPI client for system objects
+│   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
 │   │   └── best-practices-client.ts # Best practices guide client
-│   ├── auth/                     # Authentication and OAuth management
-│   │   └── oauth-token.ts        # OAuth token management
 │   ├── config/                   # Configuration management
 │   │   ├── config.ts             # Configuration loading and validation
 │   │   ├── configuration-factory.ts # Config factory for different modes
@@ -67,6 +73,8 @@ sfcc-dev-mcp/
 │   │   ├── cache.ts              # Caching layer for API responses
 │   │   ├── logger.ts             # Structured logging system
 │   │   ├── utils.ts              # Common utility functions
+│   │   ├── validator.ts          # Input validation utilities
+│   │   ├── query-builder.ts      # Query string building utilities
 │   │   └── path-resolver.ts      # File path resolution utilities
 │   └── types/                    # TypeScript type definitions
 │       └── types.ts              # Comprehensive type definitions
@@ -98,16 +106,22 @@ sfcc-dev-mcp/
 - Provides error handling and response formatting
 
 #### **Client Architecture**
-- **DocsClient** (`clients/docs-client.ts`): Processes SFCC documentation and provides search capabilities
-- **LogClient** (`clients/log-client.ts`): Connects to SFCC instances for log analysis and monitoring
-- **OCAPIClient** (`clients/ocapi-client.ts`): Interfaces with SFCC OCAPI for system object data
-- **BestPracticesClient** (`clients/best-practices-client.ts`): Serves curated development guides and references
 
-#### **Authentication & Security** (`auth/`)
-- **OAuth Token Management** (`oauth-token.ts`): Handles SFCC OAuth flows with automatic renewal for local development
-- **Credential Security**: Secure local storage and handling of SFCC instance credentials  
-- **Local Protection**: Prevents accidental credential exposure and limits network access to localhost
-- **Rate Limiting**: Implements reasonable rate limiting to avoid overwhelming developer sandbox instances
+##### **Base Client Infrastructure** (`clients/base/`)
+- **BaseHttpClient** (`http-client.ts`): Abstract base class providing HTTP operations, authentication handling, and error recovery
+- **OCAPIAuthClient** (`ocapi-auth-client.ts`): OCAPI-specific OAuth authentication with token management and automatic renewal
+- **TokenManager** (`oauth-token.ts`): Singleton OAuth token manager for SFCC OCAPI authentication with automatic expiration handling
+
+##### **Specialized OCAPI Clients** (`clients/ocapi/`)
+- **OCAPICatalogClient** (`catalog-client.ts`): Handles catalog operations, product searches, and category management
+- **OCAPISitePreferencesClient** (`site-preferences-client.ts`): Manages site preference searches and configuration discovery
+- **OCAPISystemObjectsClient** (`system-objects-client.ts`): Provides system object definitions, attribute schemas, and custom object exploration
+
+##### **Service Clients** (`clients/`)
+- **DocsClient** (`docs-client.ts`): Processes SFCC documentation and provides search capabilities across all namespaces
+- **LogClient** (`log-client.ts`): Connects to SFCC instances for real-time log analysis and monitoring
+- **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
+- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides, security recommendations, and hook references
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
@@ -234,7 +248,7 @@ When working on this project:
 
 - **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate client in `clients/`
 - **Updating Documentation**: Modify files in `docs/` and run conversion scripts
-- **Enhancing Authentication**: Update `auth/oauth-token.ts` and client authentication logic
+- **Enhancing Authentication**: Update `clients/base/oauth-token.ts` and client authentication logic
 - **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory

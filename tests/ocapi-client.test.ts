@@ -1,12 +1,23 @@
-import { OCAPIClient } from '../src/clients/ocapi-client';
-import { TokenManager } from '../src/auth/oauth-token';
-import { OCAPIConfig, OAuthTokenResponse } from '../src/types/types';
+/**
+ * Tests for the refactored OCAPIClient
+ * Tests the facade pattern that orchestrates specialized client modules
+ */
+
+import { OCAPIClient } from '../src/clients/ocapi-client.js';
+import { TokenManager } from '../src/clients/base/oauth-token.js';
+import { OCAPIConfig } from '../src/types/types.js';
 
 // Mock fetch globally
 global.fetch = jest.fn();
 
 // Mock TokenManager
-jest.mock('../src/auth/oauth-token');
+jest.mock('../src/clients/base/oauth-token.js');
+
+// Mock the specialized clients
+jest.mock('../src/clients/ocapi/system-objects-client.js');
+jest.mock('../src/clients/ocapi/site-preferences-client.js');
+jest.mock('../src/clients/ocapi/catalog-client.js');
+jest.mock('../src/clients/base/ocapi-auth-client.js');
 
 describe('OCAPIClient', () => {
   let client: OCAPIClient;
@@ -28,6 +39,7 @@ describe('OCAPIClient', () => {
       clearToken: jest.fn(),
       getTokenExpiration: jest.fn(),
       isTokenValid: jest.fn(),
+      clearAllTokens: jest.fn(),
     } as any;
 
     (TokenManager.getInstance as jest.Mock).mockReturnValue(mockTokenManager);
@@ -39,7 +51,10 @@ describe('OCAPIClient', () => {
   describe('constructor', () => {
     it('should initialize with provided config', () => {
       expect(client).toBeInstanceOf(OCAPIClient);
-      expect(TokenManager.getInstance).toHaveBeenCalled();
+      // Note: TokenManager.getInstance is called by the auth client, not directly by OCAPIClient
+      expect(client.systemObjects).toBeDefined();
+      expect(client.sitePreferences).toBeDefined();
+      expect(client.catalog).toBeDefined();
     });
 
     it('should use default version when not provided', () => {
@@ -53,897 +68,225 @@ describe('OCAPIClient', () => {
       expect(clientWithDefaults).toBeInstanceOf(OCAPIClient);
     });
 
-    it('should construct correct base URL', () => {
-      // We can't directly test the private baseUrl, but we can verify it through API calls
-      expect(client).toBeInstanceOf(OCAPIClient);
+    it('should initialize all specialized client modules', () => {
+      expect(client.systemObjects).toBeDefined();
+      expect(client.sitePreferences).toBeDefined();
+      expect(client.catalog).toBeDefined();
     });
   });
 
-  describe('OAuth token management', () => {
-    it('should use existing valid token when available', async () => {
-      const existingToken = 'existing-valid-token';
-      mockTokenManager.getValidToken.mockReturnValue(existingToken);
+  describe('System Objects API delegation', () => {
+    it('should delegate getSystemObjectDefinitions to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'system-objects' };
+      jest.spyOn(client.systemObjects, 'getSystemObjectDefinitions').mockResolvedValue(mockResponse);
 
-      // Mock successful API response
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => ({ data: 'test' }),
-      });
+      const result = await client.getSystemObjectDefinitions();
 
-      await client.get('/test-endpoint');
-
-      expect(mockTokenManager.getValidToken).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-      );
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/test-endpoint'),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': `Bearer ${existingToken}`,
-          }),
-        }),
-      );
+      expect(client.systemObjects.getSystemObjectDefinitions).toHaveBeenCalledWith(undefined);
+      expect(result).toBe(mockResponse);
     });
 
-    it('should obtain new token when no valid token exists', async () => {
-      const newToken = 'new-access-token';
-      const tokenResponse: OAuthTokenResponse = {
-        access_token: newToken,
-        token_type: 'bearer',
-        expires_in: 3600,
+    it('should delegate getSystemObjectDefinition with objectType to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'product-definition' };
+      const objectType = 'Product';
+      jest.spyOn(client.systemObjects, 'getSystemObjectDefinition').mockResolvedValue(mockResponse);
+
+      const result = await client.getSystemObjectDefinition(objectType);
+
+      expect(client.systemObjects.getSystemObjectDefinition).toHaveBeenCalledWith(objectType);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate searchSystemObjectDefinitions to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'search-results' };
+      const searchRequest = { query: { match_all_query: {} } };
+      jest.spyOn(client.systemObjects, 'searchSystemObjectDefinitions').mockResolvedValue(mockResponse);
+
+      const result = await client.searchSystemObjectDefinitions(searchRequest);
+
+      expect(client.systemObjects.searchSystemObjectDefinitions).toHaveBeenCalledWith(searchRequest);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate getSystemObjectAttributeDefinitions to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'attribute-definitions' };
+      const objectType = 'Product';
+      const options = { count: 10 };
+      jest.spyOn(client.systemObjects, 'getSystemObjectAttributeDefinitions').mockResolvedValue(mockResponse);
+
+      const result = await client.getSystemObjectAttributeDefinitions(objectType, options);
+
+      expect(client.systemObjects.getSystemObjectAttributeDefinitions).toHaveBeenCalledWith(objectType, options);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate searchSystemObjectAttributeDefinitions to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'attribute-search-results' };
+      const objectType = 'Product';
+      const searchRequest = { query: { text_query: { fields: ['id'], search_phrase: 'custom' } } };
+      jest.spyOn(client.systemObjects, 'searchSystemObjectAttributeDefinitions').mockResolvedValue(mockResponse);
+
+      const result = await client.searchSystemObjectAttributeDefinitions(objectType, searchRequest);
+
+      expect(client.systemObjects.searchSystemObjectAttributeDefinitions)
+        .toHaveBeenCalledWith(objectType, searchRequest);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate searchSystemObjectAttributeGroups to SystemObjectsClient', async () => {
+      const mockResponse = { data: 'attribute-groups' };
+      const objectType = 'SitePreferences';
+      const searchRequest = { query: { match_all_query: {} } };
+      jest.spyOn(client.systemObjects, 'searchSystemObjectAttributeGroups').mockResolvedValue(mockResponse);
+
+      const result = await client.searchSystemObjectAttributeGroups(objectType, searchRequest);
+
+      expect(client.systemObjects.searchSystemObjectAttributeGroups).toHaveBeenCalledWith(objectType, searchRequest);
+      expect(result).toBe(mockResponse);
+    });
+  });
+
+  describe('Site Preferences API delegation', () => {
+    it('should delegate searchSitePreferences to SitePreferencesClient', async () => {
+      const mockResponse = { data: 'site-preferences' };
+      const groupId = 'SiteGeneral';
+      const instanceType = 'sandbox';
+      const searchRequest = { query: { match_all_query: {} } };
+      const options = { maskPasswords: true };
+      jest.spyOn(client.sitePreferences, 'searchSitePreferences').mockResolvedValue(mockResponse);
+
+      const result = await client.searchSitePreferences(groupId, instanceType, searchRequest, options);
+
+      expect(client.sitePreferences.searchSitePreferences)
+        .toHaveBeenCalledWith(groupId, instanceType, searchRequest, options);
+      expect(result).toBe(mockResponse);
+    });
+  });
+
+  describe('Catalog API delegation', () => {
+    it('should delegate getProducts to CatalogClient', async () => {
+      const mockResponse = { data: 'products' };
+      const params = { ids: ['product1', 'product2'], expand: ['variations'] };
+      jest.spyOn(client.catalog, 'getProducts').mockResolvedValue(mockResponse);
+
+      const result = await client.getProducts(params);
+
+      expect(client.catalog.getProducts).toHaveBeenCalledWith(params);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate getCategories to CatalogClient', async () => {
+      const mockResponse = { data: 'categories' };
+      const params = { ids: ['cat1', 'cat2'], levels: 2 };
+      jest.spyOn(client.catalog, 'getCategories').mockResolvedValue(mockResponse);
+
+      const result = await client.getCategories(params);
+
+      expect(client.catalog.getCategories).toHaveBeenCalledWith(params);
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should delegate searchProducts to CatalogClient', async () => {
+      const mockResponse = { data: 'search-results' };
+      const params = { q: 'shirt', count: 10, sort: 'name-asc' };
+      jest.spyOn(client.catalog, 'searchProducts').mockResolvedValue(mockResponse);
+
+      const result = await client.searchProducts(params);
+
+      expect(client.catalog.searchProducts).toHaveBeenCalledWith(params);
+      expect(result).toBe(mockResponse);
+    });
+  });
+
+  describe('Authentication & Token Management delegation', () => {
+    it('should delegate getTokenExpiration to AuthClient', () => {
+      const mockExpiration = new Date();
+
+      // Mock the authClient's getTokenExpiration method
+      const mockAuthClient = {
+        getTokenExpiration: jest.fn().mockReturnValue(mockExpiration),
       };
 
-      mockTokenManager.getValidToken.mockReturnValue(null);
-
-      // Mock OAuth token request
-      (fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => tokenResponse,
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ data: 'test' }),
-        });
-
-      await client.get('/test-endpoint');
-
-      // Verify OAuth request
-      expect(fetch).toHaveBeenNthCalledWith(1,
-        'https://account.demandware.com/dwsso/oauth2/access_token',
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${Buffer.from(`${mockConfig.clientId}:${mockConfig.clientSecret}`).toString('base64')}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: 'grant_type=client_credentials',
-        },
-      );
-
-      // Verify token was stored
-      expect(mockTokenManager.storeToken).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-        tokenResponse,
-      );
-
-      // Verify API request used new token
-      expect(fetch).toHaveBeenNthCalledWith(2,
-        expect.stringContaining('/test-endpoint'),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': `Bearer ${newToken}`,
-          }),
-        }),
-      );
-    });
-
-    it('should handle OAuth authentication failure', async () => {
-      mockTokenManager.getValidToken.mockReturnValue(null);
-
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        text: async () => 'Invalid client credentials',
-      });
-
-      await expect(client.get('/test-endpoint')).rejects.toThrow(
-        'OAuth authentication failed: 400 Bad Request - Invalid client credentials',
-      );
-    });
-
-    it('should retry with new token on 401 unauthorized', async () => {
-      const oldToken = 'expired-token';
-      const newToken = 'fresh-token';
-      const tokenResponse: OAuthTokenResponse = {
-        access_token: newToken,
-        token_type: 'bearer',
-        expires_in: 3600,
-      };
-
-      mockTokenManager.getValidToken
-        .mockReturnValueOnce(oldToken)  // First call returns expired token
-        .mockReturnValueOnce(null);     // Second call after clearToken returns null
-
-      (fetch as jest.Mock)
-        .mockResolvedValueOnce({         // First API call with old token fails
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-        })
-        .mockResolvedValueOnce({         // OAuth token refresh succeeds
-          ok: true,
-          json: async () => tokenResponse,
-        })
-        .mockResolvedValueOnce({         // Retry API call succeeds
-          ok: true,
-          json: async () => ({ data: 'success' }),
-        });
-
-      const result = await client.get('/test-endpoint');
-
-      expect(mockTokenManager.clearToken).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-      );
-      expect(result).toEqual({ data: 'success' });
-    });
-
-    it('should throw error if retry also fails with 401', async () => {
-      const oldToken = 'expired-token';
-      const newToken = 'new-token';
-
-      mockTokenManager.getValidToken
-        .mockReturnValueOnce(oldToken)  // First call returns expired token
-        .mockReturnValueOnce(null);     // Second call after clearToken returns null
-
-      (fetch as jest.Mock)
-        .mockResolvedValueOnce({         // First call fails with 401
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-        })
-        .mockResolvedValueOnce({         // OAuth token refresh succeeds
-          ok: true,
-          json: async () => ({ access_token: newToken, token_type: 'bearer', expires_in: 3600 }),
-        })
-        .mockResolvedValueOnce({         // Retry also fails with 401
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-          text: async () => 'Still unauthorized',
-        });
-
-      await expect(client.get('/test-endpoint')).rejects.toThrow(
-        'OCAPI request failed: 401 Unauthorized - Still unauthorized',
-      );
-    });
-  });
-
-  describe('HTTP methods', () => {
-    beforeEach(() => {
-      mockTokenManager.getValidToken.mockReturnValue('valid-token');
-    });
-
-    describe('get()', () => {
-      it('should make GET request with correct headers', async () => {
-        const mockResponse = { id: '1', name: 'test' };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.get('/products/test-id');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products/test-id',
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe('post()', () => {
-      it('should make POST request with data', async () => {
-        const postData = { name: 'New Product' };
-        const mockResponse = { id: '123', ...postData };
-
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.post('/products', postData);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products',
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(postData),
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should make POST request without data', async () => {
-        const mockResponse = { success: true };
-
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.post('/actions/refresh');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/actions/refresh',
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe('put()', () => {
-      it('should make PUT request with data', async () => {
-        const putData = { name: 'Updated Product' };
-        const mockResponse = { id: '123', ...putData };
-
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.put('/products/123', putData);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products/123',
-          {
-            method: 'PUT',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(putData),
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe('patch()', () => {
-      it('should make PATCH request with data', async () => {
-        const patchData = { price: 29.99 };
-        const mockResponse = { id: '123', price: 29.99 };
-
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.patch('/products/123', patchData);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products/123',
-          {
-            method: 'PATCH',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(patchData),
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe('delete()', () => {
-      it('should make DELETE request', async () => {
-        const mockResponse = { success: true };
-
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.delete('/products/123');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products/123',
-          {
-            method: 'DELETE',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    it('should handle non-401 HTTP errors', async () => {
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        text: async () => 'Resource not found',
-      });
-
-      await expect(client.get('/products/nonexistent')).rejects.toThrow(
-        'OCAPI request failed: 404 Not Found - Resource not found',
-      );
-    });
-  });
-
-  describe('Product API methods', () => {
-    beforeEach(() => {
-      mockTokenManager.getValidToken.mockReturnValue('valid-token');
-    });
-
-    describe('getProducts()', () => {
-      it('should get products without parameters', async () => {
-        const mockResponse = { data: [{ id: 'prod1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getProducts();
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get products with all parameters', async () => {
-        const mockResponse = { data: [{ id: 'prod1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const params = {
-          ids: ['prod1', 'prod2'],
-          expand: ['prices', 'images'],
-          inventory_ids: ['inv1'],
-          currency: 'USD',
-          locale: 'en_US',
-        };
-
-        const result = await client.getProducts(params);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products?ids=prod1%2Cprod2&expand=prices%2Cimages&inventory_ids=inv1&currency=USD&locale=en_US',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get products with partial parameters', async () => {
-        const mockResponse = { data: [{ id: 'prod1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getProducts({ ids: ['prod1'], currency: 'EUR' });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/products?ids=prod1&currency=EUR',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe('getCategories()', () => {
-      it('should get categories without parameters', async () => {
-        const mockResponse = { data: [{ id: 'cat1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getCategories();
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get categories with parameters', async () => {
-        const mockResponse = { data: [{ id: 'cat1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const params = {
-          ids: ['cat1', 'cat2'],
-          levels: 2,
-          locale: 'en_US',
-        };
-
-        const result = await client.getCategories(params);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories?ids=cat1%2Ccat2&levels=2&locale=en_US',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should handle levels parameter as 0', async () => {
-        const mockResponse = { data: [{ id: 'cat1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.getCategories({ levels: 0 });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/categories?levels=0',
-          expect.any(Object),
-        );
-      });
-    });
-
-    describe('searchProducts()', () => {
-      it('should search products with query', async () => {
-        const mockResponse = { hits: [{ id: 'prod1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.searchProducts({ q: 'shoes' });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/product_search?q=shoes',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should search products with all parameters', async () => {
-        const mockResponse = { hits: [{ id: 'prod1' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const params = {
-          q: 'shoes',
-          refine: ['brand=Nike', 'color=red'],
-          sort: 'price-low-to-high',
-          start: 0,
-          count: 20,
-          expand: ['prices'],
-          currency: 'USD',
-          locale: 'en_US',
-        };
-
-        const result = await client.searchProducts(params);
-
-        const expectedUrl = 'https://test-instance.demandware.net/s/-/dw/data/v21_3/product_search?q=shoes&refine=brand%3DNike&refine=color%3Dred&sort=price-low-to-high&start=0&count=20&expand=prices&currency=USD&locale=en_US';
-        expect(fetch).toHaveBeenCalledWith(expectedUrl, expect.any(Object));
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should handle start and count as 0', async () => {
-        const mockResponse = { hits: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.searchProducts({ start: 0, count: 0 });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/product_search?start=0&count=0',
-          expect.any(Object),
-        );
-      });
-    });
-  });
-
-  describe('System Object API methods', () => {
-    beforeEach(() => {
-      mockTokenManager.getValidToken.mockReturnValue('valid-token');
-    });
-
-    describe('getSystemObjectDefinitions()', () => {
-      it('should get system object definitions without parameters', async () => {
-        const mockResponse = { data: [{ object_type: 'Product' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getSystemObjectDefinitions();
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get system object definitions with parameters', async () => {
-        const mockResponse = { data: [{ object_type: 'Product' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const params = {
-          start: 10,
-          count: 50,
-          select: '(**)',
-        };
-
-        const result = await client.getSystemObjectDefinitions(params);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions?start=10&count=50&select=%28**%29',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should handle start and count as 0', async () => {
-        const mockResponse = { data: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.getSystemObjectDefinitions({ start: 0, count: 0 });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions?start=0&count=0',
-          expect.any(Object),
-        );
-      });
-    });
-
-    describe('getSystemObjectDefinition()', () => {
-      it('should get specific system object definition', async () => {
-        const mockResponse = { object_type: 'Product', attributes: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getSystemObjectDefinition('Product');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should handle URL encoding for object type', async () => {
-        const mockResponse = { object_type: 'Custom Object' };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.getSystemObjectDefinition('Custom Object');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Custom%20Object',
-          expect.any(Object),
-        );
-      });
-
-      it('should throw error for empty object type', async () => {
-        await expect(client.getSystemObjectDefinition('')).rejects.toThrow(
-          'Object type is required and cannot be empty',
-        );
-
-        await expect(client.getSystemObjectDefinition('   ')).rejects.toThrow(
-          'Object type is required and cannot be empty',
-        );
-      });
-    });
-
-    describe('searchSystemObjectDefinitions()', () => {
-      it('should search system object definitions with text query', async () => {
-        const mockResponse = { hits: [{ object_type: 'Product' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const searchRequest = {
-          query: {
-            text_query: {
-              fields: ['object_type', 'display_name'],
-              search_phrase: 'product',
-            },
-          },
-          start: 0,
-          count: 10,
-        };
-
-        const result = await client.searchSystemObjectDefinitions(searchRequest);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definition_search',
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer valid-token',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(searchRequest),
-          },
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should search with complex query and sorts', async () => {
-        const mockResponse = { hits: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const searchRequest = {
-          query: {
-            bool_query: {
-              must: [
-                { term_query: { fields: ['object_type'], operator: 'is', values: ['Product'] } },
-              ],
-            },
-          },
-          sorts: [
-            { field: 'object_type', sort_order: 'asc' as const },
-          ],
-          select: '(**)',
-        };
-
-        await client.searchSystemObjectDefinitions(searchRequest);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definition_search',
-          expect.objectContaining({
-            method: 'POST',
-            body: JSON.stringify(searchRequest),
-          }),
-        );
-      });
-    });
-
-    describe('getSystemObjectAttributeDefinitions()', () => {
-      it('should get attribute definitions for object type', async () => {
-        const mockResponse = { data: [{ attribute_id: 'name' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const result = await client.getSystemObjectAttributeDefinitions('Product');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get attribute definitions with options', async () => {
-        const mockResponse = { data: [{ attribute_id: 'name' }] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        const options = {
-          start: 5,
-          count: 25,
-          select: '(**)',
-        };
-
-        const result = await client.getSystemObjectAttributeDefinitions('Product', options);
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions?start=5&count=25&select=%28**%29',
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should handle URL encoding for object type with spaces', async () => {
-        const mockResponse = { data: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.getSystemObjectAttributeDefinitions('Custom Object Type');
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Custom%20Object%20Type/attribute_definitions',
-          expect.any(Object),
-        );
-      });
-
-      it('should throw error for empty object type', async () => {
-        await expect(client.getSystemObjectAttributeDefinitions('')).rejects.toThrow(
-          'Object type is required and cannot be empty',
-        );
-
-        await expect(client.getSystemObjectAttributeDefinitions('   ')).rejects.toThrow(
-          'Object type is required and cannot be empty',
-        );
-      });
-
-      it('should handle start and count as 0', async () => {
-        const mockResponse = { data: [] };
-        (fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-          json: async () => mockResponse,
-        });
-
-        await client.getSystemObjectAttributeDefinitions('Product', { start: 0, count: 0 });
-
-        expect(fetch).toHaveBeenCalledWith(
-          'https://test-instance.demandware.net/s/-/dw/data/v21_3/system_object_definitions/Product/attribute_definitions?start=0&count=0',
-          expect.any(Object),
-        );
-      });
-    });
-  });
-
-  describe('Token management utility methods', () => {
-    it('should get token expiration', () => {
-      const mockDate = new Date('2023-12-01T12:00:00Z');
-      mockTokenManager.getTokenExpiration.mockReturnValue(mockDate);
+      // Access the private authClient property and mock it
+      (client as any).authClient = mockAuthClient;
 
       const result = client.getTokenExpiration();
 
-      expect(mockTokenManager.getTokenExpiration).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-      );
-      expect(result).toBe(mockDate);
+      expect(mockAuthClient.getTokenExpiration).toHaveBeenCalled();
+      expect(result).toBe(mockExpiration);
     });
 
-    it('should return null when no token expiration', () => {
-      mockTokenManager.getTokenExpiration.mockReturnValue(null);
-
-      const result = client.getTokenExpiration();
-
-      expect(result).toBeNull();
-    });
-
-    it('should refresh token', async () => {
-      const newToken = 'refreshed-token';
-      const tokenResponse: OAuthTokenResponse = {
-        access_token: newToken,
-        token_type: 'bearer',
-        expires_in: 3600,
+    it('should delegate refreshToken to AuthClient', async () => {
+      // Mock the authClient's refreshToken method
+      const mockAuthClient = {
+        refreshToken: jest.fn().mockResolvedValue(undefined),
       };
 
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => tokenResponse,
-      });
+      // Access the private authClient property and mock it
+      (client as any).authClient = mockAuthClient;
 
       await client.refreshToken();
 
-      expect(mockTokenManager.clearToken).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-      );
-      expect(mockTokenManager.storeToken).toHaveBeenCalledWith(
-        mockConfig.hostname,
-        mockConfig.clientId,
-        tokenResponse,
-      );
+      expect(mockAuthClient.refreshToken).toHaveBeenCalled();
     });
   });
 
-  describe('Error handling edge cases', () => {
-    beforeEach(() => {
-      mockTokenManager.getValidToken.mockReturnValue('valid-token');
-    });
-
-    it('should handle network errors', async () => {
-      (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-
-      await expect(client.get('/test')).rejects.toThrow('Network error');
-    });
-
-    it('should handle malformed JSON responses', async () => {
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => {
-          throw new Error('Invalid JSON');
-        },
-      });
-
-      await expect(client.get('/test')).rejects.toThrow('Invalid JSON');
-    });
-
-    it('should handle OAuth errors with malformed response', async () => {
-      mockTokenManager.getValidToken.mockReturnValue(null);
-
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        text: async () => {
-          throw new Error('Failed to read response');
-        },
-      });
-
-      await expect(client.get('/test')).rejects.toThrow('Failed to read response');
-    });
-
-    it('should handle empty response body', async () => {
-      (fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => null,
-      });
-
-      const result = await client.get('/test');
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('Configuration edge cases', () => {
-    it('should handle config with custom site ID', () => {
-      const configWithSite: OCAPIConfig = {
+  describe('Configuration handling', () => {
+    it('should merge config with defaults', () => {
+      const configWithoutVersion = {
         hostname: 'test.demandware.net',
         clientId: 'client-id',
         clientSecret: 'client-secret',
-        siteId: 'RefArch',
+      };
+
+      const clientWithDefaults = new OCAPIClient(configWithoutVersion);
+
+      // Verify that the client was created successfully (which means defaults were applied)
+      expect(clientWithDefaults).toBeInstanceOf(OCAPIClient);
+      expect(clientWithDefaults.systemObjects).toBeDefined();
+      expect(clientWithDefaults.sitePreferences).toBeDefined();
+      expect(clientWithDefaults.catalog).toBeDefined();
+    });
+
+    it('should preserve provided config values', () => {
+      const customConfig = {
+        hostname: 'custom.demandware.net',
+        clientId: 'custom-client-id',
+        clientSecret: 'custom-client-secret',
         version: 'v22_1',
       };
 
-      const clientWithSite = new OCAPIClient(configWithSite);
-      expect(clientWithSite).toBeInstanceOf(OCAPIClient);
+      const customClient = new OCAPIClient(customConfig);
+
+      // Verify that the client was created successfully with custom config
+      expect(customClient).toBeInstanceOf(OCAPIClient);
+      expect(customClient.systemObjects).toBeDefined();
+      expect(customClient.sitePreferences).toBeDefined();
+      expect(customClient.catalog).toBeDefined();
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should propagate errors from specialized clients', async () => {
+      const error = new Error('System objects error');
+      jest.spyOn(client.systemObjects, 'getSystemObjectDefinitions').mockRejectedValue(error);
+
+      await expect(client.getSystemObjectDefinitions()).rejects.toThrow('System objects error');
     });
 
-    it('should handle minimal config', () => {
-      const minimalConfig: OCAPIConfig = {
-        hostname: 'minimal.demandware.net',
-        clientId: 'id',
-        clientSecret: 'secret',
-      };
+    it('should propagate errors from catalog client', async () => {
+      const error = new Error('Catalog error');
+      jest.spyOn(client.catalog, 'getProducts').mockRejectedValue(error);
 
-      const minimalClient = new OCAPIClient(minimalConfig);
-      expect(minimalClient).toBeInstanceOf(OCAPIClient);
+      await expect(client.getProducts()).rejects.toThrow('Catalog error');
+    });
+
+    it('should propagate errors from site preferences client', async () => {
+      const error = new Error('Site preferences error');
+      jest.spyOn(client.sitePreferences, 'searchSitePreferences').mockRejectedValue(error);
+
+      const searchRequest = { query: { match_all_query: {} } };
+      await expect(client.searchSitePreferences('groupId', 'sandbox', searchRequest)).rejects.toThrow('Site preferences error');
     });
   });
 });

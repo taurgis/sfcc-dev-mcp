@@ -1,4 +1,4 @@
-import { TokenManager } from '../src/auth/oauth-token';
+import { TokenManager } from '../src/clients/base/oauth-token.js';
 import { OAuthTokenResponse } from '../src/types/types';
 
 describe('TokenManager', () => {
