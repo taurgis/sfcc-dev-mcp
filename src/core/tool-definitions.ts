@@ -33,7 +33,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         query: {
           type: 'string',
-          description: 'Search query for class names. Only use one word at a time (e.g., "catalog", "order", "customer"). Combining multiple words may not yield expected results.',
+          description: 'Search query for class names. Only use one word at a time (e.g., "catalog", "order", "customer"). Combining multiple words or attempting to look for multiple classes at the same time is not supported.',
         },
       },
       required: ['query'],
@@ -75,7 +75,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         methodName: {
           type: 'string',
-          description: 'Method name to search for',
+          description: 'Method name to search for. Only use one word at a time (e.g., "get", "create", "update"). Combining multiple words or looking for multiple methods at the same time is not supported.',
         },
       },
       required: ['methodName'],
@@ -137,7 +137,7 @@ export const BEST_PRACTICES_TOOLS = [
       properties: {
         query: {
           type: 'string',
-          description: "Search term or concept (e.g., 'validation', 'security', 'performance')",
+          description: "Search term or concept (e.g., 'validation', 'security', 'performance'). Use single words for best results as the API does not support complex queries.",
         },
       },
       required: ['query'],
