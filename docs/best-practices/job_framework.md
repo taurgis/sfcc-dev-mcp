@@ -69,12 +69,12 @@ exports.execute = function (parameters, stepExecution) {
             return new Status(Status.OK);
         } else {
             logger.warn('Job completed with warnings: {0}', result.message);
-            return new Status(Status.OK, 'PARTIAL_SUCCESS', result.message);
+            return new Status(Status.OK, 'OK', result.message);
         }
         
     } catch (e) {
         logger.error('Job failed with error: {0}', e.message);
-        return new Status(Status.ERROR, 'UNEXPECTED_ERROR', e.message);
+        return new Status(Status.ERROR, 'ERROR', e.message);
     }
 };
 
@@ -87,7 +87,7 @@ function performBusinessLogic(parameters, logger) {
 #### 2. Advanced Status Control for Flow Management
 
 ```javascript
-// Custom status codes enable sophisticated workflow control
+// Status codes must be either OK or ERROR only
 exports.execute = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'StatusControlJob');
     
@@ -96,21 +96,21 @@ exports.execute = function (parameters, stepExecution) {
         
         if (!inputFile.exists()) {
             logger.info('Input file not found: {0}', parameters.fileName);
-            // This custom status can trigger specific Business Manager flow rules
-            return new Status(Status.OK, 'FILE_NOT_FOUND', 'Input file was not present');
+            // Use OK status with descriptive message for conditional flow control
+            return new Status(Status.OK, 'OK', 'Input file was not present - skipping processing');
         }
         
         if (inputFile.length() === 0) {
             logger.info('Input file is empty: {0}', parameters.fileName);
-            return new Status(Status.OK, 'EMPTY_FILE', 'No data to process');
+            return new Status(Status.OK, 'OK', 'No data to process - file is empty');
         }
         
         // Process file...
-        return new Status(Status.OK, 'PROCESSED', 'File processed successfully');
+        return new Status(Status.OK, 'OK', 'File processed successfully');
         
     } catch (e) {
         logger.error('Processing failed: {0}', e.message);
-        return new Status(Status.ERROR, 'PROCESSING_ERROR', e.message);
+        return new Status(Status.ERROR, 'ERROR', e.message);
     }
 };
 ```
@@ -163,7 +163,7 @@ exports.execute = function (parameters, stepExecution) {
                 "@supports-site-context": true,
                 "@supports-organization-context": false,
                 "description": "Deactivates all online products in a specified category",
-                "module": "cartridge/scripts/jobs/deactivateProducts.js",
+                "module": "plugin_examplecartridge/cartridge/scripts/jobs/deactivateProducts.js",
                 "function": "execute",
                 "parameters": [
                     {
@@ -176,8 +176,7 @@ exports.execute = function (parameters, stepExecution) {
                 "status-codes": {
                     "status": [
                         { "@code": "OK", "description": "Products deactivated successfully" },
-                        { "@code": "CATEGORY_NOT_FOUND", "description": "Specified category does not exist" },
-                        { "@code": "NO_PRODUCTS", "description": "No products found in category" }
+                        { "@code": "ERROR", "description": "An error occurred during processing" }
                     ]
                 }
             }
@@ -411,7 +410,7 @@ exports.afterStep = function (success, parameters, stepExecution) {
                 "@supports-site-context": true,
                 "@supports-organization-context": false,
                 "description": "Updates product prices from CSV file in chunks",
-                "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
+                "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkPriceUpdate.js",
                 "before-step-function": "beforeStep",
                 "total-count-function": "getTotalCount",
                 "before-chunk-function": "beforeChunk",
@@ -439,8 +438,7 @@ exports.afterStep = function (success, parameters, stepExecution) {
                 "status-codes": {
                     "status": [
                         { "@code": "OK", "description": "Processing completed successfully" },
-                        { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
-                        { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
+                        { "@code": "ERROR", "description": "An error occurred during processing" }
                     ]
                 }
             }
@@ -780,7 +778,7 @@ All steptypes.json files must follow this root structure:
         "@supports-site-context": true,
         "@supports-organization-context": false,
         "description": "Deactivates all online products in a specified category",
-        "module": "cartridge/scripts/jobs/deactivateProducts.js",
+        "module": "plugin_examplecartridge/cartridge/scripts/jobs/deactivateProducts.js",
         "function": "execute",
         "transactional": false,
         "timeout-in-seconds": 900,
@@ -803,9 +801,7 @@ All steptypes.json files must follow this root structure:
         "status-codes": {
           "status": [
             { "@code": "OK", "description": "Products deactivated successfully" },
-            { "@code": "CATEGORY_NOT_FOUND", "description": "Specified category does not exist" },
-            { "@code": "NO_PRODUCTS", "description": "No products found in category" },
-            { "@code": "PARTIAL_SUCCESS", "description": "Some products could not be deactivated" }
+            { "@code": "ERROR", "description": "An error occurred during processing" }
           ]
         }
       }
@@ -849,7 +845,7 @@ All steptypes.json files must follow this root structure:
         "@supports-site-context": true,
         "@supports-organization-context": false,
         "description": "Updates product prices from CSV file in chunks",
-        "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
+        "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkPriceUpdate.js",
         "before-step-function": "beforeStep",
         "total-count-function": "getTotalCount",
         "before-chunk-function": "beforeChunk",
@@ -879,8 +875,7 @@ All steptypes.json files must follow this root structure:
         "status-codes": {
           "status": [
             { "@code": "OK", "description": "Processing completed successfully" },
-            { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
-            { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
+            { "@code": "ERROR", "description": "An error occurred during processing" }
           ]
         }
       }
