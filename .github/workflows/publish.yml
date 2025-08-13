@@ -7,12 +7,16 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -48,14 +52,14 @@ jobs:
           BRANCH_NAME="release/v$VERSION"
           echo "Creating release branch: $BRANCH_NAME"
           git checkout -b $BRANCH_NAME
-          
+
           # Update package version
           npm version $VERSION --no-git-tag-version
-          
+
           # Commit the version update
           git add package.json package-lock.json
           git commit -m "chore: bump version to $VERSION for release"
-          
+
           # Push the release branch
           git push origin $BRANCH_NAME
 
