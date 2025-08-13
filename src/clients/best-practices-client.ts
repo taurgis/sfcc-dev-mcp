@@ -49,6 +49,11 @@ export class SFCCBestPracticesClient {
         description: 'Comprehensive best practices for developing ISML templates within the SFRA framework, including security, performance, and maintainability guidelines',
       },
       {
+        name: 'job_framework',
+        title: 'Job Framework Best Practices',
+        description: 'Comprehensive guide for developing custom jobs in the SFCC Job Framework, covering both task-oriented and chunk-oriented approaches with performance optimization and debugging strategies',
+      },
+      {
         name: 'ocapi_hooks',
         title: 'OCAPI Hooks Best Practices',
         description: 'Best practices for implementing OCAPI hooks in Salesforce B2C Commerce Cloud',
