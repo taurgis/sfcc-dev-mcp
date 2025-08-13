@@ -16,7 +16,6 @@ jest.mock('../src/clients/base/oauth-token.js');
 // Mock the specialized clients
 jest.mock('../src/clients/ocapi/system-objects-client.js');
 jest.mock('../src/clients/ocapi/site-preferences-client.js');
-jest.mock('../src/clients/ocapi/catalog-client.js');
 jest.mock('../src/clients/base/ocapi-auth-client.js');
 
 describe('OCAPIClient', () => {
@@ -54,7 +53,6 @@ describe('OCAPIClient', () => {
       // Note: TokenManager.getInstance is called by the auth client, not directly by OCAPIClient
       expect(client.systemObjects).toBeDefined();
       expect(client.sitePreferences).toBeDefined();
-      expect(client.catalog).toBeDefined();
     });
 
     it('should use default version when not provided', () => {
@@ -71,7 +69,6 @@ describe('OCAPIClient', () => {
     it('should initialize all specialized client modules', () => {
       expect(client.systemObjects).toBeDefined();
       expect(client.sitePreferences).toBeDefined();
-      expect(client.catalog).toBeDefined();
     });
   });
 
@@ -163,41 +160,6 @@ describe('OCAPIClient', () => {
     });
   });
 
-  describe('Catalog API delegation', () => {
-    it('should delegate getProducts to CatalogClient', async () => {
-      const mockResponse = { data: 'products' };
-      const params = { ids: ['product1', 'product2'], expand: ['variations'] };
-      jest.spyOn(client.catalog, 'getProducts').mockResolvedValue(mockResponse);
-
-      const result = await client.getProducts(params);
-
-      expect(client.catalog.getProducts).toHaveBeenCalledWith(params);
-      expect(result).toBe(mockResponse);
-    });
-
-    it('should delegate getCategories to CatalogClient', async () => {
-      const mockResponse = { data: 'categories' };
-      const params = { ids: ['cat1', 'cat2'], levels: 2 };
-      jest.spyOn(client.catalog, 'getCategories').mockResolvedValue(mockResponse);
-
-      const result = await client.getCategories(params);
-
-      expect(client.catalog.getCategories).toHaveBeenCalledWith(params);
-      expect(result).toBe(mockResponse);
-    });
-
-    it('should delegate searchProducts to CatalogClient', async () => {
-      const mockResponse = { data: 'search-results' };
-      const params = { q: 'shirt', count: 10, sort: 'name-asc' };
-      jest.spyOn(client.catalog, 'searchProducts').mockResolvedValue(mockResponse);
-
-      const result = await client.searchProducts(params);
-
-      expect(client.catalog.searchProducts).toHaveBeenCalledWith(params);
-      expect(result).toBe(mockResponse);
-    });
-  });
-
   describe('Authentication & Token Management delegation', () => {
     it('should delegate getTokenExpiration to AuthClient', () => {
       const mockExpiration = new Date();
@@ -245,7 +207,6 @@ describe('OCAPIClient', () => {
       expect(clientWithDefaults).toBeInstanceOf(OCAPIClient);
       expect(clientWithDefaults.systemObjects).toBeDefined();
       expect(clientWithDefaults.sitePreferences).toBeDefined();
-      expect(clientWithDefaults.catalog).toBeDefined();
     });
 
     it('should preserve provided config values', () => {
@@ -262,7 +223,6 @@ describe('OCAPIClient', () => {
       expect(customClient).toBeInstanceOf(OCAPIClient);
       expect(customClient.systemObjects).toBeDefined();
       expect(customClient.sitePreferences).toBeDefined();
-      expect(customClient.catalog).toBeDefined();
     });
   });
 
@@ -272,13 +232,6 @@ describe('OCAPIClient', () => {
       jest.spyOn(client.systemObjects, 'getSystemObjectDefinitions').mockRejectedValue(error);
 
       await expect(client.getSystemObjectDefinitions()).rejects.toThrow('System objects error');
-    });
-
-    it('should propagate errors from catalog client', async () => {
-      const error = new Error('Catalog error');
-      jest.spyOn(client.catalog, 'getProducts').mockRejectedValue(error);
-
-      await expect(client.getProducts()).rejects.toThrow('Catalog error');
     });
 
     it('should propagate errors from site preferences client', async () => {

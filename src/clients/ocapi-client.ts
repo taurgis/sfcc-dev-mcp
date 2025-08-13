@@ -8,26 +8,11 @@
 import { OCAPIConfig } from '../types/types.js';
 import { OCAPISystemObjectsClient } from './ocapi/system-objects-client.js';
 import { OCAPISitePreferencesClient } from './ocapi/site-preferences-client.js';
-import { OCAPICatalogClient } from './ocapi/catalog-client.js';
 import { OCAPIAuthClient } from './base/ocapi-auth-client.js';
 import { Logger } from '../utils/logger.js';
 
 // Create a logger instance for this module
 const logger = new Logger('OCAPIClient');
-
-/**
- * Custom error class for OCAPI-specific errors
- */
-export class OCAPIError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode?: number,
-    public readonly endpoint?: string,
-  ) {
-    super(message);
-    this.name = 'OCAPIError';
-  }
-}
 
 /**
  * Interface for common query parameters used across multiple endpoints
@@ -78,14 +63,12 @@ interface SearchRequest {
  * This class serves as a facade that orchestrates specialized client modules:
  * - SystemObjectsClient: Handles system object definitions and attributes
  * - SitePreferencesClient: Manages site preference operations
- * - CatalogClient: Handles product and category operations
  * - AuthClient: Manages OAuth authentication and token lifecycle
  */
 export class OCAPIClient {
   // Specialized client modules
   public readonly systemObjects: OCAPISystemObjectsClient;
   public readonly sitePreferences: OCAPISitePreferencesClient;
-  public readonly catalog: OCAPICatalogClient;
   private readonly authClient: OCAPIAuthClient;
 
   constructor(config: OCAPIConfig) {
@@ -99,7 +82,6 @@ export class OCAPIClient {
     // Initialize specialized clients
     this.systemObjects = new OCAPISystemObjectsClient(finalConfig);
     this.sitePreferences = new OCAPISitePreferencesClient(finalConfig);
-    this.catalog = new OCAPICatalogClient(finalConfig);
     this.authClient = new OCAPIAuthClient(finalConfig);
 
     logger.debug('OCAPI client initialized with specialized modules');
@@ -177,50 +159,6 @@ export class OCAPIClient {
     },
   ): Promise<any> {
     return this.sitePreferences.searchSitePreferences(groupId, instanceType, searchRequest, options);
-  }
-
-  // =============================================================================
-  // Catalog API - Delegated to CatalogClient
-  // =============================================================================
-
-  /**
-   * Get products from the catalog
-   */
-  async getProducts(params?: {
-    ids?: string[];
-    expand?: string[];
-    inventory_ids?: string[];
-    currency?: string;
-    locale?: string;
-  }): Promise<any> {
-    return this.catalog.getProducts(params);
-  }
-
-  /**
-   * Get categories from the catalog
-   */
-  async getCategories(params?: {
-    ids?: string[];
-    levels?: number;
-    locale?: string;
-  }): Promise<any> {
-    return this.catalog.getCategories(params);
-  }
-
-  /**
-   * Search products
-   */
-  async searchProducts(params: {
-    q?: string;
-    refine?: string[];
-    sort?: string;
-    start?: number;
-    count?: number;
-    expand?: string[];
-    currency?: string;
-    locale?: string;
-  }): Promise<any> {
-    return this.catalog.searchProducts(params);
   }
 
   // =============================================================================

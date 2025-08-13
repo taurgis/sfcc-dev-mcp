@@ -58,7 +58,6 @@ sfcc-dev-mcp/
 │   │   │   ├── ocapi-auth-client.ts # OCAPI OAuth authentication client
 │   │   │   └── oauth-token.ts    # OAuth token management for OCAPI
 │   │   ├── ocapi/                # Specialized OCAPI clients
-│   │   │   ├── catalog-client.ts # OCAPI catalog operations
 │   │   │   ├── site-preferences-client.ts # Site preferences management
 │   │   │   └── system-objects-client.ts # System object definitions
 │   │   ├── log-client.ts         # SFCC log analysis client
@@ -113,7 +112,6 @@ sfcc-dev-mcp/
 - **TokenManager** (`oauth-token.ts`): Singleton OAuth token manager for SFCC OCAPI authentication with automatic expiration handling
 
 ##### **Specialized OCAPI Clients** (`clients/ocapi/`)
-- **OCAPICatalogClient** (`catalog-client.ts`): Handles catalog operations, product searches, and category management
 - **OCAPISitePreferencesClient** (`site-preferences-client.ts`): Manages site preference searches and configuration discovery
 - **OCAPISystemObjectsClient** (`system-objects-client.ts`): Provides system object definitions, attribute schemas, and custom object exploration
 
