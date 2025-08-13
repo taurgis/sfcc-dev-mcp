@@ -163,8 +163,8 @@ export class SFCCDevServer {
     let result: any;
 
     switch (toolName) {
-      case 'get_latest_errors':
-      case 'get_latest_warnings':
+      case 'get_latest_error':
+      case 'get_latest_warn':
       case 'get_latest_info':
       case 'get_latest_debug': {
         const level = toolName.replace('get_latest_', '') === 'warnings' ? 'warn' : toolName.replace('get_latest_', '');
@@ -397,7 +397,7 @@ export class SFCCDevServer {
         let result: any;
 
         // Route to appropriate handler based on tool category
-        if (['get_latest_errors', 'get_latest_warnings', 'get_latest_info', 'get_latest_debug',
+        if (['get_latest_error', 'get_latest_warn', 'get_latest_info', 'get_latest_debug',
           'summarize_logs', 'search_logs', 'list_log_files'].includes(name)) {
           result = await this.handleLogTool(name, args, startTime);
         } else if (['get_sfcc_class_info', 'search_sfcc_classes', 'get_sfcc_class_methods',

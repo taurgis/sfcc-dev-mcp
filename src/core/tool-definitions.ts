@@ -162,7 +162,7 @@ export const BEST_PRACTICES_TOOLS = [
 
 export const LOG_TOOLS = [
   {
-    name: 'get_latest_errors',
+    name: 'get_latest_error',
     description: 'Get the latest error messages from SFCC logs. Use this when debugging failed operations, investigating crashes, exceptions, or when code is not working as expected. Essential for troubleshooting critical issues, API failures, database connection problems, or when users report bugs. Errors indicate something went wrong and needs immediate attention.',
     inputSchema: {
       type: 'object',
@@ -180,7 +180,7 @@ export const LOG_TOOLS = [
     },
   },
   {
-    name: 'get_latest_warnings',
+    name: 'get_latest_warn',
     description: 'Get the latest warning messages from SFCC logs. Use this to identify potential issues, deprecated features being used, performance concerns, or configurations that might cause problems later. Warnings help prevent future errors and optimize code quality. Check warnings when code works but performance is slow or when preparing for production deployment.',
     inputSchema: {
       type: 'object',
