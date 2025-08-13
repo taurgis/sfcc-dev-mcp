@@ -69,12 +69,12 @@ exports.execute = function (parameters, stepExecution) {
             return new Status(Status.OK);
         } else {
             logger.warn('Job completed with warnings: {0}', result.message);
-            return new Status(Status.OK, 'OK', result.message);
+            return new Status(Status.OK, 'PARTIAL_SUCCESS', result.message);
         }
         
     } catch (e) {
         logger.error('Job failed with error: {0}', e.message);
-        return new Status(Status.ERROR, 'ERROR', e.message);
+        return new Status(Status.ERROR, 'UNEXPECTED_ERROR', e.message);
     }
 };
 
@@ -87,7 +87,7 @@ function performBusinessLogic(parameters, logger) {
 #### 2. Advanced Status Control for Flow Management
 
 ```javascript
-// Status codes must be either OK or ERROR only
+// Custom status codes enable sophisticated workflow control
 exports.execute = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'StatusControlJob');
     
@@ -96,21 +96,21 @@ exports.execute = function (parameters, stepExecution) {
         
         if (!inputFile.exists()) {
             logger.info('Input file not found: {0}', parameters.fileName);
-            // Use OK status with descriptive message for conditional flow control
-            return new Status(Status.OK, 'OK', 'Input file was not present - skipping processing');
+            // This custom status can trigger specific Business Manager flow rules
+            return new Status(Status.OK, 'FILE_NOT_FOUND', 'Input file was not present');
         }
         
         if (inputFile.length() === 0) {
             logger.info('Input file is empty: {0}', parameters.fileName);
-            return new Status(Status.OK, 'OK', 'No data to process - file is empty');
+            return new Status(Status.OK, 'EMPTY_FILE', 'No data to process');
         }
         
         // Process file...
-        return new Status(Status.OK, 'OK', 'File processed successfully');
+        return new Status(Status.OK, 'PROCESSED', 'File processed successfully');
         
     } catch (e) {
         logger.error('Processing failed: {0}', e.message);
-        return new Status(Status.ERROR, 'ERROR', e.message);
+        return new Status(Status.ERROR, 'PROCESSING_ERROR', e.message);
     }
 };
 ```
@@ -163,7 +163,7 @@ exports.execute = function (parameters, stepExecution) {
                 "@supports-site-context": true,
                 "@supports-organization-context": false,
                 "description": "Deactivates all online products in a specified category",
-                "module": "plugin_examplecartridge/cartridge/scripts/jobs/deactivateProducts.js",
+                "module": "cartridge/scripts/jobs/deactivateProducts.js",
                 "function": "execute",
                 "parameters": [
                     {
@@ -176,7 +176,8 @@ exports.execute = function (parameters, stepExecution) {
                 "status-codes": {
                     "status": [
                         { "@code": "OK", "description": "Products deactivated successfully" },
-                        { "@code": "ERROR", "description": "Processing failed" }
+                        { "@code": "CATEGORY_NOT_FOUND", "description": "Specified category does not exist" },
+                        { "@code": "NO_PRODUCTS", "description": "No products found in category" }
                     ]
                 }
             }
@@ -407,11 +408,10 @@ exports.afterStep = function (success, parameters, stepExecution) {
         "chunk-script-module-step": [
             {
                 "@type-id": "custom.BulkPriceUpdate",
-                "@supports-parallel-execution": true,
                 "@supports-site-context": true,
                 "@supports-organization-context": false,
                 "description": "Updates product prices from CSV file in chunks",
-                "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkPriceUpdate.js",
+                "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
                 "before-step-function": "beforeStep",
                 "total-count-function": "getTotalCount",
                 "before-chunk-function": "beforeChunk",
@@ -439,7 +439,8 @@ exports.afterStep = function (success, parameters, stepExecution) {
                 "status-codes": {
                     "status": [
                         { "@code": "OK", "description": "Processing completed successfully" },
-                        { "@code": "ERROR", "description": "Processing failed" }
+                        { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
+                        { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
                     ]
                 }
             }
@@ -779,7 +780,7 @@ All steptypes.json files must follow this root structure:
         "@supports-site-context": true,
         "@supports-organization-context": false,
         "description": "Deactivates all online products in a specified category",
-        "module": "plugin_examplecartridge/cartridge/scripts/jobs/deactivateProducts.js",
+        "module": "cartridge/scripts/jobs/deactivateProducts.js",
         "function": "execute",
         "transactional": false,
         "timeout-in-seconds": 900,
@@ -802,7 +803,9 @@ All steptypes.json files must follow this root structure:
         "status-codes": {
           "status": [
             { "@code": "OK", "description": "Products deactivated successfully" },
-            { "@code": "ERROR", "description": "Processing failed" }
+            { "@code": "CATEGORY_NOT_FOUND", "description": "Specified category does not exist" },
+            { "@code": "NO_PRODUCTS", "description": "No products found in category" },
+            { "@code": "PARTIAL_SUCCESS", "description": "Some products could not be deactivated" }
           ]
         }
       }
@@ -846,7 +849,7 @@ All steptypes.json files must follow this root structure:
         "@supports-site-context": true,
         "@supports-organization-context": false,
         "description": "Updates product prices from CSV file in chunks",
-        "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkPriceUpdate.js",
+        "module": "cartridge/scripts/jobs/bulkPriceUpdate.js",
         "before-step-function": "beforeStep",
         "total-count-function": "getTotalCount",
         "before-chunk-function": "beforeChunk",
@@ -876,7 +879,8 @@ All steptypes.json files must follow this root structure:
         "status-codes": {
           "status": [
             { "@code": "OK", "description": "Processing completed successfully" },
-            { "@code": "ERROR", "description": "Processing failed" }
+            { "@code": "FILE_NOT_FOUND", "description": "Input file does not exist" },
+            { "@code": "PROCESSING_ERROR", "description": "Error during chunk processing" }
           ]
         }
       }
@@ -920,13 +924,14 @@ Parameters allow Business Manager users to configure job execution. Each paramet
 
 ### Status Code Configuration
 
-**IMPORTANT**: SFCC only supports two status codes for job steps: **OK** and **ERROR**. Custom status codes are not supported and will cause deployment failures.
+Custom status codes enable sophisticated flow control in Business Manager:
 
 ```json
 {
   "status-codes": {
     "status": [
       { "@code": "OK", "description": "Standard success" },
+      { "@code": "CUSTOM_STATUS", "description": "Custom workflow trigger" },
       { "@code": "ERROR", "description": "Processing failed" }
     ]
   }
@@ -934,8 +939,183 @@ Parameters allow Business Manager users to configure job execution. Each paramet
 ```
 
 **Flow Control Usage:**
-- Use status messages in the third parameter of Status constructor for conditional logic
-- Rely on the OK/ERROR status codes and detailed messages for Business Manager flow control
-- Implement conditional processing using status messages rather than custom status codes
+- Use custom status codes to branch job flows
+- Configure different follow-up steps based on status
+- Enable conditional processing in complex workflows
 
-**Note**: While you cannot define custom status codes, you can use descriptive messages with the OK or ERROR status to provide context for Business Manager flow configuration.
+### Pipeline Step Configuration
+
+For legacy pipeline-based steps (not recommended for new development):
+
+```json
+{
+  "step-types": {
+    "pipeline-step": [
+      {
+        "@type-id": "custom.LegacyPipelineStep",
+        "@supports-site-context": true,
+        "@supports-organization-context": false,
+        "description": "Legacy pipeline step",
+        "pipeline": "cartridge/pipelines/jobs/LegacyPipeline.xml",
+        "start-node": "Start"
+      }
+    ]
+  }
+}
+```
+
+**Note**: Pipeline steps are legacy - use script-module-step or chunk-script-module-step for new development.
+
+### Resource Management
+
+#### 1. Proper Resource Locking
+
+Configure resource locks in Business Manager to prevent conflicts:
+- Lock catalogs when modifying products
+- Lock inventory lists during inventory updates
+- Lock price books during price modifications
+
+#### 2. Optimal Scheduling Strategies
+
+```javascript
+// Stagger job start times to distribute load
+// Good: 01:17, 02:23, 03:08
+// Bad:  01:00, 02:00, 03:00 (creates load spikes)
+
+// Keep job load factor below 0.20
+// Monitor total job execution time per day
+```
+
+#### 3. Environment-Specific Considerations
+
+```javascript
+exports.beforeStep = function (parameters, stepExecution) {
+    var logger = Logger.getLogger('jobs', 'ReportingJob');
+    var system = require('dw/system/System');
+    
+    if (system.getInstanceType() === system.DEVELOPMENT_SYSTEM) {
+        logger.debug('Running in development mode');
+        // Enable verbose logging for development
+    } else {
+        logger.info('Running in production mode');
+        // Minimal logging for performance
+    }
+};
+```
+
+## Advanced Patterns and Integration
+
+### External Service Integration
+
+```javascript
+var ServiceRegistry = require('dw/svc/ServiceRegistry');
+
+exports.process = function (item, parameters, stepExecution) {
+    var logger = Logger.getLogger('jobs', 'ReportingJob');
+    
+    try {
+        var service = ServiceRegistry.get('MyExternalService');
+        var result = service.call({
+            productID: item.productID,
+            action: 'update'
+        });
+        
+        if (result.isOk()) {
+            return {
+                productID: item.productID,
+                status: 'SUCCESS',
+                externalID: result.object.id
+            };
+        } else {
+            logger.warn('Service call failed for {0}: {1}', 
+                       item.productID, result.getErrorMessage());
+            return {
+                productID: item.productID,
+                status: 'ERROR',
+                message: result.getErrorMessage()
+            };
+        }
+    } catch (e) {
+        logger.error('Service error for {0}: {1}', item.productID, e.message);
+        return {
+            productID: item.productID,
+            status: 'ERROR',
+            message: e.message
+        };
+    }
+};
+```
+
+### Idempotent Job Design
+
+```javascript
+// Design jobs to be safely re-runnable
+exports.beforeStep = function (parameters, stepExecution) {
+    var logger = Logger.getLogger('jobs', 'ReportingJob');
+    
+    // Check for previous successful run
+    var statusFile = new File(File.IMPEX + 'status/' + parameters.jobRunID + '.complete');
+    if (statusFile.exists()) {
+        logger.info('Job already completed successfully. Skipping.');
+        return new Status(Status.OK, 'ALREADY_COMPLETED');
+    }
+    
+    // Create processing flag
+    var processingFile = new File(File.IMPEX + 'status/' + parameters.jobRunID + '.processing');
+    var writer = new FileWriter(processingFile);
+    writer.writeLine(new Date().toISOString());
+    writer.close();
+};
+
+exports.afterStep = function (success, parameters, stepExecution) {
+    if (success) {
+        // Mark job as completed
+        var statusFile = new File(File.IMPEX + 'status/' + parameters.jobRunID + '.complete');
+        var writer = new FileWriter(statusFile);
+        writer.writeLine(new Date().toISOString());
+        writer.close();
+        
+        // Clean up processing flag
+        var processingFile = new File(File.IMPEX + 'status/' + parameters.jobRunID + '.processing');
+        processingFile.remove();
+    }
+};
+```
+
+## Quick Reference
+
+### Choosing the Right Job Model
+
+**Use Task-Oriented When:**
+- Processing single files or making single API calls
+- Quick database updates affecting known small datasets
+- Simple configuration or setup tasks
+- Progress tracking is not important
+
+**Use Chunk-Oriented When:**
+- Processing large datasets (>1000 items)
+- Iterating over products, orders, customers, or file rows
+- Progress monitoring is required
+- Failure resilience is critical
+- Transaction control is important
+
+### Essential Performance Guidelines
+
+1. **Always use streaming APIs** for file processing
+2. **Close all SeekableIterators** to prevent memory leaks
+3. **Keep chunk sizes between 100-500** for most operations
+4. **Commit transactions per chunk** for resilience
+5. **Avoid accumulating objects** in global scope
+6. **Log appropriately** - info for milestones, debug for development only
+7. **Validate inputs** and handle errors gracefully
+8. **Design for idempotency** to enable safe re-runs
+
+### Common Troubleshooting Steps
+
+1. **OutOfMemoryError**: Check streaming APIs, iterator closure, chunk size
+2. **ScriptingTimeoutError**: Consider chunk-oriented model, review algorithm efficiency
+3. **Transaction timeouts**: Reduce chunk size, commit per chunk
+4. **Job hangs**: Check resource locks, review for infinite loops
+5. **Poor performance**: Use Code Profiler, review API usage patterns
+
+Remember: **The Job Framework is critical infrastructure**. Always prioritize stability, performance, and maintainability over quick implementation.
