@@ -474,6 +474,138 @@ exports.getLoyaltyInfo.public = true;
 }
 ```
 
+## 2.1 Working with Path Parameters
+
+When your OpenAPI schema defines parameters with `in: path`, you must use the `getSCAPIPathParameters()` method to access them in your script implementation.
+
+### Path Parameter Example
+
+**schema.yaml with path parameter:**
+```yaml
+openapi: 3.0.0
+info:
+  title: Product Reviews API
+  version: "1.0.0"
+paths:
+  /products/{productId}/reviews:
+    get:
+      summary: Get reviews for a specific product
+      operationId: getProductReviews
+      parameters:
+        - name: productId
+          in: path  # This is a path parameter
+          required: true
+          schema:
+            type: string
+        - name: siteId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+components:
+  schemas:
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+```
+
+**script.js accessing path parameter:**
+```javascript
+'use strict';
+
+var RESTResponseMgr = require('dw/system/RESTResponseMgr');
+var ProductMgr = require('dw/catalog/ProductMgr');
+
+/**
+ * Implements the getProductReviews operationId.
+ */
+exports.getProductReviews = function () {
+    // Access path parameters using getSCAPIPathParameters()
+    var productId = request.getSCAPIPathParameters().get('productId');
+    
+    // Access query parameters using getHttpParameterMap()
+    var siteId = request.getHttpParameterMap().get('siteId').getStringValue();
+    
+    // Validate required path parameter
+    if (!productId) {
+        RESTResponseMgr.createError(400, "missing-product-id", 
+            "Missing Product ID", "Product ID is required in the path").render();
+        return;
+    }
+    
+    var product = ProductMgr.getProduct(productId);
+    if (!product) {
+        RESTResponseMgr.createError(404, "product-not-found", 
+            "Product Not Found", "Product with ID " + productId + " was not found").render();
+        return;
+    }
+    
+    // Business logic to fetch reviews
+    var reviews = [
+        {
+            id: "review-1",
+            rating: 5,
+            comment: "Excellent product!"
+        },
+        {
+            id: "review-2", 
+            rating: 4,
+            comment: "Good quality, fast shipping"
+        }
+    ];
+    
+    RESTResponseMgr.createSuccess(reviews).render();
+};
+
+exports.getProductReviews.public = true;
+```
+
+### Key Points for Path Parameters
+
+1. **Path Parameter Access**: Always use `request.getSCAPIPathParameters().get('parameterName')` for parameters defined with `in: path` in your OpenAPI schema.
+
+2. **Query Parameter Access**: Continue using `request.getHttpParameterMap().get('parameterName')` for parameters defined with `in: query`.
+
+3. **Parameter Validation**: Path parameters are automatically validated by SCAPI based on your schema, but you should still add business logic validation in your script.
+
+4. **URL Structure**: Path parameters become part of the URL structure. For example, `/products/{productId}/reviews` with `productId: "ABC123"` becomes `/products/ABC123/reviews`.
+
+5. **Multiple Path Parameters**: You can have multiple path parameters in a single endpoint:
+   ```yaml
+   paths:
+     /customers/{customerId}/orders/{orderId}:
+       get:
+         parameters:
+           - name: customerId
+             in: path
+             required: true
+           - name: orderId
+             in: path
+             required: true
+   ```
+
+   Access them individually:
+   ```javascript
+   var customerId = request.getSCAPIPathParameters().get('customerId');
+   var orderId = request.getSCAPIPathParameters().get('orderId');
+   ```
+
+
 ## 3. Core Best Practices
 
 ### Design & Architecture

@@ -33,6 +33,20 @@ When providing assistance:
 5. **Reference official documentation** and best practices
 6. **Cartridge Creation**: When asked to create a cartridge, follow the instructions in the MCP (especially creating the structure using sgmf-scripts, don't try to do this yourself)
 
+### 🔧 Code Quality & Linting
+
+**ESLint Integration**: Before manually fixing linting errors:
+1. **First attempt automatic fixes**: Run `npm run lint:fix` or `eslint --fix` if available
+2. **Check results**: Use `get_errors` tool to verify what remains after auto-fix
+3. **Manual fixes only**: Apply manual corrections only for issues that auto-fix couldn't resolve
+4. **Validate changes**: Always run error checking after making manual corrections
+
+This approach ensures:
+- ✅ Consistent formatting and style enforcement
+- ✅ Automatic resolution of common linting issues
+- ✅ Reduced manual intervention for routine fixes
+- ✅ Focus on logic errors that require human judgment
+
 ---
 
 This project uses the **SFCC Development MCP Server** to provide accurate, up-to-date information about Salesforce B2C Commerce Cloud (SFCC) development. When working on SFCC-related tasks, **always use the available MCP tools** instead of relying on potentially outdated or inaccurate information from your training data.
