@@ -46,9 +46,6 @@
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.1.0",
-    "axios": "^1.11.0",
-    "cheerio": "^1.1.2",
-    "commander": "^12.1.0",
     "webdav": "^5.7.1"
   },
   "devDependencies": {

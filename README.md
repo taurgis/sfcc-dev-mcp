@@ -772,9 +772,14 @@ npm test
 
 ### Documentation Generation
 
-The SFCC documentation is automatically converted from the official SFCC documentation using the included scraping script:
+The SFCC documentation is automatically converted from the official SFCC documentation using the included scraping script. 
+
+**Note**: The documentation conversion script requires additional dependencies that are not included in the main package to keep the MCP server lightweight:
 
 ```bash
+# Install dependencies needed for documentation conversion
+npm install axios cheerio
+
 # Convert SFCC documentation (with rate limiting)
 node scripts/convert-docs.js
 
@@ -784,6 +789,8 @@ node scripts/convert-docs.js --test
 # Conservative rate limiting
 node scripts/convert-docs.js --slow
 ```
+
+The `axios` and `cheerio` dependencies are only needed for regenerating documentation from the SFCC documentation website and are not required for normal MCP server operation.
 
 ## Contributing
 
@@ -800,4 +807,3 @@ Whether you're fixing bugs, adding features, improving documentation, or enhanci
 ## License
 
 This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
-
