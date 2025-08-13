@@ -70,9 +70,9 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 ## Features
 
 ### SFCC Best Practices Guides
-- **Get Available Guides**: List all available SFCC best practice guides covering OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
-- **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas
-- **Search Best Practices**: Search across all best practice guides for specific terms, concepts, or patterns
+- **Get Available Guides**: List all available SFCC best practice guides covering cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
+- **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas including the new ISML Templates guide with security, performance, and maintainability guidelines
+- **Search Best Practices**: Search across all best practice guides for specific terms, concepts, or patterns including ISML-specific topics like encoding, XSS prevention, and template architecture
 - **Get Hook Reference**: Access detailed hook reference tables for OCAPI and SCAPI hooks with endpoints and extension points
 
 ### SFCC Documentation Querying

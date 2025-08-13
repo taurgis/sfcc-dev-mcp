@@ -116,14 +116,14 @@ export const BEST_PRACTICES_TOOLS = [
   },
   {
     name: 'get_best_practice_guide',
-    description: 'Get a complete best practice and how-to guide with all sections and content. Use this when implementing specific SFCC features like cartridges, OCAPI/SCAPI hooks, SFRA controllers, or custom endpoints. Always consult the relevant guide before writing code to ensure you follow SFCC best practices, security guidelines, and proper architecture patterns.',
+    description: 'Get a complete best practice and how-to guide with all sections and content. Use this when implementing specific SFCC features like cartridges, ISML templates, OCAPI/SCAPI hooks, SFRA controllers, or custom endpoints. Always consult the relevant guide before writing code to ensure you follow SFCC best practices, security guidelines, and proper architecture patterns.',
     inputSchema: {
       type: 'object',
       properties: {
         guideName: {
           type: 'string',
-          enum: ['cartridge_creation', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint', 'performance', 'security'],
-          description: 'The guide name (e.g., \'cartridge_creation\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
+          enum: ['cartridge_creation', 'isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'scapi_custom_endpoint', 'performance', 'security'],
+          description: 'The guide name (e.g., \'cartridge_creation\', \'isml_templates\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
         },
       },
       required: ['guideName'],

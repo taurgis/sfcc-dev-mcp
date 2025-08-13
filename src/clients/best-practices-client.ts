@@ -2,7 +2,7 @@
  * SFCC Best Practices Client
  *
  * Provides access to SFCC development best practices documentation including
- * cartridge creation, OCAPI hooks, SCAPI hooks, SCAPI custom endpoints, and SFRA controllers.
+ * cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SCAPI custom endpoints, and SFRA controllers.
  */
 
 import * as fs from 'fs/promises';
@@ -42,6 +42,11 @@ export class SFCCBestPracticesClient {
         name: 'cartridge_creation',
         title: 'Cartridge Creation Best Practices',
         description: 'Instructions and best practices for creating, configuring, and deploying custom SFRA cartridges',
+      },
+      {
+        name: 'isml_templates',
+        title: 'ISML Templates Best Practices',
+        description: 'Comprehensive best practices for developing ISML templates within the SFRA framework, including security, performance, and maintainability guidelines',
       },
       {
         name: 'ocapi_hooks',
