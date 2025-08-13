@@ -1,0 +1,129 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior in the SFCC Development MCP Server
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us investigate and fix the issue.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight Checklist
+      description: Please confirm you have completed these steps before submitting the bug report.
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported already
+          required: true
+        - label: I have read the documentation and troubleshooting guide
+          required: true
+        - label: I am using a supported Node.js version (18+)
+          required: true
+
+  - type: dropdown
+    id: operating-mode
+    attributes:
+      label: Operating Mode
+      description: Which mode were you using when the bug occurred?
+      options:
+        - Documentation-only mode
+        - Full mode (with SFCC credentials)
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Start the MCP server with...
+        2. Call the tool...
+        3. Observe the error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened, including any error messages.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      description: Information about your environment
+      value: |
+        - OS: [e.g., macOS 14.1, Windows 11, Ubuntu 22.04]
+        - Node.js version: [run `node --version`]
+        - NPM/Yarn version: [run `npm --version` or `yarn --version`]
+        - SFCC Dev MCP version: [check package.json version]
+        - MCP Client: [e.g., Claude Desktop, Custom implementation]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Any relevant log output or error messages
+      render: shell
+      placeholder: Paste any relevant logs here (please remove any sensitive information like credentials)
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration (Sanitized)
+      description: Your configuration (with sensitive information removed)
+      render: json
+      placeholder: |
+        {
+          "hostname": "your-instance.demandware.net",
+          "clientId": "[REDACTED]",
+          "version": "v21_3"
+        }
+
+  - type: dropdown
+    id: affected-tools
+    attributes:
+      label: Affected Tools
+      description: Which MCP tools are affected by this bug?
+      multiple: true
+      options:
+        - SFCC Class Documentation Tools
+        - Best Practices Guide Tools
+        - Log Analysis Tools
+        - System Object Tools
+        - Authentication/OAuth
+        - Configuration Loading
+        - All Tools
+        - Not sure
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information that might be helpful.

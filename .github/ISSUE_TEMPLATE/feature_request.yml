@@ -1,0 +1,151 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for the SFCC Development MCP Server
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide detailed information to help us understand and evaluate your request.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps before submitting the feature request.
+      options:
+        - label: I have searched existing issues and discussions to ensure this feature hasn't been requested already
+          required: true
+        - label: I have reviewed the roadmap and documentation to confirm this feature doesn't already exist
+          required: true
+        - label: This feature aligns with the project's goals of improving SFCC development workflows
+          required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: Feature Category
+      description: Which category does this feature request fall into?
+      options:
+        - New MCP Tool
+        - SFCC API Integration Enhancement
+        - Documentation/Best Practices
+        - Authentication/Security
+        - Performance/Caching
+        - Configuration/Setup
+        - Developer Experience
+        - Testing/Quality Assurance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What pain point are you experiencing?
+      placeholder: Describe the current limitation or challenge you're facing in SFCC development...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution to this problem.
+      placeholder: Explain how you envision this feature working...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Provide specific examples of how this feature would be used.
+      placeholder: |
+        1. As a developer, I want to... so that...
+        2. When working on cartridge development, I need to...
+        3. During debugging sessions, it would help if...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target-mode
+    attributes:
+      label: Target Operating Mode
+      description: Which operating mode should this feature support?
+      multiple: true
+      options:
+        - Documentation-only mode
+        - Full mode (with SFCC credentials)
+        - Both modes
+        - New mode (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How would you rate the priority of this feature?
+      options:
+        - Critical - Blocking my work
+        - High - Would significantly improve my workflow
+        - Medium - Nice to have improvement
+        - Low - Minor enhancement
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative approaches or workarounds?
+      placeholder: Describe any workarounds you're currently using or other solutions you've considered...
+
+  - type: textarea
+    id: implementation-ideas
+    attributes:
+      label: Implementation Ideas (Optional)
+      description: If you have ideas about how this could be implemented, please share them.
+      placeholder: |
+        - Could be implemented as a new tool in the clients/ directory
+        - Might require changes to the authentication flow
+        - Would need new SFCC API endpoints...
+
+  - type: dropdown
+    id: sfcc-apis
+    attributes:
+      label: SFCC APIs Involved
+      description: Which SFCC APIs would this feature likely interact with?
+      multiple: true
+      options:
+        - OCAPI (Open Commerce API)
+        - SCAPI (Shopper API)
+        - WebDAV
+        - SFCC Logs
+        - System Object Definitions
+        - Site Preferences
+        - Custom Objects
+        - Not sure
+        - Not applicable
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, mockups, examples, or references that would help understand this feature request.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Intent
+      description: Are you interested in contributing to this feature?
+      options:
+        - label: I'm willing to help implement this feature
+          required: false
+        - label: I can help with testing and validation
+          required: false
+        - label: I can provide domain expertise or consultation
+          required: false

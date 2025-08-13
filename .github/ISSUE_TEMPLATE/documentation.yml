@@ -1,0 +1,117 @@
+name: 📚 Documentation Issue
+description: Report issues with documentation or suggest documentation improvements
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please provide details about the documentation issue or improvement.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is this about?
+      options:
+        - README.md
+        - API Documentation (docs/ folder)
+        - Best Practices Guides
+        - Code Comments/JSDoc
+        - Setup/Installation Instructions
+        - Configuration Guide
+        - Troubleshooting Guide
+        - Contributing Guidelines
+        - GitHub Templates
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect/outdated information
+        - Unclear or confusing content
+        - Broken links or references
+        - Formatting issues
+        - Grammar/spelling errors
+        - Missing examples
+        - Inconsistent information
+        - Accessibility issues
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Where is the documentation issue located?
+      placeholder: |
+        - File path: docs/best-practices/cartridge_creation.md
+        - Section: "Setting up Authentication"
+        - Line number: 45
+        - URL: (if applicable)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: Quote or describe the current problematic content
+      render: markdown
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Clearly describe what's wrong or what's missing
+      placeholder: Explain what makes the current documentation problematic or what information is missing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should this be fixed or what should be added?
+      placeholder: Provide your suggestion for improving the documentation...
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-impact
+    attributes:
+      label: User Impact
+      description: How does this documentation issue affect users?
+      placeholder: |
+        - Makes it difficult to get started
+        - Causes confusion during setup
+        - Leads to incorrect implementation
+        - Wastes developer time...
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is primarily affected by this documentation issue?
+      multiple: true
+      options:
+        - New users/first-time setup
+        - SFCC developers
+        - MCP server developers
+        - Contributors
+        - All users
+        - Advanced users only
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any additional context, examples, or references that would help improve the documentation

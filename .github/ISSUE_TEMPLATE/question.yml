@@ -1,0 +1,102 @@
+name: ❓ Question/Help
+description: Ask a question or get help with using the SFCC Development MCP Server
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help or have a question? We're here to help! Please provide as much detail as possible so we can assist you effectively.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps before asking your question.
+      options:
+        - label: I have searched existing issues and discussions for similar questions
+          required: true
+        - label: I have read the README.md and relevant documentation
+          required: true
+        - label: I have checked the troubleshooting section (if applicable)
+          required: true
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What category does your question fall into?
+      options:
+        - Installation and Setup
+        - Configuration and Authentication
+        - Using MCP Tools
+        - SFCC Integration
+        - Troubleshooting
+        - Best Practices
+        - Performance
+        - Security
+        - Development/Contributing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Please ask your question clearly and provide context...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Background
+      description: Provide relevant context about what you're trying to accomplish
+      placeholder: |
+        - What are you trying to achieve?
+        - What's your current setup?
+        - What have you tried so far?
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: Current Setup
+      description: Describe your current configuration and environment
+      value: |
+        - OS: [e.g., macOS 14.1, Windows 11, Ubuntu 22.04]
+        - Node.js version: [run `node --version`]
+        - SFCC Dev MCP version: [check package.json version]
+        - Operating mode: [Documentation-only or Full mode]
+        - MCP Client: [e.g., Claude Desktop, Custom implementation]
+
+  - type: textarea
+    id: attempted-solutions
+    attributes:
+      label: What Have You Tried?
+      description: What steps have you already taken to solve this?
+      placeholder: |
+        1. I tried...
+        2. I looked at...
+        3. I configured...
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What do you expect or hope to happen?
+
+  - type: textarea
+    id: relevant-logs
+    attributes:
+      label: Relevant Logs or Error Messages
+      description: Include any relevant logs or error messages (remove sensitive information)
+      render: shell
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other information that might be helpful
