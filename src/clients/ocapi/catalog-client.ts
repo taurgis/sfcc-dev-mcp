@@ -54,7 +54,7 @@ export class OCAPICatalogClient extends OCAPIAuthClient {
 
     super(config);
     // Override the baseUrl for this specialized client
-    (this as any).baseUrl = baseUrl;
+    this.baseUrl = baseUrl;
   }
 
   /**
