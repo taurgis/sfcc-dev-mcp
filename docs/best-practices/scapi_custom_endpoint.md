@@ -357,6 +357,49 @@ Every Custom SCAPI Endpoint is built from three mandatory files, located within 
 
 - **`api.json` (The Mapping)**: A simple JSON file that links the `operationId` from the schema to the correct implementation script.
 
+### 2.1 Development Approach: Start Simple, Then Expand **!IMPORTANT!**
+
+When building custom endpoints, **always start with a minimal implementation** to establish connectivity and basic functionality before adding complexity. This mirrors how experienced SFCC developers approach endpoint development and significantly reduces debugging time.
+
+**Phase 1: Create a Minimal Version of Your Actual Endpoint**
+1. Define a basic OpenAPI schema with minimal parameters (just `siteId` for Shopper APIs and your core parameter)
+2. Implement a simple script that returns a static, well-formed response matching your intended data structure
+3. Test that the endpoint is reachable and authentication works correctly
+4. Verify request/response flow through SCAPI
+
+**Phase 2: Add Core Business Logic**
+1. Expand the schema to include your actual parameters and response models
+2. Implement the real business logic step by step
+3. Add error handling and validation
+4. Test each piece of functionality incrementally
+
+This approach helps you isolate issues early - if the simple version doesn't work, you know the problem is with basic setup (cartridge registration, API configuration, authentication) rather than your business logic. Once the foundation is solid, you can confidently build upon it.
+
+**Example Progressive Development:**
+```yaml
+# Phase 1: Simple schema - just test connectivity
+paths:
+  /loyalty-info:
+    get:
+      operationId: getLoyaltyInfo
+      parameters:
+        - name: siteId
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: {type: string}
+
+# Phase 2: Full schema - add real parameters and complex response models
+# (Expand with actual customer ID parameter, detailed response schema, etc.)
+```
+
 ## 2. Quick Start Example: A "Loyalty Info" Endpoint
 
 Here is a complete example for a custom Shopper API endpoint `GET /custom/loyalty-api/v1/.../loyalty-info?c_customer_id={id}`.
