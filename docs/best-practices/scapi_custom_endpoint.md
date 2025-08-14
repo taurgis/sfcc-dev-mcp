@@ -375,31 +375,6 @@ When building custom endpoints, **always start with a minimal implementation** t
 
 This approach helps you isolate issues early - if the simple version doesn't work, you know the problem is with basic setup (cartridge registration, API configuration, authentication) rather than your business logic. Once the foundation is solid, you can confidently build upon it.
 
-**Example Progressive Development:**
-```yaml
-# Phase 1: Simple schema - just test connectivity
-paths:
-  /loyalty-info:
-    get:
-      operationId: getLoyaltyInfo
-      parameters:
-        - name: siteId
-          in: query
-          required: true
-          schema: {type: string}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message: {type: string}
-
-# Phase 2: Full schema - add real parameters and complex response models
-# (Expand with actual customer ID parameter, detailed response schema, etc.)
-```
-
 ## 2. Quick Start Example: A "Loyalty Info" Endpoint
 
 Here is a complete example for a custom Shopper API endpoint `GET /custom/loyalty-api/v1/.../loyalty-info?c_customer_id={id}`.
