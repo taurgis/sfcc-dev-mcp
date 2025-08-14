@@ -826,6 +826,138 @@ npm run build
 npm test
 ```
 
+## Troubleshooting and Debugging
+
+### MCP Server Logs
+
+The server automatically writes all logs to files to avoid interfering with the JSON-RPC protocol and ensure consistent debugging capabilities. This prevents JSON parsing errors and provides reliable log access for troubleshooting.
+
+#### Log File Locations by Operating System
+
+**macOS:**
+```
+/tmp/sfcc-mcp-logs/
+├── sfcc-mcp-info.log      # General information and startup messages
+├── sfcc-mcp-warn.log      # Warning messages and deprecation notices
+├── sfcc-mcp-error.log     # Error messages and stack traces
+└── sfcc-mcp-debug.log     # Detailed debug information (when --debug is enabled)
+```
+
+**Windows:**
+```
+%TEMP%\sfcc-mcp-logs\
+├── sfcc-mcp-info.log      # General information and startup messages
+├── sfcc-mcp-warn.log      # Warning messages and deprecation notices
+├── sfcc-mcp-error.log     # Error messages and stack traces
+└── sfcc-mcp-debug.log     # Detailed debug information (when --debug is enabled)
+```
+
+**Linux:**
+```
+/tmp/sfcc-mcp-logs/
+├── sfcc-mcp-info.log      # General information and startup messages
+├── sfcc-mcp-warn.log      # Warning messages and deprecation notices
+├── sfcc-mcp-error.log     # Error messages and stack traces
+└── sfcc-mcp-debug.log     # Detailed debug information (when --debug is enabled)
+```
+
+#### Viewing Logs in Real-Time
+
+**macOS/Linux:**
+```bash
+# View all logs in real-time
+tail -f /tmp/sfcc-mcp-logs/*.log
+
+# View specific log levels
+tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-error.log    # Errors only
+tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-debug.log    # Debug info (if enabled)
+```
+
+**Windows (PowerShell):**
+```powershell
+# View error logs in real-time
+Get-Content "$env:TEMP\sfcc-mcp-logs\sfcc-mcp-error.log" -Wait
+
+# View all logs
+Get-ChildItem "$env:TEMP\sfcc-mcp-logs" | ForEach-Object { Get-Content $_.FullName -Wait }
+```
+
+#### Common Issues and Solutions
+
+**JSON Parsing Errors:**
+- **Issue**: `Expected ',' or ']' after array element in JSON at position X`
+- **Cause**: Previous versions logged to console, interfering with MCP protocol
+- **Solution**: Update to latest version - logs now go to files automatically
+
+**Log Files Not Created:**
+- **Issue**: No log files in the expected directory
+- **Cause**: Server running has permissions issue
+- **Solution**: Check that you're running via MCP client (not directly with `node`) or verify write permissions to temp directory
+
+**Missing Debug Information:**
+- **Issue**: Debug log file empty or missing detailed information
+- **Cause**: Debug mode not enabled
+- **Solution**: Add `--debug true` to your MCP client configuration:
+  ```json
+  {
+    "mcpServers": {
+      "sfcc-dev": {
+        "command": "npx",
+        "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "true"]
+      }
+    }
+  }
+  ```
+
+**Connection Issues:**
+- **Issue**: Server appears to start but tools don't work
+- **Cause**: Various configuration or network issues
+- **Solution**: Check error logs for specific error messages and verify SFCC credentials
+
+#### Debug Mode
+
+Enable debug mode for detailed troubleshooting information:
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "true"]
+    }
+  }
+}
+```
+
+Debug mode provides:
+- Method entry and exit tracking
+- Performance timing information
+- Full request/response details
+- Configuration loading details
+- Client initialization status
+
+#### Log Cleanup
+
+Log files accumulate over time. You can safely delete old log files:
+
+**macOS/Linux:**
+```bash
+# Remove all log files
+rm /tmp/sfcc-mcp-logs/*.log
+
+# Remove logs older than 7 days
+find /tmp/sfcc-mcp-logs -name "*.log" -mtime +7 -delete
+```
+
+**Windows:**
+```powershell
+# Remove all log files
+Remove-Item "$env:TEMP\sfcc-mcp-logs\*.log"
+
+# Remove logs older than 7 days
+Get-ChildItem "$env:TEMP\sfcc-mcp-logs" -Filter "*.log" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | Remove-Item
+```
+
 ### Documentation Generation
 
 The SFCC documentation is automatically converted from the official SFCC documentation using the included scraping script. 

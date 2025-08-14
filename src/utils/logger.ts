@@ -1,22 +1,36 @@
 /**
  * Logger class for standardized logging across the SFCC MCP application.
- * Provides consistent logging with optional timestamps and log levels.
+ * Provides consistent logging with timestamps and log levels.
+ * Always logs to files for consistent debugging and to avoid interfering with stdio.
  */
+
+import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+
 export class Logger {
   private context: string;
   private enableTimestamp: boolean;
   private debugEnabled: boolean;
+  private logDir: string;
 
   /**
    * Create a new Logger instance
    * @param context The context/component name for this logger
    * @param enableTimestamp Whether to include timestamps in log messages (default: true)
-   * @param debugEnabled Whether to enable debug logging (default: true)
+   * @param debugEnabled Whether to enable debug logging (default: false)
+   * @param customLogDir Custom log directory for testing purposes
    */
-  constructor(context: string = 'SFCC-MCP', enableTimestamp: boolean = true, debugEnabled: boolean = false) {
+  constructor(context: string = 'SFCC-MCP', enableTimestamp: boolean = true, debugEnabled: boolean = false, customLogDir?: string) {
     this.context = context;
     this.enableTimestamp = enableTimestamp;
     this.debugEnabled = debugEnabled;
+
+    // Set up log directory - use custom directory for testing or default for production
+    this.logDir = customLogDir ?? join(tmpdir(), 'sfcc-mcp-logs');
+    if (!existsSync(this.logDir)) {
+      mkdirSync(this.logDir, { recursive: true });
+    }
   }
 
   /**
@@ -30,12 +44,36 @@ export class Logger {
   }
 
   /**
+   * Write log message to appropriate log file
+   */
+  private writeLog(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
+    const formattedMessage = this.formatMessage(message);
+    const fullMessage = args.length > 0 ? `${formattedMessage} ${args.map(arg =>
+      typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg),
+    ).join(' ')}` : formattedMessage;
+
+    // Always write to log files
+    const logFile = join(this.logDir, `sfcc-mcp-${level}.log`);
+    const logEntry = `${fullMessage}\n`;
+
+    try {
+      appendFileSync(logFile, logEntry, 'utf8');
+    } catch (error) {
+      // Fallback: if file logging fails, try stderr for critical errors only
+      if (level === 'error') {
+        process.stderr.write(`[LOGGER ERROR] Could not write to log file: ${error}\n`);
+        process.stderr.write(`${logEntry}`);
+      }
+    }
+  }
+
+  /**
    * Log an informational message
    * @param message The message to log
    * @param args Optional arguments to include
    */
   public log(message: string, ...args: any[]): void {
-    console.log(this.formatMessage(message), ...args);
+    this.writeLog('info', message, ...args);
   }
 
   /**
@@ -44,7 +82,7 @@ export class Logger {
    * @param args Optional arguments to include
    */
   public info(message: string, ...args: any[]): void {
-    console.info(this.formatMessage(message), ...args);
+    this.writeLog('info', message, ...args);
   }
 
   /**
@@ -53,7 +91,7 @@ export class Logger {
    * @param args Optional arguments to include
    */
   public warn(message: string, ...args: any[]): void {
-    console.warn(this.formatMessage(message), ...args);
+    this.writeLog('warn', message, ...args);
   }
 
   /**
@@ -62,7 +100,7 @@ export class Logger {
    * @param args Optional arguments to include
    */
   public error(message: string, ...args: any[]): void {
-    console.error(this.formatMessage(message), ...args);
+    this.writeLog('error', message, ...args);
   }
 
   /**
@@ -72,7 +110,7 @@ export class Logger {
    */
   public debug(message: string, ...args: any[]): void {
     if (this.debugEnabled) {
-      console.error(this.formatMessage(`[DEBUG] ${message}`), ...args);
+      this.writeLog('debug', `[DEBUG] ${message}`, ...args);
     }
   }
 
@@ -118,7 +156,7 @@ export class Logger {
    * @returns A new Logger instance with the combined context
    */
   public createChildLogger(subContext: string): Logger {
-    return new Logger(`${this.context}:${subContext}`, this.enableTimestamp, this.debugEnabled);
+    return new Logger(`${this.context}:${subContext}`, this.enableTimestamp, this.debugEnabled, this.logDir);
   }
 
   /**
@@ -127,6 +165,13 @@ export class Logger {
    */
   public setDebugEnabled(enabled: boolean): void {
     this.debugEnabled = enabled;
+  }
+
+  /**
+   * Get the current log directory
+   */
+  public getLogDirectory(): string {
+    return this.logDir;
   }
 }
 
