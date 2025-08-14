@@ -86,6 +86,7 @@ Use these for understanding SFCC data models and custom attributes:
 - **`get_system_object_definition`** - Get details about a specific system object
 - **`get_system_object_attribute_definitions`** - Get all attributes for a system object
 - **`search_system_object_attribute_definitions`** - Search for specific attributes
+- **`search_custom_object_attribute_definitions`** - Search for attributes in custom object types
 
 ### 📊 Log Analysis Tools
 Use these for debugging and troubleshooting:

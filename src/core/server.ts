@@ -318,16 +318,6 @@ export class SFCCDevServer {
         result = await this.ocapiClient?.getSystemObjectDefinition(args.objectType as string);
         this.logger.debug(`Retrieved system object definition for "${args.objectType}" with ${result.attribute_definition_count ?? 0} attributes`);
         break;
-      case 'get_system_object_attribute_definitions':
-        if (!args?.objectType) {throw new Error('objectType is required');}
-        logMessage = `Getting system object attribute definitions for: "${args.objectType}"`;
-        result = await this.ocapiClient?.getSystemObjectAttributeDefinitions(args.objectType as string, {
-          start: args?.start as number,
-          count: args?.count as number,
-          select: args?.select as string,
-        });
-        this.logger.debug(`Retrieved ${result.length} attribute definitions for object type "${args.objectType}"`);
-        break;
       case 'search_system_object_attribute_definitions':
         if (!args?.objectType) {throw new Error('objectType is required');}
         if (!args?.searchRequest) {throw new Error('searchRequest is required');}
@@ -360,6 +350,16 @@ export class SFCCDevServer {
           args.searchRequest,
         );
         this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute groups for object type "${args.objectType}"`);
+        break;
+      case 'search_custom_object_attribute_definitions':
+        if (!args?.objectType) {throw new Error('objectType is required');}
+        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
+        logMessage = `Searching custom object attribute definitions for object type: "${args.objectType}"`;
+        result = await this.ocapiClient?.searchCustomObjectAttributeDefinitions(
+          args.objectType as string,
+          args.searchRequest,
+        );
+        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching custom object attribute definitions for object type "${args.objectType}"`);
         break;
       default:
         throw new Error(`Unknown system object tool: ${toolName}`);
@@ -453,8 +453,8 @@ export class SFCCDevServer {
           'search_best_practices', 'get_hook_reference'].includes(name)) {
           result = await this.handleBestPracticesTool(name, args, startTime);
         } else if (['get_system_object_definitions', 'get_system_object_definition',
-          'get_system_object_attribute_definitions', 'search_system_object_attribute_definitions',
-          'search_site_preferences', 'search_system_object_attribute_groups'].includes(name)) {
+          'search_system_object_attribute_definitions', 'search_site_preferences',
+          'search_system_object_attribute_groups', 'search_custom_object_attribute_definitions'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
         } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
           'get_sfra_class_methods', 'get_sfra_class_properties'].includes(name)) {

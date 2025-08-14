@@ -125,7 +125,12 @@ describe('OCAPISystemObjectsClient', () => {
   describe('searchSystemObjectDefinitions', () => {
     it('should validate search request', async () => {
       const searchRequest = {
-        query: { match_all_query: {} },
+        query: {
+          text_query: {
+            fields: ['id', 'display_name'],
+            search_phrase: 'product',
+          },
+        },
       };
 
       await client.searchSystemObjectDefinitions(searchRequest);
@@ -133,11 +138,11 @@ describe('OCAPISystemObjectsClient', () => {
       expect(Validator.validateSearchRequest).toHaveBeenCalledWith(searchRequest);
     });
 
-    it('should make POST request to search endpoint', async () => {
+    it('should make POST request to system object definition search endpoint', async () => {
       const searchRequest = {
         query: {
           text_query: {
-            fields: ['object_type', 'display_name'],
+            fields: ['id', 'display_name'],
             search_phrase: 'product',
           },
         },
@@ -146,36 +151,6 @@ describe('OCAPISystemObjectsClient', () => {
       await client.searchSystemObjectDefinitions(searchRequest);
 
       expect((client as any).post).toHaveBeenCalledWith('/system_object_definition_search', searchRequest);
-    });
-  });
-
-  describe('getSystemObjectAttributeDefinitions', () => {
-    it('should validate required parameters', async () => {
-      const objectType = 'Product';
-
-      await client.getSystemObjectAttributeDefinitions(objectType);
-
-      expect(Validator.validateRequired).toHaveBeenCalledWith({ objectType }, ['objectType']);
-      expect(Validator.validateObjectType).toHaveBeenCalledWith(objectType);
-    });
-
-    it('should make GET request to attribute definitions endpoint', async () => {
-      const objectType = 'Product';
-
-      await client.getSystemObjectAttributeDefinitions(objectType);
-
-      expect((client as any).get).toHaveBeenCalledWith('/system_object_definitions/Product/attribute_definitions');
-    });
-
-    it('should include query parameters when provided', async () => {
-      const objectType = 'Product';
-      const options = { count: 50, select: '(**)' };
-      mockQueryBuilderFromObject.mockReturnValue('count=50&select=%28%2A%2A%29');
-
-      await client.getSystemObjectAttributeDefinitions(objectType, options);
-
-      expect(QueryBuilder.fromObject).toHaveBeenCalledWith(options);
-      expect((client as any).get).toHaveBeenCalledWith('/system_object_definitions/Product/attribute_definitions?count=50&select=%28%2A%2A%29');
     });
   });
 
@@ -202,20 +177,16 @@ describe('OCAPISystemObjectsClient', () => {
       const objectType = 'Product';
       const searchRequest = {
         query: {
-          term_query: {
-            fields: ['value_type'],
-            operator: 'is',
-            values: ['string'],
+          text_query: {
+            fields: ['id', 'display_name'],
+            search_phrase: 'custom',
           },
         },
       };
 
       await client.searchSystemObjectAttributeDefinitions(objectType, searchRequest);
 
-      expect((client as any).post).toHaveBeenCalledWith(
-        '/system_object_definitions/Product/attribute_definition_search',
-        searchRequest,
-      );
+      expect((client as any).post).toHaveBeenCalledWith('/system_object_definitions/Product/attribute_definition_search', searchRequest);
     });
   });
 

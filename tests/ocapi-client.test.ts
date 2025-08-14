@@ -105,18 +105,6 @@ describe('OCAPIClient', () => {
       expect(result).toBe(mockResponse);
     });
 
-    it('should delegate getSystemObjectAttributeDefinitions to SystemObjectsClient', async () => {
-      const mockResponse = { data: 'attribute-definitions' };
-      const objectType = 'Product';
-      const options = { count: 10 };
-      jest.spyOn(client.systemObjects, 'getSystemObjectAttributeDefinitions').mockResolvedValue(mockResponse);
-
-      const result = await client.getSystemObjectAttributeDefinitions(objectType, options);
-
-      expect(client.systemObjects.getSystemObjectAttributeDefinitions).toHaveBeenCalledWith(objectType, options);
-      expect(result).toBe(mockResponse);
-    });
-
     it('should delegate searchSystemObjectAttributeDefinitions to SystemObjectsClient', async () => {
       const mockResponse = { data: 'attribute-search-results' };
       const objectType = 'Product';

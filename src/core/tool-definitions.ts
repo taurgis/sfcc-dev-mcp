@@ -357,7 +357,7 @@ export const LOG_TOOLS = [
 export const SYSTEM_OBJECT_TOOLS = [
   {
     name: 'get_system_object_definitions',
-    description: 'Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects.',
+    description: 'Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects. You can also discover which objects are "Custom Objects" by looking at the _type field in the response.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -381,41 +381,13 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'get_system_object_definition',
-    description: 'Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead.',
+    description: 'Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead. You can not fetch "Custom Objects" with this API.',
     inputSchema: {
       type: 'object',
       properties: {
         objectType: {
           type: 'string',
           description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
-        },
-      },
-      required: ['objectType'],
-    },
-  },
-  {
-    name: 'get_system_object_attribute_definitions',
-    description: 'Get comprehensive attribute definitions for a specific SFCC system object type including custom attributes with their types, constraints, validation rules, and metadata. Use this when you need detailed information about object attributes for data validation, form building, API interactions, or understanding custom attribute configurations. Provides more detailed attribute information than basic object definitions.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        objectType: {
-          type: 'string',
-          description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
-        },
-        start: {
-          type: 'number',
-          description: 'Optional start index for retrieving items from a given index (default: 0)',
-          default: 0,
-        },
-        count: {
-          type: 'number',
-          description: 'Optional count for retrieving only a subset of items (default: 200)',
-          default: 200,
-        },
-        select: {
-          type: 'string',
-          description: "The property selector (e.g., '(**)' for all properties)",
         },
       },
       required: ['objectType'],
@@ -423,7 +395,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_system_object_attribute_definitions',
-    description: 'Search for specific attribute definitions within a system object type using complex queries. Use this when you need to find attributes by name, type, or other properties rather than retrieving all attributes. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics.',
+    description: 'Search for specific attribute definitions within a system object type using complex queries. Use this when you need to find attributes by name, type, or other properties rather than retrieving all attributes. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics. To get all attributes, use a match_all_query.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -766,6 +738,124 @@ export const SYSTEM_OBJECT_TOOLS = [
                   field: {
                     type: 'string',
                     description: 'Field to sort by (id, display_name, description, position, internal)',
+                  },
+                  sort_order: {
+                    type: 'string',
+                    enum: ['asc', 'desc'],
+                    description: 'Sort order (default: asc)',
+                  },
+                },
+                required: ['field'],
+              },
+            },
+            start: {
+              type: 'number',
+              description: 'Start index for pagination (default: 0)',
+              default: 0,
+            },
+            count: {
+              type: 'number',
+              description: 'Number of results to return (default: 200)',
+              default: 200,
+            },
+            select: {
+              type: 'string',
+              description: "Property selector (e.g., '(**)' for all properties)",
+            },
+          },
+        },
+      },
+      required: ['objectType', 'searchRequest'],
+    },
+  },
+  {
+    name: 'search_custom_object_attribute_definitions',
+    description: 'Search for specific attribute definitions within a custom object type using complex queries. Use this when you need to find attributes by name, type, or other properties for custom objects rather than system objects. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics in custom object definitions. Custom objects are user-defined data structures that extend SFCC functionality.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        objectType: {
+          type: 'string',
+          description: "The custom object type to search within (e.g., 'Global_String', 'MyCustomObject')",
+        },
+        searchRequest: {
+          type: 'object',
+          description: 'The search request with query, sorting, and pagination options',
+          properties: {
+            query: {
+              type: 'object',
+              description: 'Query to filter attribute definitions',
+              properties: {
+                text_query: {
+                  type: 'object',
+                  description: 'Search for text in specific fields',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
+                    },
+                    search_phrase: {
+                      type: 'string',
+                      description: 'Text to search for',
+                    },
+                  },
+                  required: ['fields', 'search_phrase'],
+                },
+                term_query: {
+                  type: 'object',
+                  description: 'Search for exact term matches',
+                  properties: {
+                    fields: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Fields to search in',
+                    },
+                    operator: {
+                      type: 'string',
+                      description: 'Query operator (e.g., "is", "one_of")',
+                    },
+                    values: {
+                      type: 'array',
+                      description: 'Values to match',
+                    },
+                  },
+                  required: ['fields', 'operator', 'values'],
+                },
+                bool_query: {
+                  type: 'object',
+                  description: 'Combine multiple queries with boolean logic',
+                  properties: {
+                    must: {
+                      type: 'array',
+                      description: 'Queries that must match (AND)',
+                    },
+                    must_not: {
+                      type: 'array',
+                      description: 'Queries that must not match',
+                    },
+                    should: {
+                      type: 'array',
+                      description: 'Queries that should match (OR)',
+                    },
+                  },
+                },
+                match_all_query: {
+                  type: 'object',
+                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
+                  properties: {},
+                },
+              },
+            },
+            sorts: {
+              type: 'array',
+              description: 'Sort criteria',
+              items: {
+                type: 'object',
+                properties: {
+                  field: {
+                    type: 'string',
+                    description: 'Field to sort by',
                   },
                   sort_order: {
                     type: 'string',

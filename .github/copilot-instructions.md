@@ -167,6 +167,7 @@ sfcc-dev-mcp/
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
+   - Custom object attribute definitions search
 
 ### 🚀 Operating Modes
 

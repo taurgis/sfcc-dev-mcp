@@ -113,16 +113,6 @@ export class OCAPIClient {
   }
 
   /**
-   * Get attribute definitions for a specific system object type
-   */
-  async getSystemObjectAttributeDefinitions(
-    objectType: string,
-    options?: BaseQueryParams,
-  ): Promise<any> {
-    return this.systemObjects.getSystemObjectAttributeDefinitions(objectType, options);
-  }
-
-  /**
    * Search attribute definitions for a specific system object type using complex queries
    */
   async searchSystemObjectAttributeDefinitions(
@@ -140,6 +130,16 @@ export class OCAPIClient {
     searchRequest: SearchRequest,
   ): Promise<any> {
     return this.systemObjects.searchSystemObjectAttributeGroups(objectType, searchRequest);
+  }
+
+  /**
+   * Search attribute definitions for a specific custom object type using complex queries
+   */
+  async searchCustomObjectAttributeDefinitions(
+    objectType: string,
+    searchRequest: SearchRequest,
+  ): Promise<any> {
+    return this.systemObjects.searchCustomObjectAttributeDefinitions(objectType, searchRequest);
   }
 
   // =============================================================================

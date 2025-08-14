@@ -105,28 +105,6 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
   }
 
   /**
-   * Get attribute definitions for a specific system object type
-   */
-  async getSystemObjectAttributeDefinitions(
-    objectType: string,
-    options?: BaseQueryParams,
-  ): Promise<any> {
-    Validator.validateRequired({ objectType }, ['objectType']);
-    Validator.validateObjectType(objectType);
-
-    let endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_definitions`;
-
-    if (options) {
-      const queryString = QueryBuilder.fromObject(options);
-      if (queryString) {
-        endpoint += `?${queryString}`;
-      }
-    }
-
-    return this.get(endpoint);
-  }
-
-  /**
    * Search attribute definitions for a specific system object type
    */
   async searchSystemObjectAttributeDefinitions(
@@ -153,6 +131,20 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
     Validator.validateSearchRequest(searchRequest);
 
     const endpoint = `/system_object_definitions/${encodeURIComponent(objectType)}/attribute_group_search`;
+    return this.post(endpoint, searchRequest);
+  }
+
+  /**
+   * Search attribute definitions for a specific custom object type
+   */
+  async searchCustomObjectAttributeDefinitions(
+    objectType: string,
+    searchRequest: SearchRequest,
+  ): Promise<any> {
+    Validator.validateRequired({ objectType }, ['objectType']);
+    Validator.validateSearchRequest(searchRequest);
+
+    const endpoint = `/custom_object_definitions/${encodeURIComponent(objectType)}/attribute_definition_search`;
     return this.post(endpoint, searchRequest);
   }
 }

@@ -94,10 +94,10 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 ### SFCC System Object Definitions
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
 - **Get System Object Definition**: Get detailed information about a specific system object (Product, Customer, Order, etc.) including all attributes
-- **Get System Object Attribute Definitions**: Get comprehensive attribute definitions for a specific system object type with detailed information about all attributes including custom attributes, their types, constraints, and metadata. This provides more detailed attribute information than the basic system object definition.
-- **Search System Object Attribute Definitions**: Search for specific attribute definitions within a system object type using complex queries. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics.
+- **Search System Object Attribute Definitions**: Search for specific attribute definitions within a system object type using complex queries. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics. To get all attributes for an object, use a match_all_query.
 - **Search Site Preferences**: Search site preferences across sites in the specified preference group and instance. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Supports complex queries with text search, filtering, and sorting.
 - **Search System Object Attribute Groups**: Search attribute groups for a specific system object type. Essential for discovering site preference groups (use "SitePreferences" as objectType) needed for the site preferences search API. Supports complex queries with text search, filtering, and sorting on group properties.
+- **Search Custom Object Attribute Definitions**: Search for specific attribute definitions within a custom object type using complex queries. Use this for custom objects (user-defined data structures) rather than system objects. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics in custom object definitions.
 
 *Note: System object definition tools require OAuth credentials (clientId and clientSecret) and are useful for discovering custom attributes and site preferences added to standard SFCC objects.*
 
@@ -216,7 +216,7 @@ export SFCC_SITE_ID="RefArch"
 
 ### Business Manager Setup for System Object Definition Tools
 
-To use the system object definition tools (`get_system_object_definitions`, `get_system_object_definition`, `get_system_object_attribute_definitions`, `search_system_object_attribute_definitions`, `search_site_preferences`, `search_system_object_attribute_groups`), you need to configure Data API access in Business Manager:
+To use the system object definition tools (`get_system_object_definitions`, `get_system_object_definition`, `search_system_object_attribute_definitions`, `search_site_preferences`, `search_system_object_attribute_groups`, `search_custom_object_attribute_definitions`), you need to configure Data API access in Business Manager:
 
 #### Step 1: Create API Client in Account Manager
 
@@ -261,14 +261,6 @@ To use the system object definition tools (`get_system_object_definitions`, `get
           "write_attributes": "(**)"
         },
         {
-          "resource_id": "/system_object_definitions/*/attribute_definitions",
-          "methods": [
-            "get"
-          ],
-          "read_attributes": "(**)",
-          "write_attributes": "(**)"
-        },
-        {
           "resource_id": "/system_object_definition_search",
           "methods": [
             "post"
@@ -286,6 +278,14 @@ To use the system object definition tools (`get_system_object_definitions`, `get
         },
         {
           "resource_id": "/system_object_definitions/*/attribute_group_search",
+          "methods": [
+            "post"
+          ],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/custom_object_definitions/*/attribute_definition_search",
           "methods": [
             "post"
           ],
@@ -663,16 +663,7 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
-3. **`get_system_object_attribute_definitions`** - Get attribute definitions for an object type
-   ```json
-   {
-     "objectType": "Product",
-     "count": 100,
-     "select": "(**)"
-   }
-   ```
-
-4. **`search_system_object_attribute_definitions`** - Search attribute definitions
+3. **`search_system_object_attribute_definitions`** - Search attribute definitions
    ```json
    {
      "objectType": "Product",
@@ -688,7 +679,7 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
-5. **`search_site_preferences`** - Search site preferences
+4. **`search_site_preferences`** - Search site preferences
    ```json
    {
      "groupId": "MyPreferenceGroup",
@@ -709,7 +700,7 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
-6. **`search_system_object_attribute_groups`** - Search attribute groups
+5. **`search_system_object_attribute_groups`** - Search attribute groups
    ```json
    {
      "objectType": "SitePreferences",
@@ -718,6 +709,22 @@ You can configure the MCP client to use npx, which automatically handles package
          "match_all_query": {}
        },
        "sorts": [{"field": "display_name", "sort_order": "asc"}],
+       "select": "(**)"
+     }
+   }
+   ```
+
+6. **`search_custom_object_attribute_definitions`** - Search attribute definitions within a custom object type
+   ```json
+   {
+     "objectType": "custom_object_type",
+     "searchRequest": {
+       "query": {
+         "text_query": {
+           "fields": ["id", "display_name"],
+           "search_phrase": "custom_attribute"
+         }
+       },
        "select": "(**)"
      }
    }
