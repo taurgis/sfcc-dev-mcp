@@ -1,0 +1,88 @@
+---
+description: SFCC Job Framework patterns and best practices
+alwaysApply: false
+---
+# SFCC Job Framework Development
+
+Use this rule when creating custom jobs in the SFCC Job Framework.
+
+## Required MCP Tools Sequence
+
+1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "job_framework"
+2. `mcp_sfcc-dev_search_best_practices` with query: "performance"
+3. `mcp_sfcc-dev_search_best_practices` with query: "security"
+
+## Core Concepts
+
+### Job Development Paradigms
+
+SFCC offers two distinct development models for custom jobs:
+
+| Aspect | Task-Oriented ("Normal") | Chunk-Oriented |
+|--------|-------------------------|----------------|
+| **Best For** | Simple, monolithic tasks; quick operations | Large-scale data processing |
+| **Data Volume** | Low (prone to timeouts with large datasets) | High (designed for massive datasets) |
+| **Progress Monitoring** | Limited (running or finished) | Granular (updated per chunk) |
+| **Transaction Control** | Typically one transaction | Fine-grained per chunk |
+| **Code Complexity** | Low (single main function) | Moderate (callback functions) |
+| **Resumability** | Difficult (requires full restart) | Easier (failures isolated to chunks) |
+
+## Task-Oriented Jobs: Best Practices
+
+### When to Use Task-Oriented Jobs
+
+Choose task-oriented jobs for:
+- Single configuration file downloads
+- Single API calls to external services
+- Quick, targeted database updates
+- Tasks where calculating progress is impractical
+
+## Chunk-Oriented Jobs: Enterprise-Scale Processing
+
+### The Chunking Philosophy
+
+Chunk-oriented jobs are SFCC's architectural solution for processing large datasets without hitting platform limits. They break massive tasks into manageable segments, providing:
+
+- **Stability**: Eliminates memory and timeout issues
+- **Performance**: Fine-tuned transaction management
+- **Monitoring**: Granular progress tracking
+- **Resilience**: Isolated failure handling
+
+## Quick Reference
+
+### Choosing the Right Job Model
+
+**Use Task-Oriented When:**
+- Processing single files or making single API calls
+- Quick database updates affecting known small datasets
+- Simple configuration or setup tasks
+- Progress tracking is not important
+
+**Use Chunk-Oriented When:**
+- Processing large datasets (>1000 items)
+- Iterating over products, orders, customers, or file rows
+- Progress monitoring is required
+- Failure resilience is critical
+- Transaction control is important
+
+### Essential Performance Guidelines
+
+1. **Always use streaming APIs** for file processing
+2. **Close all SeekableIterators** to prevent memory leaks
+3. **Keep chunk sizes between 100-500** for most operations
+4. **Commit transactions per chunk** for resilience
+5. **Avoid accumulating objects** in global scope
+6. **Log appropriately** - info for milestones, debug for development only
+7. **Validate inputs** and handle errors gracefully
+8. **Design for idempotency** to enable safe re-runs
+
+### Common Troubleshooting Steps
+
+1. **OutOfMemoryError**: Check streaming APIs, iterator closure, chunk size
+2. **ScriptingTimeoutError**: Consider chunk-oriented model, review algorithm efficiency
+3. **Transaction timeouts**: Reduce chunk size, commit per chunk
+4. **Job hangs**: Check resource locks, review for infinite loops
+5. **Poor performance**: Use Code Profiler, review API usage patterns
+
+Remember: **The Job Framework is critical infrastructure**. Always prioritize stability, performance, and maintainability over quick implementation.
+

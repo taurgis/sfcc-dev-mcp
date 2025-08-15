@@ -1,0 +1,15 @@
+---
+description: SFCC ISML Optimisation rules and best practices
+globs: cartridges/**/*.isml
+alwaysApply: false
+---
+
+# ISML Templates Development
+
+Use this rule when creating or modifying ISML templates in SFCC.
+
+## Required MCP Tools Sequence
+
+1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "isml_templates"
+2. `mcp_sfcc-dev_search_best_practices` with query: "security"
+3. `mcp_sfcc-dev_search_best_practices` with query: "performance"
