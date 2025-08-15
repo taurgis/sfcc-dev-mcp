@@ -117,10 +117,10 @@ describe('SFCCLogClient', () => {
       const result = await logClient.getLogFiles('20250815');
 
       expect(result).toEqual([
-        'error-20250815-blade1-001.log',
-        'warn-20250815-blade1-001.log',
-        'info-20250815-blade1-001.log',
-        'debug-20250815-blade1-001.log',
+        { filename: 'error-20250815-blade1-001.log', lastmod: expect.any(String) },
+        { filename: 'warn-20250815-blade1-001.log', lastmod: expect.any(String) },
+        { filename: 'info-20250815-blade1-001.log', lastmod: expect.any(String) },
+        { filename: 'debug-20250815-blade1-001.log', lastmod: expect.any(String) },
       ]);
       expect(mockWebdavClient.getDirectoryContents).toHaveBeenCalledWith('/');
     });
@@ -232,57 +232,195 @@ describe('SFCCLogClient', () => {
     });
 
     describe('chronological sorting with real-world filenames', () => {
-      it('should process files from newest to oldest and show newest entries first', async () => {
-        // Real-world log files - all must have the same date since getLogFiles filters by date
+      it('should process files by lastmod timestamp (newest first)', async () => {
+        // Real-world log files with different lastmod timestamps
         const mockContents = [
-          { type: 'file', filename: 'warn-odspod-0-appserver-20250815.log' },
-          { type: 'file', filename: 'customwarn-odspod-0-appserver-20250815.log' },
-          { type: 'file', filename: 'warn-blade1-20250815.log' },
+          {
+            type: 'file',
+            filename: 'warn-blade1-20250815.log',
+            lastmod: '2025-08-15T06:30:00.000Z', // Older timestamp
+          },
+          {
+            type: 'file',
+            filename: 'warn-odspod-0-appserver-20250815.log',
+            lastmod: '2025-08-15T08:15:00.000Z', // Middle timestamp
+          },
+          {
+            type: 'file',
+            filename: 'warn-xyz-server-20250815.log',
+            lastmod: '2025-08-15T10:45:00.000Z', // Newest timestamp
+          },
         ];
         mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
 
         // Mock content for each warn file
-        const mockContent1 = 'WARN 06:32:07 Newest warning from file 1\nWARN 06:30:00 Another warning from file 1';
-        const mockContent2 = 'WARN 08:16:33 Custom warning from file 2';
-        const mockContent3 = 'WARN 23:59:25 Warning from file 3';
+        const mockContent1 = 'WARN 06:32:07 Warning from blade1\nWARN 06:30:00 Another warning from blade1';
+        const mockContent2 = 'WARN 08:16:33 Warning from odspod\nWARN 08:15:00 Another warning from odspod';
+        const mockContent3 = 'WARN 10:45:12 Warning from xyz\nWARN 10:44:00 Another warning from xyz';
 
-        // Files should be processed in reverse alphabetical order (newest first)
+        // Files should be processed by lastmod order (newest first): xyz, odspod, blade1
         mockWebdavClient.getFileContents
-          .mockResolvedValueOnce(mockContent1)  // First file
-          .mockResolvedValueOnce(mockContent2)  // Custom file
-          .mockResolvedValueOnce(mockContent3); // Third file
+          .mockResolvedValueOnce(mockContent3)  // warn-xyz-server- (newest lastmod, processed first)
+          .mockResolvedValueOnce(mockContent2)  // warn-odspod- (middle lastmod)
+          .mockResolvedValueOnce(mockContent1); // warn-blade1- (oldest lastmod, processed last)
+
+        const result = await logClient.getLatestLogs('warn' as LogLevel, 4, '20250815');
+
+        expect(result).toContain('Latest 4 warn messages');
+        expect(result).toContain('warn-xyz-server-20250815.log');
+        expect(result).toContain('warn-odspod-0-appserver-20250815.log');
+        expect(result).toContain('warn-blade1-20250815.log');
+        expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(3);
+
+        // Verify the processing order matches chronological sorting by lastmod
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(1, 'warn-xyz-server-20250815.log', { format: 'text' });
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(2, 'warn-odspod-0-appserver-20250815.log', { format: 'text' });
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(3, 'warn-blade1-20250815.log', { format: 'text' });
+      });
+
+      it('should handle custom log files in chronological sorting', async () => {
+        const mockContents = [
+          {
+            type: 'file',
+            filename: 'customwarn-alpha-20250815.log',
+            lastmod: '2025-08-15T10:00:00.000Z', // Newest timestamp
+          },
+          {
+            type: 'file',
+            filename: 'warn-beta-20250815.log',
+            lastmod: '2025-08-15T08:00:00.000Z', // Oldest timestamp
+          },
+          {
+            type: 'file',
+            filename: 'customwarn-gamma-20250815.log',
+            lastmod: '2025-08-15T09:00:00.000Z', // Middle timestamp
+          },
+        ];
+        mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
+
+        const mockContent1 = 'WARN 10:00:00 Custom warning from alpha';
+        const mockContent2 = 'WARN 08:00:00 Standard warning from beta';
+        const mockContent3 = 'WARN 09:00:00 Custom warning from gamma';
+
+        // Expected chronological order by lastmod: alpha (10:00), gamma (09:00), beta (08:00)
+        mockWebdavClient.getFileContents
+          .mockResolvedValueOnce(mockContent1)  // customwarn-alpha- (newest lastmod, processed first)
+          .mockResolvedValueOnce(mockContent3)  // customwarn-gamma- (middle lastmod)
+          .mockResolvedValueOnce(mockContent2); // warn-beta- (oldest lastmod, processed last)
 
         const result = await logClient.getLatestLogs('warn' as LogLevel, 3, '20250815');
 
         expect(result).toContain('Latest 3 warn messages');
-        expect(result).toContain('warn-odspod-0-appserver-20250815.log');
-        expect(result).toContain('customwarn-odspod-0-appserver-20250815.log');
-        expect(result).toContain('warn-blade1-20250815.log');
         expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(3);
+
+        // Verify processing order follows chronological sorting by lastmod
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(1, 'customwarn-alpha-20250815.log', { format: 'text' });
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(2, 'customwarn-gamma-20250815.log', { format: 'text' });
+        expect(mockWebdavClient.getFileContents).toHaveBeenNthCalledWith(3, 'warn-beta-20250815.log', { format: 'text' });
       });
 
-      it('should properly sort mixed date files and show newest entries at top', async () => {
+      it('should handle missing lastmod gracefully with fallback', async () => {
         const mockContents = [
-          { type: 'file', filename: 'error-odspod-0-appserver-20250815.log' },
-          { type: 'file', filename: 'error-blade1-20250815.log' },
+          {
+            type: 'file',
+            filename: 'warn-file1-20250815.log',
+            lastmod: '2025-08-15T08:00:00.000Z',
+          },
+          {
+            type: 'file',
+            filename: 'warn-file2-20250815.log',
+            // Missing lastmod - should use fallback
+          },
         ];
         mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
 
-        // Mock file content that will be found by parseLogEntries
-        const newestFileContent = 'ERROR 05:17:54 Very recent error\nERROR 05:16:00 Another recent error';
-        const olderFileContent = 'ERROR 11:24:07 Yesterday error\nERROR 11:20:00 Another yesterday error';
+        const mockContent1 = 'WARN Content from file1';
+        const mockContent2 = 'WARN Content from file2';
 
         mockWebdavClient.getFileContents
-          .mockResolvedValueOnce(newestFileContent)  // First file processed
-          .mockResolvedValueOnce(olderFileContent);  // Second file processed
+          .mockResolvedValueOnce(mockContent2)  // file2 (fallback to current time, processed first)
+          .mockResolvedValueOnce(mockContent1); // file1 (has lastmod, processed second)
+
+        const result = await logClient.getLatestLogs('warn' as LogLevel, 2, '20250815');
+
+        expect(result).toContain('Latest 2 warn messages');
+        expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(2);
+        // Should handle both files even with missing lastmod
+        expect(result).toContain('warn-file1-20250815.log');
+        expect(result).toContain('warn-file2-20250815.log');
+      });
+    });
+
+    describe('file sorting and date filtering', () => {
+
+      it('should only process files matching the specified date', async () => {
+        // Mix of files from different dates
+        const mockContents = [
+          { type: 'file', filename: 'error-odspod-0-appserver-20250815.log' }, // Target date
+          { type: 'file', filename: 'error-blade1-20250815.log' },            // Target date
+          { type: 'file', filename: 'error-odspod-0-appserver-20250814.log' }, // Previous day
+          { type: 'file', filename: 'error-blade1-20250816.log' },            // Next day
+          { type: 'file', filename: 'error-xyz-20250813.log' },               // Older date
+        ];
+        mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
+
+        // Mock content for the target date files only
+        const targetDateContent1 = 'ERROR 05:17:54 Error from target date file 1\nERROR 05:16:00 Another error from file 1';
+        const targetDateContent2 = 'ERROR 11:24:07 Error from target date file 2\nERROR 11:20:00 Another error from file 2';
+
+        mockWebdavClient.getFileContents
+          .mockResolvedValueOnce(targetDateContent1)  // error-odspod-0-appserver-20250815.log
+          .mockResolvedValueOnce(targetDateContent2); // error-blade1-20250815.log
 
         const result = await logClient.getLatestLogs('error' as LogLevel, 3, '20250815');
 
-        // Should contain entries from the files
+        // Should only process files from the target date (20250815)
         expect(result).toContain('Latest 3 error messages from files');
         expect(result).toContain('error-odspod-0-appserver-20250815.log');
         expect(result).toContain('error-blade1-20250815.log');
+
+        // Should NOT contain files from other dates
+        expect(result).not.toContain('20250814');
+        expect(result).not.toContain('20250816');
+        expect(result).not.toContain('20250813');
+
+        // Should only call getFileContents for files matching the target date
         expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(2);
+        expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith('error-odspod-0-appserver-20250815.log', { format: 'text' });
+        expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith('error-blade1-20250815.log', { format: 'text' });
+      });
+
+      it('should handle multiple dates correctly when getLogFiles filters by specific date', async () => {
+        // Test with a different date to ensure date filtering works correctly
+        const mockContents = [
+          { type: 'file', filename: 'warn-server1-20250810.log' },
+          { type: 'file', filename: 'warn-server2-20250810.log' },
+          { type: 'file', filename: 'customwarn-server3-20250810.log' },
+          { type: 'file', filename: 'warn-server1-20250815.log' }, // Different date - should be filtered out
+        ];
+        mockWebdavClient.getDirectoryContents.mockResolvedValue(mockContents);
+
+        const mockContent1 = 'WARN 08:00:00 Warning from server1 on 20250810';
+        const mockContent2 = 'WARN 09:00:00 Warning from server2 on 20250810';
+        const mockContent3 = 'WARN 10:00:00 Custom warning from server3 on 20250810';
+
+        mockWebdavClient.getFileContents
+          .mockResolvedValueOnce(mockContent1)
+          .mockResolvedValueOnce(mockContent2)
+          .mockResolvedValueOnce(mockContent3);
+
+        const result = await logClient.getLatestLogs('warn' as LogLevel, 5, '20250810');
+
+        expect(result).toContain('Latest 5 warn messages');
+        expect(result).toContain('warn-server1-20250810.log');
+        expect(result).toContain('warn-server2-20250810.log');
+        expect(result).toContain('customwarn-server3-20250810.log');
+
+        // Should not include the file from 20250815
+        expect(result).not.toContain('20250815');
+
+        // Should process 3 files from the target date only
+        expect(mockWebdavClient.getFileContents).toHaveBeenCalledTimes(3);
       });
     });
 

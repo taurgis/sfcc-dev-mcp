@@ -74,9 +74,9 @@ export class SFCCLogClient {
    * Get list of log files for a specific date
    *
    * @param date - Date in YYYYMMDD format (defaults to today)
-   * @returns Array of log file names for the specified date
+   * @returns Array of objects with filename and lastmod for the specified date
    */
-  async getLogFiles(date?: string): Promise<string[]> {
+  async getLogFiles(date?: string): Promise<Array<{ filename: string; lastmod: string }>> {
     const targetDate = date ?? getCurrentDate();
     logger.methodEntry('getLogFiles', { date: targetDate });
 
@@ -90,9 +90,12 @@ export class SFCCLogClient {
         item.filename.includes(targetDate) &&
         item.filename.endsWith('.log'),
       )
-      .map((item: any) => item.filename);
+      .map((item: any) => ({
+        filename: item.filename,
+        lastmod: item.lastmod ?? new Date().toISOString(), // Fallback to current time if no lastmod
+      }));
 
-    logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles);
+    logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles.map((f: { filename: string; lastmod: string }) => f.filename));
     logger.methodExit('getLogFiles', { count: logFiles.length });
     return logFiles;
   }
@@ -114,23 +117,25 @@ export class SFCCLogClient {
 
     // Filter files for the specific log level, including both standard and custom logs
     const levelFiles = logFiles.filter(file => {
-      const filename = normalizeFilePath(file);
+      const filename = normalizeFilePath(file.filename);
       // Match both standard format (e.g., "warn-") and custom format (e.g., "customwarn-")
       return filename.startsWith(`${level}-`) || filename.startsWith(`custom${level}-`);
     });
 
-    logger.debug(`Filtered to ${levelFiles.length} ${level} log files (including custom logs):`, levelFiles);
+    logger.debug(`Filtered to ${levelFiles.length} ${level} log files (including custom logs):`, levelFiles.map(f => f.filename));
 
     if (levelFiles.length === 0) {
-      const availableFiles = logFiles.map(f => normalizeFilePath(f)).join(', ');
+      const availableFiles = logFiles.map(f => normalizeFilePath(f.filename)).join(', ');
       const result = `No ${level} log files found for date ${targetDate}. Available files: ${availableFiles}`;
       logger.warn(result);
       logger.methodExit('getLatestLogs', { result: 'no_files' });
       return result;
     }
 
-    // Sort files in reverse chronological order (newest first) for processing
-    const sortedFiles = levelFiles.sort().reverse();
+    // Sort files by lastmod in descending order (newest first) for processing
+    const sortedFiles = levelFiles
+      .sort((a, b) => new Date(b.lastmod).getTime() - new Date(a.lastmod).getTime())
+      .map(file => file.filename);
 
     // Process files from newest to oldest and collect entries with timestamps
     const allLogEntries: Array<{ entry: string; filename: string; order: number }> = [];
@@ -198,13 +203,13 @@ export class SFCCLogClient {
       infoCount: 0,
       debugCount: 0,
       keyIssues: [],
-      files: logFiles,
+      files: logFiles.map((f: { filename: string; lastmod: string }) => f.filename), // Extract filenames for summary
     };
 
     // Analyze each log file for counts and patterns
     for (const file of logFiles) {
       try {
-        const content = await this.webdavClient.getFileContents(file, { format: 'text' });
+        const content = await this.webdavClient.getFileContents(file.filename, { format: 'text' });
         const lines = (content as string).split('\n');
 
         // Count different log levels
@@ -216,14 +221,14 @@ export class SFCCLogClient {
         }
 
         // Extract key error patterns from error files
-        const filename = normalizeFilePath(file);
+        const filename = normalizeFilePath(file.filename);
         if (filename.startsWith('error-')) {
           const errors = parseLogEntries(content as string, 'ERROR');
           const uniqueErrors = extractUniqueErrors(errors);
           summary.keyIssues.push(...uniqueErrors);
         }
       } catch (error) {
-        logger.error(`Error reading file ${file}:`, error);
+        logger.error(`Error reading file ${file.filename}:`, error);
       }
     }
 
@@ -249,7 +254,7 @@ export class SFCCLogClient {
     let filesToSearch = logFiles;
     if (logLevel) {
       filesToSearch = logFiles.filter(file => {
-        const filename = normalizeFilePath(file);
+        const filename = normalizeFilePath(file.filename);
         // Include both standard format (e.g., "warn-") and custom format (e.g., "customwarn-")
         return filename.startsWith(`${logLevel}-`) || filename.startsWith(`custom${logLevel}-`);
       });
@@ -259,16 +264,16 @@ export class SFCCLogClient {
 
     for (const file of filesToSearch) {
       try {
-        const content = await this.webdavClient.getFileContents(file, { format: 'text' });
+        const content = await this.webdavClient.getFileContents(file.filename, { format: 'text' });
         const lines = (content as string).split('\n');
 
         for (const line of lines) {
           if (line.toLowerCase().includes(pattern.toLowerCase()) && matchingEntries.length < limit) {
-            matchingEntries.push(`[${normalizeFilePath(file)}] ${line.trim()}`);
+            matchingEntries.push(`[${normalizeFilePath(file.filename)}] ${line.trim()}`);
           }
         }
       } catch (error) {
-        logger.error(`Error searching file ${file}:`, error);
+        logger.error(`Error searching file ${file.filename}:`, error);
       }
     }
 
