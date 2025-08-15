@@ -100,7 +100,7 @@ export class SFCCLogClient {
   /**
    * Get the latest log entries for a specific log level
    *
-   * @param level - Log level to fetch (error, warn, info)
+   * @param level - Log level to fetch (error, warn, info, debug)
    * @param limit - Maximum number of entries to return
    * @param date - Date in YYYYMMDD format (defaults to today)
    * @returns Formatted log entries
@@ -112,13 +112,14 @@ export class SFCCLogClient {
     const startTime = Date.now();
     const logFiles = await this.getLogFiles(targetDate);
 
-    // Filter files for the specific log level
+    // Filter files for the specific log level, including both standard and custom logs
     const levelFiles = logFiles.filter(file => {
       const filename = normalizeFilePath(file);
-      return filename.startsWith(`${level  }-`);
+      // Match both standard format (e.g., "warn-") and custom format (e.g., "customwarn-")
+      return filename.startsWith(`${level}-`) || filename.startsWith(`custom${level}-`);
     });
 
-    logger.debug(`Filtered to ${levelFiles.length} ${level} log files:`, levelFiles);
+    logger.debug(`Filtered to ${levelFiles.length} ${level} log files (including custom logs):`, levelFiles);
 
     if (levelFiles.length === 0) {
       const availableFiles = logFiles.map(f => normalizeFilePath(f)).join(', ');
@@ -128,22 +129,52 @@ export class SFCCLogClient {
       return result;
     }
 
-    // Get the most recent log file (sort by filename, latest timestamp should be last)
-    const latestFile = levelFiles.sort().pop();
-    logger.debug(`Processing latest file: ${latestFile}`);
+    // Sort files in reverse chronological order (newest first) for processing
+    const sortedFiles = levelFiles.sort().reverse();
 
-    const fileStartTime = Date.now();
-    const logContent = await this.webdavClient.getFileContents(latestFile, { format: 'text' });
-    logger.timing('webdav_getFileContents', fileStartTime);
+    // Process files from newest to oldest and collect entries with timestamps
+    const allLogEntries: Array<{ entry: string; filename: string; order: number }> = [];
 
-    const logEntries = parseLogEntries(logContent as string, level.toUpperCase());
-    const latestEntries = logEntries.slice(-limit).reverse();
+    for (let i = 0; i < sortedFiles.length; i++) {
+      const file = sortedFiles[i];
+      logger.debug(`Processing file: ${file} (priority: ${i})`);
 
-    logger.debug(`Parsed ${logEntries.length} total entries, returning latest ${latestEntries.length}`);
+      try {
+        const fileStartTime = Date.now();
+        const logContent = await this.webdavClient.getFileContents(file, { format: 'text' });
+        logger.timing(`webdav_getFileContents_${file}`, fileStartTime);
+
+        const logEntries = parseLogEntries(logContent as string, level.toUpperCase());
+
+        // Add entries with file priority (lower index = newer file = higher priority)
+        logEntries.forEach((entry, entryIndex) => {
+          allLogEntries.push({
+            entry: `[${normalizeFilePath(file)}] ${entry}`,
+            filename: normalizeFilePath(file),
+            order: i * 1000000 + entryIndex, // File priority + entry order within file
+          });
+        });
+      } catch (error) {
+        logger.error(`Error reading file ${file}:`, error);
+        // Continue processing other files even if one fails
+      }
+    }
+
+    // Sort all entries by order (newest files first, then by entry order within each file)
+    // Then take the most recent entries and reverse to show newest at top
+    const sortedEntries = allLogEntries
+      .sort((a, b) => a.order - b.order) // Ascending order (newest files have lower order values)
+      .slice(-limit) // Take the last N entries (most recent)
+      .reverse(); // Reverse to show newest entries at the top
+
+    const latestEntries = sortedEntries.map(item => item.entry);
+
+    logger.debug(`Parsed ${allLogEntries.length} total entries from ${sortedFiles.length} files, returning latest ${latestEntries.length}`);
     logger.timing('getLatestLogs', startTime);
-    logger.methodExit('getLatestLogs', { entriesReturned: latestEntries.length });
+    logger.methodExit('getLatestLogs', { entriesReturned: latestEntries.length, filesProcessed: sortedFiles.length });
 
-    return `Latest ${limit} ${level} messages from ${normalizeFilePath(latestFile!)}:\n\n${latestEntries.join('\n\n---\n\n')}`;
+    const fileList = sortedFiles.map(f => normalizeFilePath(f)).join(', ');
+    return `Latest ${limit} ${level} messages from files: ${fileList}\n\n${latestEntries.join('\n\n---\n\n')}`;
   }
 
   /**
@@ -219,7 +250,8 @@ export class SFCCLogClient {
     if (logLevel) {
       filesToSearch = logFiles.filter(file => {
         const filename = normalizeFilePath(file);
-        return filename.startsWith(`${logLevel  }-`);
+        // Include both standard format (e.g., "warn-") and custom format (e.g., "customwarn-")
+        return filename.startsWith(`${logLevel}-`) || filename.startsWith(`custom${logLevel}-`);
       });
     }
 
