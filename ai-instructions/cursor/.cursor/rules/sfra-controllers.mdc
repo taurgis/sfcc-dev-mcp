@@ -3,65 +3,364 @@ description: SFRA controller development patterns and best practices
 globs: cartridges/**/controllers/*.js
 alwaysApply: false
 ---
+
 # SFRA Controller Development
 
 Use this rule when creating or modifying SFRA controllers.
 
-## Required MCP Tools Sequence
+## Mandatory MCP Tools Sequence
 
+**BEFORE writing ANY SFRA controller code:**
 1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "sfra_controllers"
 2. `mcp_sfcc-dev_get_sfra_document` with documentName: "server"
-3. `mcp_sfcc-dev_search_best_practices` with query: "security"
+3. `mcp_sfcc-dev_search_sfra_documentation` with query: relevant functionality
+4. `mcp_sfcc-dev_search_best_practices` with query: "security"
 
-## Controller Template Pattern
+## MCP-Guided SFRA Development Process
+
+### Step 1: Get SFRA Controller Best Practices
+```
+Use: mcp_sfcc-dev_get_best_practice_guide with guideName: "sfra_controllers"
+Purpose: Get comprehensive SFRA controller patterns, routing, and middleware usage
+```
+
+### Step 2: Research SFRA Server Module
+```
+Use: mcp_sfcc-dev_get_sfra_document with documentName: "server"
+Purpose: Get Server class methods, routing capabilities, and middleware integration
+```
+
+### Step 3: Find Specific SFRA Functionality
+```
+Use: mcp_sfcc-dev_search_sfra_documentation with query: [specific feature]
+Purpose: Find patterns for request handling, response management, or specific functionality
+```
+
+### Step 4: Security Implementation
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "security"
+Purpose: Get security patterns for controller implementation
+```
+
+## MCP-Enhanced Controller Template Pattern
 
 ```javascript
 'use strict';
 
-var server = require('server');
-var CSRFProtection = require('*/cartridge/scripts/middleware/csrf');
-var userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
-
 /**
- * [Controller Name] - [Brief description]
- * Handles [specific functionality]
+ * [Controller Name] Controller
+ * Purpose: [Brief description of controller functionality]
+ *
+ * Implementation based on:
+ * - mcp_sfcc-dev_get_best_practice_guide with guideName: "sfra_controllers"
+ * - mcp_sfcc-dev_get_sfra_document with documentName: "server"
+ * - mcp_sfcc-dev_search_best_practices with query: "security"
  */
 
+var server = require('server');
+var Logger = require('dw/system/Logger').getLogger('controllers', 'ControllerName');
+
+// Middleware imports (use patterns from MCP SFRA best practices)
+var CSRFProtection = require('*/cartridge/scripts/middleware/csrf');
+var userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
+var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
+
+/**
+ * Show endpoint - Display page
+ * Security and validation patterns from MCP best practices
+ */
 server.get('Show', function (req, res, next) {
     try {
-        // Input validation
-        var viewData = {};
+        // Input validation (patterns from MCP security guide)
+        var queryString = req.querystring;
+        var validationResult = validateQueryParameters(queryString);
 
-        // Business logic here
+        if (!validationResult.valid) {
+            Logger.error('Invalid query parameters in ControllerName-Show: {0}', validationResult.error);
+            res.setStatusCode(400);
+            res.render('error/notfound');
+            return next();
+        }
 
-        res.render('template/templateName', viewData);
+        // Business logic (use SFCC classes from MCP research)
+        var viewData = prepareViewData(queryString);
+
+        // Security: Don't expose sensitive data in view
+        var safeViewData = sanitizeViewData(viewData);
+
+        Logger.info('ControllerName-Show executed successfully');
+        res.render('template/templateName', safeViewData);
+
     } catch (e) {
-        var Logger = require('dw/system/Logger').getLogger('controllers', 'ControllerName');
         Logger.error('Error in ControllerName-Show: {0}', e.message);
+        Logger.debug('Stack trace: {0}', e.stack);
 
         res.setStatusCode(500);
+        res.render('error/servererror');
+    }
+
+    return next();
+});
+
+/**
+ * Submit endpoint - Handle form submission
+ * CSRF protection and validation from MCP security patterns
+ */
+server.post('Submit', CSRFProtection.validateAjaxRequest, function (req, res, next) {
+    try {
+        // Form validation (patterns from MCP security guide)
+        var form = req.form;
+        var validationResult = validateFormData(form);
+
+        if (!validationResult.valid) {
+            Logger.warn('Form validation failed in ControllerName-Submit: {0}', validationResult.error);
+            res.json({
+                success: false,
+                error: 'VALIDATION_ERROR',
+                message: validationResult.error
+            });
+            return next();
+        }
+
+        // Process form data (use SFCC classes from MCP research)
+        var result = processFormSubmission(validationResult.data);
+
+        if (result.success) {
+            Logger.info('Form submission processed successfully');
+            res.json({
+                success: true,
+                redirectUrl: result.redirectUrl || null
+            });
+        } else {
+            Logger.error('Form processing failed: {0}', result.error);
+            res.json({
+                success: false,
+                error: 'PROCESSING_ERROR',
+                message: 'Unable to process request'
+            });
+        }
+
+    } catch (e) {
+        Logger.error('Error in ControllerName-Submit: {0}', e.message);
+        Logger.debug('Stack trace: {0}', e.stack);
+
         res.json({
-            error: true,
+            success: false,
+            error: 'INTERNAL_ERROR',
             message: 'Internal server error'
         });
     }
-    next();
+
+    return next();
 });
+
+/**
+ * Authenticated endpoint - Requires customer login
+ * Authentication middleware and security patterns from MCP
+ */
+server.get('AuthenticatedAction', userLoggedIn.validateLoggedIn, function (req, res, next) {
+    try {
+        var customer = req.currentCustomer;
+
+        // Additional authorization checks (from MCP security patterns)
+        if (!hasRequiredPermissions(customer, 'required_permission')) {
+            Logger.warn('Customer {0} lacks required permissions for AuthenticatedAction',
+                customer.profile.customerNo);
+            res.setStatusCode(403);
+            res.render('error/forbidden');
+            return next();
+        }
+
+        // Authenticated business logic
+        var customerData = getCustomerSpecificData(customer);
+
+        Logger.info('AuthenticatedAction executed for customer: {0}', customer.profile.customerNo);
+        res.render('template/authenticatedTemplate', customerData);
+
+    } catch (e) {
+        Logger.error('Error in ControllerName-AuthenticatedAction: {0}', e.message);
+
+        res.setStatusCode(500);
+        res.render('error/servererror');
+    }
+
+    return next();
+});
+
+/**
+ * Validate query parameters
+ * Validation patterns from MCP security best practices
+ */
+function validateQueryParameters(queryString) {
+    // Implement validation patterns from:
+    // mcp_sfcc-dev_search_best_practices with query: "validation"
+
+    try {
+        if (!queryString) {
+            return { valid: true, data: {} };
+        }
+
+        // Validate specific parameters based on controller requirements
+        var validatedData = {};
+
+        if (queryString.id) {
+            if (typeof queryString.id !== 'string' || queryString.id.length > 100) {
+                return { valid: false, error: 'Invalid ID parameter' };
+            }
+            validatedData.id = queryString.id;
+        }
+
+        return { valid: true, data: validatedData };
+    } catch (e) {
+        return { valid: false, error: 'Query parameter validation error: ' + e.message };
+    }
+}
+
+/**
+ * Validate form data
+ * Security validation patterns from MCP security guide
+ */
+function validateFormData(form) {
+    // Implement validation patterns from:
+    // mcp_sfcc-dev_search_best_practices with query: "security"
+
+    try {
+        if (!form) {
+            return { valid: false, error: 'Form data is required' };
+        }
+
+        var validatedData = {};
+
+        // Add specific form field validations
+        // Example validation patterns:
+        if (form.email) {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(form.email)) {
+                return { valid: false, error: 'Invalid email format' };
+            }
+            validatedData.email = form.email;
+        }
+
+        return { valid: true, data: validatedData };
+    } catch (e) {
+        return { valid: false, error: 'Form validation error: ' + e.message };
+    }
+}
+
+/**
+ * Prepare view data for template rendering
+ * Use SFCC classes researched via MCP
+ */
+function prepareViewData(queryString) {
+    // Implement using SFCC classes discovered via MCP tools
+    return {
+        // Add view data properties
+    };
+}
+
+/**
+ * Sanitize view data to prevent sensitive information exposure
+ * Security pattern from MCP security guide
+ */
+function sanitizeViewData(viewData) {
+    // Remove or mask sensitive properties
+    var sanitized = Object.assign({}, viewData);
+
+    // Remove sensitive data that shouldn't be exposed to templates
+    delete sanitized.internalId;
+    delete sanitized.sensitiveData;
+
+    return sanitized;
+}
+
+/**
+ * Process form submission business logic
+ */
+function processFormSubmission(validatedData) {
+    // Implement business logic using SFCC classes from MCP research
+    try {
+        // Process the validated form data
+        return { success: true };
+    } catch (e) {
+        Logger.error('Error processing form submission: {0}', e.message);
+        return { success: false, error: e.message };
+    }
+}
+
+/**
+ * Check customer permissions
+ * Authorization pattern from MCP security guide
+ */
+function hasRequiredPermissions(customer, permission) {
+    // Implement permission checking logic
+    return true; // Placeholder implementation
+}
+
+/**
+ * Get customer-specific data
+ */
+function getCustomerSpecificData(customer) {
+    // Implement using SFCC customer APIs from MCP research
+    return {
+        customerNo: customer.profile.customerNo
+        // Add customer-specific data
+    };
+}
 
 module.exports = server.exports();
 ```
 
-## Security Requirements
+## SFRA Controller Checklist (MCP-Verified)
 
-- Always include CSRF protection for forms
-- Validate all input parameters
-- Use proper authentication middleware
-- Sanitize data before rendering
-- Log errors without exposing sensitive information
+Before implementing SFRA controllers, verify with MCP:
+- [ ] `mcp_sfcc-dev_get_best_practice_guide` with guideName: "sfra_controllers" - Get controller patterns
+- [ ] `mcp_sfcc-dev_get_sfra_document` with documentName: "server" - Get Server class methods
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "security" - Security requirements
+- [ ] `mcp_sfcc-dev_search_sfra_documentation` - Find specific SFRA patterns
 
-## Performance Considerations
+Implementation verification:
+- [ ] Proper middleware usage (CSRF, authentication, consent tracking)
+- [ ] Input validation for all parameters and form data
+- [ ] Comprehensive error handling with appropriate status codes
+- [ ] Security checks for authenticated endpoints
+- [ ] Logging for debugging and monitoring
+- [ ] Sanitized view data to prevent information disclosure
+- [ ] Proper response formatting (JSON for AJAX, templates for pages)
 
-- Use caching middleware where appropriate
-- Minimize database queries in loops
-- Implement proper error boundaries
-- Use efficient template rendering
+## SFRA Middleware Patterns (from MCP SFRA Guide)
+
+```javascript
+// Common middleware combinations from MCP SFRA best practices
+
+// Public endpoint with CSRF protection
+server.post('PublicSubmit', CSRFProtection.validateAjaxRequest, function (req, res, next) {
+    // Handle public form submission
+});
+
+// Authenticated endpoint
+server.get('CustomerData', userLoggedIn.validateLoggedIn, function (req, res, next) {
+    // Handle authenticated customer requests
+});
+
+// Consent tracking for data collection
+server.get('TrackingEndpoint', consentTracking.consent, function (req, res, next) {
+    // Handle requests that require consent tracking
+});
+
+// Combined middleware
+server.post('SecureSubmit',
+    userLoggedIn.validateLoggedIn,
+    CSRFProtection.validateAjaxRequest,
+    consentTracking.consent,
+    function (req, res, next) {
+        // Handle secure, authenticated form submissions with consent
+    }
+);
+```
+
+## NEVER Implement SFRA Controllers Without MCP
+
+- ❌ Don't implement without controller patterns - use `mcp_sfcc-dev_get_best_practice_guide`
+- ❌ Don't assume Server methods - use `mcp_sfcc-dev_get_sfra_document`
+- ❌ Don't skip security validation - use `mcp_sfcc-dev_search_best_practices`
+- ❌ Don't guess SFRA functionality - use `mcp_sfcc-dev_search_sfra_documentation`

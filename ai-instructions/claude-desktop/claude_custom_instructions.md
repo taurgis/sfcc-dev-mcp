@@ -68,8 +68,6 @@ Claude Desktop integrates MCP tools seamlessly into the conversation. When you s
 - `mcp_sfcc-dev_get_latest_debug` - Get recent debug logs
 - `mcp_sfcc-dev_summarize_logs` - Get log overview
 - `mcp_sfcc-dev_search_logs` - Search logs by pattern
-- `mcp_sfcc-dev_analyze_error_patterns` - Analyze error patterns
-- `mcp_sfcc-dev_get_related_logs` - Get transaction-related logs
 - `mcp_sfcc-dev_list_log_files` - List available log files
 
 ## 🎯 Why Use the MCP Tools
@@ -125,8 +123,6 @@ Use these for debugging and troubleshooting:
 - **`mcp_sfcc-dev_get_latest_debug`** - Get recent debug logs
 - **`mcp_sfcc-dev_summarize_logs`** - Get log overview
 - **`mcp_sfcc-dev_search_logs`** - Search logs by pattern
-- **`mcp_sfcc-dev_analyze_error_patterns`** - Analyze error patterns
-- **`mcp_sfcc-dev_get_related_logs`** - Get transaction-related logs
 - **`mcp_sfcc-dev_list_log_files`** - List available log files
 
 ## 🚀 When to Use These Tools

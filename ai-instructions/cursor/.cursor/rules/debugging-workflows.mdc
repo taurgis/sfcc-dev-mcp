@@ -8,57 +8,133 @@ alwaysApply: false
 
 Use this rule when investigating errors, performance issues, or debugging SFCC applications.
 
-## Debugging Workflow Decision Tree
+## Mandatory MCP Tool Sequence for Debugging
 
-### For Active Errors/Issues:
-1. `mcp_sfcc-dev_summarize_logs` - Get system health overview
-2. `mcp_sfcc-dev_get_latest_error` - Check recent errors
-3. `mcp_sfcc-dev_search_logs` with pattern: [error keywords] - Find specific issues
-4. `mcp_sfcc-dev_analyze_error_patterns` with errorMessage: [specific error] - Deep analysis
+### 🚨 For Active Errors/Issues (ALWAYS start here):
+1. `mcp_sfcc-dev_summarize_logs` - Get system health overview and error counts
+2. `mcp_sfcc-dev_get_latest_error` - Check most recent critical errors
+3. `mcp_sfcc-dev_search_logs` with pattern: [specific error message] - Find error instances
 
-### For Performance Issues:
-1. `mcp_sfcc-dev_get_latest_warn` - Check performance warnings
-2. `mcp_sfcc-dev_search_logs` with pattern: "timeout" or "slow"
-3. `mcp_sfcc-dev_search_best_practices` with query: "performance"
+### ⚠️ For Performance Issues:
+1. `mcp_sfcc-dev_get_latest_warn` - Check performance warnings first
+2. `mcp_sfcc-dev_search_logs` with pattern: "timeout" or "slow" or "performance"
+3. `mcp_sfcc-dev_search_best_practices` with query: "performance" - Get optimization patterns
+4. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "performance" - Comprehensive guide
 
-### For Transaction Tracing:
-1. `mcp_sfcc-dev_search_logs` with pattern: [transaction-id]
-2. `mcp_sfcc-dev_get_related_logs` with correlationId: [transaction-id]
+### 🔍 For Transaction Tracing:
+1. `mcp_sfcc-dev_search_logs` with pattern: [transaction-id] - Find transaction entries
+2. `mcp_sfcc-dev_get_related_logs` with correlationId: [transaction-id] - Get complete flow
+3. `mcp_sfcc-dev_search_logs` with pattern: [customer-id] - Track customer journey
 
-## Error Handling Code Patterns
+### 📊 For System Health Assessment:
+1. `mcp_sfcc-dev_summarize_logs` - Overall system status
+2. `mcp_sfcc-dev_list_log_files` - Check log availability and sizes
+3. `mcp_sfcc-dev_get_latest_info` - Review normal operations
+4. `mcp_sfcc-dev_get_latest_debug` - Detailed execution traces (when needed)
+
+## MCP-Enhanced Error Handling Code Patterns
+
+Get patterns from MCP first, then implement:
 
 ```javascript
-// Standard error handling with logging
+// BEFORE writing this code, use:
+// mcp_sfcc-dev_search_best_practices with query: "error"
+// mcp_sfcc-dev_get_best_practice_guide with guideName: "security"
+
 try {
     // Business logic
 } catch (e) {
     var Logger = require('dw/system/Logger').getLogger('category', 'subcategory');
-    Logger.error('Operation failed in [context]: {0}', e.message);
-    Logger.debug('Stack trace: {0}', e.stack);
+
+    // Include correlation ID for MCP log tracing
+    var correlationId = request.getRequestId() || require('dw/util/UUIDUtils').createUUID();
+
+    Logger.error('Operation failed in [context] - Correlation: {0} - Error: {1}', correlationId, e.message);
+    Logger.debug('Stack trace - Correlation: {0} - Stack: {1}', correlationId, e.stack);
 
     // Return meaningful error response
     return {
         success: false,
         error: 'OPERATION_FAILED',
-        message: 'Unable to complete operation'
+        message: 'Unable to complete operation',
+        correlationId: correlationId
     };
 }
 ```
 
-## Debugging Best Practices
+## MCP-Driven Debugging Workflow
 
-- Always include context in log messages
-- Use appropriate log levels (error, warn, info, debug)
-- Include correlation IDs for transaction tracing
-- Sanitize sensitive data before logging
-- Use structured logging with consistent formats
-- Include stack traces for debugging but not in production errors
+**Step 1: System Overview**
+```
+Use: mcp_sfcc-dev_summarize_logs
+Purpose: Get error counts, warning levels, system health snapshot
+```
+
+**Step 2: Error Investigation**
+```
+Use: mcp_sfcc-dev_get_latest_error (limit: 5)
+Purpose: Identify most recent critical issues
+```
+
+**Step 3: Pattern Analysis**
+```
+Use: mcp_sfcc-dev_analyze_error_patterns with errorMessage: [specific error]
+Purpose: Get intelligent diagnosis with SFCC-specific solutions
+```
+
+**Step 4: Transaction Tracing**
+```
+Use: mcp_sfcc-dev_get_related_logs with correlationId: [id]
+Purpose: Follow complete request/transaction flow
+```
+
+**Step 5: Best Practice Consultation**
+```
+Use: mcp_sfcc-dev_search_best_practices with query: [relevant topic]
+Purpose: Get SFCC-specific debugging and fix patterns
+```
 
 ## Performance Investigation Checklist
 
-- [ ] Check database query efficiency
-- [ ] Review API call patterns
-- [ ] Validate caching strategies
-- [ ] Analyze memory usage patterns
-- [ ] Review transaction boundaries
-- [ ] Check for unnecessary loops or iterations
+Before investigating performance issues, ALWAYS use:
+- [ ] `mcp_sfcc-dev_get_latest_warn` - Check performance warnings
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "performance"
+- [ ] `mcp_sfcc-dev_get_best_practice_guide` with guideName: "performance"
+
+Then check:
+- [ ] Database query efficiency (verify with MCP performance guide)
+- [ ] API call patterns (validate against SFCC best practices)
+- [ ] Caching strategies (compare with MCP recommendations)
+- [ ] Memory usage patterns (check against SFCC guidelines)
+- [ ] Transaction boundaries (verify with MCP transaction patterns)
+- [ ] Unnecessary loops or iterations (optimize per MCP patterns)
+
+## MCP Log Search Patterns
+
+**For Errors:**
+```
+mcp_sfcc-dev_search_logs with pattern: "ERROR" and logLevel: "error"
+mcp_sfcc-dev_search_logs with pattern: "Exception" and logLevel: "error"
+mcp_sfcc-dev_search_logs with pattern: "Failed" and logLevel: "error"
+```
+
+**For Performance Issues:**
+```
+mcp_sfcc-dev_search_logs with pattern: "timeout"
+mcp_sfcc-dev_search_logs with pattern: "slow"
+mcp_sfcc-dev_search_logs with pattern: "performance"
+```
+
+**For Security Issues:**
+```
+mcp_sfcc-dev_search_logs with pattern: "authentication"
+mcp_sfcc-dev_search_logs with pattern: "authorization"
+mcp_sfcc-dev_search_logs with pattern: "security"
+```
+
+## NEVER Debug Without MCP
+
+- ❌ Don't guess at error causes - use `mcp_sfcc-dev_search_logs` for pattern analysis
+- ❌ Don't implement fixes without consulting `mcp_sfcc-dev_search_best_practices`
+- ❌ Don't trace issues manually - use `mcp_sfcc-dev_search_logs` with correlation IDs
+- ❌ Don't assume system health - always start with `mcp_sfcc-dev_summarize_logs`

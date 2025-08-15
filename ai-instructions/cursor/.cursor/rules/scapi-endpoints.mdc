@@ -7,8 +7,71 @@ alwaysApply: false
 
 Use this rule when creating custom SCAPI endpoints.
 
-## Required MCP Tools Sequence
+## Mandatory MCP Tools Sequence
 
+**BEFORE writing ANY SCAPI endpoint code:**
 1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "scapi_custom_endpoint"
 2. `mcp_sfcc-dev_search_best_practices` with query: "security"
-3. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain
+3. `mcp_sfcc-dev_search_best_practices` with query: "validation"
+4. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain
+
+## MCP-Guided SCAPI Development Process
+
+### Step 1: Get SCAPI Endpoint Best Practices
+```
+Use: mcp_sfcc-dev_get_best_practice_guide with guideName: "scapi_custom_endpoint"
+Purpose: Get three-pillar architecture patterns, endpoint structure, and implementation guidelines
+```
+
+### Step 2: Security Implementation Patterns
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "security"
+Use: mcp_sfcc-dev_search_best_practices with query: "validation"
+Purpose: Get authentication, authorization, and input validation patterns
+```
+
+### Step 3: SFCC API Research
+```
+Use: mcp_sfcc-dev_search_sfcc_classes with query: [relevant domain]
+Use: mcp_sfcc-dev_get_sfcc_class_info with className: [business logic classes]
+Purpose: Understand available SFCC APIs for endpoint implementation
+```
+
+## SCAPI Development Checklist (MCP-Verified)
+
+Before implementing SCAPI endpoints, verify with MCP:
+- [ ] `mcp_sfcc-dev_get_best_practice_guide` with guideName: "scapi_custom_endpoint" - Get three-pillar patterns
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "security" - Security requirements
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "validation" - Input validation patterns
+- [ ] `mcp_sfcc-dev_search_sfcc_classes` - Research business logic APIs
+
+Implementation verification:
+- [ ] Comprehensive input validation
+- [ ] Proper authentication and authorization
+- [ ] Error handling with appropriate HTTP status codes
+- [ ] Logging for debugging and monitoring
+
+## Security Considerations from MCP
+
+Always implement security patterns from MCP:
+- Validate all input parameters
+- Implement proper authentication checks
+- Use appropriate authorization based on customer roles
+- Sanitize user-provided data per MCP recommendations
+- Log security-relevant events with customer context
+- Return meaningful but not revealing error messages
+
+## Performance Considerations from MCP
+
+Follow MCP performance patterns:
+- Cache expensive operations where appropriate
+- Use efficient SFCC API calls (research via MCP)
+- Implement proper transaction management
+- Add performance logging for monitoring
+- Consider rate limiting for resource-intensive operations
+
+## NEVER Implement SCAPI Endpoints Without MCP
+
+- ❌ Don't skip security validation - use `mcp_sfcc-dev_search_best_practices`
+- ❌ Don't assume SFCC APIs - use `mcp_sfcc-dev_search_sfcc_classes`
+- ❌ Don't implement without proper error handling - follow MCP patterns

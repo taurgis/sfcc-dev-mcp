@@ -8,8 +8,180 @@ alwaysApply: false
 
 Use this rule when creating or modifying ISML templates in SFCC.
 
-## Required MCP Tools Sequence
+## Mandatory MCP Tools Sequence
 
+**BEFORE writing ANY ISML template code:**
 1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "isml_templates"
 2. `mcp_sfcc-dev_search_best_practices` with query: "security"
 3. `mcp_sfcc-dev_search_best_practices` with query: "performance"
+4. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain
+
+## MCP-Guided ISML Development Process
+
+### Step 1: Get ISML Best Practices
+```
+Use: mcp_sfcc-dev_get_best_practice_guide with guideName: "isml_templates"
+Purpose: Get comprehensive ISML template patterns, security guidelines, and optimization strategies
+```
+
+### Step 2: Security Implementation Patterns
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "security"
+Purpose: Get input validation, XSS prevention, and secure template patterns
+```
+
+### Step 3: Performance Optimization
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "performance"
+Purpose: Get template performance guidelines and optimization strategies
+```
+
+### Step 4: SFCC API Research
+```
+Use: mcp_sfcc-dev_search_sfcc_classes with query: [relevant domain]
+Use: mcp_sfcc-dev_get_sfcc_class_info with className: [template objects]
+Purpose: Understand available template objects and methods
+```
+
+## MCP-Enhanced ISML Template Pattern
+
+```html
+<iscache type="relative" hour="24"/>
+<iscomment>
+    Template: [Template Name]
+    Purpose: [Template functionality]
+
+    Implementation based on:
+    - mcp_sfcc-dev_get_best_practice_guide with guideName: "isml_templates"
+    - mcp_sfcc-dev_search_best_practices with query: "security"
+    - mcp_sfcc-dev_search_best_practices with query: "performance"
+</iscomment>
+
+<isset name="templateData" value="${pdict.templateData}" scope="page" />
+
+<isif condition="${templateData}">
+    <div class="template-container">
+        <isloop items="${templateData.items}" var="item" status="loopStatus">
+            <isif condition="${item && item.isValid}">
+                <div class="item-container" data-item-id="${item.ID}">
+                    <iscomment>Security: Always encode output per MCP security guidelines</iscomment>
+                    <h3>${item.displayName}</h3>
+
+                    <iscomment>Performance: Use efficient conditionals per MCP performance guide</iscomment>
+                    <isif condition="${item.description}">
+                        <p class="description">${item.description}</p>
+                    </isif>
+
+                    <iscomment>Security: Validate and encode custom attributes</iscomment>
+                    <isif condition="${item.custom && item.custom.customAttribute}">
+                        <span class="custom-data">${item.custom.customAttribute}</span>
+                    </isif>
+                </div>
+            </isif>
+        </isloop>
+    </div>
+<iselse>
+    <div class="no-data">
+        <iscomment>Always provide fallback content per MCP best practices</iscomment>
+        <p>No data available</p>
+    </div>
+</isif>
+```
+
+## ISML Security Checklist (MCP-Verified)
+
+Security patterns from MCP security best practices:
+- [ ] All output encoded using `${variable}` syntax (auto-encoding)
+- [ ] Custom attributes validated before rendering
+- [ ] User input sanitized in controller before passing to template
+- [ ] No direct JavaScript injection in templates
+- [ ] Form tokens included for CSRF protection
+- [ ] No sensitive data exposed in client-side code
+- [ ] Error messages don't reveal system information
+
+## ISML Performance Checklist (MCP-Verified)
+
+Performance patterns from MCP performance guide:
+- [ ] Appropriate caching directives (`<iscache>`)
+- [ ] Efficient loop structures with status variables
+- [ ] Minimal nested conditions
+- [ ] Proper use of `<isset>` for variable assignment
+- [ ] Lazy loading for heavy content
+- [ ] Optimized template includes and inheritance
+- [ ] Minimal inline styles and scripts
+
+## MCP-Enhanced Template Security Patterns
+
+```html
+<iscomment>Security validation pattern from MCP security guide</iscomment>
+<isif condition="${pdict.userInput}">
+    <iscomment>Always validate and encode user input</iscomment>
+    <isset name="safeInput" value="${pdict.userInput}" scope="page" />
+    <isif condition="${safeInput && safeInput.length <= 100}">
+        <p>User input: ${safeInput}</p>
+    <iselse>
+        <p>Invalid input provided</p>
+    </isif>
+</isif>
+
+<iscomment>Form security pattern from MCP security guide</iscomment>
+<form action="${URLUtils.url('Controller-Action')}" method="post">
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <iscomment>CSRF protection required for all forms</iscomment>
+    <!-- form fields -->
+</form>
+```
+
+## MCP-Enhanced Template Performance Patterns
+
+```html
+<iscomment>Performance optimization patterns from MCP performance guide</iscomment>
+
+<iscomment>Efficient caching strategy</iscomment>
+<iscache type="relative" hour="24" varyby="price_promotion"/>
+
+<iscomment>Optimized loop with early exit conditions</iscomment>
+<isloop items="${pdict.products}" var="product" status="loopStatus">
+    <isif condition="${loopStatus.count > 20}">
+        <isbreak/>
+    </isif>
+    <isif condition="${product.online}">
+        <div class="product-tile">
+            ${product.name}
+        </div>
+    </isif>
+</isloop>
+
+<iscomment>Lazy loading for heavy content</iscomment>
+<isif condition="${pdict.showAdvancedFeatures}">
+    <isinclude template="components/advanced-features"/>
+</isif>
+```
+
+## Template Organization from MCP Best Practices
+
+Based on MCP ISML template guide:
+
+### Template Structure:
+```
+templates/
+├── default/
+│   ├── components/        # Reusable components
+│   ├── pages/            # Full page templates
+│   ├── common/           # Common includes (header, footer)
+│   └── emails/           # Email templates
+```
+
+### Template Naming Conventions:
+- Use descriptive, hierarchical names
+- Follow cartridge naming patterns
+- Include template purpose in filename
+- Use consistent casing (lowercase with hyphens)
+
+## NEVER Create Templates Without MCP
+
+- ❌ Don't implement without security patterns - use `mcp_sfcc-dev_search_best_practices`
+- ❌ Don't guess template objects - use `mcp_sfcc-dev_search_sfcc_classes`
+- ❌ Don't skip performance optimization - use MCP performance guide
+- ❌ Don't ignore caching strategies - follow MCP caching patterns
+- ❌ Don't implement forms without CSRF - use MCP security guide

@@ -2,17 +2,47 @@
 description: SFCC Job Framework patterns and best practices
 alwaysApply: false
 ---
+
 # SFCC Job Framework Development
 
 Use this rule when creating custom jobs in the SFCC Job Framework.
 
-## Required MCP Tools Sequence
+## Mandatory MCP Tools Sequence
 
+**BEFORE writing ANY job code:**
 1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "job_framework"
 2. `mcp_sfcc-dev_search_best_practices` with query: "performance"
 3. `mcp_sfcc-dev_search_best_practices` with query: "security"
+4. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain
 
-## Core Concepts
+## MCP-Guided Job Development Process
+
+### Step 1: Get Job Framework Best Practices
+```
+Use: mcp_sfcc-dev_get_best_practice_guide with guideName: "job_framework"
+Purpose: Get comprehensive job development patterns, chunking strategies, and performance guidelines
+```
+
+### Step 2: Performance Optimization Patterns
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "performance"
+Purpose: Get memory management, transaction handling, and resource optimization patterns
+```
+
+### Step 3: Security Implementation
+```
+Use: mcp_sfcc-dev_search_best_practices with query: "security"
+Purpose: Get secure job execution and data handling patterns
+```
+
+### Step 4: SFCC API Research
+```
+Use: mcp_sfcc-dev_search_sfcc_classes with query: [relevant domain]
+Use: mcp_sfcc-dev_get_sfcc_class_info with className: [job-related classes]
+Purpose: Understand available job framework APIs and data access patterns
+```
+
+## Core Concepts from MCP Job Framework Guide
 
 ### Job Development Paradigms
 
@@ -27,28 +57,243 @@ SFCC offers two distinct development models for custom jobs:
 | **Code Complexity** | Low (single main function) | Moderate (callback functions) |
 | **Resumability** | Difficult (requires full restart) | Easier (failures isolated to chunks) |
 
-## Task-Oriented Jobs: Best Practices
+## MCP-Enhanced Task-Oriented Job Pattern
 
-### When to Use Task-Oriented Jobs
+```javascript
+'use strict';
 
-Choose task-oriented jobs for:
-- Single configuration file downloads
-- Single API calls to external services
-- Quick, targeted database updates
-- Tasks where calculating progress is impractical
+/**
+ * Task-Oriented Job: [Job Name]
+ * Purpose: [Job functionality]
+ *
+ * Implementation based on:
+ * - mcp_sfcc-dev_get_best_practice_guide with guideName: "job_framework"
+ * - mcp_sfcc-dev_search_best_practices with query: "performance"
+ * - mcp_sfcc-dev_search_best_practices with query: "security"
+ */
 
-## Chunk-Oriented Jobs: Enterprise-Scale Processing
+var Status = require('dw/system/Status');
+var Logger = require('dw/system/Logger').getLogger('jobs', 'JobName');
+var Transaction = require('dw/system/Transaction');
 
-### The Chunking Philosophy
+/**
+ * Main job execution function
+ * Pattern from MCP job framework guide
+ */
+function execute(parameters) {
+    try {
+        Logger.info('Starting job execution with parameters: {0}', JSON.stringify(parameters));
 
-Chunk-oriented jobs are SFCC's architectural solution for processing large datasets without hitting platform limits. They break massive tasks into manageable segments, providing:
+        // Input validation (patterns from MCP security guide)
+        var validationResult = validateJobParameters(parameters);
+        if (!validationResult.valid) {
+            Logger.error('Job parameter validation failed: {0}', validationResult.error);
+            return new Status(Status.ERROR, 'INVALID_PARAMETERS', validationResult.error);
+        }
 
-- **Stability**: Eliminates memory and timeout issues
-- **Performance**: Fine-tuned transaction management
-- **Monitoring**: Granular progress tracking
-- **Resilience**: Isolated failure handling
+        // Main job logic here (use SFCC classes discovered via MCP)
+        var result = performJobOperation(parameters);
 
-## Quick Reference
+        if (result.success) {
+            Logger.info('Job completed successfully. Processed: {0} items', result.processedCount);
+            return new Status(Status.OK, 'SUCCESS', 'Job completed successfully');
+        } else {
+            Logger.error('Job failed: {0}', result.error);
+            return new Status(Status.ERROR, 'JOB_FAILED', result.error);
+        }
+
+    } catch (e) {
+        Logger.error('Unexpected error in job execution: {0}', e.message);
+        Logger.debug('Job error stack trace: {0}', e.stack);
+        return new Status(Status.ERROR, 'UNEXPECTED_ERROR', 'Job execution failed');
+    }
+}
+
+/**
+ * Validate job parameters based on MCP security patterns
+ */
+function validateJobParameters(parameters) {
+    // Implement validation patterns from:
+    // mcp_sfcc-dev_search_best_practices with query: "security"
+
+    try {
+        if (!parameters) {
+            return { valid: false, error: 'Parameters object is required' };
+        }
+
+        // Add specific parameter validations based on job requirements
+
+        return { valid: true };
+    } catch (e) {
+        return { valid: false, error: 'Parameter validation error: ' + e.message };
+    }
+}
+
+/**
+ * Main job operation implementation
+ * Follow performance patterns from MCP performance guide
+ */
+function performJobOperation(parameters) {
+    try {
+        var processedCount = 0;
+
+        // Use Transaction for data modifications (MCP performance patterns)
+        Transaction.wrap(function () {
+            // Job logic here
+            processedCount = performDataOperation();
+        });
+
+        return { success: true, processedCount: processedCount };
+    } catch (e) {
+        Logger.error('Error in job operation: {0}', e.message);
+        return { success: false, error: e.message };
+    }
+}
+
+module.exports.execute = execute;
+```
+
+## MCP-Enhanced Chunk-Oriented Job Pattern
+
+```javascript
+'use strict';
+
+/**
+ * Chunk-Oriented Job: [Job Name]
+ * Purpose: [Large-scale data processing]
+ *
+ * Implementation based on:
+ * - mcp_sfcc-dev_get_best_practice_guide with guideName: "job_framework"
+ * - MCP performance and security patterns
+ */
+
+var Status = require('dw/system/Status');
+var Logger = require('dw/system/Logger').getLogger('jobs', 'ChunkJob');
+
+/**
+ * Get total count for progress tracking
+ * Pattern from MCP job framework guide
+ */
+function getTotalCount(parameters, stepExecution) {
+    try {
+        // Get total count for chunking (use SFCC classes from MCP research)
+        var totalCount = calculateTotalItems(parameters);
+
+        Logger.info('Total items to process: {0}', totalCount);
+        return totalCount;
+
+    } catch (e) {
+        Logger.error('Error getting total count: {0}', e.message);
+        return 0;
+    }
+}
+
+/**
+ * Read chunk of data
+ * Performance patterns from MCP performance guide
+ */
+function read(parameters, stepExecution) {
+    try {
+        var chunkSize = parameters.ChunkSize || 100;
+        var currentOffset = stepExecution.readCount;
+
+        // Use efficient data access patterns (MCP performance guide)
+        var dataChunk = getDataChunk(currentOffset, chunkSize, parameters);
+
+        if (dataChunk && dataChunk.length > 0) {
+            Logger.debug('Read chunk: offset={0}, size={1}', currentOffset, dataChunk.length);
+            return dataChunk;
+        }
+
+        return null; // End of data
+
+    } catch (e) {
+        Logger.error('Error reading data chunk: {0}', e.message);
+        return null;
+    }
+}
+
+/**
+ * Process single item in chunk
+ * Security and performance patterns from MCP guides
+ */
+function process(item, parameters, stepExecution) {
+    try {
+        // Validate item (security patterns from MCP)
+        if (!item || !validateItem(item)) {
+            Logger.warn('Invalid item skipped: {0}', item);
+            return null;
+        }
+
+        // Process item with error handling
+        var result = processItem(item, parameters);
+
+        if (result.success) {
+            Logger.debug('Processed item: {0}', item.ID || item.id);
+            return result.data;
+        } else {
+            Logger.warn('Failed to process item {0}: {1}', item.ID || item.id, result.error);
+            return null;
+        }
+
+    } catch (e) {
+        Logger.error('Error processing item {0}: {1}', item.ID || item.id, e.message);
+        return null;
+    }
+}
+
+/**
+ * Write processed data
+ * Transaction patterns from MCP performance guide
+ */
+function write(items, parameters, stepExecution) {
+    try {
+        if (!items || items.length === 0) {
+            return;
+        }
+
+        var Transaction = require('dw/system/Transaction');
+
+        // Use transaction per chunk (MCP performance pattern)
+        Transaction.wrap(function () {
+            items.forEach(function (item) {
+                if (item) {
+                    writeItem(item, parameters);
+                }
+            });
+        });
+
+        Logger.info('Wrote chunk: {0} items', items.length);
+
+    } catch (e) {
+        Logger.error('Error writing chunk: {0}', e.message);
+        throw e; // Re-throw to trigger chunk retry
+    }
+}
+
+module.exports.getTotalCount = getTotalCount;
+module.exports.read = read;
+module.exports.process = process;
+module.exports.write = write;
+```
+
+## Job Development Checklist (MCP-Verified)
+
+Before implementing jobs, verify with MCP:
+- [ ] `mcp_sfcc-dev_get_best_practice_guide` with guideName: "job_framework" - Get implementation patterns
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "performance" - Performance guidelines
+- [ ] `mcp_sfcc-dev_search_best_practices` with query: "security" - Security requirements
+- [ ] Choose appropriate job model (task vs. chunk-oriented) based on MCP guidance
+
+Implementation verification:
+- [ ] Proper error handling and logging
+- [ ] Input parameter validation
+- [ ] Appropriate transaction management
+- [ ] Memory-efficient data processing
+- [ ] Progress tracking for chunk-oriented jobs
+- [ ] Resource cleanup (close iterators, etc.)
+
+## Quick Reference from MCP Job Guide
 
 ### Choosing the Right Job Model
 
@@ -65,24 +310,9 @@ Chunk-oriented jobs are SFCC's architectural solution for processing large datas
 - Failure resilience is critical
 - Transaction control is important
 
-### Essential Performance Guidelines
+## NEVER Implement Jobs Without MCP
 
-1. **Always use streaming APIs** for file processing
-2. **Close all SeekableIterators** to prevent memory leaks
-3. **Keep chunk sizes between 100-500** for most operations
-4. **Commit transactions per chunk** for resilience
-5. **Avoid accumulating objects** in global scope
-6. **Log appropriately** - info for milestones, debug for development only
-7. **Validate inputs** and handle errors gracefully
-8. **Design for idempotency** to enable safe re-runs
-
-### Common Troubleshooting Steps
-
-1. **OutOfMemoryError**: Check streaming APIs, iterator closure, chunk size
-2. **ScriptingTimeoutError**: Consider chunk-oriented model, review algorithm efficiency
-3. **Transaction timeouts**: Reduce chunk size, commit per chunk
-4. **Job hangs**: Check resource locks, review for infinite loops
-5. **Poor performance**: Use Code Profiler, review API usage patterns
-
-Remember: **The Job Framework is critical infrastructure**. Always prioritize stability, performance, and maintainability over quick implementation.
-
+- ❌ Don't choose job model without consulting `mcp_sfcc-dev_get_best_practice_guide`
+- ❌ Don't implement without performance patterns - use MCP performance guide
+- ❌ Don't skip parameter validation - use MCP security patterns
+- ❌ Don't assume job framework APIs - use `mcp_sfcc-dev_search_sfcc_classes`

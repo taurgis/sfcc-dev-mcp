@@ -7,65 +7,377 @@ alwaysApply: true
 
 Use this rule when working with SFCC system objects, custom attributes, or data models.
 
-## Required MCP Tools Sequence
+## Mandatory MCP Tools Sequence
 
+**BEFORE working with ANY system objects:**
 1. `mcp_sfcc-dev_get_system_object_definitions` - List available objects
 2. `mcp_sfcc-dev_search_system_object_attribute_definitions` - Find specific attributes
-3. `mcp_sfcc-dev_search_site_preferences` - Configure preferences if needed
+3. `mcp_sfcc-dev_search_system_object_attribute_groups` - Find preference groups
+4. `mcp_sfcc-dev_search_site_preferences` - Configure preferences if needed
 
-## System Object Access Patterns
+## MCP-Guided System Object Development Process
+
+### Step 1: Discover Available System Objects
+```
+Use: mcp_sfcc-dev_get_system_object_definitions
+Purpose: Get complete list of available system objects with basic metadata
+```
+
+### Step 2: Research Object Attributes
+```
+Use: mcp_sfcc-dev_search_system_object_attribute_definitions with objectType: [ObjectType]
+Purpose: Find attributes for specific system objects like Product, Customer, Order, etc.
+```
+
+### Step 3: Find Attribute Groups (for Site Preferences)
+```
+Use: mcp_sfcc-dev_search_system_object_attribute_groups with objectType: "SitePreferences"
+Purpose: Discover preference groups needed for site preference searches
+```
+
+### Step 4: Configure Site Preferences
+```
+Use: mcp_sfcc-dev_search_site_preferences with groupId: [groupId]
+Purpose: Find and configure site-specific preferences
+```
+
+### Step 5: Work with Custom Objects
+```
+Use: mcp_sfcc-dev_search_custom_object_attribute_definitions with objectType: [CustomObjectType]
+Purpose: Find attributes for custom objects and user-defined data structures
+```
+
+## MCP-Enhanced System Object Access Patterns
 
 ```javascript
-// Product attribute access
-var product = ProductMgr.getProduct(productID);
-if (product && product.custom.customAttribute) {
-    var attributeValue = product.custom.customAttribute;
-    // Validate attribute exists and has expected type
+'use strict';
+
+/**
+ * System Object Utilities
+ * Implementation based on:
+ * - mcp_sfcc-dev_get_system_object_definitions
+ * - mcp_sfcc-dev_search_system_object_attribute_definitions
+ */
+
+var Logger = require('dw/system/Logger').getLogger('systemObjects', 'ObjectAccess');
+
+/**
+ * Safe product attribute access with validation
+ * Use attributes discovered via MCP system object tools
+ */
+function getProductAttribute(product, attributeName, options) {
+    options = options || {};
+
+    try {
+        // Validate product object (pattern from MCP)
+        if (!product) {
+            Logger.warn('Product object is null for attribute: {0}', attributeName);
+            return { success: false, error: 'Product not found' };
+        }
+
+        // Check if custom attributes exist (critical validation from MCP)
+        if (!product.custom) {
+            Logger.warn('Product {0} has no custom attributes', product.ID);
+            return { success: false, error: 'No custom attributes available' };
+        }
+
+        // Get attribute value with null checking
+        var value = product.custom[attributeName];
+
+        if (value === null || value === undefined) {
+            if (options.required) {
+                Logger.warn('Required attribute {0} not set for product {1}', attributeName, product.ID);
+                return { success: false, error: 'Required attribute not set' };
+            }
+            return { success: true, value: options.defaultValue || null };
+        }
+
+        // Type validation (if specified)
+        if (options.expectedType && typeof value !== options.expectedType) {
+            Logger.warn('Attribute {0} type mismatch for product {1}: expected {2}, got {3}',
+                attributeName, product.ID, options.expectedType, typeof value);
+            return { success: false, error: 'Attribute type mismatch' };
+        }
+
+        Logger.debug('Successfully retrieved attribute {0} for product {1}', attributeName, product.ID);
+        return { success: true, value: value };
+
+    } catch (e) {
+        Logger.error('Error accessing product attribute {0}: {1}', attributeName, e.message);
+        return { success: false, error: 'Attribute access error' };
+    }
 }
 
-// Customer attribute access
-var customer = CustomerMgr.getCustomerByCustomerNumber(customerNo);
-if (customer && customer.profile) {
-    var customValue = customer.profile.custom.customField;
-    // Handle null/undefined values gracefully
+/**
+ * Safe customer attribute access with validation
+ * Use attributes discovered via MCP customer object research
+ */
+function getCustomerAttribute(customer, attributeName, options) {
+    options = options || {};
+
+    try {
+        // Validate customer object (pattern from MCP)
+        if (!customer || !customer.profile) {
+            Logger.warn('Customer or profile is null for attribute: {0}', attributeName);
+            return { success: false, error: 'Customer profile not found' };
+        }
+
+        // Check if custom attributes exist
+        if (!customer.profile.custom) {
+            Logger.warn('Customer {0} has no custom attributes', customer.profile.customerNo);
+            return { success: false, error: 'No custom attributes available' };
+        }
+
+        var value = customer.profile.custom[attributeName];
+
+        if (value === null || value === undefined) {
+            if (options.required) {
+                Logger.warn('Required attribute {0} not set for customer {1}',
+                    attributeName, customer.profile.customerNo);
+                return { success: false, error: 'Required attribute not set' };
+            }
+            return { success: true, value: options.defaultValue || null };
+        }
+
+        // Type validation
+        if (options.expectedType && typeof value !== options.expectedType) {
+            Logger.warn('Customer attribute {0} type mismatch: expected {1}, got {2}',
+                attributeName, options.expectedType, typeof value);
+            return { success: false, error: 'Attribute type mismatch' };
+        }
+
+        return { success: true, value: value };
+
+    } catch (e) {
+        Logger.error('Error accessing customer attribute {0}: {1}', attributeName, e.message);
+        return { success: false, error: 'Attribute access error' };
+    }
 }
 
-// Site preference access
-var Site = require('dw/system/Site');
-var preferenceValue = Site.current.getCustomPreferenceValue('customPreference');
-if (preferenceValue) {
-    // Use preference value with proper validation
+/**
+ * Safe site preference access with validation
+ * Use preferences discovered via MCP site preference tools
+ */
+function getSitePreference(preferenceName, options) {
+    options = options || {};
+
+    try {
+        var Site = require('dw/system/Site');
+        var preferenceValue = Site.current.getCustomPreferenceValue(preferenceName);
+
+        if (preferenceValue === null || preferenceValue === undefined) {
+            if (options.required) {
+                Logger.warn('Required site preference {0} not configured', preferenceName);
+                return { success: false, error: 'Required preference not configured' };
+            }
+
+            Logger.debug('Site preference {0} not set, using default: {1}',
+                preferenceName, options.defaultValue);
+            return { success: true, value: options.defaultValue || null };
+        }
+
+        // Type validation
+        if (options.expectedType && typeof preferenceValue !== options.expectedType) {
+            Logger.warn('Site preference {0} type mismatch: expected {1}, got {2}',
+                preferenceName, options.expectedType, typeof preferenceValue);
+            return { success: false, error: 'Preference type mismatch' };
+        }
+
+        return { success: true, value: preferenceValue };
+
+    } catch (e) {
+        Logger.error('Error accessing site preference {0}: {1}', preferenceName, e.message);
+        return { success: false, error: 'Preference access error' };
+    }
+}
+
+/**
+ * Safe custom object access with validation
+ * Use custom objects discovered via MCP custom object tools
+ */
+function getCustomObject(objectType, keyValue, options) {
+    options = options || {};
+
+    try {
+        var CustomObjectMgr = require('dw/object/CustomObjectMgr');
+        var customObject = CustomObjectMgr.getCustomObject(objectType, keyValue);
+
+        if (!customObject) {
+            if (options.required) {
+                Logger.warn('Required custom object not found: {0}:{1}', objectType, keyValue);
+                return { success: false, error: 'Custom object not found' };
+            }
+            return { success: true, value: null };
+        }
+
+        return { success: true, value: customObject };
+
+    } catch (e) {
+        Logger.error('Error accessing custom object {0}:{1} - {2}', objectType, keyValue, e.message);
+        return { success: false, error: 'Custom object access error' };
+    }
+}
+
+/**
+ * Safe custom object attribute access
+ * Use attributes discovered via MCP custom object attribute tools
+ */
+function getCustomObjectAttribute(customObject, attributeName, options) {
+    options = options || {};
+
+    try {
+        if (!customObject) {
+            return { success: false, error: 'Custom object is null' };
+        }
+
+        if (!customObject.custom) {
+            Logger.warn('Custom object has no custom attributes');
+            return { success: false, error: 'No custom attributes available' };
+        }
+
+        var value = customObject.custom[attributeName];
+
+        if (value === null || value === undefined) {
+            if (options.required) {
+                Logger.warn('Required custom object attribute {0} not set', attributeName);
+                return { success: false, error: 'Required attribute not set' };
+            }
+            return { success: true, value: options.defaultValue || null };
+        }
+
+        return { success: true, value: value };
+
+    } catch (e) {
+        Logger.error('Error accessing custom object attribute {0}: {1}', attributeName, e.message);
+        return { success: false, error: 'Attribute access error' };
+    }
+}
+
+module.exports.getProductAttribute = getProductAttribute;
+module.exports.getCustomerAttribute = getCustomerAttribute;
+module.exports.getSitePreference = getSitePreference;
+module.exports.getCustomObject = getCustomObject;
+module.exports.getCustomObjectAttribute = getCustomObjectAttribute;
+```
+
+## System Object Development Checklist (MCP-Verified)
+
+Before working with system objects, verify with MCP:
+- [ ] `mcp_sfcc-dev_get_system_object_definitions` - Understand available objects
+- [ ] `mcp_sfcc-dev_search_system_object_attribute_definitions` - Find object attributes
+- [ ] `mcp_sfcc-dev_search_system_object_attribute_groups` - Find preference groups
+- [ ] `mcp_sfcc-dev_search_site_preferences` - Configure site preferences
+
+Implementation verification:
+- [ ] Always check if objects exist before accessing attributes
+- [ ] Validate custom attribute types and values
+- [ ] Use proper null/undefined checks
+- [ ] Handle missing attributes gracefully with defaults
+- [ ] Log attribute access for debugging
+- [ ] Use transactions when modifying system objects
+- [ ] Validate site preferences before use
+- [ ] Implement proper error handling for object access
+
+## MCP-Enhanced Data Validation Patterns
+
+```javascript
+/**
+ * Comprehensive system object validation
+ * Use object definitions from MCP system object tools
+ */
+function validateSystemObjectData(objectType, objectData, requiredAttributes) {
+    // Validate based on system object definitions from MCP
+    var validationErrors = [];
+
+    try {
+        if (!objectData) {
+            return { valid: false, errors: ['Object data is required'] };
+        }
+
+        // Validate required attributes (discovered via MCP)
+        if (requiredAttributes && requiredAttributes.length > 0) {
+            requiredAttributes.forEach(function(attrName) {
+                if (!objectData[attrName] && objectData[attrName] !== 0) {
+                    validationErrors.push('Required attribute missing: ' + attrName);
+                }
+            });
+        }
+
+        // Type-specific validations based on object type
+        switch (objectType) {
+            case 'Product':
+                if (objectData.ID && (typeof objectData.ID !== 'string' || objectData.ID.length > 100)) {
+                    validationErrors.push('Invalid product ID format');
+                }
+                break;
+            case 'Customer':
+                if (objectData.customerNo && typeof objectData.customerNo !== 'string') {
+                    validationErrors.push('Invalid customer number format');
+                }
+                break;
+            case 'Order':
+                if (objectData.orderNo && typeof objectData.orderNo !== 'string') {
+                    validationErrors.push('Invalid order number format');
+                }
+                break;
+        }
+
+        return {
+            valid: validationErrors.length === 0,
+            errors: validationErrors
+        };
+
+    } catch (e) {
+        Logger.error('Error validating system object data: {0}', e.message);
+        return { valid: false, errors: ['Validation error: ' + e.message] };
+    }
 }
 ```
 
-## Data Validation Patterns
+## Common System Object Patterns (from MCP Research)
 
 ```javascript
-// Validate custom attribute values
-function validateCustomAttribute(object, attributeName, expectedType) {
-    if (!object || !object.custom) {
-        return { valid: false, error: 'Object has no custom attributes' };
-    }
+// Product attribute access pattern
+var productResult = getProductAttribute(product, 'customSize', {
+    expectedType: 'string',
+    required: false,
+    defaultValue: 'Medium'
+});
 
-    var value = object.custom[attributeName];
-    if (value === null || value === undefined) {
-        return { valid: false, error: 'Attribute not set' };
-    }
-
-    if (expectedType && typeof value !== expectedType) {
-        return { valid: false, error: 'Attribute type mismatch' };
-    }
-
-    return { valid: true, value: value };
+if (productResult.success) {
+    var size = productResult.value;
+    // Use size value
+} else {
+    Logger.warn('Could not get product size: {0}', productResult.error);
 }
+
+// Customer attribute access pattern
+var customerResult = getCustomerAttribute(customer, 'loyaltyTier', {
+    expectedType: 'string',
+    required: true
+});
+
+if (customerResult.success) {
+    var tier = customerResult.value;
+    // Use tier value
+} else {
+    // Handle missing required attribute
+    Logger.error('Customer loyalty tier required but not found');
+}
+
+// Site preference access pattern
+var prefResult = getSitePreference('maxOrderQuantity', {
+    expectedType: 'number',
+    defaultValue: 10,
+    required: false
+});
+
+var maxQuantity = prefResult.success ? prefResult.value : 10;
 ```
 
-## Best Practices
+## NEVER Work with System Objects Without MCP
 
-- Always check if objects exist before accessing attributes
-- Validate custom attribute types and values
-- Use proper null/undefined checks
-- Handle missing attributes gracefully
-- Cache frequently accessed system objects
-- Use transactions when modifying system objects
-- Validate site preferences before use
+- ❌ Don't assume object structure - use `mcp_sfcc-dev_get_system_object_definitions`
+- ❌ Don't guess attribute names - use `mcp_sfcc-dev_search_system_object_attribute_definitions`
+- ❌ Don't configure preferences blindly - use `mcp_sfcc-dev_search_site_preferences`
+- ❌ Don't access custom objects without research - use `mcp_sfcc-dev_search_custom_object_attribute_definitions`
