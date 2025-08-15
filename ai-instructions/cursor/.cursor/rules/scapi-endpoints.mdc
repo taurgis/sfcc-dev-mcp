@@ -1,0 +1,14 @@
+---
+description: Custom SCAPI endpoint development patterns and three-pillar architecture
+alwaysApply: false
+---
+
+# Custom SCAPI Endpoint Development
+
+Use this rule when creating custom SCAPI endpoints.
+
+## Required MCP Tools Sequence
+
+1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "scapi_custom_endpoint"
+2. `mcp_sfcc-dev_search_best_practices` with query: "security"
+3. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain

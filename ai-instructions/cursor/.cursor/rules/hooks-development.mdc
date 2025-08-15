@@ -1,6 +1,5 @@
 ---
 description: OCAPI and SCAPI hook implementation patterns
-globs: ["**/hooks/**/*.js", "**/cartridge/scripts/hooks/**/*.js"]
 alwaysApply: false
 ---
 

@@ -1,6 +1,5 @@
 ---
 description: Core SFCC development patterns and MCP tool usage
-globs: ["**/*.js", "**/*.ts", "**/*.ds", "**/*.isml"]
 alwaysApply: true
 ---
 

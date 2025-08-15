@@ -1,9 +1,8 @@
 ---
 description: SFRA controller development patterns and best practices
-globs: ["**/controllers/**/*.js", "**/cartridge/controllers/**/*.js"]
+globs: cartridges/**/controllers/*.js
 alwaysApply: false
 ---
-
 # SFRA Controller Development
 
 Use this rule when creating or modifying SFRA controllers.

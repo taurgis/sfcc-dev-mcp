@@ -1,7 +1,6 @@
 ---
 description: SFCC system object and data model development
-globs: ["**/models/**/*.js", "**/scripts/**/*.js"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 # SFCC System Objects and Data Models

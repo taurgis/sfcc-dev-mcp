@@ -1,6 +1,6 @@
 ---
 description: SFCC testing patterns and test automation
-globs: ["**/test/**/*.js", "**/*test.js", "**/*spec.js"]
+globs: "**/test/**/*.js
 alwaysApply: false
 ---
 

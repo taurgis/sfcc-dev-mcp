@@ -1,7 +1,6 @@
 ---
 description: SFCC security best practices and validation patterns
-globs: ["**/*.js", "**/*.ts", "**/*.ds"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 # SFCC Security Best Practices
