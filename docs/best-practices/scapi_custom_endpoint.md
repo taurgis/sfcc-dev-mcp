@@ -133,7 +133,294 @@ function validateAndExtractUser() {
 }
 ```
 
-## 2. Core Concept: The Three Pillars of a Custom API
+## 2. URL Structure and Endpoint Mapping
+
+Understanding how your OpenAPI schema translates to actual SCAPI endpoint URLs is crucial for both development and client integration. This section provides concrete examples of the URL transformation process.
+
+### 2.1 SCAPI URL Structure
+
+All custom SCAPI endpoints follow this standardized URL pattern:
+
+```
+https://{shortcode}.api.commercecloud.salesforce.com/custom/{api-name}/v{major-version}/organizations/{organization-id}{path}?{query-parameters}
+```
+
+**URL Components:**
+- **`{shortcode}`**: Your SFCC instance shortcode (e.g., `zzrf-001`, `my-company-dev`)
+- **`{api-name}`**: The directory name under `cartridge/rest-apis/` in your cartridge
+- **`v{major-version}`**: Automatically derived from `info.version` in your `schema.yaml` (e.g., "1.0.0" → "v1", "2.3.1" → "v2")
+- **`{organization-id}`**: Your SFCC organization ID (typically starts with `f_ecom_`)
+- **`{path}`**: The path defined in your OpenAPI schema
+- **`{query-parameters}`**: Query string parameters from your schema
+
+### 2.2 Schema-to-URL Mapping Examples
+
+#### Example 1: Simple Query Parameters
+
+**OpenAPI Schema Definition:**
+```yaml
+# File: int_product_api/cartridge/rest-apis/product-info/schema.yaml
+openapi: 3.0.0
+info:
+  title: Product Information API
+  version: "1.0.0"
+paths:
+  /products/{sku}:
+    get:
+      summary: Retrieves basic product information by SKU
+      operationId: getProductInfo
+      parameters:
+        - name: siteId
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+```
+
+**Resulting Endpoint URL:**
+```
+https://{{shortcode}}.api.commercecloud.salesforce.com/custom/product-info/v1/organizations/{{organizationId}}/products/682875540326M?siteId=RefArchGlobal
+```
+
+**Complete Example:**
+```
+https://zzrf-001.api.commercecloud.salesforce.com/custom/product-info/v1/organizations/f_ecom_zzrf_001/products/682875540326M?siteId=RefArchGlobal
+```
+
+#### Example 2: Complex Query Parameters with Custom Attributes
+
+**OpenAPI Schema Definition:**
+```yaml
+# File: int_pricing_api/cartridge/rest-apis/pricing-api/schema.yaml
+openapi: 3.0.0
+info:
+  title: Advanced Pricing API
+  version: "1.2.0"  # Results in v1 URL
+paths:
+  /product-pricing/{productId}:
+    get:
+      summary: Retrieves comprehensive pricing information for a product SKU
+      description: |
+        Returns detailed pricing information for a given product including:
+        - Base price and promotional prices
+        - Available coupon-based promotions (without requiring coupon codes)
+        - Price ranges for master products
+        - Quantity-based pricing tiers
+      operationId: getProductPricing
+      parameters:
+        - name: siteId
+          in: query
+          required: true
+          description: Site identifier for the pricing context
+          schema:
+            type: string
+            minLength: 1
+        - name: productId
+          in: path
+          required: true
+          description: Product ID or SKU to get pricing for
+          schema:
+            type: string
+            minLength: 1
+        - name: c_quantity
+          in: query
+          required: false
+          description: Quantity for tiered pricing calculation (defaults to 1)
+          schema:
+            type: number
+            minimum: 1
+            default: 1
+        - name: c_currency
+          in: query
+          required: false
+          description: Currency code for price display (defaults to session currency)
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+        - name: c_include_upcoming_promotions
+          in: query
+          required: false
+          description: Include upcoming promotions within next 24 hours
+          schema:
+            type: boolean
+            default: false
+```
+
+**Resulting Endpoint URL:**
+```
+https://{{shortcode}}.api.commercecloud.salesforce.com/custom/pricing-api/v1/organizations/{{organizationId}}/product-pricing/product-123?siteId=your-site-id&c_quantity=2&c_include_upcoming_promotions=true
+```
+
+**Complete Example:**
+```
+https://your-shortcode.api.commercecloud.salesforce.com/custom/pricing-api/v1/organizations/your-org-id/product-pricing/product-123?siteId=your-site-id&c_quantity=2&c_include_upcoming_promotions=true
+```
+
+#### Example 3: Nested Resource Paths
+
+**OpenAPI Schema Definition:**
+```yaml
+# File: int_customer_api/cartridge/rest-apis/customer-management/schema.yaml
+openapi: 3.0.0
+info:
+  title: Customer Management API
+  version: "2.0.0"  # Results in v2 URL
+paths:
+  /customers/{customerId}/orders/{orderId}/tracking:
+    get:
+      summary: Get order tracking information
+      operationId: getOrderTracking
+      parameters:
+        - name: siteId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: c_include_delivery_details
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+```
+
+**Resulting Endpoint URL:**
+```
+https://{{shortcode}}.api.commercecloud.salesforce.com/custom/customer-management/v2/organizations/{{organizationId}}/customers/12345/orders/ORD-001234/tracking?siteId=SiteGenesis&c_include_delivery_details=true
+```
+
+### 2.3 URL Parameter Access in Scripts
+
+Understanding how to access different parameter types in your script implementation:
+
+```javascript
+'use strict';
+
+var RESTResponseMgr = require('dw/system/RESTResponseMgr');
+
+exports.getProductPricing = function () {
+    // Path parameters: use getSCAPIPathParameters()
+    var productId = request.getSCAPIPathParameters().get('productId');
+    
+    // Query parameters: use getHttpParameterMap()
+    var siteId = request.getHttpParameterMap().get('siteId').getStringValue();
+    var quantity = request.getHttpParameterMap().get('c_quantity').getIntValue() || 1;
+    var currency = request.getHttpParameterMap().get('c_currency').getStringValue();
+    var includeUpcoming = request.getHttpParameterMap().get('c_include_upcoming_promotions').getBooleanValue();
+    
+    // Parameter validation
+    if (!productId) {
+        RESTResponseMgr.createError(400, "missing-product-id", 
+            "Missing Product ID", "Product ID is required in the path").render();
+        return;
+    }
+    
+    // Business logic implementation...
+    var pricingData = {
+        productId: productId,
+        basePrice: 29.99,
+        salePrice: 24.99,
+        currency: currency || "USD",
+        quantity: quantity,
+        upcomingPromotions: includeUpcoming ? [] : undefined
+    };
+    
+    RESTResponseMgr.createSuccess(pricingData).render();
+};
+
+exports.getProductPricing.public = true;
+```
+
+### 2.4 Version Management in URLs
+
+The version segment in your URL is automatically determined by the major version number in your OpenAPI schema:
+
+| Schema Version | URL Version | Example URL |
+|----------------|-------------|-------------|
+| "1.0.0" | v1 | `/custom/my-api/v1/organizations/...` |
+| "1.2.5" | v1 | `/custom/my-api/v1/organizations/...` |
+| "2.0.0" | v2 | `/custom/my-api/v2/organizations/...` |
+| "2.1.3" | v2 | `/custom/my-api/v2/organizations/...` |
+| "3.0.0-beta" | v3 | `/custom/my-api/v3/organizations/...` |
+
+**Best Practice**: Use semantic versioning in your schema and introduce breaking changes only in new major versions to maintain backward compatibility.
+
+### 2.5 Testing Your URL Mappings
+
+#### Using Postman/cURL
+
+```bash
+# Test the product pricing endpoint
+curl -X GET \
+  'https://your-shortcode.api.commercecloud.salesforce.com/custom/pricing-api/v1/organizations/your-org-id/product-pricing/product-123?siteId=your-site-id&c_quantity=2&c_include_upcoming_promotions=true' \
+  -H 'Authorization: Bearer YOUR_SLAS_TOKEN' \
+  -H 'Content-Type: application/json'
+```
+
+#### Common URL Issues and Solutions
+
+| Issue | Symptom | Solution |
+|-------|---------|----------|
+| 404 Not Found | Endpoint not accessible | Check cartridge registration, API directory name, and schema syntax |
+| Version mismatch | Wrong version in URL | Verify `info.version` in schema.yaml matches expected URL |
+| Parameter not found | Script can't access parameters | Ensure parameter names match schema exactly, use correct access method |
+| Invalid path structure | URL doesn't match expected pattern | Verify path definition in schema matches your intended URL structure |
+
+### 2.6 Documentation for Client Developers
+
+When documenting your custom endpoints for client developers, always provide:
+
+1. **Complete URL Examples**: Show the full URL with real values
+2. **Parameter Descriptions**: Explain what each parameter does and its format requirements
+3. **Authentication Requirements**: Specify required scopes and token types
+4. **Response Examples**: Include sample JSON responses
+5. **Error Scenarios**: Document common error codes and their meanings
+
+**Example Documentation:**
+
+```markdown
+## Get Product Pricing
+
+Retrieves comprehensive pricing information for a product.
+
+### Endpoint
+`GET /custom/pricing-api/v1/organizations/{organizationId}/product-pricing/{productId}`
+
+### Full URL Example
+```
+https://your-shortcode.api.commercecloud.salesforce.com/custom/pricing-api/v1/organizations/f_ecom_your_org/product-pricing/ABC123?siteId=RefArchGlobal&c_quantity=2
+```
+
+### Parameters
+- `productId` (path, required): Product SKU or ID
+- `siteId` (query, required): Site identifier
+- `c_quantity` (query, optional): Quantity for tiered pricing (default: 1)
+- `c_currency` (query, optional): Currency code (default: session currency)
+
+### Authentication
+Requires SLAS Shopper Token with scope: `c_read_pricing`
+```
+
+This URL structure understanding is essential for both endpoint development and client integration, ensuring your custom SCAPI endpoints are accessible and properly documented.
+
+## 3. Core Concept: The Three Pillars of a Custom API
 
 Every Custom SCAPI Endpoint is built from three mandatory files, located within a dedicated cartridge directory: `your_cartridge/cartridge/rest-apis/{api-name}/`.
 
@@ -143,7 +430,7 @@ Every Custom SCAPI Endpoint is built from three mandatory files, located within 
 
 - **`api.json` (The Mapping)**: A simple JSON file that links the `operationId` from the schema to the correct implementation script.
 
-### 2.1 Development Approach: Start Simple, Then Expand **!IMPORTANT!**
+### 3.1 Development Approach: Start Simple, Then Expand **!IMPORTANT!**
 
 When building custom endpoints, **always start with a minimal implementation** to establish connectivity and basic functionality before adding complexity. This mirrors how experienced SFCC developers approach endpoint development and significantly reduces debugging time.
 
@@ -161,7 +448,7 @@ When building custom endpoints, **always start with a minimal implementation** t
 
 This approach helps you isolate issues early - if the simple version doesn't work, you know the problem is with basic setup (cartridge registration, API configuration, authentication) rather than your business logic. Once the foundation is solid, you can confidently build upon it.
 
-## 2. Quick Start Example: A "Loyalty Info" Endpoint
+## 3. Quick Start Example: A "Loyalty Info" Endpoint
 
 Here is a complete example for a custom Shopper API endpoint `GET /custom/loyalty-api/v1/.../loyalty-info?c_customer_id={id}`.
 
@@ -278,7 +565,7 @@ exports.getLoyaltyInfo.public = true;
 }
 ```
 
-## 2.1 Working with Path Parameters
+## 3.1 Working with Path Parameters
 
 When your OpenAPI schema defines parameters with `in: path`, you must use the `getSCAPIPathParameters()` method to access them in your script implementation.
 
@@ -410,7 +697,7 @@ exports.getProductReviews.public = true;
    ```
 
 
-## 3. Core Best Practices
+## 4. Core Best Practices
 
 ### Design & Architecture
 
@@ -446,7 +733,7 @@ exports.getProductReviews.public = true;
 - **403 Forbidden**: The client's token is valid but is missing the required custom scope. Check the scope assignments in SLAS or Account Manager.
 - **504 Gateway Timeout**: Your script exceeded the performance limit. Use the Code Profiler to find and optimize the bottleneck in your code.
 
-## 4. Custom APIs vs. Hooks
+## 5. Custom APIs vs. Hooks
 
 This is a critical architectural decision.
 
