@@ -1,0 +1,105 @@
+---
+description: SFCC security best practices and validation patterns
+globs: ["**/*.js", "**/*.ts", "**/*.ds"]
+alwaysApply: false
+---
+
+# SFCC Security Best Practices
+
+Use this rule when implementing security-sensitive features or validating user input.
+
+## Required MCP Tools
+
+Always use: `mcp_sfcc-dev_search_best_practices` with query: "security"
+
+## Input Validation Template
+
+```javascript
+var StringUtils = require('dw/util/StringUtils');
+var Encoding = require('dw/crypto/Encoding');
+
+/**
+ * Validate and sanitize user input
+ * @param {string} input - User provided input
+ * @param {string} type - Expected input type (email, phone, text, etc.)
+ * @returns {Object} Validation result
+ */
+function validateInput(input, type) {
+    if (!input || typeof input !== 'string') {
+        return { valid: false, error: 'Invalid input type' };
+    }
+
+    // Length validation
+    if (input.length > 1000) {
+        return { valid: false, error: 'Input too long' };
+    }
+
+    // Sanitize for XSS
+    var sanitized = StringUtils.encodeString(input, StringUtils.ENCODE_TYPE_HTML);
+
+    // Type-specific validation
+    switch (type) {
+        case 'email':
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(input)) {
+                return { valid: false, error: 'Invalid email format' };
+            }
+            break;
+        case 'phone':
+            var phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+            if (!phoneRegex.test(input)) {
+                return { valid: false, error: 'Invalid phone format' };
+            }
+            break;
+    }
+
+    return { valid: true, sanitized: sanitized };
+}
+```
+
+## Security Checklist
+
+- [ ] Validate all user inputs
+- [ ] Sanitize data before rendering in templates
+- [ ] Use CSRF protection for forms
+- [ ] Implement proper authentication checks
+- [ ] Avoid exposing sensitive data in errors
+- [ ] Use HTTPS for all sensitive operations
+- [ ] Validate file uploads and restrict types
+- [ ] Implement rate limiting for APIs
+- [ ] Use secure session management
+- [ ] Log security events appropriately
+
+## Common Security Anti-Patterns to Avoid
+
+```javascript
+// DON'T: Direct parameter access without validation
+var userInput = request.httpParameterMap.parameter.value;
+response.getWriter().print(userInput); // XSS vulnerability
+
+// DO: Validate and sanitize
+var userInput = request.httpParameterMap.parameter.value;
+var validation = validateInput(userInput, 'text');
+if (validation.valid) {
+    response.getWriter().print(validation.sanitized);
+}
+```
+
+## Authentication Patterns
+
+```javascript
+// Check customer authentication
+var customer = req.currentCustomer;
+if (!customer || !customer.authenticated) {
+    res.setStatusCode(401);
+    res.json({ error: 'Authentication required' });
+    return next();
+}
+
+// Check specific permissions
+if (!customer.profile || !hasPermission(customer, 'required_permission')) {
+    res.setStatusCode(403);
+    res.json({ error: 'Insufficient permissions' });
+    return next();
+}
+```

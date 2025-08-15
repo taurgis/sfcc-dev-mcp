@@ -1,0 +1,64 @@
+---
+description: SFCC debugging and error investigation workflows
+globs: []
+alwaysApply: false
+---
+
+# SFCC Debugging and Error Investigation
+
+Use this rule when investigating errors, performance issues, or debugging SFCC applications.
+
+## Debugging Workflow Decision Tree
+
+### For Active Errors/Issues:
+1. `mcp_sfcc-dev_summarize_logs` - Get system health overview
+2. `mcp_sfcc-dev_get_latest_error` - Check recent errors
+3. `mcp_sfcc-dev_search_logs` with pattern: [error keywords] - Find specific issues
+4. `mcp_sfcc-dev_analyze_error_patterns` with errorMessage: [specific error] - Deep analysis
+
+### For Performance Issues:
+1. `mcp_sfcc-dev_get_latest_warn` - Check performance warnings
+2. `mcp_sfcc-dev_search_logs` with pattern: "timeout" or "slow"
+3. `mcp_sfcc-dev_search_best_practices` with query: "performance"
+
+### For Transaction Tracing:
+1. `mcp_sfcc-dev_search_logs` with pattern: [transaction-id]
+2. `mcp_sfcc-dev_get_related_logs` with correlationId: [transaction-id]
+
+## Error Handling Code Patterns
+
+```javascript
+// Standard error handling with logging
+try {
+    // Business logic
+} catch (e) {
+    var Logger = require('dw/system/Logger').getLogger('category', 'subcategory');
+    Logger.error('Operation failed in [context]: {0}', e.message);
+    Logger.debug('Stack trace: {0}', e.stack);
+
+    // Return meaningful error response
+    return {
+        success: false,
+        error: 'OPERATION_FAILED',
+        message: 'Unable to complete operation'
+    };
+}
+```
+
+## Debugging Best Practices
+
+- Always include context in log messages
+- Use appropriate log levels (error, warn, info, debug)
+- Include correlation IDs for transaction tracing
+- Sanitize sensitive data before logging
+- Use structured logging with consistent formats
+- Include stack traces for debugging but not in production errors
+
+## Performance Investigation Checklist
+
+- [ ] Check database query efficiency
+- [ ] Review API call patterns
+- [ ] Validate caching strategies
+- [ ] Analyze memory usage patterns
+- [ ] Review transaction boundaries
+- [ ] Check for unnecessary loops or iterations

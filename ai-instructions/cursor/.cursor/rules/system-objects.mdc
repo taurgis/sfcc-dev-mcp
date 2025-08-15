@@ -1,0 +1,72 @@
+---
+description: SFCC system object and data model development
+globs: ["**/models/**/*.js", "**/scripts/**/*.js"]
+alwaysApply: false
+---
+
+# SFCC System Objects and Data Models
+
+Use this rule when working with SFCC system objects, custom attributes, or data models.
+
+## Required MCP Tools Sequence
+
+1. `mcp_sfcc-dev_get_system_object_definitions` - List available objects
+2. `mcp_sfcc-dev_search_system_object_attribute_definitions` - Find specific attributes
+3. `mcp_sfcc-dev_search_site_preferences` - Configure preferences if needed
+
+## System Object Access Patterns
+
+```javascript
+// Product attribute access
+var product = ProductMgr.getProduct(productID);
+if (product && product.custom.customAttribute) {
+    var attributeValue = product.custom.customAttribute;
+    // Validate attribute exists and has expected type
+}
+
+// Customer attribute access
+var customer = CustomerMgr.getCustomerByCustomerNumber(customerNo);
+if (customer && customer.profile) {
+    var customValue = customer.profile.custom.customField;
+    // Handle null/undefined values gracefully
+}
+
+// Site preference access
+var Site = require('dw/system/Site');
+var preferenceValue = Site.current.getCustomPreferenceValue('customPreference');
+if (preferenceValue) {
+    // Use preference value with proper validation
+}
+```
+
+## Data Validation Patterns
+
+```javascript
+// Validate custom attribute values
+function validateCustomAttribute(object, attributeName, expectedType) {
+    if (!object || !object.custom) {
+        return { valid: false, error: 'Object has no custom attributes' };
+    }
+
+    var value = object.custom[attributeName];
+    if (value === null || value === undefined) {
+        return { valid: false, error: 'Attribute not set' };
+    }
+
+    if (expectedType && typeof value !== expectedType) {
+        return { valid: false, error: 'Attribute type mismatch' };
+    }
+
+    return { valid: true, value: value };
+}
+```
+
+## Best Practices
+
+- Always check if objects exist before accessing attributes
+- Validate custom attribute types and values
+- Use proper null/undefined checks
+- Handle missing attributes gracefully
+- Cache frequently accessed system objects
+- Use transactions when modifying system objects
+- Validate site preferences before use

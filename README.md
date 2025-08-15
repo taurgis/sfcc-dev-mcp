@@ -54,18 +54,191 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 
 ## 🤖 AI Assistant Integration
 
-For optimal AI assistance when working with SFCC projects, copy the [`sfcc-ai-instructions.md`](./sfcc-ai-instructions.md) file to your SFCC project directory and rename it to `copilot-instructions.md`, `claude.md`, or similar. This file provides comprehensive guidance to AI assistants on:
+For optimal AI assistance when working with SFCC projects, this repository includes specialized instruction files for different AI interfaces in the `ai-instructions/` directory.
 
-- **When to use MCP tools** vs. relying on general AI knowledge
-- **Specific tool recommendations** for common SFCC development tasks
-- **Workflow patterns** for debugging, implementation, and best practices
-- **Error reduction** by encouraging use of current, verified SFCC information
+### Available AI Interface Instructions
 
-This significantly improves AI assistance accuracy and reduces hallucination when working on SFCC development tasks.
+| AI Interface | Location | Description |
+|--------------|----------|-------------|
+| **GitHub Copilot** | `ai-instructions/github-copilot/copilot-instructions.md` | Optimized for inline code suggestions and completions |
+| **Claude Desktop** | `ai-instructions/claude-desktop/claude_custom_instructions.md` | Leverages multi-turn conversations and MCP integration |
+| **Cursor** | `ai-instructions/cursor/.cursor/rules/` | Modern rule-based system for real-time development |
 
----
+### Quick Setup for AI Interfaces
 
-An MCP (Model Context Protocol) server that provides comprehensive access to Salesforce B2C Commerce Cloud development features. This allows AI agents to assist with SFCC development tasks including log analysis, debugging, monitoring, and **SFCC documentation querying**.
+Copy the appropriate instruction file to your SFCC project directory and follow the interface-specific setup instructions below.
+
+## 📦 Installation & Setup
+
+### Option 1: Using npx (Recommended - No Installation Required)
+
+The easiest way to use this MCP server is with npx, which automatically handles installation and updates:
+
+```bash
+# Test the server (Documentation-only mode)
+npx sfcc-dev-mcp
+
+# Use with custom dw.json file
+npx sfcc-dev-mcp --dw-json /path/to/your/dw.json
+```
+
+### Option 2: Global Installation
+
+Install the package globally for use across multiple projects:
+
+```bash
+# Install globally
+npm install -g sfcc-dev-mcp
+
+# Run from anywhere
+sfcc-dev-mcp --dw-json /path/to/your/dw.json
+```
+
+### Option 3: Local Development Installation
+
+For development or local modifications:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/sfcc-dev-mcp.git
+cd sfcc-dev-mcp
+
+# Install dependencies
+npm install
+
+# Build the TypeScript code
+npm run build
+
+# Run locally
+npm start -- --dw-json /path/to/your/dw.json
+```
+
+## 🎯 AI Interface Setup Guides
+
+### GitHub Copilot Setup
+
+1. **Copy the instruction file** to your SFCC project root:
+   ```bash
+   cp ai-instructions/github-copilot/copilot-instructions.md your-sfcc-project/.github/copilot-instructions.md
+   ```
+
+2. **Configure the MCP server** (if using MCP-compatible tools):
+   ```json
+   {
+     "mcpServers": {
+       "sfcc-dev": {
+         "command": "npx",
+         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+       }
+     }
+   }
+   ```
+
+3. **Features enabled:**
+   - Inline code suggestions with SFCC context
+   - Auto-completion for SFCC APIs and patterns
+   - Template generation for controllers, hooks, and components
+   - Real-time error detection and fixes
+
+### Claude Desktop Setup
+
+1. **Copy the instruction file** to your SFCC project:
+   ```bash
+   cp ai-instructions/claude-desktop/claude_custom_instructions.md your-sfcc-project/claude-instructions.md
+   ```
+
+2. **Configure Claude Desktop MCP integration**:
+   
+   **Location of config file:**
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+   **Documentation-Only Mode** (No SFCC credentials needed):
+   ```json
+   {
+     "mcpServers": {
+       "sfcc-dev": {
+         "command": "npx",
+         "args": ["sfcc-dev-mcp"]
+       }
+     }
+   }
+   ```
+
+   **Full Mode** (With SFCC credentials for log analysis and system objects):
+   ```json
+   {
+     "mcpServers": {
+       "sfcc-dev": {
+         "command": "npx",
+         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+       }
+     }
+   }
+   ```
+
+3. **Create your dw.json file** for Full Mode:
+   ```json
+   {
+     "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+     "username": "your-username",
+     "password": "your-password",
+     "client-id": "your-client-id",
+     "client-secret": "your-client-secret"
+   }
+   ```
+
+4. **Features enabled:**
+   - Real-time SFCC documentation access
+   - Multi-turn debugging conversations
+   - Architecture review and planning
+   - Complete log analysis and system object exploration
+
+### Cursor Setup
+
+1. **Copy the modern rules structure** to your SFCC project:
+   ```bash
+   cp -r ai-instructions/cursor/.cursor your-sfcc-project/
+   ```
+
+2. **Configure MCP server** (if using MCP-compatible extensions):
+   ```json
+   {
+     "mcpServers": {
+       "sfcc-dev": {
+         "command": "npx",
+         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+       }
+     }
+   }
+   ```
+
+3. **Available Cursor Rules:**
+   - `sfcc-development.mdc` - Core SFCC patterns (always applied)
+   - `sfra-controllers.mdc` - Controller development (auto-attached)
+   - `hooks-development.mdc` - Hook implementation (auto-attached)
+   - `debugging-workflows.mdc` - Debugging guidance (manual: `@debugging-workflows`)
+   - `system-objects.mdc` - Data model patterns (auto-attached)
+   - `security-patterns.mdc` - Security best practices (manual: `@security-patterns`)
+   - `testing-patterns.mdc` - Testing templates (auto-attached)
+   - `performance-optimization.mdc` - Performance guidance (manual: `@performance-optimization`)
+
+4. **Features enabled:**
+   - Context-aware code completion
+   - Real-time validation against SFCC APIs
+   - File-aware refactoring across cartridge structures
+   - Security-first development patterns
+
+### Operating Modes Comparison
+
+| Mode | GitHub Copilot | Claude Desktop | Cursor |
+|------|----------------|----------------|--------|
+| **Documentation Access** | ✅ Via MCP | ✅ Native MCP | ✅ Via MCP |
+| **Code Completion** | ✅ Inline | ❌ N/A | ✅ Real-time |
+| **Multi-turn Conversations** | ❌ Limited | ✅ Full | ✅ Limited |
+| **File-aware Development** | ✅ Good | ❌ N/A | ✅ Excellent |
+| **Real-time Validation** | ✅ Good | ❌ N/A | ✅ Excellent |
+| **Log Analysis** | ✅ Via MCP | ✅ Native MCP | ✅ Via MCP |
 
 ## Features
 

@@ -1,0 +1,68 @@
+---
+description: OCAPI and SCAPI hook implementation patterns
+globs: ["**/hooks/**/*.js", "**/cartridge/scripts/hooks/**/*.js"]
+alwaysApply: false
+---
+
+# OCAPI/SCAPI Hook Development
+
+Use this rule when implementing OCAPI or SCAPI hooks.
+
+## Required MCP Tools Sequence
+
+1. `mcp_sfcc-dev_get_best_practice_guide` with guideName: "ocapi_hooks" or "scapi_hooks"
+2. `mcp_sfcc-dev_get_hook_reference` with guideName: "ocapi_hooks" or "scapi_hooks"
+3. `mcp_sfcc-dev_search_best_practices` with query: "validation"
+
+## Hook Template Pattern
+
+```javascript
+'use strict';
+
+/**
+ * Hook: [Hook Name]
+ * Extension Point: [Extension Point Path]
+ * Description: [What this hook does and why]
+ */
+
+/**
+ * Before hook implementation
+ * @param {Object} param1 - Description of first parameter
+ * @param {Object} param2 - Description of second parameter
+ * @returns {dw.system.Status} Hook execution status
+ */
+exports.beforePOST = function (param1, param2) {
+    try {
+        // Input validation
+        if (!param1 || !param2) {
+            return new Status(Status.ERROR, 'INVALID_PARAMETERS', 'Required parameters missing');
+        }
+
+        // Business logic here
+
+        return new Status(Status.OK);
+    } catch (e) {
+        var Logger = require('dw/system/Logger').getLogger('hooks', 'HookName');
+        Logger.error('Error in hook execution: {0}', e.message);
+        return new Status(Status.ERROR, 'HOOK_ERROR', 'Hook execution failed');
+    }
+};
+```
+
+## Hook Best Practices
+
+- Always validate input parameters
+- Return proper Status objects
+- Include comprehensive error handling
+- Log errors with appropriate detail levels
+- Avoid heavy processing in hooks
+- Use transactions appropriately
+- Test hook behavior thoroughly
+
+## Security Considerations
+
+- Validate all input data
+- Use proper authentication checks
+- Sanitize any user-provided data
+- Implement rate limiting for external calls
+- Log security-relevant events

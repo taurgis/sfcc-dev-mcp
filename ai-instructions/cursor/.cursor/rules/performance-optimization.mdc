@@ -1,0 +1,93 @@
+---
+description: SFCC performance optimization patterns and best practices
+globs: ["**/*.js", "**/*.ts", "**/*.ds"]
+alwaysApply: false
+---
+
+# SFCC Performance Optimization
+
+Use this rule when optimizing SFCC application performance.
+
+## Required MCP Tools
+
+Always use: `mcp_sfcc-dev_search_best_practices` with query: "performance"
+
+## Performance Patterns
+
+### Efficient Database Queries
+```javascript
+// DON'T: Query in loops
+products.forEach(function(productID) {
+    var product = ProductMgr.getProduct(productID); // Multiple DB calls
+});
+
+// DO: Batch queries
+var productSearchModel = new ProductSearchModel();
+productSearchModel.setSearchPhrase(searchTerm);
+productSearchModel.search();
+var products = productSearchModel.getProducts();
+```
+
+### Caching Strategies
+```javascript
+var cache = require('dw/system/CacheMgr').getCache('custom-cache');
+
+function getCachedData(key) {
+    var cachedValue = cache.get(key);
+    if (cachedValue) {
+        return cachedValue;
+    }
+
+    // Expensive operation
+    var data = performExpensiveOperation();
+    cache.put(key, data, 3600); // Cache for 1 hour
+    return data;
+}
+```
+
+### Memory-Efficient Iterations
+```javascript
+// DON'T: Load all results into memory
+var allProducts = ProductMgr.queryAllSiteProducts();
+allProducts.toArray().forEach(function(product) {
+    // Process product
+});
+
+// DO: Use iterators for large datasets
+var productIterator = ProductMgr.queryAllSiteProducts();
+while (productIterator.hasNext()) {
+    var product = productIterator.next();
+    // Process product
+}
+productIterator.close();
+```
+
+## Performance Checklist
+
+- [ ] Use caching for expensive operations
+- [ ] Minimize database queries in loops
+- [ ] Use iterators for large datasets
+- [ ] Implement proper connection pooling
+- [ ] Optimize template rendering
+- [ ] Use appropriate data structures
+- [ ] Minimize object creation in loops
+- [ ] Implement lazy loading where appropriate
+- [ ] Use efficient search and sort algorithms
+- [ ] Monitor and profile critical paths
+
+## Common Performance Anti-Patterns
+
+```javascript
+// DON'T: Nested queries
+categories.forEach(function(category) {
+    var products = category.getProducts(); // Query per category
+    products.forEach(function(product) {
+        var inventory = product.getAvailabilityModel(); // Query per product
+    });
+});
+
+// DO: Efficient data loading
+var categorySearchModel = new CategorySearchModel();
+var productSearchModel = new ProductSearchModel();
+// Batch load and process efficiently
+```

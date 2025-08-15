@@ -1,0 +1,100 @@
+---
+description: SFCC testing patterns and test automation
+globs: ["**/test/**/*.js", "**/*test.js", "**/*spec.js"]
+alwaysApply: false
+---
+
+# SFCC Testing Patterns
+
+Use this rule when creating tests for SFCC components.
+
+## Test Template Pattern
+
+```javascript
+'use strict';
+
+var assert = require('chai').assert;
+var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
+
+describe('ComponentName', function () {
+    var ComponentName;
+    var mockDependencies;
+
+    beforeEach(function () {
+        mockDependencies = {
+            'dw/system/Logger': {
+                getLogger: function () {
+                    return {
+                        error: function () {},
+                        info: function () {},
+                        debug: function () {}
+                    };
+                }
+            }
+        };
+
+        ComponentName = proxyquire('../../../cartridge/scripts/ComponentName', mockDependencies);
+    });
+
+    describe('methodName', function () {
+        it('should handle valid input correctly', function () {
+            var result = ComponentName.methodName('validInput');
+            assert.isTrue(result.success);
+            assert.isDefined(result.data);
+        });
+
+        it('should handle invalid input gracefully', function () {
+            var result = ComponentName.methodName(null);
+            assert.isFalse(result.success);
+            assert.isDefined(result.error);
+        });
+
+        it('should handle errors appropriately', function () {
+            // Test error scenarios
+            var result = ComponentName.methodName('errorInput');
+            assert.isFalse(result.success);
+            assert.equal(result.error, 'EXPECTED_ERROR_CODE');
+        });
+    });
+});
+```
+
+## Testing Best Practices
+
+- Test both success and failure scenarios
+- Mock external dependencies consistently
+- Use descriptive test names that explain behavior
+- Test error handling and edge cases
+- Validate both positive and negative outcomes
+- Include integration tests for complete workflows
+- Test security validations and input sanitization
+
+## Mock Patterns for SFCC Objects
+
+```javascript
+// Mock Product
+var mockProduct = {
+    ID: 'test-product-id',
+    custom: {
+        customAttribute: 'test-value'
+    },
+    getPriceModel: function () {
+        return {
+            getPrice: function () {
+                return new Money(99.99, 'USD');
+            }
+        };
+    }
+};
+
+// Mock Customer
+var mockCustomer = {
+    authenticated: true,
+    profile: {
+        customerNo: 'test-customer',
+        custom: {
+            customField: 'test-value'
+        }
+    }
+};
+```
