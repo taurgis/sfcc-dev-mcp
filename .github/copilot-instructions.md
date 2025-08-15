@@ -143,7 +143,7 @@ sfcc-dev-mcp/
 
 #### **Tool Categories**
 
-1. **SFCC Documentation Tools** (7 tools)
+1. **SFCC Documentation Tools** (5 tools)
    - Class information and method documentation
    - API search and discovery
    - Complete SFCC namespace coverage
@@ -153,10 +153,10 @@ sfcc-dev-mcp/
    - Security and performance recommendations
    - Hook reference tables and examples
 
-3. **SFRA Documentation Tools** (5 tools)
+3. **SFRA Documentation Tools** (3 tools)
    - SFRA class and module documentation
    - Server, Request, Response, QueryString, and render module details
-   - Method signatures and property information for SFRA components
+   - Complete documentation with properties and methods included
 
 4. **Log Analysis Tools** (6 tools)
    - Real-time error monitoring

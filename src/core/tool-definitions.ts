@@ -40,34 +40,6 @@ export const SFCC_DOCUMENTATION_TOOLS = [
     },
   },
   {
-    name: 'get_sfcc_class_methods',
-    description: 'Get all methods for a specific SFCC class with their signatures and descriptions. Use this when you know the class but need to see all available methods, understand method parameters, or find the right method for your use case. Essential when implementing business logic that calls SFCC APIs.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        className: {
-          type: 'string',
-          description: 'The SFCC class name',
-        },
-      },
-      required: ['className'],
-    },
-  },
-  {
-    name: 'get_sfcc_class_properties',
-    description: 'Get all properties for a specific SFCC class with their types and descriptions. Use this when you need to access or read data from SFCC objects, understand what data is available on an object, or when working with object attributes in templates or scripts.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        className: {
-          type: 'string',
-          description: 'The SFCC class name',
-        },
-      },
-      required: ['className'],
-    },
-  },
-  {
     name: 'search_sfcc_methods',
     description: 'Search for methods across all SFCC classes by method name. Use this when you know the method name but not which class it belongs to, or when looking for similar methods across different classes. Helpful for discovering all available methods that perform similar operations.',
     inputSchema: {
@@ -196,36 +168,6 @@ export const SFRA_DOCUMENTATION_TOOLS = [
         },
       },
       required: ['query'],
-    },
-  },
-  {
-    name: 'get_sfra_class_methods',
-    description: 'Get all methods for a specific SFRA class with detailed signatures, parameters, and descriptions. Use this when you need to understand what methods are available on SFRA classes like Server, Request, Response, or QueryString, and how to use them in your controllers.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        className: {
-          type: 'string',
-          enum: ['server', 'request', 'response', 'querystring'],
-          description: 'The SFRA class name (e.g., \'server\', \'request\', \'response\', \'querystring\')',
-        },
-      },
-      required: ['className'],
-    },
-  },
-  {
-    name: 'get_sfra_class_properties',
-    description: 'Get all properties for a specific SFRA class with their types and descriptions. Use this when you need to access data from SFRA objects, understand what information is available on Request/Response objects, or when working with SFRA class properties in controllers and middleware.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        className: {
-          type: 'string',
-          enum: ['server', 'request', 'response', 'querystring'],
-          description: 'The SFRA class name (e.g., \'server\', \'request\', \'response\', \'querystring\')',
-        },
-      },
-      required: ['className'],
     },
   },
 ];

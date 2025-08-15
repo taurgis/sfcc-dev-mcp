@@ -222,18 +222,6 @@ export class SFCCDevServer {
         result = await this.docsClient.searchClasses(args.query as string);
         this.logger.debug(`Found ${result.length} matching classes`);
         break;
-      case 'get_sfcc_class_methods':
-        if (!args?.className) {throw new Error('className is required');}
-        logMessage = `Getting methods for class: "${args.className}"`;
-        result = await this.docsClient.getClassMethods(args.className as string);
-        this.logger.debug(`Retrieved ${result.length} methods for class "${args.className}"`);
-        break;
-      case 'get_sfcc_class_properties':
-        if (!args?.className) {throw new Error('className is required');}
-        logMessage = `Getting properties for class: "${args.className}"`;
-        result = await this.docsClient.getClassProperties(args.className as string);
-        this.logger.debug(`Retrieved ${result.length} properties for class "${args.className}"`);
-        break;
       case 'search_sfcc_methods':
         if (!args?.methodName) {throw new Error('methodName is required');}
         logMessage = `Searching for methods with name: "${args.methodName}"`;
@@ -391,16 +379,6 @@ export class SFCCDevServer {
         logMessage = `Searching SFRA documentation for query: "${args.query}"`;
         result = await this.sfraClient.searchSFRADocumentation(args.query as string);
         break;
-      case 'get_sfra_class_methods':
-        if (!args?.className) {throw new Error('className is required');}
-        logMessage = `Getting SFRA class methods for: "${args.className}"`;
-        result = await this.sfraClient.getSFRAClassMethods(args.className as string);
-        break;
-      case 'get_sfra_class_properties':
-        if (!args?.className) {throw new Error('className is required');}
-        logMessage = `Getting SFRA class properties for: "${args.className}"`;
-        result = await this.sfraClient.getSFRAClassProperties(args.className as string);
-        break;
       default:
         throw new Error(`Unknown SFRA tool: ${toolName}`);
     }
@@ -445,9 +423,8 @@ export class SFCCDevServer {
         if (['get_latest_error', 'get_latest_warn', 'get_latest_info', 'get_latest_debug',
           'summarize_logs', 'search_logs', 'list_log_files'].includes(name)) {
           result = await this.handleLogTool(name, args, startTime);
-        } else if (['get_sfcc_class_info', 'search_sfcc_classes', 'get_sfcc_class_methods',
-          'get_sfcc_class_properties', 'search_sfcc_methods', 'list_sfcc_classes',
-          'get_sfcc_class_documentation'].includes(name)) {
+        } else if (['get_sfcc_class_info', 'search_sfcc_classes', 'search_sfcc_methods',
+          'list_sfcc_classes', 'get_sfcc_class_documentation'].includes(name)) {
           result = await this.handleDocsTool(name, args, startTime);
         } else if (['get_available_best_practice_guides', 'get_best_practice_guide',
           'search_best_practices', 'get_hook_reference'].includes(name)) {
@@ -456,8 +433,7 @@ export class SFCCDevServer {
           'search_system_object_attribute_definitions', 'search_site_preferences',
           'search_system_object_attribute_groups', 'search_custom_object_attribute_definitions'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
-        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
-          'get_sfra_class_methods', 'get_sfra_class_properties'].includes(name)) {
+        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation'].includes(name)) {
           result = await this.handleSFRATool(name, args, startTime);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);

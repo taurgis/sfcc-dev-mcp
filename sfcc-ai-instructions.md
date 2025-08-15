@@ -66,10 +66,9 @@ Use these tools for any SFCC API or class-related questions:
 
 - **`get_sfcc_class_info`** - Get detailed info about any SFCC class (dw.* namespace)
 - **`search_sfcc_classes`** - Find SFCC classes by name or functionality
-- **`get_sfcc_class_methods`** - Get all methods for a specific class
-- **`get_sfcc_class_properties`** - Get all properties for a specific class
 - **`search_sfcc_methods`** - Find methods across all classes by name
 - **`list_sfcc_classes`** - Get complete list of available SFCC classes
+- **`get_sfcc_class_documentation`** - Get raw documentation for any SFCC class
 
 ### 📚 Best Practices & Guidelines
 Use these for implementation guidance and best practices:
@@ -79,13 +78,21 @@ Use these for implementation guidance and best practices:
 - **`search_best_practices`** - Find specific guidance on topics like security, performance
 - **`get_hook_reference`** - Get comprehensive OCAPI/SCAPI hook references
 
+### 🏗️ SFRA Documentation Tools
+Use these for SFRA (Storefront Reference Architecture) related questions:
+
+- **`get_available_sfra_documents`** - See what SFRA documents are available
+- **`get_sfra_document`** - Get complete SFRA class/module documentation (includes all properties and methods)
+- **`search_sfra_documentation`** - Search across all SFRA documentation
+
 ### 🔧 System Object Definitions
 Use these for understanding SFCC data models and custom attributes:
 
 - **`get_system_object_definitions`** - Get all system objects (Product, Customer, Order, etc.)
 - **`get_system_object_definition`** - Get details about a specific system object
-- **`get_system_object_attribute_definitions`** - Get all attributes for a system object
 - **`search_system_object_attribute_definitions`** - Search for specific attributes
+- **`search_site_preferences`** - Search for site preferences in preference groups
+- **`search_system_object_attribute_groups`** - Search for attribute groups (essential for finding site preference groups)
 - **`search_custom_object_attribute_definitions`** - Search for attributes in custom object types
 
 ### 📊 Log Analysis Tools

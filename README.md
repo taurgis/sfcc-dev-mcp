@@ -44,9 +44,9 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 
 | Tool Category | Documentation-Only Mode | Full Mode |
 |---------------|------------------------|-----------|
-| **SFCC Documentation** (7 tools) | ✅ Available | ✅ Available |
+| **SFCC Documentation** (5 tools) | ✅ Available | ✅ Available |
 | **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
-| **SFRA Documentation** (5 tools) | ✅ Available | ✅ Available |
+| **SFRA Documentation** (3 tools) | ✅ Available | ✅ Available |
 | **Log Analysis** (6 tools) | ❌ Requires credentials | ✅ Available |
 | **System Object Definitions** (6 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
 
@@ -78,8 +78,6 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 ### SFCC Documentation Querying
 - **Get Class Information**: Retrieve detailed information about any SFCC class including properties, methods, and descriptions
 - **Search Classes**: Find SFCC classes by name with partial matching
-- **Get Class Methods**: List all methods for a specific SFCC class with signatures
-- **Get Class Properties**: List all properties for a specific SFCC class with types and modifiers
 - **Search Methods**: Find methods across all SFCC classes by name
 - **List All Classes**: Get a complete list of available SFCC classes
 - **Get Raw Documentation**: Access the complete Markdown documentation for any class
@@ -88,8 +86,6 @@ An MCP (Model Context Protocol) server that provides comprehensive access to Sal
 - **Get Available SFRA Documents**: List all available SFRA (Storefront Reference Architecture) documentation including Server, Request, Response, QueryString, and render module
 - **Get SFRA Document**: Retrieve complete SFRA class or module documentation with detailed information about properties, methods, and usage examples
 - **Search SFRA Documentation**: Search across all SFRA documentation for specific terms, concepts, or functionality related to routing, middleware, request handling, or response management
-- **Get SFRA Class Methods**: Get all methods for a specific SFRA class (Server, Request, Response, QueryString) with detailed signatures, parameters, and descriptions
-- **Get SFRA Class Properties**: Get all properties for a specific SFRA class with their types and descriptions for understanding Request/Response objects and SFRA class properties in controllers
 
 ### SFCC System Object Definitions
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
@@ -553,30 +549,16 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
-3. **`get_sfcc_class_methods`** - Get all methods for a class
-   ```json
-   {
-     "className": "dw.catalog.Product"
-   }
-   ```
-
-4. **`get_sfcc_class_properties`** - Get all properties for a class
-   ```json
-   {
-     "className": "dw.catalog.Catalog"
-   }
-   ```
-
-5. **`search_sfcc_methods`** - Find methods across all classes
+3. **`search_sfcc_methods`** - Find methods across all classes
    ```json
    {
      "methodName": "getPrice"
    }
    ```
 
-6. **`list_sfcc_classes`** - List all available SFCC classes
+4. **`list_sfcc_classes`** - List all available SFCC classes
 
-7. **`get_sfcc_class_documentation`** - Get raw documentation
+5. **`get_sfcc_class_documentation`** - Get raw documentation
    ```json
    {
      "className": "dw.catalog.Product"
@@ -629,20 +611,6 @@ You can configure the MCP client to use npx, which automatically handles package
    ```json
    {
      "query": "middleware"
-   }
-   ```
-
-4. **`get_sfra_class_methods`** - Get all methods for an SFRA class
-   ```json
-   {
-     "className": "server"
-   }
-   ```
-
-5. **`get_sfra_class_properties`** - Get all properties for an SFRA class
-   ```json
-   {
-     "className": "request"
    }
    ```
 

@@ -584,22 +584,6 @@ export class SFCCDocumentationClient {
   }
 
   /**
-   * Get methods for a specific class
-   */
-  async getClassMethods(className: string): Promise<SFCCMethod[]> {
-    const details = await this.getClassDetails(className);
-    return details?.methods ?? [];
-  }
-
-  /**
-   * Get properties for a specific class
-   */
-  async getClassProperties(className: string): Promise<SFCCProperty[]> {
-    const details = await this.getClassDetails(className);
-    return details?.properties ?? [];
-  }
-
-  /**
    * Search for methods across all classes
    */
   async searchMethods(methodName: string): Promise<{ className: string; method: SFCCMethod }[]> {
@@ -615,7 +599,8 @@ export class SFCCDocumentationClient {
     const results: { className: string; method: SFCCMethod }[] = [];
 
     for (const [fullClassName] of this.classCache) {
-      const methods = await this.getClassMethods(fullClassName);
+      const details = await this.getClassDetails(fullClassName);
+      const methods = details?.methods ?? [];
       for (const method of methods) {
         if (method.name.toLowerCase().includes(methodName.toLowerCase())) {
           results.push({
