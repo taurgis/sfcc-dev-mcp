@@ -229,17 +229,6 @@ npm start -- --dw-json /path/to/your/dw.json
    - File-aware refactoring across cartridge structures
    - Security-first development patterns
 
-### Operating Modes Comparison
-
-| Mode | GitHub Copilot | Claude Desktop | Cursor |
-|------|----------------|----------------|--------|
-| **Documentation Access** | ✅ Via MCP | ✅ Native MCP | ✅ Via MCP |
-| **Code Completion** | ✅ Inline | ❌ N/A | ✅ Real-time |
-| **Multi-turn Conversations** | ❌ Limited | ✅ Full | ✅ Limited |
-| **File-aware Development** | ✅ Good | ❌ N/A | ✅ Excellent |
-| **Real-time Validation** | ✅ Good | ❌ N/A | ✅ Excellent |
-| **Log Analysis** | ✅ Via MCP | ✅ Native MCP | ✅ Via MCP |
-
 ## Features
 
 ### SFCC Best Practices Guides
