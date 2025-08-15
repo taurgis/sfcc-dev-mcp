@@ -248,7 +248,7 @@ export class SFCCLogClient {
   /**
    * List all available log files with metadata
    *
-   * @returns Formatted list of log files with size and modification dates
+   * @returns Formatted list of log files with size and modification dates (latest 50 files)
    */
   async listLogFiles(): Promise<string> {
     try {
@@ -259,9 +259,20 @@ export class SFCCLogClient {
           name: item.filename,
           size: item.size,
           lastModified: item.lastmod,
-        }));
+        }))
+        // Sort by lastModified date in descending order (newest first)
+        .sort((a: LogFileInfo, b: LogFileInfo) => {
+          const dateA = new Date(a.lastModified).getTime();
+          const dateB = new Date(b.lastModified).getTime();
+          return dateB - dateA;
+        })
+        // Limit to 50 most recent files
+        .slice(0, 50);
 
-      return `Available log files:\n\n${logFiles.map((file: LogFileInfo) =>
+      const totalFiles = contents.filter((item: any) => item.type === 'file' && item.filename.endsWith('.log')).length;
+      const showingText = totalFiles > 50 ? ` (showing latest 50 of ${totalFiles} total)` : '';
+
+      return `Available log files${showingText}:\n\n${logFiles.map((file: LogFileInfo) =>
         `📄 ${file.name}\n   Size: ${formatBytes(file.size)}\n   Modified: ${file.lastModified}`,
       ).join('\n\n')}`;
     } catch (error) {
