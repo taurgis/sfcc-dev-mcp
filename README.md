@@ -1,6 +1,62 @@
 # SFCC Development MCP Server
 
-## TL;DR - Quick Setup
+## 📋 Table of Contents
+
+- [🚀 TL;DR - Quick Setup](#-tldr---quick-setup)
+  - [Available Tools by Mode](#available-tools-by-mode)
+- [🤖 AI Assistant Integration](#-ai-assistant-integration)
+  - [Available AI Interface Instructions](#available-ai-interface-instructions)
+  - [Quick Setup for AI Interfaces](#quick-setup-for-ai-interfaces)
+- [📦 Installation & Setup](#-installation--setup)
+  - [Option 1: Using npx (Recommended)](#option-1-using-npx-recommended---no-installation-required)
+  - [Option 2: Global Installation](#option-2-global-installation)
+  - [Option 3: Local Development Installation](#option-3-local-development-installation)
+- [🎯 AI Interface Setup Guides](#-ai-interface-setup-guides)
+  - [GitHub Copilot Setup](#github-copilot-setup)
+  - [Claude Desktop Setup](#claude-desktop-setup)
+  - [Cursor Setup](#cursor-setup)
+- [✨ Features](#features)
+  - [SFCC Best Practices Guides](#sfcc-best-practices-guides)
+  - [SFCC Documentation Querying](#sfcc-documentation-querying)
+  - [SFRA Documentation Access](#sfra-documentation-access)
+  - [SFCC System Object Definitions](#sfcc-system-object-definitions)
+  - [Log Analysis & Monitoring](#log-analysis--monitoring)
+- [⚙️ Configuration](#configuration)
+  - [Overriding the Working Directory](#overriding-the-working-directory)
+  - [Using dw.json (Recommended)](#using-dwjson-recommended)
+  - [Using Environment Variables](#using-environment-variables)
+- [🔧 Data API Configuration](#data-api-configuration)
+  - [Business Manager Setup for System Object Definition Tools](#business-manager-setup-for-system-object-definition-tools)
+  - [Step 1: Create API Client in Account Manager](#step-1-create-api-client-in-account-manager)
+  - [Step 2: Configure Data API Access in Business Manager](#step-2-configure-data-api-access-in-business-manager)
+  - [Step 3: Update Your Configuration](#step-3-update-your-configuration)
+  - [Troubleshooting Data API Access](#troubleshooting-data-api-access)
+- [🚀 Usage](#usage)
+  - [Launch Parameters and Command Line Options](#launch-parameters-and-command-line-options)
+  - [Starting the Server](#starting-the-server)
+  - [Using with npx](#using-with-npx)
+  - [MCP Client Configuration](#mcp-client-configuration)
+- [🛠️ Available Tools](#available-tools)
+  - [SFCC Documentation Tools](#sfcc-documentation-tools)
+  - [SFCC Best Practices Tools](#sfcc-best-practices-tools)
+  - [SFCC SFRA Documentation Tools](#sfcc-sfra-documentation-tools)
+  - [SFCC System Object Definition Tools](#sfcc-system-object-definition-tools)
+  - [Log Analysis Tools](#log-analysis-tools)
+- [💡 Example AI Assistant Interactions](#example-ai-assistant-interactions)
+- [📚 Best Practices Coverage](#best-practices-coverage)
+- [📖 Documentation Coverage](#documentation-coverage)
+- [🔒 Security Notes](#security-notes)
+- [👨‍💻 Development](#development)
+  - [Building from Source](#building-from-source)
+  - [Running Tests](#running-tests)
+- [🐛 Troubleshooting and Debugging](#troubleshooting-and-debugging)
+  - [MCP Server Logs](#mcp-server-logs)
+  - [Log File Locations by Operating System](#log-file-locations-by-operating-system)
+  - [Viewing Logs in Real-Time](#viewing-logs-in-real-time)
+
+---
+
+## 🚀 TL;DR - Quick Setup
 
 To use this MCP server with Claude Desktop or other MCP clients, add the following to your MCP settings file:
 
@@ -267,18 +323,6 @@ npm start -- --dw-json /path/to/your/dw.json
 - **Search Logs**: Search for specific patterns across log files
 - **List Log Files**: View available log files with metadata
 
-## Installation
-
-1. Clone this repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Build the TypeScript code:
-   ```bash
-   npm run build
-   ```
-
 ## Configuration
 
 ### Overriding the Working Directory
@@ -370,7 +414,7 @@ export SFCC_CLIENT_SECRET="your-client-secret"
 export SFCC_SITE_ID="RefArch"
 ```
 
-## Data API Configuration
+## 🔧 Data API Configuration
 
 ### Business Manager Setup for System Object Definition Tools
 
@@ -693,7 +737,7 @@ You can configure the MCP client to use npx, which automatically handles package
 - Consistent behavior across different environments
 - Easy to share configurations with team members
 
-## Available Tools
+## 🛠️ Available Tools
 
 ### SFCC Documentation Tools
 
