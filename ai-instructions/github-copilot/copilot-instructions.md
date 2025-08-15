@@ -183,7 +183,7 @@ Use these for debugging and troubleshooting:
    → summarize_logs
 
 2. Check recent errors:
-   → get_latest_errors
+   → get_latest_error
 
 3. Search for specific issues:
    → search_logs with pattern: "your_error_pattern"
@@ -272,11 +272,9 @@ Problem/Error Scenario
 │   ├── → summarize_logs (get system health overview)
 │   ├── → get_latest_error (check recent errors)
 │   └── → search_logs (pattern: error keywords)
-├── "Performance issues"
-│   ├── → get_latest_warn (check warnings)
-│   └── → search_best_practices (query: "performance")
-└── "Need to understand error patterns"
-    └── → analyze_error_patterns (errorMessage: specific error)
+└── "Performance issues"
+    ├── → get_latest_warn (check warnings)
+    └── → search_best_practices (query: "performance")
 ```
 
 #### **When User Asks About Data Models/Objects**
@@ -368,11 +366,6 @@ searchRequest: {
 ```markdown
 For Transaction Tracing:
 1. → search_logs (pattern: "transaction-id-123", logLevel: "info")
-2. → get_related_logs (correlationId: "transaction-id-123", timeWindow: "15min")
-
-For Error Pattern Analysis:
-1. → search_logs (pattern: "NullPointerException", logLevel: "error")
-2. → analyze_error_patterns (errorMessage: "NullPointerException in CartModel", timeRange: "1day")
 
 For Performance Investigation:
 1. → search_logs (pattern: "timeout", logLevel: "warn")
@@ -396,7 +389,7 @@ For Performance Investigation:
 3. **Deep Dive with Detail Tools**
    - get_sfcc_class_documentation
    - search_best_practices
-   - get_related_logs
+   - search_logs
 ```
 
 #### **Parallel vs Sequential Tool Usage**

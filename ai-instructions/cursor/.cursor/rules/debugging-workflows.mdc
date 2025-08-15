@@ -23,8 +23,7 @@ Use this rule when investigating errors, performance issues, or debugging SFCC a
 
 ### 🔍 For Transaction Tracing:
 1. `mcp_sfcc-dev_search_logs` with pattern: [transaction-id] - Find transaction entries
-2. `mcp_sfcc-dev_get_related_logs` with correlationId: [transaction-id] - Get complete flow
-3. `mcp_sfcc-dev_search_logs` with pattern: [customer-id] - Track customer journey
+2. `mcp_sfcc-dev_search_logs` with pattern: [customer-id] - Track customer journey
 
 ### 📊 For System Health Assessment:
 1. `mcp_sfcc-dev_summarize_logs` - Overall system status
@@ -76,19 +75,7 @@ Use: mcp_sfcc-dev_get_latest_error (limit: 5)
 Purpose: Identify most recent critical issues
 ```
 
-**Step 3: Pattern Analysis**
-```
-Use: mcp_sfcc-dev_analyze_error_patterns with errorMessage: [specific error]
-Purpose: Get intelligent diagnosis with SFCC-specific solutions
-```
-
-**Step 4: Transaction Tracing**
-```
-Use: mcp_sfcc-dev_get_related_logs with correlationId: [id]
-Purpose: Follow complete request/transaction flow
-```
-
-**Step 5: Best Practice Consultation**
+**Step 3: Best Practice Consultation**
 ```
 Use: mcp_sfcc-dev_search_best_practices with query: [relevant topic]
 Purpose: Get SFCC-specific debugging and fix patterns
