@@ -133,6 +133,59 @@ function validateAndExtractUser() {
 }
 ```
 
+#### Accessing Customer Context in Headless APIs
+
+Even though SCAPI endpoints use JWT-based authentication without traditional sessions, you can still access the authenticated customer using the familiar session pattern:
+
+```javascript
+// Access the current customer (works for both registered and guest users)
+exports.getCustomerInfo = function () {
+    // Get the "session" - this works even in headless JWT context
+    var session = request.getSession();
+    var customer = session.getCustomer();
+    
+    if (!customer) {
+        RESTResponseMgr.createError(401, "unauthorized", 
+            "No Customer", "No authenticated customer found").render();
+        return;
+    }
+    
+    var customerData = {
+        isRegistered: customer.isRegistered(),
+        isAuthenticated: customer.isAuthenticated()
+    };
+    
+    // For registered customers, access profile information
+    if (customer.isRegistered() && customer.getProfile()) {
+        var profile = customer.getProfile();
+        customerData.customerId = profile.getCustomerNo();
+        customerData.email = profile.getEmail();
+        customerData.firstName = profile.getFirstName();
+        customerData.lastName = profile.getLastName();
+    } else {
+        // For guest customers
+        customerData.customerId = customer.getID();
+        customerData.isGuest = true;
+    }
+    
+    RESTResponseMgr.createSuccess(customerData).render();
+};
+
+exports.getCustomerInfo.public = true;
+```
+
+**Key Points about Session Access in Headless APIs:**
+
+1. **JWT Context**: The `request.getSession()` method works even with JWT authentication, providing access to the customer associated with the token.
+
+2. **Customer Types**: The customer object properly identifies whether it's a registered customer (with profile) or a guest customer.
+
+3. **Profile Access**: For registered customers, use `customer.getProfile()` to access customer profile data like email, name, and customer number.
+
+4. **Guest Identification**: Guest customers have an ID but no profile - use `customer.getID()` for guest customer identification.
+
+5. **Authentication State**: Use `customer.isAuthenticated()` and `customer.isRegistered()` to determine the customer's authentication status.
+
 ## 2. URL Structure and Endpoint Mapping
 
 Understanding how your OpenAPI schema translates to actual SCAPI endpoint URLs is crucial for both development and client integration. This section provides concrete examples of the URL transformation process.
