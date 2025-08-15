@@ -27,221 +27,7 @@ The most critical architectural decision is determining your client type, which 
 - **OAuth Grant Types**: 
   - `authorization_code_pkce` (all authentication scenarios)
 
-### 1.2 Authentication Flow Examples
-
-#### Private Client: Guest Token Flow (Client Credentials)
-
-```javascript
-// Server-side implementation for obtaining a guest token
-const axios = require('axios');
-
-async function getGuestToken() {
-    const clientId = 'your-private-client-id';
-    const clientSecret = 'your-client-secret';
-    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    
-    try {
-        const response = await axios.post(
-            'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/token',
-            new URLSearchParams({
-                'grant_type': 'client_credentials',
-                'channel_id': 'your-site-id',
-                'redirect_uri': 'https://your-app.com/callback'
-            }),
-            {
-                headers: {
-                    'Authorization': `Basic ${credentials}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        );
-        
-        return {
-            accessToken: response.data.access_token,
-            refreshToken: response.data.refresh_token,
-            customerId: response.data.customer_id,
-            usid: response.data.usid
-        };
-    } catch (error) {
-        throw new Error(`Failed to obtain guest token: ${error.message}`);
-    }
-}
-```
-
-#### Public Client: PKCE Authentication Flow
-
-```javascript
-// Browser-side implementation using PKCE
-import { createHash, randomBytes } from 'crypto';
-
-class PKCEAuthClient {
-    constructor(clientId, redirectUri, baseUrl) {
-        this.clientId = clientId;
-        this.redirectUri = redirectUri;
-        this.baseUrl = baseUrl;
-    }
-    
-    // Step 1: Generate PKCE parameters
-    generatePKCEChallenge() {
-        const codeVerifier = randomBytes(32).toString('base64url');
-        const codeChallenge = createHash('sha256')
-            .update(codeVerifier)
-            .digest('base64url');
-        
-        return { codeVerifier, codeChallenge };
-    }
-    
-    // Step 2: Redirect to authorization endpoint
-    initiateLogin(hint = 'guest') {
-        const { codeVerifier, codeChallenge } = this.generatePKCEChallenge();
-        
-        // Store code_verifier securely (sessionStorage for SPAs)
-        sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-        
-        const authUrl = new URL(`${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/authorize`);
-        authUrl.searchParams.set('response_type', 'code');
-        authUrl.searchParams.set('client_id', this.clientId);
-        authUrl.searchParams.set('redirect_uri', this.redirectUri);
-        authUrl.searchParams.set('code_challenge', codeChallenge);
-        authUrl.searchParams.set('hint', hint);
-        
-        window.location.href = authUrl.toString(); // GET redirect to authorization server
-    }
-    
-    // Step 3: Exchange authorization code for tokens
-    async exchangeCodeForToken(authorizationCode) {
-        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-        if (!codeVerifier) {
-            throw new Error('Code verifier not found');
-        }
-        
-        try {
-            const response = await fetch(
-                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'grant_type': 'authorization_code_pkce',
-                        'code': authorizationCode,
-                        'redirect_uri': this.redirectUri,
-                        'client_id': this.clientId,
-                        'code_verifier': codeVerifier,
-                        'channel_id': 'your-site-id',
-                        'usid': 'your-usid' // optional
-                    })
-                }
-            );
-            
-            if (!response.ok) {
-                throw new Error(`Token exchange failed: ${response.statusText}`);
-            }
-            
-            const tokens = await response.json();
-            
-            // Clean up
-            sessionStorage.removeItem('pkce_code_verifier');
-            
-            return tokens;
-        } catch (error) {
-            throw new Error(`Token exchange error: ${error.message}`);
-        }
-    }
-}
-```
-
-### 1.3 Advanced Authentication Patterns
-
-#### Trusted System on Behalf of (TSOB)
-
-For server-to-server integrations where a trusted system acts on behalf of a shopper:
-
-```javascript
-// Private client only - requires special scope: sfcc.ts_ext_on_behalf_of
-async function getTSOBToken(shopperLoginId, idpOrigin = 'ecom') {
-    const response = await axios.post(
-        'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/trusted-system/token',
-        new URLSearchParams({
-            'grant_type': 'client_credentials',
-            'hint': 'ts_ext_on_behalf_of',
-            'login_id': shopperLoginId,
-            'idp_origin': idpOrigin,
-            'channel_id': 'your-site-id'
-        }),
-        {
-            headers: {
-                'Authorization': `Basic ${credentials}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        }
-    );
-    
-    return response.data;
-}
-```
-
-#### Session Bridge for Hybrid Architectures
-
-For transitioning between headless (SLAS JWT) and traditional SFRA (dwsid cookie):
-
-```javascript
-// Exchange SLAS token for SFRA session
-async function bridgeToSFRA(slasAccessToken) {
-    const response = await fetch('/s/your-site/dw/shop/v20_4/sessions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${slasAccessToken}`,
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include' // Important: allows cookie setting
-    });
-    
-    // dwsid cookie is automatically set by the response
-    return response.json();
-}
-```
-
-### 1.4 Security Best Practices
-
-#### Refresh Token Rotation (Public Clients)
-
-SLAS enforces refresh token rotation for security. Each refresh token is single-use:
-
-```javascript
-class TokenManager {
-    async refreshToken(currentRefreshToken) {
-        try {
-            const response = await fetch(
-                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'grant_type': 'refresh_token',
-                        'refresh_token': currentRefreshToken,
-                        'client_id': this.clientId
-                    })
-                }
-            );
-            
-            const newTokens = await response.json();
-            
-            // CRITICAL: Store new refresh token, old one is invalidated
-            this.storeTokens(newTokens);
-            
-            return newTokens;
-        } catch (error) {
-            // Token may be compromised, clear all stored tokens
-            this.clearTokens();
-            throw error;
-        }
-    }
-}
-```
+### 1.2 Security Best Practices
 
 #### Scope-Based Authorization in Custom Endpoints
 
@@ -268,7 +54,7 @@ exports.getLoyaltyInfo = function () {
 };
 ```
 
-### 1.5 Client Configuration and Scope Management
+### 1.3 Client Configuration and Scope Management
 
 #### SLAS Client Configuration
 
@@ -308,7 +94,7 @@ security:
   - ShopperToken: [sfcc.shopper-custom-objects.StoreReview]
 ```
 
-### 1.6 Error Handling and Troubleshooting
+### 1.4 Error Handling and Troubleshooting
 
 #### Common Authentication Errors
 
@@ -669,3 +455,221 @@ This is a critical architectural decision.
 - **Use Custom APIs to...** create entirely new functionality that has no OOTB equivalent. For example, a store locator, a loyalty points service, or a newsletter signup endpoint.
 
 > **Note**: Choosing the wrong tool leads to technical debt. Do not use hooks to create net-new functionality.
+
+---
+
+## Appendix: Authentication Flow Examples
+
+This section provides detailed implementation examples for different SLAS authentication flows. These are reference implementations that can be adapted to your specific client architecture.
+
+### A.1 Private Client: Guest Token Flow (Client Credentials)
+
+```javascript
+// Server-side implementation for obtaining a guest token
+const axios = require('axios');
+
+async function getGuestToken() {
+    const clientId = 'your-private-client-id';
+    const clientSecret = 'your-client-secret';
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    
+    try {
+        const response = await axios.post(
+            'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/token',
+            new URLSearchParams({
+                'grant_type': 'client_credentials',
+                'channel_id': 'your-site-id',
+                'redirect_uri': 'https://your-app.com/callback'
+            }),
+            {
+                headers: {
+                    'Authorization': `Basic ${credentials}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+        
+        return {
+            accessToken: response.data.access_token,
+            refreshToken: response.data.refresh_token,
+            customerId: response.data.customer_id,
+            usid: response.data.usid
+        };
+    } catch (error) {
+        throw new Error(`Failed to obtain guest token: ${error.message}`);
+    }
+}
+```
+
+### A.2 Public Client: PKCE Authentication Flow
+
+```javascript
+// Browser-side implementation using PKCE
+import { createHash, randomBytes } from 'crypto';
+
+class PKCEAuthClient {
+    constructor(clientId, redirectUri, baseUrl) {
+        this.clientId = clientId;
+        this.redirectUri = redirectUri;
+        this.baseUrl = baseUrl;
+    }
+    
+    // Step 1: Generate PKCE parameters
+    generatePKCEChallenge() {
+        const codeVerifier = randomBytes(32).toString('base64url');
+        const codeChallenge = createHash('sha256')
+            .update(codeVerifier)
+            .digest('base64url');
+        
+        return { codeVerifier, codeChallenge };
+    }
+    
+    // Step 2: Redirect to authorization endpoint
+    initiateLogin(hint = 'guest') {
+        const { codeVerifier, codeChallenge } = this.generatePKCEChallenge();
+        
+        // Store code_verifier securely (sessionStorage for SPAs)
+        sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+        
+        const authUrl = new URL(`${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/authorize`);
+        authUrl.searchParams.set('response_type', 'code');
+        authUrl.searchParams.set('client_id', this.clientId);
+        authUrl.searchParams.set('redirect_uri', this.redirectUri);
+        authUrl.searchParams.set('code_challenge', codeChallenge);
+        authUrl.searchParams.set('hint', hint);
+        
+        window.location.href = authUrl.toString(); // GET redirect to authorization server
+    }
+    
+    // Step 3: Exchange authorization code for tokens
+    async exchangeCodeForToken(authorizationCode) {
+        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+        if (!codeVerifier) {
+            throw new Error('Code verifier not found');
+        }
+        
+        try {
+            const response = await fetch(
+                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'grant_type': 'authorization_code_pkce',
+                        'code': authorizationCode,
+                        'redirect_uri': this.redirectUri,
+                        'client_id': this.clientId,
+                        'code_verifier': codeVerifier,
+                        'channel_id': 'your-site-id',
+                        'usid': 'your-usid' // optional
+                    })
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Token exchange failed: ${response.statusText}`);
+            }
+            
+            const tokens = await response.json();
+            
+            // Clean up
+            sessionStorage.removeItem('pkce_code_verifier');
+            
+            return tokens;
+        } catch (error) {
+            throw new Error(`Token exchange error: ${error.message}`);
+        }
+    }
+}
+```
+
+### A.3 Advanced Authentication Patterns
+
+#### Trusted System on Behalf of (TSOB)
+
+For server-to-server integrations where a trusted system acts on behalf of a shopper:
+
+```javascript
+// Private client only - requires special scope: sfcc.ts_ext_on_behalf_of
+async function getTSOBToken(shopperLoginId, idpOrigin = 'ecom') {
+    const response = await axios.post(
+        'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/trusted-system/token',
+        new URLSearchParams({
+            'grant_type': 'client_credentials',
+            'hint': 'ts_ext_on_behalf_of',
+            'login_id': shopperLoginId,
+            'idp_origin': idpOrigin,
+            'channel_id': 'your-site-id'
+        }),
+        {
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }
+    );
+    
+    return response.data;
+}
+```
+
+#### Session Bridge for Hybrid Architectures
+
+For transitioning between headless (SLAS JWT) and traditional SFRA (dwsid cookie):
+
+```javascript
+// Exchange SLAS token for SFRA session
+async function bridgeToSFRA(slasAccessToken) {
+    const response = await fetch('/s/your-site/dw/shop/v20_4/sessions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${slasAccessToken}`,
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include' // Important: allows cookie setting
+    });
+    
+    // dwsid cookie is automatically set by the response
+    return response.json();
+}
+```
+
+### A.4 Refresh Token Rotation (Public Clients)
+
+SLAS enforces refresh token rotation for security. Each refresh token is single-use:
+
+```javascript
+class TokenManager {
+    async refreshToken(currentRefreshToken) {
+        try {
+            const response = await fetch(
+                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'grant_type': 'refresh_token',
+                        'refresh_token': currentRefreshToken,
+                        'client_id': this.clientId
+                    })
+                }
+            );
+            
+            const newTokens = await response.json();
+            
+            // CRITICAL: Store new refresh token, old one is invalidated
+            this.storeTokens(newTokens);
+            
+            return newTokens;
+        } catch (error) {
+            // Token may be compromised, clear all stored tokens
+            this.clearTokens();
+            throw error;
+        }
+    }
+}
+```
