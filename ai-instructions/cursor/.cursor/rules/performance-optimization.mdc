@@ -53,7 +53,7 @@ var ProductSearchModel = require('dw/catalog/ProductSearchModel');
 var productSearchModel = new ProductSearchModel();
 productSearchModel.setSearchPhrase(searchTerm);
 productSearchModel.search();
-var products = productSearchModel.getProducts();
+var products = productSearchModel.getProductSearchHits(); // Use getProductSearchHits() instead of deprecated getProducts()
 ```
 
 ### Caching Strategies (from MCP Performance Guide)
@@ -81,6 +81,7 @@ function getCachedData(key) {
 var allProducts = ProductMgr.queryAllSiteProducts();
 allProducts.toArray().forEach(function(product) {
     // Process product - causes memory issues
+    // Note: toArray() loads all products into memory - avoid this pattern
 });
 
 // DO: Use iterators for large datasets (MCP performance pattern)
@@ -146,19 +147,18 @@ categories.forEach(function(category) {
 });
 
 // DO: Efficient data loading (pattern from MCP performance guide)
-var CategorySearchModel = require('dw/catalog/CategorySearchModel');
+var CatalogMgr = require('dw/catalog/CatalogMgr');
 var ProductSearchModel = require('dw/catalog/ProductSearchModel');
 
-// Batch load categories
-var categorySearchModel = new CategorySearchModel();
-categorySearchModel.search();
-var categories = categorySearchModel.getCategories();
+// Get categories efficiently using CatalogMgr
+var siteCatalog = CatalogMgr.getSiteCatalog();
+var categories = siteCatalog.getRoot().getSubCategories();
 
 // Batch load products for all categories
 var productSearchModel = new ProductSearchModel();
 productSearchModel.setCategoryID(null); // Search across categories
 productSearchModel.search();
-var products = productSearchModel.getProducts();
+var products = productSearchModel.getProductSearchHits(); // Use getProductSearchHits() instead of getProducts()
 ```
 
 ## MCP-Enhanced Template Performance

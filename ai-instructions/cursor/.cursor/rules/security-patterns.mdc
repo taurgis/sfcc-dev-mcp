@@ -82,7 +82,7 @@ function validateInput(input, type, options) {
         }
 
         // Sanitize for XSS (critical security pattern from MCP)
-        var sanitized = StringUtils.encodeString(input, StringUtils.ENCODE_TYPE_HTML);
+        var sanitized = StringUtils.stringToHtml(input);
 
         // Type-specific validation (patterns from MCP security guide)
         switch (type) {
@@ -336,12 +336,19 @@ try {
 
 ```javascript
 // Controller implementation with CSRF protection
-var CSRFProtection = require('*/cartridge/scripts/middleware/csrf');
+var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 
-server.post('Submit', CSRFProtection.validateAjaxRequest, function (req, res, next) {
-    // CSRF token automatically validated by middleware
+// Route to display the form with CSRF token
+server.get('ShowForm', csrfProtection.generateToken, function (req, res, next) {
+    res.render('myFormTemplate', {
+        csrf: res.getViewData().csrf // Pass token to template
+    });
+    next();
+});
 
-    // Continue with form processing
+// Route to handle the submission with CSRF validation
+server.post('SubmitForm', csrfProtection.validateRequest, function (req, res, next) {
+    // If execution reaches here, the token was valid
     var formData = req.form;
     var validation = validateInput(formData.userInput, 'text');
 
