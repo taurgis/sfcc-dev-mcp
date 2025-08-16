@@ -158,7 +158,6 @@ test/acceptance/report
 test/integration/config.json
 ```
 
-
 **Note**: Only do this reorganization if you prefer to have the project files at the root level of your workspace. The generated structure works perfectly as-is within the subdirectory.
 
 ## 6. Configuration Files (Reference)
