@@ -2,7 +2,8 @@
  * SFCC Best Practices Client
  *
  * Provides access to SFCC development best practices documentation including
- * cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SCAPI custom endpoints, and SFRA controllers.
+ * cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SCAPI custom endpoints,
+ * SFRA controllers, and SFRA models.
  */
 
 import * as fs from 'fs/promises';
@@ -72,6 +73,11 @@ export class SFCCBestPracticesClient {
         name: 'sfra_controllers',
         title: 'SFRA Controllers Best Practices',
         description: 'Best practices and code patterns for developing SFRA controllers',
+      },
+      {
+        name: 'sfra_models',
+        title: 'SFRA Models Best Practices',
+        description: 'Best practices for developing SFRA models in Salesforce B2C Commerce Cloud',
       },
       {
         name: 'performance',
