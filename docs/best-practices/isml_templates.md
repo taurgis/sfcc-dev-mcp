@@ -390,6 +390,138 @@ server.get('Show', cache.applyDefaultCache, function (req, res, next) {
 </isif>
 ```
 
+## Template Decoration and Layout
+
+### The `<isreplace>` Element
+
+The `<isreplace>` element is a crucial component of SFCC's template decoration system. It identifies where the decorated content should be included within a decorator template.
+
+#### Syntax
+```html
+<isreplace/>
+```
+
+#### Purpose and Behavior
+
+The decorator template uses `<isreplace/>` to specify the insertion point for decorated content. Understanding its behavior is essential for proper template architecture:
+
+- **Single `<isreplace/>` (typical)**: The decorated content is inserted at the location of the tag
+- **Multiple `<isreplace/>` tags**: The decorated content is duplicated at each tag location
+- **Zero `<isreplace/>` tags**: The decorated content is effectively omitted from the output
+
+#### Example 1: Basic Template Decoration
+
+**Rendering Template (uses decorator):**
+```html
+<isset name="DecoratorTemplate" value="common/layout/page" scope="page"/>
+<isdecorate template="${DecoratorTemplate}">
+    <div class="product-details">
+        <h1>${pdict.product.displayName}</h1>
+        <div class="price">${pdict.product.price.sales.formatted}</div>
+    </div>
+</isdecorate>
+```
+
+**Decorator Template (`common/layout/page.isml`):**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${pdict.pageTitle}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="page-container">
+        <isinclude template="components/header" />
+        
+        <main id="main-content">
+            <div class="content-wrapper">
+                <isreplace/>
+            </div>
+        </main>
+        
+        <isinclude template="components/footer" />
+    </div>
+</body>
+</html>
+```
+
+#### Example 2: Multiple `<isreplace/>` Tags
+
+**Decorator Template with Sidebar:**
+```html
+<div class="layout-two-column">
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <isreplace/>
+        </div>
+    </aside>
+    
+    <main class="main-content">
+        <div class="content-area">
+            <isreplace/>
+        </div>
+    </main>
+</div>
+```
+
+*In this example, the decorated content appears in both the sidebar and main content areas.*
+
+#### Example 3: Conditional Content Placement
+
+**Advanced Decorator Pattern:**
+```html
+<div class="page-layout">
+    <isinclude template="components/breadcrumb" />
+    
+    <isif condition="${pdict.showInSidebar}">
+        <div class="with-sidebar">
+            <main class="content">
+                <isreplace/>
+            </main>
+            <aside class="sidebar">
+                <isinclude template="components/relatedProducts" />
+            </aside>
+        </div>
+    <iselse>
+        <main class="full-width">
+            <isreplace/>
+        </main>
+    </isif>
+</div>
+```
+
+#### Best Practices for `<isreplace>`
+
+1. **Single Replacement Point**: Use one `<isreplace/>` per decorator for clarity and maintainability
+2. **Semantic Placement**: Position `<isreplace/>` within semantic HTML elements (`<main>`, `<section>`, etc.)
+3. **CSS Class Structure**: Wrap `<isreplace/>` in containers with appropriate CSS classes for styling
+4. **Documentation**: Comment complex decorator patterns to explain the layout structure
+
+#### Common Patterns
+
+**Standard Page Layout:**
+```html
+<isdecorate template="common/layout/page">
+    <!-- Page-specific content goes here -->
+</isdecorate>
+```
+
+**Modal/Dialog Layout:**
+```html
+<isdecorate template="common/layout/modal">
+    <!-- Modal content goes here -->
+</isdecorate>
+```
+
+**Email Template Layout:**
+```html
+<isdecorate template="common/layout/email">
+    <!-- Email content goes here -->
+</isdecorate>
+```
+
 ## Quick Reference Tables
 
 ### Essential ISML Tags
