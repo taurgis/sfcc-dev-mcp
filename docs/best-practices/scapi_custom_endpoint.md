@@ -800,216 +800,144 @@ This is a critical architectural decision.
 
 ## Appendix: Authentication Flow Examples
 
-This section provides detailed implementation examples for different SLAS authentication flows. These are reference implementations that can be adapted to your specific client architecture.
+This section provides simple wget commands for testing different SLAS authentication flows directly from your command line. Replace the placeholder values with your actual SFCC configuration.
 
 ### A.1 Private Client: Guest Token Flow (Client Credentials)
 
-```javascript
-// Server-side implementation for obtaining a guest token
-const axios = require('axios');
+This flow is for server-side applications using a private client with client credentials.
 
-async function getGuestToken() {
-    const clientId = 'your-private-client-id';
-    const clientSecret = 'your-client-secret';
-    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    
-    try {
-        const response = await axios.post(
-            'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/token',
-            new URLSearchParams({
-                'grant_type': 'client_credentials',
-                'channel_id': 'your-site-id',
-                'redirect_uri': 'https://your-app.com/callback'
-            }),
-            {
-                headers: {
-                    'Authorization': `Basic ${credentials}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        );
-        
-        return {
-            accessToken: response.data.access_token,
-            refreshToken: response.data.refresh_token,
-            customerId: response.data.customer_id,
-            usid: response.data.usid
-        };
-    } catch (error) {
-        throw new Error(`Failed to obtain guest token: ${error.message}`);
-    }
-}
+**Step 1: Get Guest Token**
+```bash
+# Replace these variables with your values:
+# CODE='your-shortcode'
+# ORG='f_ecom_your_org' 
+# CLIENT='your-private-client-id'
+# SECRET='your-client-secret'
+# SITE='your-site-id'
+
+wget --post-data="grant_type=client_credentials" \
+     --header="Authorization: Basic $(echo -n 'your-private-client-id:your-client-secret' | base64)" \
+     --header="Content-Type: application/x-www-form-urlencoded" \
+     -O token_response.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
 ```
 
-### A.2 Public Client: PKCE Authentication Flow
+**Step 2: Extract Token and Test API Call**
+```bash
+# Extract the access token from the response
+TOKEN=$(cat token_response.json | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
 
-```javascript
-// Browser-side implementation using PKCE
-import { createHash, randomBytes } from 'crypto';
+# Test SCAPI call - Get categories
+wget --header="Authorization: Bearer $TOKEN" \
+     -O categories.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/f_ecom_your_org/categories/root?siteId=your-site-id"
 
-class PKCEAuthClient {
-    constructor(clientId, redirectUri, baseUrl) {
-        this.clientId = clientId;
-        this.redirectUri = redirectUri;
-        this.baseUrl = baseUrl;
-    }
-    
-    // Step 1: Generate PKCE parameters
-    generatePKCEChallenge() {
-        const codeVerifier = randomBytes(32).toString('base64url');
-        const codeChallenge = createHash('sha256')
-            .update(codeVerifier)
-            .digest('base64url');
-        
-        return { codeVerifier, codeChallenge };
-    }
-    
-    // Step 2: Redirect to authorization endpoint
-    initiateLogin(hint = 'guest') {
-        const { codeVerifier, codeChallenge } = this.generatePKCEChallenge();
-        
-        // Store code_verifier securely (sessionStorage for SPAs)
-        sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-        
-        const authUrl = new URL(`${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/authorize`);
-        authUrl.searchParams.set('response_type', 'code');
-        authUrl.searchParams.set('client_id', this.clientId);
-        authUrl.searchParams.set('redirect_uri', this.redirectUri);
-        authUrl.searchParams.set('code_challenge', codeChallenge);
-        authUrl.searchParams.set('hint', hint);
-        
-        window.location.href = authUrl.toString(); // GET redirect to authorization server
-    }
-    
-    // Step 3: Exchange authorization code for tokens
-    async exchangeCodeForToken(authorizationCode) {
-        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-        if (!codeVerifier) {
-            throw new Error('Code verifier not found');
-        }
-        
-        try {
-            const response = await fetch(
-                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'grant_type': 'authorization_code_pkce',
-                        'code': authorizationCode,
-                        'redirect_uri': this.redirectUri,
-                        'client_id': this.clientId,
-                        'code_verifier': codeVerifier,
-                        'channel_id': 'your-site-id',
-                        'usid': 'your-usid' // optional
-                    })
-                }
-            );
-            
-            if (!response.ok) {
-                throw new Error(`Token exchange failed: ${response.statusText}`);
-            }
-            
-            const tokens = await response.json();
-            
-            // Clean up
-            sessionStorage.removeItem('pkce_code_verifier');
-            
-            return tokens;
-        } catch (error) {
-            throw new Error(`Token exchange error: ${error.message}`);
-        }
-    }
-}
+# Test OCAPI call - Get specific product
+wget --header="Authorization: Bearer $TOKEN" \
+     -O product.json \
+     "https://your-host.dx.commercecloud.salesforce.com/s/your-site-id/dw/shop/v23_1/products/(your-product-id)"
 ```
 
-### A.3 Advanced Authentication Patterns
+### A.2 Public Client: PKCE Authentication Flow (Guest)
 
-#### Trusted System on Behalf of (TSOB)
+This flow is for browser-based applications using PKCE for security. It requires multiple steps.
 
-For server-to-server integrations where a trusted system acts on behalf of a shopper:
+**Step 1: Generate PKCE Challenge**
+```bash
+# Generate code verifier and challenge
+VERIFIER=$(openssl rand -base64 96 | tr -d '\n' | tr '/+' '_-' | tr -d '=')
+CHALLENGE=$(echo -n $VERIFIER | openssl dgst -binary -sha256 | openssl base64 -A | tr '/' '_' | tr '+' '-' | tr -d '=')
 
-```javascript
-// Private client only - requires special scope: sfcc.ts_ext_on_behalf_of
-async function getTSOBToken(shopperLoginId, idpOrigin = 'ecom') {
-    const response = await axios.post(
-        'https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/your-org-id/oauth2/trusted-system/token',
-        new URLSearchParams({
-            'grant_type': 'client_credentials',
-            'hint': 'ts_ext_on_behalf_of',
-            'login_id': shopperLoginId,
-            'idp_origin': idpOrigin,
-            'channel_id': 'your-site-id'
-        }),
-        {
-            headers: {
-                'Authorization': `Basic ${credentials}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        }
-    );
-    
-    return response.data;
-}
+echo "Code Verifier: $VERIFIER"
+echo "Code Challenge: $CHALLENGE"
 ```
 
-#### Session Bridge for Hybrid Architectures
+**Step 2: Get Authorization Code**
+```bash
+# Replace with your values:
+# CLIENT='your-public-client-id'
+# REDIRECT='http://localhost:3000/callback'
 
-For transitioning between headless (SLAS JWT) and traditional SFRA (dwsid cookie):
-
-```javascript
-// Exchange SLAS token for SFRA session
-async function bridgeToSFRA(slasAccessToken) {
-    const response = await fetch('/s/your-site/dw/shop/v20_4/sessions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${slasAccessToken}`,
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include' // Important: allows cookie setting
-    });
-    
-    // dwsid cookie is automatically set by the response
-    return response.json();
-}
+# Get authorization code (returns redirect with usid and code)
+wget --server-response \
+     --spider \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/authorize?redirect_uri=http://localhost:3000/callback&response_type=code&hint=guest&client_id=your-public-client-id&code_challenge=$CHALLENGE" \
+     2>&1 | grep -i location
 ```
 
-### A.4 Refresh Token Rotation (Public Clients)
+**Step 3: Exchange Code for Token**
+```bash
+# Extract usid and code from the Location header above, then:
+# USID_AND_CODE="usid=your-usid&code=your-code"
 
-SLAS enforces refresh token rotation for security. Each refresh token is single-use:
-
-```javascript
-class TokenManager {
-    async refreshToken(currentRefreshToken) {
-        try {
-            const response = await fetch(
-                `${this.baseUrl}/shopper/auth/v1/organizations/your-org-id/oauth2/token`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'grant_type': 'refresh_token',
-                        'refresh_token': currentRefreshToken,
-                        'client_id': this.clientId
-                    })
-                }
-            );
-            
-            const newTokens = await response.json();
-            
-            // CRITICAL: Store new refresh token, old one is invalidated
-            this.storeTokens(newTokens);
-            
-            return newTokens;
-        } catch (error) {
-            // Token may be compromised, clear all stored tokens
-            this.clearTokens();
-            throw error;
-        }
-    }
-}
+wget --post-data="client_id=your-public-client-id&channel_id=your-site-id&code_verifier=$VERIFIER&$USID_AND_CODE&grant_type=authorization_code_pkce&redirect_uri=http://localhost:3000/callback" \
+     --header="Content-Type: application/x-www-form-urlencoded" \
+     -O pkce_token_response.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
 ```
+
+### A.3 Quick Test Script
+
+Here's a complete example you can adapt:
+
+```bash
+#!/bin/bash
+# Quick SLAS Authentication Test
+# Update these variables with your SFCC configuration:
+
+CODE='your-shortcode'
+ORG='f_ecom_your_org'  
+CLIENT='your-private-client-id'
+SECRET='your-client-secret'
+SITE='your-site-id'
+HOST='your-host.dx.commercecloud.salesforce.com'
+
+echo "Getting guest token..."
+TOKEN=$(wget --quiet --post-data="grant_type=client_credentials" \
+             --header="Authorization: Basic $(echo -n "$CLIENT:$SECRET" | base64)" \
+             --header="Content-Type: application/x-www-form-urlencoded" \
+             -O - \
+             "https://$CODE.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/$ORG/oauth2/token" | \
+        grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+
+if [ -z "$TOKEN" ]; then
+    echo "Failed to get token"
+    exit 1
+fi
+
+echo "Token obtained: ${TOKEN:0:20}..."
+
+echo "Testing SCAPI - Getting categories..."
+wget --quiet --header="Authorization: Bearer $TOKEN" \
+     -O - \
+     "https://$CODE.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/$ORG/categories/root?siteId=$SITE" | \
+     head -c 200
+
+echo -e "\n\nTest completed!"
+```
+
+### A.4 Common Parameters
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `your-shortcode` | Your SFCC realm shortcode | `kv7kzm78` |
+| `f_ecom_your_org` | Your organization ID | `f_ecom_zzrf_001` |
+| `your-private-client-id` | Private client ID from Account Manager | `d125886c-c45a-...` |
+| `your-public-client-id` | Public client ID from Account Manager | `18f2a947-c8ae-...` |
+| `your-client-secret` | Private client secret (keep secure!) | `your-secret-here` |
+| `your-site-id` | Site ID from Business Manager | `RefArch` |
+| `your-host` | Your sandbox hostname | `zzrf-001.dx.commercecloud.salesforce.com` |
+
+### A.5 Troubleshooting Tips
+
+1. **401 Unauthorized**: Check client ID/secret and ensure client has proper scopes
+2. **403 Forbidden**: Verify the client is allowed for the specific site 
+3. **Invalid grant**: For PKCE, ensure code verifier matches the challenge used
+4. **Token expired**: SLAS tokens typically expire in 30 minutes
+5. **CORS errors**: Use server-side calls for private clients, browser calls for public clients
+
+**Security Notes:**
+- Never expose private client secrets in browser code
+- Use HTTPS for all authentication calls
+- Store tokens securely and implement proper refresh logic
+- Private clients should only be used server-side
