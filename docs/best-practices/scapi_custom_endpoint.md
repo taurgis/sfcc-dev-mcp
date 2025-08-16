@@ -94,7 +94,49 @@ security:
   - ShopperToken: [sfcc.shopper-custom-objects.StoreReview]
 ```
 
-### 1.4 Error Handling and Troubleshooting
+### 1.4 Authentication Flow Examples & Testing
+
+#### Private Client: Guest Token Flow (Client Credentials)
+
+For server-side applications using private clients:
+
+```bash
+# Get Guest Token
+wget --post-data="grant_type=client_credentials" \
+     --header="Authorization: Basic $(echo -n 'your-private-client-id:your-client-secret' | base64)" \
+     --header="Content-Type: application/x-www-form-urlencoded" \
+     -O token_response.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
+
+# Extract Token and Test API Call
+TOKEN=$(cat token_response.json | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+wget --header="Authorization: Bearer $TOKEN" \
+     -O categories.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/f_ecom_your_org/categories/root?siteId=your-site-id"
+```
+
+#### Public Client: PKCE Authentication Flow
+
+For browser-based applications using PKCE:
+
+```bash
+# Generate PKCE Challenge
+VERIFIER=$(openssl rand -base64 96 | tr -d '\n' | tr '/+' '_-' | tr -d '=')
+CHALLENGE=$(echo -n $VERIFIER | openssl dgst -binary -sha256 | openssl base64 -A | tr '/' '_' | tr '+' '-' | tr -d '=')
+
+# Get Authorization Code (returns redirect with usid and code)
+wget --server-response --spider \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/authorize?redirect_uri=http://localhost:3000/callback&response_type=code&hint=guest&client_id=your-public-client-id&code_challenge=$CHALLENGE" \
+     2>&1 | grep -i location
+
+# Exchange Code for Token (extract usid and code from Location header)
+wget --post-data="client_id=your-public-client-id&channel_id=your-site-id&code_verifier=$VERIFIER&usid=your-usid&code=your-code&grant_type=authorization_code_pkce&redirect_uri=http://localhost:3000/callback" \
+     --header="Content-Type: application/x-www-form-urlencoded" \
+     -O pkce_token_response.json \
+     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
+```
+
+### 1.5 Error Handling and Troubleshooting
 
 #### Common Authentication Errors
 
@@ -135,12 +177,11 @@ function validateAndExtractUser() {
 
 #### Accessing Customer Context in Headless APIs
 
-Even though SCAPI endpoints use JWT-based authentication without traditional sessions, you can still access the authenticated customer using the familiar session pattern:
+Even though SCAPI endpoints use JWT-based authentication without traditional sessions, you can still access the authenticated customer:
 
 ```javascript
 // Access the current customer (works for both registered and guest users)
 exports.getCustomerInfo = function () {
-    // Get the "session" - this works even in headless JWT context
     var session = request.getSession();
     var customer = session.getCustomer();
     
@@ -174,21 +215,9 @@ exports.getCustomerInfo = function () {
 exports.getCustomerInfo.public = true;
 ```
 
-**Key Points about Session Access in Headless APIs:**
-
-1. **JWT Context**: The `request.getSession()` method works even with JWT authentication, providing access to the customer associated with the token.
-
-2. **Customer Types**: The customer object properly identifies whether it's a registered customer (with profile) or a guest customer.
-
-3. **Profile Access**: For registered customers, use `customer.getProfile()` to access customer profile data like email, name, and customer number.
-
-4. **Guest Identification**: Guest customers have an ID but no profile - use `customer.getID()` for guest customer identification.
-
-5. **Authentication State**: Use `customer.isAuthenticated()` and `customer.isRegistered()` to determine the customer's authentication status.
-
 ## 2. URL Structure and Endpoint Mapping
 
-Understanding how your OpenAPI schema translates to actual SCAPI endpoint URLs is crucial for both development and client integration. This section provides concrete examples of the URL transformation process.
+Understanding how your OpenAPI schema translates to actual SCAPI endpoint URLs is crucial for both development and client integration.
 
 ### 2.1 SCAPI URL Structure
 
@@ -359,7 +388,7 @@ paths:
 https://{{shortcode}}.api.commercecloud.salesforce.com/custom/customer-management/v2/organizations/{{organizationId}}/customers/12345/orders/ORD-001234/tracking?siteId=SiteGenesis&c_include_delivery_details=true
 ```
 
-### 2.3 URL Parameter Access in Scripts
+### 2.3 Parameter Access in Scripts
 
 Understanding how to access different parameter types in your script implementation:
 
@@ -427,7 +456,7 @@ curl -X GET \
   -H 'Content-Type: application/json'
 ```
 
-#### Common URL Issues and Solutions
+### 2.6 Common Issues and Solutions
 
 | Issue | Symptom | Solution |
 |-------|---------|----------|
@@ -436,7 +465,7 @@ curl -X GET \
 | Parameter not found | Script can't access parameters | Ensure parameter names match schema exactly, use correct access method |
 | Invalid path structure | URL doesn't match expected pattern | Verify path definition in schema matches your intended URL structure |
 
-### 2.6 Documentation for Client Developers
+### 2.7 Documentation for Client Developers
 
 When documenting your custom endpoints for client developers, always provide:
 
@@ -798,125 +827,9 @@ This is a critical architectural decision.
 
 ---
 
-## Appendix: Authentication Flow Examples
+## Appendix: Configuration Reference
 
-This section provides simple wget commands for testing different SLAS authentication flows directly from your command line. Replace the placeholder values with your actual SFCC configuration.
-
-### A.1 Private Client: Guest Token Flow (Client Credentials)
-
-This flow is for server-side applications using a private client with client credentials.
-
-**Step 1: Get Guest Token**
-```bash
-# Replace these variables with your values:
-# CODE='your-shortcode'
-# ORG='f_ecom_your_org' 
-# CLIENT='your-private-client-id'
-# SECRET='your-client-secret'
-# SITE='your-site-id'
-
-wget --post-data="grant_type=client_credentials" \
-     --header="Authorization: Basic $(echo -n 'your-private-client-id:your-client-secret' | base64)" \
-     --header="Content-Type: application/x-www-form-urlencoded" \
-     -O token_response.json \
-     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
-```
-
-**Step 2: Extract Token and Test API Call**
-```bash
-# Extract the access token from the response
-TOKEN=$(cat token_response.json | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
-
-# Test SCAPI call - Get categories
-wget --header="Authorization: Bearer $TOKEN" \
-     -O categories.json \
-     "https://your-shortcode.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/f_ecom_your_org/categories/root?siteId=your-site-id"
-
-# Test OCAPI call - Get specific product
-wget --header="Authorization: Bearer $TOKEN" \
-     -O product.json \
-     "https://your-host.dx.commercecloud.salesforce.com/s/your-site-id/dw/shop/v23_1/products/(your-product-id)"
-```
-
-### A.2 Public Client: PKCE Authentication Flow (Guest)
-
-This flow is for browser-based applications using PKCE for security. It requires multiple steps.
-
-**Step 1: Generate PKCE Challenge**
-```bash
-# Generate code verifier and challenge
-VERIFIER=$(openssl rand -base64 96 | tr -d '\n' | tr '/+' '_-' | tr -d '=')
-CHALLENGE=$(echo -n $VERIFIER | openssl dgst -binary -sha256 | openssl base64 -A | tr '/' '_' | tr '+' '-' | tr -d '=')
-
-echo "Code Verifier: $VERIFIER"
-echo "Code Challenge: $CHALLENGE"
-```
-
-**Step 2: Get Authorization Code**
-```bash
-# Replace with your values:
-# CLIENT='your-public-client-id'
-# REDIRECT='http://localhost:3000/callback'
-
-# Get authorization code (returns redirect with usid and code)
-wget --server-response \
-     --spider \
-     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/authorize?redirect_uri=http://localhost:3000/callback&response_type=code&hint=guest&client_id=your-public-client-id&code_challenge=$CHALLENGE" \
-     2>&1 | grep -i location
-```
-
-**Step 3: Exchange Code for Token**
-```bash
-# Extract usid and code from the Location header above, then:
-# USID_AND_CODE="usid=your-usid&code=your-code"
-
-wget --post-data="client_id=your-public-client-id&channel_id=your-site-id&code_verifier=$VERIFIER&$USID_AND_CODE&grant_type=authorization_code_pkce&redirect_uri=http://localhost:3000/callback" \
-     --header="Content-Type: application/x-www-form-urlencoded" \
-     -O pkce_token_response.json \
-     "https://your-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/f_ecom_your_org/oauth2/token"
-```
-
-### A.3 Quick Test Script
-
-Here's a complete example you can adapt:
-
-```bash
-#!/bin/bash
-# Quick SLAS Authentication Test
-# Update these variables with your SFCC configuration:
-
-CODE='your-shortcode'
-ORG='f_ecom_your_org'  
-CLIENT='your-private-client-id'
-SECRET='your-client-secret'
-SITE='your-site-id'
-HOST='your-host.dx.commercecloud.salesforce.com'
-
-echo "Getting guest token..."
-TOKEN=$(wget --quiet --post-data="grant_type=client_credentials" \
-             --header="Authorization: Basic $(echo -n "$CLIENT:$SECRET" | base64)" \
-             --header="Content-Type: application/x-www-form-urlencoded" \
-             -O - \
-             "https://$CODE.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/$ORG/oauth2/token" | \
-        grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
-
-if [ -z "$TOKEN" ]; then
-    echo "Failed to get token"
-    exit 1
-fi
-
-echo "Token obtained: ${TOKEN:0:20}..."
-
-echo "Testing SCAPI - Getting categories..."
-wget --quiet --header="Authorization: Bearer $TOKEN" \
-     -O - \
-     "https://$CODE.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/$ORG/categories/root?siteId=$SITE" | \
-     head -c 200
-
-echo -e "\n\nTest completed!"
-```
-
-### A.4 Common Parameters
+### A.1 Common Configuration Parameters
 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
@@ -928,16 +841,11 @@ echo -e "\n\nTest completed!"
 | `your-site-id` | Site ID from Business Manager | `RefArch` |
 | `your-host` | Your sandbox hostname | `zzrf-001.dx.commercecloud.salesforce.com` |
 
-### A.5 Troubleshooting Tips
+### A.2 Security Guidelines
 
-1. **401 Unauthorized**: Check client ID/secret and ensure client has proper scopes
-2. **403 Forbidden**: Verify the client is allowed for the specific site 
-3. **Invalid grant**: For PKCE, ensure code verifier matches the challenge used
-4. **Token expired**: SLAS tokens typically expire in 30 minutes
-5. **CORS errors**: Use server-side calls for private clients, browser calls for public clients
-
-**Security Notes:**
-- Never expose private client secrets in browser code
-- Use HTTPS for all authentication calls
-- Store tokens securely and implement proper refresh logic
-- Private clients should only be used server-side
+1. **Never expose private client secrets** in browser code
+2. **Use HTTPS for all authentication calls**
+3. **Store tokens securely** and implement proper refresh logic
+4. **Private clients should only be used server-side**
+5. **Token expiration**: SLAS tokens typically expire in 30 minutes
+6. **CORS considerations**: Use server-side calls for private clients, browser calls for public clients
