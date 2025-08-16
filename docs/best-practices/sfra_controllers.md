@@ -77,6 +77,50 @@ SFRA's routing is inspired by Express.js, using a chain of middleware functions 
 - **Endpoint Syntax**: URLs map to Controller-RouteName (e.g., `Home-Show` maps to the `Show` route in `Home.js`).
 - **server Object**: The core of routing, required in every controller (`var server = require('server');`). It provides methods like `get`, `post`, `append`, etc., to define and modify routes.
 
+### Storefront URL Patterns
+
+SFRA storefront URLs follow a predictable pattern that maps directly to your controller and route structure:
+
+```
+https://{instance-hostname}/on/demandware.store/Sites-{site-id}-Site/{locale}/{Controller-Route}
+```
+
+**URL Components:**
+- **Instance Hostname**: Your SFCC instance domain (e.g., `your-instance.dx.commercecloud.salesforce.com`)
+- **Site ID**: The site identifier configured in Business Manager (e.g., `RefArchGlobal`)
+- **Locale**: Language and region code, format depends on site configuration
+- **Controller-Route**: Maps to your controller file and route method
+
+#### URL Examples
+
+**Standard locale in path:**
+```
+https://your-instance.dx.commercecloud.salesforce.com/on/demandware.store/Sites-RefArchGlobal-Site/en_GB/Home-Show
+https://your-instance.dx.commercecloud.salesforce.com/on/demandware.store/Sites-RefArchGlobal-Site/en_US/Product-Show?pid=12345
+https://your-instance.dx.commercecloud.salesforce.com/on/demandware.store/Sites-RefArchGlobal-Site/fr_FR/Account-Login
+```
+
+**Locale as query parameter (alternative configuration):**
+```
+https://your-instance.dx.commercecloud.salesforce.com/on/demandware.store/Sites-RefArchGlobal-Site/Home-Show?lang=en_GB
+https://your-instance.dx.commercecloud.salesforce.com/on/demandware.store/Sites-RefArchGlobal-Site/jsPDF-Test?lang=en_GB
+```
+
+#### Controller Mapping Examples
+
+| URL | Controller File | Route Method |
+|-----|----------------|--------------|
+| `/Home-Show` | `controllers/Home.js` | `server.get('Show', ...)` |
+| `/Product-Show` | `controllers/Product.js` | `server.get('Show', ...)` |
+| `/Cart-AddProduct` | `controllers/Cart.js` | `server.post('AddProduct', ...)` |
+| `/Account-Login` | `controllers/Account.js` | `server.get('Login', ...)` |
+| `/CheckoutServices-SubmitPayment` | `controllers/CheckoutServices.js` | `server.post('SubmitPayment', ...)` |
+
+**Important Notes:**
+- The locale format (`en_GB` in path vs `?lang=en_GB` parameter) depends on your site's locale configuration in Business Manager
+- Custom controllers follow the same pattern: if you create `controllers/MyCustom.js` with route `Test`, it's accessible at `/MyCustom-Test`
+- Route names are case-sensitive and must match exactly what you define in your controller
+
 ### Middleware Chain (req, res, next)
 
 Each route is a series of functions:
