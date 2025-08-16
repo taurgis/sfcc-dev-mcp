@@ -4,6 +4,58 @@ This guide provides a condensed overview of best practices and code patterns for
 
 **IMPORTANT**: Before developing SFRA controllers, consult the **Performance and Stability Best Practices** guide from this MCP server. Review the storefront development guidelines, index-friendly APIs, and critical page performance requirements to ensure your controllers follow SFCC performance standards and avoid database-intensive operations.
 
+## 🚀 Enhanced SFRA Documentation Access
+
+This MCP server provides comprehensive access to SFRA documentation through enhanced tools that can help you understand SFRA architecture and develop better controllers:
+
+### **Essential SFRA Documentation Tools**
+
+1. **`get_sfra_categories`** - Discover all available SFRA documentation categories
+2. **`get_sfra_documents_by_category`** - Explore documents by functional area (core, product, order, customer, pricing, store)
+3. **`get_sfra_document`** - Get detailed information about specific SFRA classes or models
+4. **`search_sfra_documentation`** - Find specific functionality across all SFRA documentation
+
+### **Recommended Documentation Workflow for Controller Development**
+
+Before writing SFRA controllers, use these tools to understand the available functionality:
+
+```javascript
+// 1. Explore core SFRA classes essential for controllers
+get_sfra_documents_by_category("core")
+// Returns: server, request, response, querystring, render
+
+// 2. Get detailed Server class documentation
+get_sfra_document("server") 
+// Comprehensive server.js documentation with middleware patterns
+
+// 3. Understand Request and Response objects
+get_sfra_document("request")
+get_sfra_document("response")
+
+// 4. For product controllers, explore product models
+get_sfra_documents_by_category("product")
+// Returns: product-full, product-bundle, product-tile, product-search, product-line-items
+
+// 5. For cart/checkout controllers, explore order models  
+get_sfra_documents_by_category("order")
+// Returns: cart, order, billing, shipping, payment, totals
+
+// 6. Search for specific functionality
+search_sfra_documentation("middleware")
+search_sfra_documentation("validation")
+```
+
+### **SFRA Model Documentation for Controller Development**
+
+The enhanced documentation system provides access to comprehensive model documentation that's essential for controller development:
+
+- **Product Models**: `product-full`, `product-bundle`, `product-tile` - Understanding product data structures
+- **Cart Models**: `cart`, `billing`, `shipping`, `payment`, `totals` - Essential for checkout controllers  
+- **Customer Models**: `account`, `address` - For customer management controllers
+- **Pricing Models**: `price-default`, `price-range`, `price-tiered` - For pricing logic in controllers
+
+Always consult the relevant model documentation before implementing controller logic to understand available properties and methods.
+
 ## Core Concepts
 
 ### MVC Pattern & Cartridge Path
@@ -843,7 +895,7 @@ Manages order confirmation, history, and details.
   - `pdict.order` - Complete `OrderModel` with all order details, line items, and totals
   - `pdict.returningCustomer` - Boolean indicating if customer is registered
   - `pdict.passwordForm` - Password creation form for guest customers (optional)
-  - `pdict.reportingURLs` - Analytics reporting URLs for order tracking
+  - `pdict.reportingURLs` - Analytics URLs for order tracking
   - `pdict.orderUUID` - Order UUID for tracking
 - **Template**: `checkout/confirmation/confirmation.isml`
 - **Middlewares**: `consentTracking.consent`, `server.middleware.https`, `csrfProtection.generateToken`

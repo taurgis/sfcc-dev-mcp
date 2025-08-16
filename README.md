@@ -18,7 +18,7 @@
 - [✨ Features](#features)
   - [SFCC Best Practices Guides](#sfcc-best-practices-guides)
   - [SFCC Documentation Querying](#sfcc-documentation-querying)
-  - [SFRA Documentation Access](#sfra-documentation-access)
+  - [Enhanced SFRA Documentation Access](#enhanced-sfra-documentation-access)
   - [SFCC System Object Definitions](#sfcc-system-object-definitions)
   - [Log Analysis & Monitoring](#log-analysis--monitoring)
 - [⚙️ Configuration](#configuration)
@@ -102,8 +102,8 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 |---------------|------------------------|-----------|
 | **SFCC Documentation** (5 tools) | ✅ Available | ✅ Available |
 | **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
-| **SFRA Documentation** (3 tools) | ✅ Available | ✅ Available |
-| **Log Analysis** (6 tools) | ❌ Requires credentials | ✅ Available |
+| **Enhanced SFRA Documentation** (5 tools) | ✅ Available | ✅ Available |
+| **Log Analysis** (7 tools) | ❌ Requires credentials | ✅ Available |
 | **System Object Definitions** (6 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
 
 **Get started immediately**: The server works without any credentials - just use `npx sfcc-dev-mcp` to access all documentation and best practices tools!
@@ -300,10 +300,27 @@ npm start -- --dw-json /path/to/your/dw.json
 - **List All Classes**: Get a complete list of available SFCC classes
 - **Get Raw Documentation**: Access the complete Markdown documentation for any class
 
-### SFRA Documentation Access
-- **Get Available SFRA Documents**: List all available SFRA (Storefront Reference Architecture) documentation including Server, Request, Response, QueryString, and render module
-- **Get SFRA Document**: Retrieve complete SFRA class or module documentation with detailed information about properties, methods, and usage examples
-- **Search SFRA Documentation**: Search across all SFRA documentation for specific terms, concepts, or functionality related to routing, middleware, request handling, or response management
+### Enhanced SFRA Documentation Access
+- **Get Available SFRA Documents**: List all 26+ available SFRA (Storefront Reference Architecture) documents with smart categorization into 7 logical groups (core, product, order, customer, pricing, store, other)
+- **Get SFRA Document**: Retrieve complete SFRA class, module, or model documentation with detailed information about properties, methods, and usage examples. Now supports all 26+ documents including comprehensive model documentation for account, cart, products, pricing, billing, shipping, store management, and more
+- **Search SFRA Documentation**: Advanced search across all SFRA documentation with relevance scoring, context highlighting, and category awareness. Find specific functionality across 26+ documents covering core classes, extensive model documentation, and complete SFRA ecosystem
+- **Get SFRA Documents by Category**: ⭐ **NEW** - Filter documents by functional category (core, product, order, customer, pricing, store, other) for efficient discovery and exploration of related functionality  
+- **Get SFRA Categories**: ⭐ **NEW** - Get all available SFRA document categories with counts and descriptions to understand the organization and scope of SFRA documentation
+
+#### 📂 SFRA Document Categories (26+ documents total):
+- **Core** (5 docs): server, request, response, querystring, render - Essential SFRA classes for routing and middleware
+- **Product** (5 docs): product-full, product-bundle, product-tile, product-search, product-line-items - Product model documentation
+- **Order** (6 docs): cart, order, billing, shipping, payment, totals - Cart and checkout functionality models
+- **Customer** (2 docs): account, address - Customer management and profile models  
+- **Pricing** (3 docs): price-default, price-range, price-tiered - Pricing and discount models
+- **Store** (2 docs): store, stores - Store location and management models
+- **Other** (3+ docs): categories, content, locale - Additional utility and content models
+
+**Enhanced Features:**
+- **Dynamic Discovery**: Automatically finds all SFRA documentation files - no hardcoding required
+- **Smart Categorization**: Organizes documents into logical functional groups
+- **Performance Optimization**: Intelligent caching with lazy loading for optimal response times  
+- **Advanced Search**: Relevance-scored search results with context highlighting and line numbers
 
 ### SFCC System Object Definitions
 - **Get All System Objects**: Retrieve a complete list of all system object definitions with metadata including attribute counts
@@ -801,23 +818,35 @@ You can configure the MCP client to use npx, which automatically handles package
 
 ### SFCC SFRA Documentation Tools
 
-1. **`get_available_sfra_documents`** - List all available SFRA documents
+1. **`get_available_sfra_documents`** - List all available SFRA documents with categorization
    ```json
    {}
    ```
 
-2. **`get_sfra_document`** - Get complete SFRA class or module documentation
+2. **`get_sfra_document`** - Get complete SFRA class, module, or model documentation (supports all 26+ documents)
    ```json
    {
      "documentName": "server"
    }
    ```
 
-3. **`search_sfra_documentation`** - Search across all SFRA documentation
+3. **`search_sfra_documentation`** - Advanced search across all SFRA documentation with relevance scoring
    ```json
    {
      "query": "middleware"
    }
+   ```
+
+4. **`get_sfra_documents_by_category`** ⭐ **NEW** - Filter SFRA documents by functional category
+   ```json
+   {
+     "category": "core"
+   }
+   ```
+
+5. **`get_sfra_categories`** ⭐ **NEW** - Get all SFRA document categories with counts and descriptions
+   ```json
+   {}
    ```
 
 ### SFCC System Object Definition Tools

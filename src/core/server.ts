@@ -379,6 +379,15 @@ export class SFCCDevServer {
         logMessage = `Searching SFRA documentation for query: "${args.query}"`;
         result = await this.sfraClient.searchSFRADocumentation(args.query as string);
         break;
+      case 'get_sfra_documents_by_category':
+        if (!args?.category) {throw new Error('category is required');}
+        logMessage = `Getting SFRA documents by category: "${args.category}"`;
+        result = await this.sfraClient.getDocumentsByCategory(args.category as string);
+        break;
+      case 'get_sfra_categories':
+        logMessage = 'Getting all SFRA document categories';
+        result = await this.sfraClient.getAvailableCategories();
+        break;
       default:
         throw new Error(`Unknown SFRA tool: ${toolName}`);
     }
@@ -433,7 +442,8 @@ export class SFCCDevServer {
           'search_system_object_attribute_definitions', 'search_site_preferences',
           'search_system_object_attribute_groups', 'search_custom_object_attribute_definitions'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
-        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation'].includes(name)) {
+        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
+          'get_sfra_documents_by_category', 'get_sfra_categories'].includes(name)) {
           result = await this.handleSFRATool(name, args, startTime);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);

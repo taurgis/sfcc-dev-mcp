@@ -97,12 +97,70 @@ Use these for implementation guidance and best practices:
 - **`mcp_sfcc-dev_search_best_practices`** - Find specific guidance on topics like security, performance
 - **`mcp_sfcc-dev_get_hook_reference`** - Get comprehensive OCAPI/SCAPI hook references
 
-### 🏗️ SFRA Documentation Tools
-Use these for SFRA (Storefront Reference Architecture) related questions:
+### 🏗️ Enhanced SFRA Documentation Tools
+Use these for SFRA (Storefront Reference Architecture) related questions - **now with 26+ documents and smart categorization**:
 
-- **`mcp_sfcc-dev_get_available_sfra_documents`** - See what SFRA documents are available
-- **`mcp_sfcc-dev_get_sfra_document`** - Get complete SFRA class/module documentation (includes all properties and methods)
-- **`mcp_sfcc-dev_search_sfra_documentation`** - Search across all SFRA documentation
+- **`mcp_sfcc-dev_get_available_sfra_documents`** - See all 26+ SFRA documents with categorization
+- **`mcp_sfcc-dev_get_sfra_document`** - Get detailed SFRA class, module, or model documentation (no longer limited to 5 documents)
+- **`mcp_sfcc-dev_search_sfra_documentation`** - Advanced search across all SFRA docs with relevance scoring
+- **`mcp_sfcc-dev_get_sfra_documents_by_category`** ⭐ **NEW** - Filter documents by category (core, product, order, customer, pricing, store, other)
+- **`mcp_sfcc-dev_get_sfra_categories`** ⭐ **NEW** - Get all categories with counts and descriptions
+
+#### 📂 SFRA Document Categories (26+ documents total):
+- **Core** (5 docs): `server`, `request`, `response`, `querystring`, `render` - Essential SFRA classes
+- **Product** (5 docs): `product-full`, `product-bundle`, `product-tile`, `product-search`, `product-line-items` - Product model documentation  
+- **Order** (6 docs): `cart`, `order`, `billing`, `shipping`, `payment`, `totals` - Cart and checkout models
+- **Customer** (2 docs): `account`, `address` - Customer management models
+- **Pricing** (3 docs): `price-default`, `price-range`, `price-tiered` - Pricing model documentation
+- **Store** (2 docs): `store`, `stores` - Store location models
+- **Other** (3+ docs): `categories`, `content`, `locale` - Additional utility models
+
+#### 🚀 Enhanced SFRA Workflow for Claude Desktop:
+
+```javascript
+// 1. Explore SFRA architecture and discover available documentation
+mcp_sfcc-dev_get_sfra_categories()
+// See all 7 categories with document counts and descriptions
+
+// 2. Focus on specific functional areas
+mcp_sfcc-dev_get_sfra_documents_by_category("core")
+// Get core SFRA classes: server, request, response, querystring, render
+
+mcp_sfcc-dev_get_sfra_documents_by_category("product") 
+// Get product models: product-full, product-bundle, product-tile, etc.
+
+// 3. Get detailed information about specific models
+mcp_sfcc-dev_get_sfra_document("server")
+// Complete Server class documentation with middleware patterns
+
+mcp_sfcc-dev_get_sfra_document("cart")
+// Cart model with properties, methods, and usage examples
+
+// 4. Search across all documentation
+mcp_sfcc-dev_search_sfra_documentation("middleware")
+// Find middleware-related content across all 26+ documents
+
+mcp_sfcc-dev_search_sfra_documentation("validation")
+// Search for validation patterns and examples
+```
+
+#### 💡 SFRA Development Best Practices with Enhanced Tools:
+
+**For Controller Development:**
+1. Start with `mcp_sfcc-dev_get_sfra_documents_by_category("core")` to understand Server, Request, Response objects
+2. Use `mcp_sfcc-dev_get_sfra_document("server")` for detailed middleware patterns
+3. For product controllers: `mcp_sfcc-dev_get_sfra_documents_by_category("product")` 
+4. For cart/checkout: `mcp_sfcc-dev_get_sfra_documents_by_category("order")`
+
+**For Model Implementation:**
+1. Use `mcp_sfcc-dev_get_sfra_document("product-full")` for comprehensive product model structure
+2. Use `mcp_sfcc-dev_get_sfra_document("cart")` for cart model properties and methods
+3. Search specific functionality: `mcp_sfcc-dev_search_sfra_documentation("totals")`
+
+**For Architecture Understanding:**
+1. `mcp_sfcc-dev_get_sfra_categories()` gives you the complete SFRA landscape
+2. Use category filtering to explore related functionality systematically
+3. Search across all docs to find patterns and best practices
 
 ### 🔧 System Object Definitions
 Use these for understanding SFCC data models and custom attributes:

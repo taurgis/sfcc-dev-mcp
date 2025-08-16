@@ -153,12 +153,14 @@ sfcc-dev-mcp/
    - Security and performance recommendations
    - Hook reference tables and examples
 
-3. **SFRA Documentation Tools** (3 tools)
-   - SFRA class and module documentation
-   - Server, Request, Response, QueryString, and render module details
-   - Complete documentation with properties and methods included
+3. **Enhanced SFRA Documentation Tools** (5 tools)
+   - **Dynamic Discovery**: Automatically finds all 26+ SFRA documents including core classes, extensive model documentation
+   - **Smart Categorization**: Organizes documents into 7 logical categories (core, product, order, customer, pricing, store, other)
+   - **Advanced Search**: Relevance-scored search across all documents with context highlighting
+   - **Category Filtering**: Explore documents by functional areas for efficient discovery
+   - **Complete Coverage**: Core SFRA classes (Server, Request, Response, QueryString, render) plus comprehensive model documentation (account, cart, products, pricing, billing, shipping, store, customer management, totals, categories, content, locale, addresses, and more)
 
-4. **Log Analysis Tools** (6 tools)
+4. **Log Analysis Tools** (7 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
@@ -278,3 +280,4 @@ The new organized structure provides:
 5. **Professional Standards**: Follows TypeScript/Node.js project conventions
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
+
