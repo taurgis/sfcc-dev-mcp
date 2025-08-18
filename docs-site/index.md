@@ -43,6 +43,11 @@ Choose your preferred AI interface:
   </div>
   
   <div class="card">
+    <h3><a href="features">✨ Features</a></h3>
+    <p>Detailed overview of all capabilities including cartridge generation, documentation access, and log analysis</p>
+  </div>
+  
+  <div class="card">
     <h3><a href="tools">🛠️ Available Tools</a></h3>
     <p>Comprehensive documentation of all available MCP tools</p>
   </div>
@@ -50,6 +55,11 @@ Choose your preferred AI interface:
   <div class="card">
     <h3><a href="examples">💡 Examples</a></h3>
     <p>Real-world AI assistant interactions and use cases</p>
+  </div>
+  
+  <div class="card">
+    <h3><a href="security">🔒 Security</a></h3>
+    <p>Security guidelines and best practices for credential management</p>
   </div>
   
   <div class="card">

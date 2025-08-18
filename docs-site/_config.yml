@@ -14,10 +14,12 @@ plugins:
 # Navigation
 header_pages:
   - installation.md
+  - features.md
   - ai-interfaces.md
   - configuration.md
   - tools.md
   - examples.md
+  - security.md
   - troubleshooting.md
   - development.md
 

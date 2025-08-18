@@ -53,17 +53,37 @@ sfcc-dev-mcp/
 │   │   └── tool-definitions.ts   # MCP tool schema definitions
 │   ├── clients/                  # API clients for different services
 │   │   ├── base/                 # Base client classes
+│   │   │   ├── http-client.ts    # Base HTTP client with authentication
+│   │   │   ├── oauth-token.ts    # OAuth token management
+│   │   │   └── ocapi-auth-client.ts # OCAPI authentication client
 │   │   ├── ocapi/                # OCAPI-specific clients
-│   │   ├── docs-client.ts        # Documentation client
+│   │   │   ├── site-preferences-client.ts # Site preferences client
+│   │   │   └── system-objects-client.ts # System objects client
+│   │   ├── best-practices-client.ts # Best practices guides client
+│   │   ├── cartridge-generation-client.ts # Cartridge generation client
+│   │   ├── docs-client.ts        # SFCC documentation client
 │   │   ├── log-client.ts         # Log analysis client
-│   │   └── ...                   # Other specialized clients
+│   │   ├── ocapi-client.ts       # Main OCAPI coordinator
+│   │   └── sfra-client.ts        # SFRA documentation client
 │   ├── config/                   # Configuration management
+│   │   ├── config.ts             # Configuration loading
+│   │   ├── configuration-factory.ts # Configuration factory
+│   │   ├── constants.ts          # Application constants
+│   │   └── dw-json-loader.ts     # Secure dw.json loading
 │   ├── utils/                    # Utility functions
+│   │   ├── cache.ts              # Caching utilities
+│   │   ├── logger.ts             # Logging utilities
+│   │   ├── path-resolver.ts      # Path resolution utilities
+│   │   ├── query-builder.ts      # Query building utilities
+│   │   ├── utils.ts              # Common utilities
+│   │   └── validator.ts          # Input validation
 │   └── types/                    # TypeScript type definitions
+│       └── types.ts              # Comprehensive type definitions
 ├── docs/                         # SFCC documentation files
 ├── docs-site/                    # GitHub Pages documentation
 ├── tests/                        # Test suite
-└── scripts/                      # Build and utility scripts
+├── scripts/                      # Build and utility scripts
+└── .github/                      # GitHub workflows and templates
 ```
 
 ### Key Components
@@ -163,7 +183,7 @@ sfcc-dev-mcp/
 npm test
 
 # Run specific test file
-npm test -- my-client.test.ts
+npm test base-http-client.test.ts
 
 # Run with coverage
 npm run test:coverage
@@ -172,23 +192,26 @@ npm run test:coverage
 npm run test:watch
 ```
 
-#### Integration Tests
+#### Available Test Scripts
 ```bash
-# Test with real SFCC instance
-npm run test:integration -- --dw-json ./test-dw.json
+# Core testing scripts from package.json
+npm test              # Run all tests with Jest
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
 
-# Test documentation-only mode
-npm run test:docs-only
+# Linting and code quality
+npm run lint          # Check code style
+npm run lint:fix      # Auto-fix linting issues
+npm run lint:check    # Check with zero warnings
 ```
 
-#### End-to-End Testing
+#### Manual Testing
 ```bash
-# Test complete workflow
-npm run test:e2e
+# Test with real SFCC instance (create your own test-dw.json)
+npm run dev -- --dw-json ./test-dw.json --debug true
 
-# Test specific AI interface integration
-npm run test:claude-desktop
-npm run test:github-copilot
+# Test documentation-only mode
+npm run dev -- --debug true
 ```
 
 ---
@@ -205,17 +228,21 @@ npm run test:github-copilot
 
 2. **Run Documentation Conversion**:
    ```bash
-   # Convert Markdown to processable format
+   # Convert and process documentation (requires axios and cheerio)
    npm run convert-docs
    
-   # Verify conversion
-   npm run validate-docs
+   # Test with limited conversion
+   npm run convert-docs:test
+   
+   # Limited conversion (5 files)
+   npm run convert-docs:limit
    ```
 
 3. **Test Documentation Tools**:
    ```bash
-   # Test documentation search
-   npm run test:docs -- --filter "NewClass"
+   # Test documentation access with your changes
+   npm run dev -- --debug true
+   # Then use MCP client to test get_sfcc_class_info with "NewClass"
    ```
 
 ### Updating GitHub Pages
@@ -223,13 +250,16 @@ npm run test:github-copilot
 The GitHub Pages site is automatically deployed when changes are pushed to `docs-site/`:
 
 1. **Edit Documentation Pages** in `docs-site/`
-2. **Test Locally** with Jekyll:
+2. **Test Locally** with Jekyll (requires Ruby and Jekyll setup):
    ```bash
    cd docs-site
+   # Install Jekyll if not already installed
+   gem install jekyll bundler
+   bundle install
    bundle exec jekyll serve
    # Visit http://localhost:4000/sfcc-dev-mcp/
    ```
-3. **Commit and Push** - GitHub Actions will deploy automatically
+3. **Commit and Push** - GitHub Actions will deploy automatically via `.github/workflows/deploy-pages.yml`
 
 ---
 
@@ -270,7 +300,9 @@ const searchProductsByCategory = (categoryId: string) => {
 ### Git Workflow
 
 ```bash
-# Create feature branch
+# Create feature branch from develop
+git checkout develop
+git pull origin develop
 git checkout -b feature/new-tool-name
 
 # Make atomic commits
@@ -280,9 +312,20 @@ git commit -m "feat: add my new tool implementation"
 git add tests/my-client.test.ts  
 git commit -m "test: add unit tests for my new tool"
 
-# Push and create PR
+git add docs-site/tools.md
+git commit -m "docs: update tools documentation"
+
+# Push and create PR to develop branch
 git push origin feature/new-tool-name
 ```
+
+**Commit Message Convention:**
+- `feat:` - New features
+- `fix:` - Bug fixes  
+- `docs:` - Documentation updates
+- `test:` - Test additions/modifications
+- `refactor:` - Code refactoring
+- `chore:` - Build process or auxiliary tool changes
 
 ---
 
@@ -304,6 +347,7 @@ describe('FeatureName', () => {
     it('should handle success case', async () => {
       // Arrange
       const input = { query: 'test' };
+      const mockResponse = { data: 'mock response' };
       mockHttpClient.get.mockResolvedValue(mockResponse);
       
       // Act
@@ -316,10 +360,11 @@ describe('FeatureName', () => {
     
     it('should handle error case', async () => {
       // Arrange
+      const input = { query: 'test' };
       mockHttpClient.get.mockRejectedValue(new Error('Network error'));
       
       // Act & Assert
-      await expect(client.methodName({})).rejects.toThrow('Network error');
+      await expect(client.methodName(input)).rejects.toThrow('Network error');
     });
   });
 });
@@ -328,23 +373,33 @@ describe('FeatureName', () => {
 ### Mock Strategy
 
 ```typescript
-// Mock external dependencies
-jest.mock('dw/system/Logger', () => ({
-  getLogger: () => ({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  })
-}));
+// Mock external dependencies using Jest
+const mockLogger = {
+  info: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+  warn: jest.fn()
+};
 
 // Use factories for complex mocks
 const createMockSFCCResponse = (overrides = {}) => ({
   statusCode: 200,
-  headers: {},
-  body: 'Mock response',
+  headers: { 'content-type': 'application/json' },
+  data: 'Mock response data',
   ...overrides
 });
 ```
+
+### Testing Files Available
+
+The project has comprehensive test coverage in the `tests/` directory:
+- `base-http-client.test.ts` - Base HTTP client testing
+- `cache.test.ts` - Caching mechanism tests
+- `config.test.ts` - Configuration loading tests
+- `log-client.test.ts` - Log analysis client tests
+- `oauth-token.test.ts` - OAuth token management tests
+- `system-objects-client.test.ts` - System objects client tests
+- And more...
 
 ---
 
@@ -366,25 +421,27 @@ git push origin main --tags
 
 1. **Update Documentation**
    - [ ] README.md tool counts and features
-   - [ ] copilot-instructions.md architecture updates
-   - [ ] GitHub Pages documentation updates
-   - [ ] CHANGELOG.md entry
+   - [ ] `ai-instructions/github-copilot/copilot-instructions.md` architecture updates  
+   - [ ] `.github/copilot-instructions.md` if MCP server architecture changed
+   - [ ] GitHub Pages documentation in `docs-site/`
+   - [ ] CHANGELOG.md entry (if present)
 
 2. **Testing**
-   - [ ] All unit tests pass
-   - [ ] Integration tests with real SFCC instance
+   - [ ] All unit tests pass (`npm test`)
+   - [ ] Linting passes (`npm run lint:check`)
+   - [ ] Manual testing with real SFCC instance
    - [ ] Documentation-only mode validation
-   - [ ] AI interface compatibility tests
+   - [ ] Build succeeds (`npm run build`)
 
 3. **Build & Package**
    - [ ] TypeScript compilation successful
-   - [ ] Package size optimization
-   - [ ] Dependency audit clean
+   - [ ] Package size reasonable
+   - [ ] Dependencies audit clean (`npm audit`)
 
 4. **Release**
    - [ ] GitHub release with changelog
-   - [ ] npm publish
-   - [ ] Documentation deployment
+   - [ ] npm publish (automated via `.github/workflows/publish.yml`)
+   - [ ] Documentation deployment (automated)
 
 ---
 
@@ -401,14 +458,15 @@ git push origin main --tags
 1. **Fork & Branch**: Create feature branch from `develop`
 2. **Implement Changes**: Follow coding standards and testing requirements
 3. **Update Documentation**: Ensure documentation reflects changes
-4. **Test Thoroughly**: All tests must pass
+4. **Test Thoroughly**: All tests must pass (`npm test`, `npm run lint:check`)
 5. **Submit PR**: Provide clear description and link to related issues
 
 ### Code Review
 
-- **Two Approvals**: Required for merging to main branch
-- **Automated Checks**: CI/CD pipeline must pass
-- **Documentation Review**: Technical writing review for user-facing changes
+- **GitHub Actions**: CI pipeline must pass (see `.github/workflows/ci.yml`)
+- **Code Quality**: ESLint and TypeScript checks must pass
+- **Test Coverage**: Maintain or improve test coverage
+- **Documentation**: Ensure user-facing changes are documented
 
 ---
 
@@ -450,19 +508,34 @@ try {
 ### Input Validation
 
 ```typescript
-// Validate all inputs
+// Validate all inputs using proper TypeScript types
+import { ToolResponse, ValidationError } from '../types/types.js';
+
+interface ToolParams {
+  readonly query: string;
+  readonly limit?: number;
+}
+
 function validateToolInput(input: unknown): ToolParams {
-  const schema = Joi.object({
-    query: Joi.string().required().max(1000),
-    limit: Joi.number().optional().min(1).max(100)
-  });
-  
-  const { error, value } = schema.validate(input);
-  if (error) {
-    throw new ValidationError(`Invalid input: ${error.message}`);
+  if (!input || typeof input !== 'object') {
+    throw new ValidationError('Input must be an object');
   }
   
-  return value;
+  const { query, limit } = input as any;
+  
+  if (!query || typeof query !== 'string') {
+    throw new ValidationError('Query is required and must be a string');
+  }
+  
+  if (query.length > 1000) {
+    throw new ValidationError('Query must be 1000 characters or less');
+  }
+  
+  if (limit !== undefined && (typeof limit !== 'number' || limit < 1 || limit > 100)) {
+    throw new ValidationError('Limit must be a number between 1 and 100');
+  }
+  
+  return { query, limit };
 }
 ```
 
@@ -470,6 +543,7 @@ function validateToolInput(input: unknown): ToolParams {
 
 ## Next Steps
 
-- 🏗️ **[Project Architecture](https://github.com/taurgis/sfcc-dev-mcp/wiki/Architecture)** - Deep dive into system design
-- 🧪 **[Testing Guide](https://github.com/taurgis/sfcc-dev-mcp/wiki/Testing)** - Comprehensive testing strategies
-- 📚 **[API Reference](https://github.com/taurgis/sfcc-dev-mcp/wiki/API)** - Complete API documentation
+- 📝 **[Contributing Guidelines](https://github.com/taurgis/sfcc-dev-mcp/blob/main/CONTRIBUTING.md)** - Detailed contribution process
+- 🏗️ **[Issues & Features](https://github.com/taurgis/sfcc-dev-mcp/issues)** - Report bugs or request features
+- 💬 **[Discussions](https://github.com/taurgis/sfcc-dev-mcp/discussions)** - Community discussions and Q&A
+- � **[GitHub Actions](https://github.com/taurgis/sfcc-dev-mcp/actions)** - View CI/CD pipeline status

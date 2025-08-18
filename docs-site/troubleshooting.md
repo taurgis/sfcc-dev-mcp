@@ -68,13 +68,15 @@ curl -X POST \
 
 #### Update Expired Credentials
 ```json
-// Check if credentials are current
+// Complete dw.json structure with all supported fields
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
   "username": "current-username",
   "password": "current-password",
   "client-id": "current-client-id", 
-  "client-secret": "current-client-secret"
+  "client-secret": "current-client-secret",
+  "site-id": "SiteGenesis",
+  "code-version": "version1"
 }
 ```
 
@@ -103,14 +105,11 @@ curl -X POST \
 
 **Solutions:**
 
-#### Increase Timeout Settings
+#### Increase Request Timeout
 ```javascript
-// Add to dw.json
-{
-  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
-  "timeout": 30000,  // 30 seconds
-  "retries": 3
-}
+// Note: timeout and retries are not configurable
+// The server uses default timeout values
+// For connection issues, check network connectivity instead
 ```
 
 #### Check Network Configuration
@@ -269,46 +268,54 @@ head .cursor/rules/sfcc-development.mdc
 
 ### Enable Debug Logging
 
-**Environment Variable Method:**
-```bash
-# Enable all debug logging
-DEBUG=sfcc-dev-mcp:* npx sfcc-dev-mcp --dw-json ./dw.json
-
-# Enable specific component logging
-DEBUG=sfcc-dev-mcp:auth npx sfcc-dev-mcp --dw-json ./dw.json
-DEBUG=sfcc-dev-mcp:logs npx sfcc-dev-mcp --dw-json ./dw.json
-DEBUG=sfcc-dev-mcp:ocapi npx sfcc-dev-mcp --dw-json ./dw.json
-```
-
 **Command Line Method:**
 ```bash
-# Set log level to debug
-npx sfcc-dev-mcp --log-level debug --dw-json ./dw.json
+# Enable debug mode
+npx sfcc-dev-mcp --debug --dw-json ./dw.json
 
-# Enable verbose output
-npx sfcc-dev-mcp --verbose --dw-json ./dw.json
+# Enable debug mode with explicit true
+npx sfcc-dev-mcp --debug true --dw-json ./dw.json
+
+# Disable debug mode explicitly
+npx sfcc-dev-mcp --debug false --dw-json ./dw.json
 ```
+
+**Note:** Environment variables like `DEBUG=sfcc-dev-mcp:*` are not supported. Use the `--debug` command-line argument instead.
 
 ### Log File Locations
 
 **MCP Server Logs:**
 
-| OS | Log Location | View Command |
-|----|--------------|--------------|
-| **macOS** | `~/Library/Logs/sfcc-dev-mcp/` | `tail -f ~/Library/Logs/sfcc-dev-mcp/server.log` |
-| **Windows** | `%APPDATA%\sfcc-dev-mcp\logs\` | `Get-Content -Wait "%APPDATA%\sfcc-dev-mcp\logs\server.log"` |
-| **Linux** | `~/.local/share/sfcc-dev-mcp/logs/` | `tail -f ~/.local/share/sfcc-dev-mcp/logs/server.log` |
+Logs are stored in the system temporary directory under `sfcc-mcp-logs/`:
+
+| OS | Base Log Location | 
+|----|-------------------|
+| **macOS** | `/tmp/sfcc-mcp-logs/` |
+| **Windows** | `%TEMP%\sfcc-mcp-logs\` |
+| **Linux** | `/tmp/sfcc-mcp-logs/` |
+
+**Log Files Generated:**
+- `sfcc-mcp-info.log` - Informational messages
+- `sfcc-mcp-warn.log` - Warning messages  
+- `sfcc-mcp-error.log` - Error messages
+- `sfcc-mcp-debug.log` - Debug messages (when `--debug` is enabled)
 
 **View Logs in Real-Time:**
 ```bash
-# macOS/Linux
-tail -f ~/Library/Logs/sfcc-dev-mcp/server.log
+# macOS/Linux - View error logs
+tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-error.log
 
-# Filter for errors only
-tail -f ~/Library/Logs/sfcc-dev-mcp/server.log | grep ERROR
+# View info logs
+tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-info.log
+
+# View debug logs (when debug mode is enabled)
+tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-debug.log
+
+# Windows - View logs with PowerShell
+Get-Content -Wait "$env:TEMP\sfcc-mcp-logs\sfcc-mcp-error.log"
 
 # View last 100 lines
-tail -n 100 ~/Library/Logs/sfcc-dev-mcp/server.log
+tail -n 100 /tmp/sfcc-mcp-logs/sfcc-mcp-error.log
 ```
 
 ---
@@ -320,25 +327,26 @@ tail -n 100 ~/Library/Logs/sfcc-dev-mcp/server.log
 **Basic Functionality Test:**
 ```bash
 # Test documentation-only mode
-npx sfcc-dev-mcp --mode docs-only --test
+npx sfcc-dev-mcp
 
-# Test full mode with credentials
-npx sfcc-dev-mcp --dw-json ./dw.json --test
+# Test with debug mode
+npx sfcc-dev-mcp --debug
 
-# Validate specific tools
-npx sfcc-dev-mcp --dw-json ./dw.json --test-tool get_latest_error
+# Test with SFCC credentials
+npx sfcc-dev-mcp --dw-json ./dw.json --debug
 ```
 
 **Configuration Validation:**
 ```bash
-# Validate dw.json structure
-npx sfcc-dev-mcp --validate-config --dw-json ./dw.json
+# Validate dw.json syntax manually
+cat dw.json | python -m json.tool
 
-# Test SFCC connectivity
-npx sfcc-dev-mcp --test-connection --dw-json ./dw.json
+# Test SFCC connectivity manually
+curl -I https://your-instance.sandbox.us01.dx.commercecloud.salesforce.com
 
-# Validate OAuth setup
-npx sfcc-dev-mcp --test-oauth --dw-json ./dw.json
+# Check if credentials work
+curl -u "username:password" \
+  https://your-instance.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/
 ```
 
 ---
@@ -347,16 +355,22 @@ npx sfcc-dev-mcp --test-oauth --dw-json ./dw.json
 
 ### Collect Diagnostic Information
 
-**Create Support Bundle:**
+**Manual Diagnostic Collection:**
 ```bash
-# Generate comprehensive diagnostic info
-npx sfcc-dev-mcp --diagnostic-bundle --output ./sfcc-debug.zip
-
-# Manual collection
+# Check system information
 echo "Node.js version: $(node --version)" > debug-info.txt
 echo "npm version: $(npm --version)" >> debug-info.txt
 echo "OS: $(uname -a)" >> debug-info.txt
-npx sfcc-dev-mcp --version >> debug-info.txt
+
+# Check package version
+npm list sfcc-dev-mcp >> debug-info.txt 2>&1
+
+# Copy recent log files
+cp /tmp/sfcc-mcp-logs/*.log . 2>/dev/null || echo "No log files found"
+
+# Check dw.json structure (without sensitive data)
+echo "dw.json structure:" >> debug-info.txt
+cat dw.json | jq 'keys' >> debug-info.txt 2>/dev/null || echo "dw.json not found or invalid"
 ```
 
 **Sensitive Information Handling:**

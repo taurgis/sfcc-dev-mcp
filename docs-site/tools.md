@@ -6,14 +6,14 @@ nav_order: 5
 
 # 🛠️ Available Tools
 
-The SFCC Development MCP Server provides 27 specialized tools organized into logical categories based on functionality and required credentials.
+The SFCC Development MCP Server provides 28 specialized tools organized into logical categories based on functionality and required credentials.
 
 ## Tool Availability by Mode
 
 | Mode | Total Tools | Description |
 |------|-------------|-------------|
-| **Documentation-Only** | 12 tools | No SFCC credentials required |
-| **Full Mode** | 27 tools | Requires SFCC instance access |
+| **Documentation-Only** | 15 tools | No SFCC credentials required |
+| **Full Mode** | 28 tools | Requires SFCC instance access |
 
 ---
 
@@ -418,14 +418,14 @@ search_system_object_attribute_definitions({
 ## 🎯 Tool Selection Guide
 
 ### For Learning SFCC
-**Use Documentation-Only Mode (12 tools):**
+**Use Documentation-Only Mode (15 tools):**
 - `list_sfcc_classes` - Explore available APIs
 - `get_sfcc_class_info` - Understand class capabilities  
 - `get_available_best_practice_guides` - Learn development patterns
 - `get_sfra_document` - Study SFRA architecture
 
 ### For Active Development  
-**Use Full Mode (27 tools):**
+**Use Full Mode (28 tools):**
 - All documentation tools for reference
 - `generate_cartridge_structure` - Start new features
 - `get_latest_error` - Debug issues quickly

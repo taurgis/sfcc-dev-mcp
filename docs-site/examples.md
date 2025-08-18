@@ -142,7 +142,7 @@ module.exports = server.exports();
 **User:** "What custom attributes are available on the Product object in my instance?"
 
 **AI Process:**
-1. **Search Product Attributes:** `search_system_object_attribute_definitions()`
+1. **Search Product Attributes:** `search_system_object_attribute_definitions({ objectType: "Product", searchRequest: { query: { match_all_query: {} } } })`
 2. **Filter Custom Attributes:** Identifies non-system attributes
 3. **Provide Usage Examples:** Shows how to access attributes in code
 
@@ -234,7 +234,7 @@ int_payment_provider/
 > ✅ **Fixed Version:**
 > ```html
 > <!-- SECURE: Properly escaped output -->
-> <div>${pdict.product.custom.description}</div>
+> <isprint value="${pdict.product.custom.description}" encoding="htmlcontent" />
 > ```
 > 
 > ❌ **Missing CSRF Protection** in form submission:
@@ -307,9 +307,10 @@ int_payment_provider/
 **User:** "Help me write unit tests for my payment service integration"
 
 **AI Process:**
-1. **Get Testing Guide:** `get_best_practice_guide({ guideName: "testing_patterns" })`
-2. **Provide Test Structure:** Based on SFCC testing best practices
-3. **Generate Test Cases:** Covers success, failure, and edge cases
+1. **Get Security Guide:** `get_best_practice_guide({ guideName: "security" })`
+2. **Get Service Guide:** `get_best_practice_guide({ guideName: "localserviceregistry" })`
+3. **Provide Test Structure:** Based on SFCC security and service best practices
+4. **Generate Test Cases:** Covers success, failure, and edge cases
 
 **Generated Test Suite:**
 ```javascript

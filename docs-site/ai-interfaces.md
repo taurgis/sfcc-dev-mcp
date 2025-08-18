@@ -8,13 +8,20 @@ nav_order: 3
 
 The SFCC Development MCP Server integrates with multiple AI interfaces. Each has specific setup procedures and capabilities.
 
-## Quick Setup Summary
+**Quick Start**: Get immediate access to SFCC documentation and best practices without any credentials by using documentation-only mode:
 
-| AI Interface | Best For | Setup Complexity | MCP Support |
-|--------------|----------|------------------|-------------|
-| **Claude Desktop** | Multi-turn conversations, complex debugging | ⭐⭐ Medium | Native |
-| **GitHub Copilot** | In-editor code completion, VS Code integration | ⭐ Easy | Via instructions |
-| **Cursor** | Modern AI-powered editing, rule-based assistance | ⭐⭐⭐ Advanced | Via extensions |
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx", 
+      "args": ["sfcc-dev-mcp"]
+    }
+  }
+}
+```
+
+For full functionality including log analysis and system objects, provide SFCC credentials via `--dw-json` parameter.
 
 ---
 
@@ -24,10 +31,10 @@ Perfect for developers who want SFCC context directly in VS Code with inline sug
 
 ### Installation Steps
 
-1. **Copy the instruction file** to your SFCC project root:
-   ```bash
-   cp ai-instructions/github-copilot/copilot-instructions.md your-sfcc-project/.github/copilot-instructions.md
-   ```
+1. **Add the instruction file**:
+    ```bash
+    cp ai-instructions/github-copilot/copilot-instructions.md your-sfcc-project/.github/copilot-instructions.md
+    ```
 
 2. **Configure MCP server** (for MCP-compatible tools):
    ```json
@@ -35,11 +42,15 @@ Perfect for developers who want SFCC context directly in VS Code with inline sug
      "mcpServers": {
        "sfcc-dev": {
          "command": "npx",
-         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "true"]
        }
      }
    }
    ```
+
+   **Available command-line options:**
+   - `--dw-json <path>` - Path to your dw.json configuration file
+   - `--debug <true|false>` - Enable debug logging (optional, defaults to false)
 
 ### Features Enabled
 - ✅ **Inline code suggestions** with SFCC context
@@ -52,6 +63,11 @@ Perfect for developers who want SFCC context directly in VS Code with inline sug
 - Place the instructions file in every SFCC project
 - Keep the instructions updated with your project-specific patterns
 - Use descriptive commit messages for better context
+
+### Troubleshooting GitHub Copilot
+- **Configuration not loading**: Ensure the file is named exactly `copilot-instructions.md` and placed in `.github/` directory
+- **Suggestions not SFCC-aware**: Verify the instruction file is in the project root's `.github/` folder
+- **MCP integration issues**: Check that MCP client configuration matches the server command exactly
 
 ---
 
@@ -91,7 +107,7 @@ The most comprehensive setup with full MCP integration for complex debugging and
   "mcpServers": {
     "sfcc-dev": {
       "command": "npx",
-      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "true"]
     }
   }
 }
@@ -104,9 +120,12 @@ The most comprehensive setup with full MCP integration for complex debugging and
      "username": "your-username", 
      "password": "your-password",
      "client-id": "your-client-id",
-     "client-secret": "your-client-secret"
+     "client-secret": "your-client-secret",
+     "site-id": "your-site-id"
    }
    ```
+
+   **Note**: The `site-id` field is optional and only needed for site-specific operations.
 
 ### Features Enabled
 - ✅ **Real-time SFCC documentation** access
@@ -140,7 +159,7 @@ Advanced setup with multiple context-aware rules for modern AI-powered developme
      "mcpServers": {
        "sfcc-dev": {
          "command": "npx",
-         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+         "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "true"]
        }
      }
    }
@@ -153,9 +172,13 @@ Advanced setup with multiple context-aware rules for modern AI-powered developme
 
 #### Auto-Applied (Context Aware)
 - **`sfra-controllers.mdc`** - Controller development patterns
+- **`sfra-models.mdc`** - SFRA model development and architecture patterns
 - **`hooks-development.mdc`** - Hook implementation guidelines  
 - **`system-objects.mdc`** - Data model and attribute patterns
 - **`testing-patterns.mdc`** - Testing templates and best practices
+- **`isml-templates.mdc`** - ISML template development patterns
+- **`job-framework.mdc`** - Job framework development guidelines
+- **`scapi-endpoints.mdc`** - SCAPI endpoint development patterns
 
 #### Manual Application
 - **`@debugging-workflows`** - Debugging guidance and log analysis
@@ -176,6 +199,28 @@ Advanced setup with multiple context-aware rules for modern AI-powered developme
 // @performance-optimization - Focus on performance
 // @debugging-workflows - Get debugging assistance
 ```
+
+### Troubleshooting Cursor
+- **Rules not applying**: Ensure `.cursor` directory is copied to project root
+- **Context-aware features not working**: Verify file types match rule patterns
+- **MCP integration issues**: Check MCP client configuration and server connectivity
+- **Performance issues**: Consider disabling unused rules for better performance
+
+---
+
+## Available Tools Overview
+
+All AI interfaces can access these tools based on configuration mode:
+
+### Documentation-Only Mode Tools (15 tools)
+- ✅ **SFCC Documentation** (5 tools) - Class information, search, and raw documentation
+- ✅ **Best Practices Guides** (4 tools) - Comprehensive development guides and hook references  
+- ✅ **Enhanced SFRA Documentation** (5 tools) - Complete SFRA ecosystem with 26+ documents
+- ✅ **Cartridge Generation** (1 tool) - Automated cartridge structure creation
+
+### Full Mode Additional Tools (13 tools)
+- ✅ **Log Analysis** (7 tools) - Real-time error monitoring and pattern search
+- ✅ **System Object Definitions** (6 tools) - Custom attributes and site preferences
 
 ---
 
