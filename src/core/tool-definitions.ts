@@ -406,6 +406,7 @@ export const SYSTEM_OBJECT_TOOLS = [
                     },
                     values: {
                       type: 'array',
+                      items: { type: 'string' },
                       description: 'Values to match',
                     },
                   },
@@ -417,14 +418,17 @@ export const SYSTEM_OBJECT_TOOLS = [
                   properties: {
                     must: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must match (AND)',
                     },
                     must_not: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must not match',
                     },
                     should: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that should match (OR)',
                     },
                   },
@@ -530,6 +534,7 @@ export const SYSTEM_OBJECT_TOOLS = [
                     },
                     values: {
                       type: 'array',
+                      items: { type: 'string' },
                       description: 'Values to match',
                     },
                   },
@@ -541,14 +546,17 @@ export const SYSTEM_OBJECT_TOOLS = [
                   properties: {
                     must: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must match (AND)',
                     },
                     must_not: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must not match',
                     },
                     should: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that should match (OR)',
                     },
                   },
@@ -663,6 +671,7 @@ export const SYSTEM_OBJECT_TOOLS = [
                     },
                     values: {
                       type: 'array',
+                      items: { type: 'string' },
                       description: 'Values to match',
                     },
                   },
@@ -674,14 +683,17 @@ export const SYSTEM_OBJECT_TOOLS = [
                   properties: {
                     must: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must match (AND)',
                     },
                     must_not: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must not match',
                     },
                     should: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that should match (OR)',
                     },
                   },
@@ -781,6 +793,7 @@ export const SYSTEM_OBJECT_TOOLS = [
                     },
                     values: {
                       type: 'array',
+                      items: { type: 'string' },
                       description: 'Values to match',
                     },
                   },
@@ -792,14 +805,17 @@ export const SYSTEM_OBJECT_TOOLS = [
                   properties: {
                     must: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must match (AND)',
                     },
                     must_not: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that must not match',
                     },
                     should: {
                       type: 'array',
+                      items: { type: 'object' },
                       description: 'Queries that should match (OR)',
                     },
                   },

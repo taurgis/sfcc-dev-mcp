@@ -612,7 +612,8 @@ function getBadProductData(productIds) {
 
 // ✅ Good: Single API call with batch processing
 function getGoodProductData(productIds) {
-    var searchModel = ProductMgr.createProductSearchModel();
+    var ProductSearchModel = require('dw/catalog/ProductSearchModel');
+    var searchModel = new ProductSearchModel();
     searchModel.setProductIDs(productIds);
     searchModel.search();
     
@@ -647,15 +648,6 @@ function Product(apiProduct) {
                 this._recommendations = getProductRecommendations(apiProduct);
             }
             return this._recommendations;
-            var CatalogMgr = require('dw/catalog/CatalogMgr');
-            var ProductMgr = require('dw/catalog/ProductMgr');
-
-
-            // Option 1: Use ProductSearchModel with search term
-            var searchModel = CatalogMgr.getSiteCatalog().createProductSearchModel();
-            var searchPhrase = productIds.join(' OR ');
-            searchModel.setSearchPhrase(searchPhrase);
-            searchModel.search();
         },
         enumerable: true
     });
