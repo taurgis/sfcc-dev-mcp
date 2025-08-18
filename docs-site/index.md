@@ -7,6 +7,17 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 
 ## 🚀 Quick Start
 
+<div style="background-color: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0;">
+  <h4 style="color: #dc2626; margin-top: 0; margin-bottom: 8px;">⚠️ Important: MCP + AI Instructions Required</h4>
+  <p style="color: #7f1d1d; margin-bottom: 8px;">
+    The MCP server alone may not be sufficient for optimal AI assistance. This project includes ready-to-use <strong>AI instruction files</strong> for GitHub Copilot, Claude, and Cursor that guide the AI to use the MCP correctly and prioritize SFCC-specific knowledge.
+  </p>
+  <p style="color: #7f1d1d; margin-bottom: 0;">
+    📁 <strong>Get the files:</strong> <a href="https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions" target="_blank" style="color: #dc2626; text-decoration: underline;">ai-instructions folder on GitHub</a><br>
+    📖 <strong>Setup guide:</strong> <a href="ai-interfaces" style="color: #dc2626; text-decoration: underline;">AI Interface Setup page</a>
+  </p>
+</div>
+
 Get immediate access to SFCC documentation and best practices without any credentials using **documentation-only mode**:
 
 ```json

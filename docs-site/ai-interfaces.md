@@ -8,6 +8,8 @@ nav_order: 3
 
 The SFCC Development MCP Server integrates with multiple AI interfaces. Each has specific setup procedures and capabilities.
 
+📁 **Get AI instruction files:** [ai-instructions folder on GitHub](https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions)
+
 **Quick Start**: Get immediate access to SFCC documentation and best practices without any credentials by using documentation-only mode:
 
 ```json
