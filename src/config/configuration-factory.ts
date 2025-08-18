@@ -152,6 +152,7 @@ export class ConfigurationFactory {
     canAccessLogs: boolean;
     canAccessOCAPI: boolean;
     canAccessWebDAV: boolean;
+    canGenerateCartridges: boolean;
     isLocalMode: boolean;
   } {
     // WebDAV/Logs can work with either basic auth OR OAuth credentials
@@ -169,6 +170,7 @@ export class ConfigurationFactory {
       canAccessLogs: hasWebDAVCredentials && hasHostname,
       canAccessOCAPI: hasOAuthCredentials && hasHostname,
       canAccessWebDAV: hasWebDAVCredentials && hasHostname,
+      canGenerateCartridges: true, // Always available since it's a local file operation
       isLocalMode,
     };
   }

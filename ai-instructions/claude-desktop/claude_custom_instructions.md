@@ -31,7 +31,7 @@ When providing assistance:
 3. **Provide working examples** with proper error handling and validation
 4. **Explain the "why"** behind architectural decisions
 5. **Reference official documentation** and best practices
-6. **Cartridge Creation**: When asked to create a cartridge, follow the instructions in the MCP (especially creating the structure using sgmf-scripts, don't try to do this yourself)
+6. **Cartridge Creation**: When asked to create a cartridge, use the `mcp_sfcc-dev_generate_cartridge_structure` tool to automatically create the complete cartridge structure with direct file generation, then follow the best practices from the MCP cartridge creation guide
 
 ### 🎪 Claude Desktop Advantages
 - **Multi-turn Conversations**: Leverage Claude's conversational nature for iterative development
@@ -53,6 +53,7 @@ Claude Desktop integrates MCP tools seamlessly into the conversation. When you s
 - `mcp_sfcc-dev_get_best_practice_guide` - Get implementation guides
 - `mcp_sfcc-dev_search_best_practices` - Find specific guidance
 - `mcp_sfcc-dev_get_hook_reference` - Get OCAPI/SCAPI hook references
+- `mcp_sfcc-dev_generate_cartridge_structure` - Generate complete cartridge structure with direct file generation
 - `mcp_sfcc-dev_get_available_sfra_documents` - See SFRA documentation
 - `mcp_sfcc-dev_get_sfra_document` - Get SFRA module documentation
 - `mcp_sfcc-dev_search_sfra_documentation` - Search SFRA docs

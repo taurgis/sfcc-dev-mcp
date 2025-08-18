@@ -162,12 +162,17 @@ sfcc-dev-mcp/
    - **Category Filtering**: Explore documents by functional areas for efficient discovery
    - **Complete Coverage**: Core SFRA classes (Server, Request, Response, QueryString, render) plus comprehensive model documentation (account, cart, products, pricing, billing, shipping, store, customer management, totals, categories, content, locale, addresses, and more)
 
-4. **Log Analysis Tools** (7 tools)
+4. **Cartridge Generation Tools** (1 tool)
+   - Automated cartridge structure creation with direct file generation
+   - Complete project setup with all necessary configuration files
+   - Proper directory organization and file structure
+
+5. **Log Analysis Tools** (7 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
 
-5. **System Object Tools** (6 tools)
+6. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
@@ -270,6 +275,7 @@ When working on this project:
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
+- **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
 
 ### 📁 Directory Organization Benefits
 

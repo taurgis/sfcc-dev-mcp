@@ -26,8 +26,10 @@ import {
   SFRA_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
   SYSTEM_OBJECT_TOOLS,
+  CARTRIDGE_GENERATION_TOOLS,
 } from './tool-definitions.js';
 
+import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -42,6 +44,7 @@ export class SFCCDevServer {
   private sfraClient!: SFRAClient;
   private ocapiClient: OCAPIClient | null = null;
   private logger: Logger;
+  private cartridgeClient: CartridgeGenerationClient | null = null;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
 
   /**
@@ -55,19 +58,20 @@ export class SFCCDevServer {
     this.logMethodEntry('constructor', { hostname: config.hostname, debug });
 
     this.capabilities = ConfigurationFactory.getCapabilities(config);
-    this.initializeClients(config);
+    this.initializeClients(config, debug);
     this.initializeServer();
     this.setupToolHandlers();
 
     this.logMethodExit('constructor');
   }
 
-  private initializeClients(config: SFCCConfig): void {
+  private initializeClients(config: SFCCConfig, debug: boolean): void {
     // Always available clients
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
     this.sfraClient = new SFRAClient();
 
+    this.cartridgeClient = new CartridgeGenerationClient(debug);
     // Conditional clients based on capabilities
     if (this.capabilities.canAccessLogs) {
       this.logClient = new SFCCLogClient(config);
@@ -406,6 +410,7 @@ export class SFCCDevServer {
       tools.push(...SFCC_DOCUMENTATION_TOOLS);
       tools.push(...BEST_PRACTICES_TOOLS);
       tools.push(...SFRA_DOCUMENTATION_TOOLS);
+      tools.push(...CARTRIDGE_GENERATION_TOOLS);
 
       // Conditional tools based on available clients
       if (this.logClient) {
@@ -445,6 +450,18 @@ export class SFCCDevServer {
         } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
           'get_sfra_documents_by_category', 'get_sfra_categories'].includes(name)) {
           result = await this.handleSFRATool(name, args, startTime);
+        } else if(['generate_cartridge_structure'].includes(name)) {
+          if (!this.cartridgeClient) {
+            throw new Error('Cartridge generation client not available. Please ensure it is initialized.');
+          }
+
+          if(!args || typeof args !== 'object') {
+            throw new Error('Invalid arguments provided for cartridge generation. Expected an object with properties like "cartridgeName", "namespace", etc.');
+          }
+
+          result = await this.executeToolHandler(name, startTime, async () => {
+            return this.cartridgeClient!.generateCartridgeStructure(args as any ?? {});
+          }, `Generating cartridge structure with args: ${JSON.stringify(args)}`);
         } else {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new Error(`Unknown tool: ${name}`);

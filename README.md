@@ -103,6 +103,7 @@ To use this MCP server with Claude Desktop or other MCP clients, add the followi
 | **SFCC Documentation** (5 tools) | ✅ Available | ✅ Available |
 | **Best Practices Guides** (4 tools) | ✅ Available | ✅ Available |
 | **Enhanced SFRA Documentation** (5 tools) | ✅ Available | ✅ Available |
+| **Cartridge Generation** (1 tool) | ✅ Available | ✅ Available |
 | **Log Analysis** (7 tools) | ❌ Requires credentials | ✅ Available |
 | **System Object Definitions** (6 tools) | ❌ Requires OAuth | ✅ Available with OAuth |
 
@@ -287,6 +288,9 @@ npm start -- --dw-json /path/to/your/dw.json
 
 ## Features
 
+### Cartridge Generation
+- **Generate Complete Cartridge Structure**: Create a complete SFCC cartridge directory structure with all necessary files and configurations using the `generate_cartridge_structure` tool. Includes proper directory organization, package.json, webpack configuration, linting setup, and all standard cartridge subdirectories (controllers, models, templates, client assets). Supports both full project setup (new projects) and cartridge-only setup (adding to existing projects). Creates files directly in the specified target directory for precise control over cartridge placement.
+
 ### SFCC Best Practices Guides
 - **Get Available Guides**: List all available SFCC best practice guides covering cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
 - **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas including the new ISML Templates guide with security, performance, and maintainability guidelines
@@ -311,7 +315,7 @@ npm start -- --dw-json /path/to/your/dw.json
 - **Core** (5 docs): server, request, response, querystring, render - Essential SFRA classes for routing and middleware
 - **Product** (5 docs): product-full, product-bundle, product-tile, product-search, product-line-items - Product model documentation
 - **Order** (6 docs): cart, order, billing, shipping, payment, totals - Cart and checkout functionality models
-- **Customer** (2 docs): account, address - Customer management and profile models  
+- **Customer** (2 docs): account, address - Customer management and profile models
 - **Pricing** (3 docs): price-default, price-range, price-tiered - Pricing and discount models
 - **Store** (2 docs): store, stores - Store location and management models
 - **Other** (3+ docs): categories, content, locale - Additional utility and content models
@@ -816,6 +820,17 @@ You can configure the MCP client to use npx, which automatically handles package
    }
    ```
 
+### Cartridge Generation Tools
+
+1. **`generate_cartridge_structure`** - Generate a complete cartridge directory structure with all necessary files and configurations
+   ```json
+   {
+     "cartridgeName": "plugin_my_custom_cartridge",
+     "targetPath": "/path/to/your/project",
+     "fullProjectSetup": true
+   }
+   ```
+
 ### SFCC SFRA Documentation Tools
 
 1. **`get_available_sfra_documents`** - List all available SFRA documents with categorization
@@ -987,6 +1002,12 @@ With this MCP server, AI assistants can now answer questions like:
 - The assistant first uses `search_system_object_attribute_groups` to find preference groups related to payment
 - Then uses `search_site_preferences` with the discovered group ID and instance type
 - Returns specific site preferences related to payment configuration
+
+**"Create a new cartridge called 'plugin_example' with proper structure"**
+- The assistant uses `generate_cartridge_structure` with the cartridge name and target path
+- Automatically creates the complete cartridge structure with all necessary files
+- Sets up all necessary configuration files (package.json, webpack.config.js, etc.)
+- Creates the proper directory organization with controllers, models, templates, and static assets
 
 ## Best Practices Coverage
 
