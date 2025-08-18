@@ -83,10 +83,11 @@ sfcc-dev-mcp/
 │   │   ├── cartridge_creation.md
 │   │   ├── isml_templates.md     
 │   │   ├── job_framework.md
+│   │   ├── localserviceregistry.md # LocalServiceRegistry integration patterns
 │   │   ├── ocapi_hooks.md
 │   │   ├── scapi_hooks.md
 │   │   ├── sfra_controllers.md
-│   │   ├── sfra_models.md        # NEW: SFRA models best practices
+│   │   ├── sfra_models.md        # SFRA models best practices
 │   │   ├── scapi_custom_endpoint.md
 │   │   ├── performance.md
 │   │   └── security.md
@@ -130,7 +131,7 @@ sfcc-dev-mcp/
 - **LogClient** (`log-client.ts`): Connects to SFCC instances for real-time log analysis and monitoring
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
-- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes

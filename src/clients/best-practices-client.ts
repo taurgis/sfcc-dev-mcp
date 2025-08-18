@@ -2,8 +2,8 @@
  * SFCC Best Practices Client
  *
  * Provides access to SFCC development best practices documentation including
- * cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SCAPI custom endpoints,
- * SFRA controllers, and SFRA models.
+ * cartridge creation, ISML templates, job framework, LocalServiceRegistry,
+ * OCAPI hooks, SCAPI hooks, SCAPI custom endpoints, SFRA controllers, and SFRA models.
  */
 
 import * as fs from 'fs/promises';
@@ -53,6 +53,11 @@ export class SFCCBestPracticesClient {
         name: 'job_framework',
         title: 'Job Framework Best Practices',
         description: 'Comprehensive guide for developing custom jobs in the SFCC Job Framework, covering both task-oriented and chunk-oriented approaches with performance optimization and debugging strategies',
+      },
+      {
+        name: 'localserviceregistry',
+        title: 'LocalServiceRegistry Best Practices',
+        description: 'Comprehensive guide for creating server-to-server integrations in SFCC using dw.svc.LocalServiceRegistry, including configuration patterns, callback implementation, OAuth flows, and reusable service module patterns',
       },
       {
         name: 'ocapi_hooks',

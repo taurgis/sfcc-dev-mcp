@@ -292,9 +292,9 @@ npm start -- --dw-json /path/to/your/dw.json
 - **Generate Complete Cartridge Structure**: Create a complete SFCC cartridge directory structure with all necessary files and configurations using the `generate_cartridge_structure` tool. Includes proper directory organization, package.json, webpack configuration, linting setup, and all standard cartridge subdirectories (controllers, models, templates, client assets). Supports both full project setup (new projects) and cartridge-only setup (adding to existing projects). Creates files directly in the specified target directory for precise control over cartridge placement.
 
 ### SFCC Best Practices Guides
-- **Get Available Guides**: List all available SFCC best practice guides covering cartridge creation, ISML templates, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
-- **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas including the new ISML Templates guide with security, performance, and maintainability guidelines
-- **Search Best Practices**: Search across all best practice guides for specific terms, concepts, or patterns including ISML-specific topics like encoding, XSS prevention, and template architecture
+- **Get Available Guides**: List all available SFCC best practice guides covering cartridge creation, ISML templates, job framework, LocalServiceRegistry integrations, OCAPI hooks, SCAPI hooks, SFRA controllers, and custom SCAPI endpoints
+- **Get Complete Guide**: Retrieve comprehensive best practice guides with structured content for specific SFCC development areas including ISML Templates, LocalServiceRegistry service integrations, and security guidelines
+- **Search Best Practices**: Search across all best practice guides for specific terms, concepts, or patterns including service integration patterns, OAuth flows, and API development best practices
 - **Get Hook Reference**: Access detailed hook reference tables for OCAPI and SCAPI hooks with endpoints and extension points
 
 ### SFCC Documentation Querying
@@ -1012,10 +1012,17 @@ With this MCP server, AI assistants can now answer questions like:
 ## Best Practices Coverage
 
 The server includes comprehensive best practices guides for all major SFCC development areas:
+- **Cartridge Creation** - Complete cartridge development lifecycle and architecture patterns
+- **ISML Templates** - Template development with security, performance, and maintainability guidelines
+- **Job Framework** - Custom job development with task-oriented and chunk-oriented patterns
+- **LocalServiceRegistry** - Server-to-server integrations, service configuration, OAuth flows, and reusable patterns
 - **OCAPI Hooks** - Legacy API extension patterns and implementation guidance
 - **SCAPI Hooks** - Modern API hooks with transactional integrity and performance considerations
 - **SFRA Controllers** - Storefront controller patterns, middleware chains, and extension strategies
+- **SFRA Models** - JSON object layer design and model architecture patterns
 - **Custom SCAPI Endpoints** - Three-pillar architecture for building new API endpoints
+- **Performance Optimization** - Caching strategies, query optimization, and scalability best practices
+- **Security Guidelines** - OWASP compliance, input validation, and secure coding practices
 
 ## Documentation Coverage
 
