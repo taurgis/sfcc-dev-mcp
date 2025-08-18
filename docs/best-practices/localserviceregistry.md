@@ -4,7 +4,36 @@ This guide provides a concise overview of best practices for creating server-to-
 
 ## 1. Core Architecture: Configuration and Code
 
-Integrations use a two-part architecture:
+Integrations use a two-par5. Click **Apply** to save the new profile.
+
+### Step 3: Create the Service Definition (Tying It All Together)
+
+The Service Definition links the Credential and Profile to create the final, named service that you will call from your code.
+
+1. Navigate to **Administration > Operations > Services**.
+2. Ensure you are on the **Services** tab and click **New**.
+3. Fill in the following fields on the New Service page:
+   - **Name (ID)**: Enter the unique ID for the service. This ID must exactly match the one used in your `LocalServiceRegistry.createService()` call.
+     
+     **Best Practice**: Use a period-delimited pattern like `{cartridge}.{protocol}.{service}.{operation}` (e.g., `int_myapi.http.customer.get`). This structure automatically organizes your service logs into a helpful hierarchy.
+   
+   - **Service Type**: Select the protocol, typically HTTP for REST APIs.
+   
+   - **Mode**:
+     - **Live**: For making real calls to the external API.
+     - **Mocked**: For testing. This mode will invoke the `mockCall` or `mockFull` function in your script instead of making a network request.
+   
+   - **Credential**: Select the Service Credential you created in Step 1 from the dropdown list.
+   
+   - **Profile**: Select the Service Profile you configured in Step 2 from the dropdown list.
+   
+   - **Log Name Prefix**: (Optional but recommended) Enter a prefix (e.g., `myapi`) to create a dedicated log file for this service (`service-myapi-....log`), which simplifies debugging.
+   
+   - **Communication Log Enabled**: Check this box to log the full request and response data. This is useful for debugging but should be used with caution in production if sensitive data is being transmitted. Always implement a `filterLogMessage` callback in your script to redact sensitive information from these logs.
+
+4. Click **Apply** to save the service definition.
+
+Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.rchitecture:
 
 **Declarative Configuration (Business Manager)**: Defines the what, who, and how of the service call. This includes the endpoint, credentials, and operational policies like timeouts and circuit breakers.
 
@@ -242,3 +271,74 @@ createRequest: function (svc, params) {
     return null;
 }
 ```
+
+## 4. Step-by-Step Business Manager Configuration Guide
+
+This guide walks through the three essential parts of setting up a new service in the Business Manager: creating the Credential, configuring the Profile, and defining the Service itself.
+
+### Step 1: Create the Service Credential (The "Who" and "What")
+
+The Service Credential securely stores the endpoint URL and authentication details for the external system.
+
+1. Navigate to **Administration > Operations > Services**.
+2. Click the **Credentials** tab.
+3. On the Service Credentials page, click **New**.
+4. Fill in the following fields on the New Service Credential page:
+   - **ID**: Enter a unique identifier. A recommended naming convention is `your.service.name.http.credentials`. This name cannot contain spaces.
+   - **URL**: Enter the base URL for the third-party API. For example: `https://api.example.com/v2/`.
+   - **User**: If using Basic Authentication, enter the Client ID or username provided by the third-party service.
+   - **Password**: Enter the Client Secret or password. For security, this field is write-only. Once saved, the value cannot be viewed again, so be sure to store it in a secure location.
+5. Click **Apply** to save the new credential.
+
+### Step 2: Configure the Service Profile (The "How")
+
+The Service Profile defines the operational behavior, such as timeouts and resilience patterns, for the service call.
+
+1. Navigate to **Administration > Operations > Services**.
+2. Click the **Profiles** tab.
+3. On the Service Profiles page, click **New**.
+4. Fill in the following fields on the New Service Profile page:
+   - **Name (ID)**: Enter a descriptive name for the profile (e.g., `default-api-profile`, `realtime-payment-profile`).
+   - **Timeout**: Enter the connection timeout in milliseconds (e.g., `10000` for 10 seconds). This is the maximum time B2C Commerce will wait for a response before the call fails.
+   - **Enable Circuit Breaker**: Check this box to enable this crucial fault-tolerance feature. It is highly recommended to always enable this.
+     - **Calls**: The number of failed calls that will "trip" the circuit (e.g., `10`).
+     - **Interval (ms)**: The time window in which the failures must occur (e.g., `60000` for 1 minute). When the circuit is tripped, B2C Commerce will stop making calls to the service for a period to allow the external system to recover.
+   - **Enable Rate Limit**: Check this box if the third-party API has call limits.
+     - **Calls**: The maximum number of calls allowed in the interval (e.g., `1000`).
+     - **Interval (ms)**: The time window for the rate limit in milliseconds (e.g., `60000` for 1 minute).
+5. Click **Apply** to save the new profile.
+
+### Step 3: Create the Service Definition (Tying It All Together)
+
+The Service Definition links the Credential and Profile to create the final, named service that you will call from your code.
+
+1. Navigate to **Administration > Operations > Services**.
+2. Ensure you are on the **Services** tab and click **New**.
+3. Fill in the following fields on the New Service page:
+   - **Name (ID)**: Enter the unique ID for the service. This ID must exactly match the one used in your `LocalServiceRegistry.createService()` call.
+     
+     **Best Practice**: Use a period-delimited pattern like `{cartridge}.{protocol}.{service}.{operation}` (e.g., `int_myapi.http.customer.get`). This structure automatically organizes your service logs into a helpful hierarchy.
+   
+   - **Service Type**: Select the protocol, typically HTTP for REST APIs.
+
+   - **Enabled**: Check this box to enable the service.
+
+   - **Service Mode**:
+     - **Live**: For making real calls to the external API.
+     - **Mocked**: For testing. This mode will invoke the `mockCall` or `mockFull` function in your script instead of making a network request.
+   
+   - **Log Name Prefix**: (Optional but recommended) Enter a prefix (e.g., `myapi`) to create a dedicated log file for this service (`service-myapi-....log`), which simplifies debugging.
+   
+   - **Communication Log Enabled**: Check this box to log the full request and response data. This is useful for debugging but should be used with caution in production if sensitive data is being transmitted. Always implement a `filterLogMessage` callback in your script to redact sensitive information from these logs.
+
+   - **Force PRD Behavior in Non-PRD Environments**: Check this box to force the service to behave as if it is in a production environment, even when it is not. This can be useful for testing how the service will behave in production.
+
+   - **Profile**: Select the Service Profile you configured in Step 2 from the dropdown list.
+
+   - **Credential**: Select the Service Credential you created in Step 1 from the dropdown list.
+   
+
+   
+   
+
+4. Click **Apply** to save the service definition.Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.
