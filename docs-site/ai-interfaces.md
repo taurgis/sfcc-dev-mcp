@@ -1,6 +1,6 @@
 ---
 title: AI Interface Setup
-layout: default
+layout: page
 nav_order: 3
 ---
 
