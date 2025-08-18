@@ -1,13 +1,12 @@
 ---
-title: ✨ Features
+title: Features
 layout: page
 nav_order: 3
 ---
 
-<div class="page-header">
-  <h1>✨ Features Overview</h1>
-  <p class="page-subtitle">Comprehensive tools and documentation access for Salesforce B2C Commerce Cloud development</p>
-</div>
+# ✨ Features
+
+The SFCC Development MCP Server provides comprehensive tools and documentation access for Salesforce B2C Commerce Cloud development.
 
 ## 🚀 Cartridge Generation
 

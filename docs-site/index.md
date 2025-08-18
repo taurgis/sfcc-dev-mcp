@@ -3,61 +3,18 @@ layout: home
 title: SFCC Development MCP Server
 ---
 
----
-layout: home
-title: SFCC Development MCP Server
----
+# SFCC Development MCP Server
 
-<div class="hero-section">
-  <div class="hero-content">
-    <h1 class="hero-title">🚀 SFCC Development MCP Server</h1>
-    <p class="hero-subtitle">AI-powered development tools for Salesforce B2C Commerce Cloud</p>
-    <div class="hero-buttons">
-      <a href="installation" class="btn btn-primary">Get Started</a>
-      <a href="https://github.com/taurgis/sfcc-dev-mcp" class="btn btn-secondary">View on GitHub</a>
-    </div>
-  </div>
-</div>
+An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
 
 ## ✨ Key Features
 
-<div class="feature-grid">
-  <div class="feature-item">
-    <div class="feature-icon">🔍</div>
-    <h3>Complete SFCC Documentation Access</h3>
-    <p>Search and explore all SFCC API classes and methods with intelligent discovery</p>
-  </div>
-  
-  <div class="feature-item">
-    <div class="feature-icon">📚</div>
-    <h3>Best Practices Guides</h3>
-    <p>Curated development guidelines for cartridges, hooks, controllers, and more</p>
-  </div>
-  
-  <div class="feature-item">
-    <div class="feature-icon">🏗️</div>
-    <h3>SFRA Documentation</h3>
-    <p>Enhanced access to Storefront Reference Architecture documentation</p>
-  </div>
-  
-  <div class="feature-item">
-    <div class="feature-icon">📊</div>
-    <h3>Log Analysis Tools</h3>
-    <p>Real-time error monitoring and debugging for SFCC instances</p>
-  </div>
-  
-  <div class="feature-item">
-    <div class="feature-icon">⚙️</div>
-    <h3>System Object Definitions</h3>
-    <p>Explore custom attributes and site preferences with advanced queries</p>
-  </div>
-  
-  <div class="feature-item">
-    <div class="feature-icon">🚀</div>
-    <h3>Cartridge Generation</h3>
-    <p>Automated cartridge structure creation with complete project setup</p>
-  </div>
-</div>
+- **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
+- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more
+- **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
+- **📊 Log Analysis Tools** - Real-time error monitoring and debugging for SFCC instances
+- **⚙️ System Object Definitions** - Explore custom attributes and site preferences
+- **🚀 Cartridge Generation** - Automated cartridge structure creation
 
 ## 🚀 Quick Start
 

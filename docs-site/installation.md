@@ -1,43 +1,14 @@
 ---
-title: 📦 Installation & Setup
+title: Installation & Setup
 layout: page
 nav_order: 2
 ---
 
-<div class="page-header">
-  <h1>📦 Installation & Setup</h1>
-  <p class="page-subtitle">Get the SFCC Development MCP Server up and running in minutes</p>
-</div>
+# 📦 Installation & Setup
 
-<div class="alert alert-info">
-  <strong>🚀 Quick Start:</strong> Choose from multiple installation options below. The npx method is recommended for most users as it handles updates automatically.
-</div>
+The SFCC Development MCP Server can be installed and run in several ways. Choose the option that best fits your workflow.
 
-## 🎯 Installation Options
-
-<div class="grid">
-  <div class="card">
-    <h3>🔥 Option 1: npx (Recommended)</h3>
-    <p>No installation required - run directly with the latest version</p>
-    <div class="badge badge-success">Easiest</div>
-  </div>
-  
-  <div class="card">
-    <h3>🌍 Option 2: Global Installation</h3>
-    <p>Install once, use everywhere on your system</p>
-    <div class="badge badge-info">Most Convenient</div>
-  </div>
-  
-  <div class="card">
-    <h3>🏠 Option 3: Local Development</h3>
-    <p>Clone and develop locally for customization</p>
-    <div class="badge badge-warning">For Developers</div>
-  </div>
-</div>
-
----
-
-## 🔥 Option 1: Using npx (Recommended)
+## Option 1: Using npx (Recommended)
 
 The easiest way to use this MCP server is with npx, which automatically handles installation and updates:
 

@@ -19,7 +19,6 @@
     "start": "node dist/main.js",
     "dev": "tsx src/main.ts",
     "inspector": "npx @modelcontextprotocol/inspector node dist/main.js",
-    "github-pages": "cd docs-site && bundle install && bundle exec jekyll serve",
     "convert-docs": "node scripts/convert-docs.js",
     "convert-docs:test": "node scripts/convert-docs.js --test",
     "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
