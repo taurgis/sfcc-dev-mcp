@@ -1,0 +1,170 @@
+---
+layout: page
+title: "404 - Page Not Found"
+permalink: /404.html
+---
+
+<div class="error-page">
+  <div class="error-content">
+    <div class="error-code">404</div>
+    <h1>🤖 Oops! Page Not Found</h1>
+    <p>The page you're looking for seems to have wandered off into the SFCC cloud. Let's get you back on track!</p>
+    
+    <div class="error-suggestions">
+      <h3>Try these popular pages:</h3>
+      <div class="suggestion-grid">
+        <a href="{{ site.baseurl }}/" class="suggestion-card">
+          <div class="suggestion-icon">🏠</div>
+          <div class="suggestion-title">Home</div>
+          <div class="suggestion-desc">Start your journey</div>
+        </a>
+        
+        <a href="{{ site.baseurl }}/installation" class="suggestion-card">
+          <div class="suggestion-icon">📦</div>
+          <div class="suggestion-title">Installation</div>
+          <div class="suggestion-desc">Get set up quickly</div>
+        </a>
+        
+        <a href="{{ site.baseurl }}/features" class="suggestion-card">
+          <div class="suggestion-icon">✨</div>
+          <div class="suggestion-title">Features</div>
+          <div class="suggestion-desc">Explore capabilities</div>
+        </a>
+        
+        <a href="{{ site.baseurl }}/tools" class="suggestion-card">
+          <div class="suggestion-icon">🛠️</div>
+          <div class="suggestion-title">Tools</div>
+          <div class="suggestion-desc">Available tools</div>
+        </a>
+      </div>
+    </div>
+    
+    <div class="error-actions">
+      <a href="{{ site.baseurl }}/" class="btn btn-primary">Go Home</a>
+      <a href="https://github.com/taurgis/sfcc-dev-mcp/issues" class="btn btn-secondary">Report Issue</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.error-page {
+  text-align: center;
+  padding: 4rem 2rem;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-content {
+  max-width: 600px;
+}
+
+.error-code {
+  font-size: 8rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.error-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.error-page p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  line-height: 1.6;
+}
+
+.error-suggestions {
+  margin: 3rem 0;
+}
+
+.error-suggestions h3 {
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.suggestion-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem 1rem;
+  text-decoration: none;
+  transition: var(--transition-normal);
+  display: block;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: transparent;
+  background: var(--bg-primary);
+}
+
+.suggestion-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.suggestion-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.suggestion-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .error-code {
+    font-size: 6rem;
+  }
+  
+  .error-page h1 {
+    font-size: 2rem;
+  }
+  
+  .error-page p {
+    font-size: 1.1rem;
+  }
+  
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .error-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .error-actions .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+</style>

@@ -4,12 +4,26 @@ description: AI-powered development tools for Salesforce B2C Commerce Cloud
 url: "https://taurgis.github.io"
 baseurl: "/sfcc-dev-mcp"
 
+# SEO and metadata
+author: Taurgis
+keywords: SFCC, Salesforce Commerce Cloud, MCP, AI, Development Tools
+lang: en
+
 # Theme
 theme: minima
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+
+# Minima theme settings
+minima:
+  skin: auto
+  social_links:
+    github: taurgis
+    
+# Google Analytics (if needed)
+# google_analytics: UA-XXXXXXXXX-X
 
 # Navigation
 header_pages:
