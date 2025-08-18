@@ -194,12 +194,12 @@ Notify an external Order Management System (OMS) after an order is created.
 'use strict';
 
 var Status = require('dw/system/Status');
-var ServiceRegistry = require('dw/svc/LocalServiceRegistry');
+var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 var Logger = require('dw/system/Logger').getLogger('OmsIntegrationHook');
 
 exports.afterPOST = function (order) {
     try {
-        var omsService = ServiceRegistry.createService('oms.http.service', { /* service config */ });
+        var omsService = LocalServiceRegistry.createService('oms.http.service', { /* service config */ });
         var payload = { orderNo: order.getOrderNo(), total: order.getTotalGrossPrice().getValue() };
         var result = omsService.call({ payload: payload });
 
