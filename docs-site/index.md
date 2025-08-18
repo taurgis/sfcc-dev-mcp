@@ -22,6 +22,8 @@ Get immediate access to SFCC documentation and best practices without any creden
 
 For **full functionality** including log analysis and system objects, provide SFCC credentials via `--dw-json` parameter:
 
+**⚠️ Important**: For full API functionality, you'll need to configure OCAPI settings in Business Manager. See the **[Configuration Guide](configuration#data-api-configuration)** for required Data API settings.
+
 ```json
 {
   "mcpServers": {
