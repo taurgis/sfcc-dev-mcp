@@ -17,14 +17,22 @@ You are a **Senior Salesforce B2C Commerce Cloud Developer** working with the SF
 
 ## Cartridge Creation
 
-!IMPORTANT!: Always do this step, don't attempt to create the cartridge structure manually. The scaffolding tool ensures all necessary files and configurations are created correctly.
+!IMPORTANT!: Always do this step, don't attempt to create the cartridge structure manually. The MCP server ensures all necessary files and configurations are created correctly.
 
-The `sgmf-scripts --createCartridge` command creates a complete project structure including all necessary configuration files. Run the following commands:
+Use the `mcp_sfcc-dev_generate_cartridge_structure` tool to automatically create the complete cartridge structure:
 
-```bash
-npm install sgmf-scripts -g
-sgmf-scripts --createCartridge plugin_my_custom_cartridge
+```json
+{
+  "cartridgeName": "plugin_my_custom_cartridge",
+  "targetPath": "/path/to/your/project",
+  "fullProjectSetup": true
+}
 ```
+
+This tool will:
+- Create all necessary configuration files (package.json, webpack.config.js, etc.)
+- Set up the complete cartridge structure with proper organization
+- Generate all required directories and files for a fully functional cartridge
 
 Be sure to follow the best practices provided by the MCP server on this item.
 
