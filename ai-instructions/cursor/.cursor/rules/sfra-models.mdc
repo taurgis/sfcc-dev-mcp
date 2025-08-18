@@ -30,6 +30,47 @@ MANDATORY sequence for model overrides:
 
 **NEVER create SFRA model overrides without MCP tool verification!**
 
+## ⚠️ CRITICAL: Decorator Index.js File Warning
+
+**DANGER**: Avoid creating `index.js` files in the `decorators` folder. This can accidentally override SFRA's main `index.js` file, causing application failures and unexpected behavior.
+
+### The Problem:
+- SFRA relies on its core `index.js` file for proper initialization
+- Adding an `index.js` in decorators can interfere with SFRA's module resolution
+- Can lead to silent failures that are difficult to debug
+
+### Safe Alternative - Direct Import Pattern:
+```javascript
+'use strict';
+
+var base = module.superModule;
+// ✅ SAFE: Import decorator directly
+var customDecorator = require('*/cartridge/scripts/decorators/customDecorator');
+var productDecorator = require('*/cartridge/scripts/decorators/productDecorator');
+
+function CustomProduct(product, options) {
+    base.call(this, product, options);
+    
+    // ✅ Apply decorators directly
+    customDecorator(this);
+    productDecorator(this);
+}
+
+module.exports = CustomProduct;
+```
+
+### What NOT to do:
+```javascript
+// ❌ DANGEROUS: Avoid this pattern
+var decorators = require('*/cartridge/scripts/decorators'); // Could conflict with SFRA
+```
+
+### Best Practices for Decorators:
+1. **Import Explicitly**: Always import specific decorator files by name
+2. **Use Full Paths**: Specify complete paths to decorator modules
+3. **No Index Files**: Never create `index.js` in decorators folder
+4. **Namespace Decorators**: Use descriptive names like `productPriceDecorator.js`
+
 ## 🚀 Enhanced MCP Tools Sequence
 
 **BEFORE writing ANY SFRA model code:**
