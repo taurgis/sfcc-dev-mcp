@@ -98,3 +98,43 @@ When creating SFCC files:
 4. Include comprehensive error handling
 5. Add security considerations from MCP security guides
 6. Provide complete, working examples following MCP patterns
+
+## 🎯 SFCC Override Path Requirements - MANDATORY MCP USAGE
+
+**CRITICAL**: For ANY ISML template or model override, you MUST use MCP tools first:
+
+### ISML Template Override - Required MCP Sequence:
+```
+MANDATORY before any ISML template:
+1. → mcp_sfcc-dev_get_best_practice_guide(guideName: "isml_templates")
+2. → Review "Template Directory Structure" section
+3. → Confirm exact override path requirements
+4. → Generate template ONLY after MCP verification
+```
+
+### SFRA Model Override - Required MCP Sequence:  
+```
+MANDATORY before any SFRA model:
+1. → mcp_sfcc-dev_get_best_practice_guide(guideName: "sfra_models")
+2. → Review "Model Customization Strategies" section  
+3. → Confirm proper superModule patterns
+4. → Generate model ONLY after MCP verification
+```
+
+### Controller Override - Required MCP Sequence:
+```
+MANDATORY before any controller:
+1. → mcp_sfcc-dev_get_best_practice_guide(guideName: "sfra_controllers")
+2. → Review controller extension patterns
+3. → Confirm server.extend() usage
+4. → Generate controller ONLY after MCP verification
+```
+
+**NEVER generate SFCC override code without these MCP tool calls!**
+
+### Override Path Verification Checklist:
+- [ ] Used appropriate MCP best practice guide
+- [ ] Confirmed exact directory structure from MCP guide
+- [ ] Validated extension patterns (superModule, server.extend)
+- [ ] Checked security requirements from MCP guide
+- [ ] Verified path matches base cartridge exactly

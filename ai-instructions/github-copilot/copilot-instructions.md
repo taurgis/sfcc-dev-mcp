@@ -555,6 +555,108 @@ Signs to update tool usage patterns:
 
 ---
 
+## 🎯 SFCC Override Path Requirements
+
+**MANDATORY**: Before generating ANY SFCC code involving ISML templates or models, you MUST use these MCP tools to ensure correct override paths and patterns:
+
+### **Required MCP Tool Chain for SFCC Override Code**
+
+#### **For ISML Template Generation**:
+```
+MANDATORY sequence before creating any ISML template:
+1. → get_best_practice_guide(guideName: "isml_templates")
+2. → Analyze the "Template Directory Structure" section
+3. → Confirm exact override path from best practices
+4. → Generate code only after path verification
+```
+
+#### **For Model Generation**:
+```
+MANDATORY sequence before creating any SFRA model:
+1. → get_best_practice_guide(guideName: "sfra_models") 
+2. → Analyze the "Model Customization Strategies" section
+3. → Confirm proper superModule usage patterns
+4. → Generate code only after pattern verification
+```
+
+#### **For Controller Generation**:
+```
+MANDATORY sequence before creating any controller:
+1. → get_best_practice_guide(guideName: "sfra_controllers")
+2. → Analyze controller extension patterns
+3. → Confirm proper server.extend() usage
+4. → Generate code only after pattern verification
+```
+
+### **Override Path Verification Process**
+
+**NEVER generate SFCC override code without completing this checklist**:
+
+1. ✅ **Used MCP Tool**: Called appropriate `get_best_practice_guide` 
+2. ✅ **Path Confirmed**: Verified exact directory structure from guide
+3. ✅ **Pattern Validated**: Confirmed proper extension patterns (superModule, server.extend)
+4. ✅ **Security Checked**: Reviewed security guidelines from best practices
+5. ✅ **Structure Match**: Ensured override path exactly matches base cartridge structure
+
+### **Common Override Mistakes - Prevent with MCP Tools**
+
+❌ **WRONG - Generated without MCP guidance**:
+```javascript
+// Missing superModule, wrong path, no security validation
+function Account() {
+    // Custom logic only - will break SFRA
+}
+```
+
+✅ **CORRECT - Generated after MCP tool consultation**:
+```javascript
+// Proper pattern from get_best_practice_guide("sfra_models")
+var base = module.superModule;
+function Account() {
+    base.call(this, ...arguments);
+    // Add custom logic following best practices
+}
+```
+
+### **Emergency Override Path Reference**
+
+**If MCP tools are unavailable**, use these critical rules:
+- **ISML**: `cartridge/templates/default/[exact_base_path]`
+- **Models**: `cartridge/models/[exact_base_path]` + `module.superModule`
+- **Controllers**: `cartridge/controllers/[exact_base_path]` + `server.extend(module.superModule)`
+
+**But ALWAYS prefer using the MCP tools for complete guidance!**
+
+### Essential Override Verification
+
+**Before providing any SFCC code that involves templates or models**:
+
+1. **Check Path Structure**: Verify the override path matches the base cartridge exactly
+2. **Consult Best Practices**: Reference ISML Templates and SFRA Models best practice guides
+3. **Use MCP Tools**: Leverage `get_best_practice_guide` for "isml_templates" and "sfra_models"
+4. **Validate Override Pattern**: Ensure proper use of `module.superModule` for models and `server.extend()` for controllers
+5. **Confirm Directory Structure**: Verify the complete directory path from cartridge root
+
+### Common Override Mistakes to Avoid
+
+❌ **Wrong Paths**:
+```
+# WRONG - will not override
+cartridges/app_custom_mybrand/cartridge/templates/product.isml
+cartridges/app_custom_mybrand/cartridge/models/product.js
+```
+
+✅ **Correct Paths**:
+```
+# CORRECT - exact path match
+cartridges/app_custom_mybrand/cartridge/templates/default/product/productDetails.isml
+cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
+```
+
+**Remember**: Always consult the ISML Templates and SFRA Models best practice guides from this MCP server before generating any override code to ensure proper patterns and security practices.
+
+---
+
 ## 🎓 Master-Level AI Agent Checklist
 
 ### Before Responding to ANY SFCC Question:

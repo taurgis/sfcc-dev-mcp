@@ -8,6 +8,28 @@ alwaysApply: false
 
 Use this rule when creating or modifying SFRA models. Now with access to 26+ SFRA documents, smart categorization, and comprehensive model architecture best practices.
 
+## 🎯 SFRA Model Override Requirements - MANDATORY MCP VERIFICATION
+
+**CRITICAL**: For ANY SFRA model override, verify paths and patterns with MCP tools:
+
+### Model Override MCP Workflow:
+```
+MANDATORY sequence for model overrides:
+1. → mcp_sfcc-dev_get_best_practice_guide(guideName: "sfra_models")
+2. → Review "Model Customization Strategies" section
+3. → Confirm proper superModule usage: var base = module.superModule;
+4. → Verify exact override path: cartridge/models/[exact_base_path]
+5. → Generate model ONLY after MCP verification
+```
+
+### Model Override Rules from MCP Guide:
+- **Use module.superModule**: Always import base model with `var base = module.superModule;`
+- **Extend, Don't Replace**: Call base constructor and extend functionality
+- **Maintain Interface**: Keep same public API as base model for template compatibility
+- **Override Complete Path**: Place model in exact same path as base cartridge
+
+**NEVER create SFRA model overrides without MCP tool verification!**
+
 ## 🚀 Enhanced MCP Tools Sequence
 
 **BEFORE writing ANY SFRA model code:**

@@ -16,6 +16,28 @@ Use this rule when creating or modifying ISML templates in SFCC.
 3. `mcp_sfcc-dev_search_best_practices` with query: "performance"
 4. `mcp_sfcc-dev_search_sfcc_classes` with query: relevant business domain
 
+## 🎯 ISML Override Path Requirements - MANDATORY MCP VERIFICATION
+
+**CRITICAL**: For ANY ISML template override, verify paths with MCP tools:
+
+### Template Override MCP Workflow:
+```
+MANDATORY sequence for template overrides:
+1. → mcp_sfcc-dev_get_best_practice_guide(guideName: "isml_templates")
+2. → Review "SFRA Template Directory Structure" section
+3. → Confirm exact override path: cartridge/templates/default/[exact_base_path]
+4. → Verify cartridge path priority requirements
+5. → Generate template ONLY after path verification
+```
+
+### Override Path Rules from MCP Guide:
+- **Exact Path Match**: Custom template must match base cartridge path exactly
+- **Directory Structure**: Maintain complete hierarchy from templates/default/
+- **File Name Match**: Override file must have identical name to base template
+- **Cartridge Priority**: Custom cartridge first in path (app_custom_mybrand:app_storefront_base)
+
+**NEVER create ISML overrides without MCP tool verification!**
+
 ## MCP-Guided ISML Development Process
 
 ### Step 1: Get ISML Best Practices
