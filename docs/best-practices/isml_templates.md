@@ -93,31 +93,91 @@ For non-HTML contexts, use `dw.util.SecureEncoder`:
 
 Use decorators for consistent page structure:
 
-**Main Layout** (`common/layout/page.isml`):
+#### SFRA Default Decorator Templates
+
+**IMPORTANT**: SFRA provides only **two default decorator templates** out of the box:
+
+1. **`common/layout/page`** - Standard storefront pages (homepage, PDP, search, account, etc.)
+2. **`common/layout/checkout`** - Secure checkout process pages
+
+If you need additional layout patterns (modal dialogs, email templates, mobile-specific layouts, etc.), you must **create custom decorator templates** in your cartridge's `templates/default/common/layout/` directory.
+
+#### Common Custom Decorators You May Need to Create:
+
+```html
+<!-- Custom Modal Layout -->
+common/layout/modal.isml
+
+<!-- Email Template Layout -->
+common/layout/email.isml
+
+<!-- Popup/Lightbox Layout -->
+common/layout/popup.isml
+
+<!-- Print-Friendly Layout -->
+common/layout/print.isml
+
+<!-- Mobile App Layout -->
+common/layout/mobile.isml
+```
+
+#### Default Template Usage Examples:
+
+**Using the Standard Page Layout**:
+```html
+<!-- ✅ Standard storefront pages -->
+<isdecorate template="common/layout/page">
+    <div class="product-details">
+        <h1><isprint value="${pdict.product.productName}" /></h1>
+        <!-- Content goes here -->
+    </div>
+</isdecorate>
+```
+
+**Using the Checkout Layout**:
+```html
+<!-- ✅ Secure checkout pages -->
+<isdecorate template="common/layout/checkout">
+    <div class="checkout-content">
+        <h1>Checkout</h1>
+        <!-- Checkout form content -->
+    </div>
+</isdecorate>
+```
+
+#### Creating Custom Decorator Templates:
+
+If you need a custom layout, create it in your cartridge at `templates/default/common/layout/[name].isml`:
+
+**Example Custom Modal Layout** (`common/layout/modal.isml`):
 ```html
 <!doctype html>
 <html lang="${require('dw/util/Locale').getLocale(request.locale).getLanguage()}">
 <head>
     <isinclude template="common/htmlHead" />
 </head>
-<body>
-    <div class="page">
-        <isinclude template="components/header/pageHeader" />
-        <main role="main" id="maincontent">
-            ${pdict.layout}
+<body class="modal-body">
+    <div class="modal-container">
+        <header class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+            </button>
+        </header>
+        <main class="modal-content">
+            <isreplace/>
         </main>
-        <isinclude template="components/footer/pageFooter" />
     </div>
 </body>
 </html>
 ```
 
-**Content Page**:
+**Using Your Custom Layout**:
 ```html
-<isdecorate template="common/layout/page">
-    <div class="product-details">
-        <h1><isprint value="${pdict.product.productName}" /></h1>
-        <!-- Content goes here -->
+<!-- ✅ Using custom decorator template -->
+<isdecorate template="common/layout/modal">
+    <div class="modal-body-content">
+        <h2>Modal Title</h2>
+        <p>Modal content goes here</p>
     </div>
 </isdecorate>
 ```
@@ -1511,7 +1571,7 @@ templates/default/
 ├── home/                    # Homepage templates
 │   └── homePage.isml        # Main homepage
 ├── product/                 # Product-related templates
-│   ├── productDetails.isml  # PDP template
+│   ├── productD etails.isml  # PDP template
 │   ├── productTile.isml     # Product tile component
 │   └── quickView.isml       # Quick view modal
 ├── cart/                    # Shopping cart templates
