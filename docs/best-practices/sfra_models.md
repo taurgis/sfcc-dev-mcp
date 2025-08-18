@@ -285,7 +285,7 @@ module.exports = function socialMedia(product, apiProduct) {
     // Twitter sharing
     socialData.twitter = {
         url: URLUtils.https('Product-Show', 'pid', apiProduct.ID).toString(),
-        text: apiProduct.name + ' - ' + Site.current.name,
+        text: apiProduct.name + ' - ' + Site.getCurrent().getName(),
         hashtags: getProductHashtags(apiProduct)
     };
     
@@ -504,7 +504,7 @@ function getRecommendations(product, maxRecommendations) {
     logger.debug('Generating new recommendations for product: {0}', product.ID);
     
     var recommendations = [];
-    var recommendedProducts = ProductMgr.getProductRecommendations(product, maxRecommendations);
+    var recommendedProducts = product.getRecommendations();
 
     if (recommendedProducts) {
         var ProductFactory = require('*/cartridge/scripts/factories/product');
@@ -850,7 +850,7 @@ function Product(apiProduct, customer) {
 // ❌ Bad: API call in getter
 Object.defineProperty(this, 'recommendations', {
     get: function() {
-        return ProductMgr.getProductRecommendations(this.id); // Expensive API call
+        return apiProduct.getRecommendations(); // Expensive API call
     }
 });
 
