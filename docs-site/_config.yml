@@ -1,0 +1,63 @@
+# GitHub Pages Configuration for SFCC Development MCP Server
+title: SFCC Development MCP Server
+description: AI-powered development tools for Salesforce B2C Commerce Cloud
+url: "https://taurgis.github.io"
+baseurl: "/sfcc-dev-mcp"
+
+# Theme
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+header_pages:
+  - installation.md
+  - ai-interfaces.md
+  - configuration.md
+  - tools.md
+  - examples.md
+  - troubleshooting.md
+  - development.md
+
+# Social links
+github_username: taurgis
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Collections
+collections:
+  guides:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "guides"
+    values:
+      layout: "page"
+
+# Exclude from processing
+exclude:
+  - node_modules/
+  - vendor/
+  - .bundle/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - README.md
