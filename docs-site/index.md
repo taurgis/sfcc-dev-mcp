@@ -5,6 +5,53 @@ title: SFCC Development MCP Server
 
 An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
 
+## 🚀 Quick Start
+
+Get immediate access to SFCC documentation and best practices without any credentials using **documentation-only mode**:
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx", 
+      "args": ["sfcc-dev-mcp"]
+    }
+  }
+}
+```
+
+For **full functionality** including log analysis and system objects, provide SFCC credentials via `--dw-json` parameter:
+
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
+    }
+  }
+}
+```
+
+**dw.json configuration file:**
+```json
+{
+  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "your-username", 
+  "password": "your-password",
+  "client-id": "your-client-id",
+  "client-secret": "your-client-secret",
+  "site-id": "your-site-id"
+}
+```
+
+*Note: The `site-id` field is optional and only needed for site-specific operations.*
+
+Choose your preferred AI interface:
+- **[Claude Desktop Setup](ai-interfaces#claude-desktop)** - Native desktop app for AI assistance
+- **[GitHub Copilot Setup](ai-interfaces#github-copilot)** - VS Code integration  
+- **[Cursor Setup](ai-interfaces#cursor)** - Modern AI-powered editor
+
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
@@ -14,15 +61,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 
-## 🚀 Quick Start
-
-Choose your preferred AI interface:
-
-- **[Claude Desktop Setup](ai-interfaces#claude-desktop)** - Native desktop app for AI assistance
-- **[GitHub Copilot Setup](ai-interfaces#github-copilot)** - VS Code integration
-- **[Cursor Setup](ai-interfaces#cursor)** - Modern AI-powered editor
-
-## 📖 Documentation
+##  Documentation
 
 <div class="grid">
   <div class="card">
