@@ -7,7 +7,7 @@ The Totals model represents comprehensive pricing and discount information for a
 ## Constructor
 
 ```javascript
-function Totals(lineItemContainer)
+function totals(lineItemContainer)
 ```
 
 Creates a Totals model instance with comprehensive pricing information from a line item container.
@@ -23,6 +23,11 @@ Creates a Totals model instance with comprehensive pricing information from a li
 
 Formatted subtotal of merchandise before taxes and shipping.
 
+### totalShippingCost
+**Type:** string
+
+Formatted total shipping cost.
+
 ### grandTotal
 **Type:** string
 
@@ -37,12 +42,21 @@ Formatted total tax amount.
 **Type:** Array<Object>
 
 Array of discount objects including promotions and coupons. Each discount contains:
+
+**For Promotions:**
 - `UUID` (string) - Unique identifier
 - `lineItemText` (string) - Display text for the discount
 - `price` (string) - Formatted discount amount
-- `type` (string) - Discount type ('promotion', 'coupon')
-- `callOutMsg` (string) - Promotion callout message (for promotions)
-- `code` (string) - Coupon code (for coupons)
+- `type` (string) - Always 'promotion'
+- `callOutMsg` (string) - Promotion callout message
+
+**For Coupons:**
+- `UUID` (string) - Unique identifier  
+- `type` (string) - Always 'coupon'
+- `couponCode` (string) - The coupon code
+- `applied` (boolean) - Whether the coupon is applied
+- `valid` (boolean) - Whether the coupon is valid
+- `relationship` (Array) - Array of related price adjustments with callout messages
 
 ### discountsHtml
 **Type:** string
@@ -109,25 +123,30 @@ Creates a comprehensive array of all discounts including promotions and coupons.
 ## Usage Example
 
 ```javascript
-var TotalsModel = require('*/cartridge/models/totals');
+var totals = require('*/cartridge/models/totals');
 var BasketMgr = require('dw/order/BasketMgr');
 
 var currentBasket = BasketMgr.getCurrentBasket();
-var totals = new TotalsModel(currentBasket);
+var totalsModel = new totals(currentBasket);
 
 // Access formatted totals
-console.log(totals.subTotal);        // "$149.99"
-console.log(totals.grandTotal);      // "$159.94"
-console.log(totals.totalTax);        // "$12.00"
+console.log(totalsModel.subTotal);        // "$149.99"
+console.log(totalsModel.totalShippingCost); // "$9.95"
+console.log(totalsModel.grandTotal);      // "$159.94"
+console.log(totalsModel.totalTax);        // "$12.00"
 
 // Access discount information
-totals.discounts.forEach(function(discount) {
-    console.log(discount.type + ': ' + discount.price);
+totalsModel.discounts.forEach(function(discount) {
+    if (discount.type === 'promotion') {
+        console.log('Promotion: ' + discount.lineItemText + ' - ' + discount.price);
+    } else if (discount.type === 'coupon') {
+        console.log('Coupon: ' + discount.couponCode + ' (applied: ' + discount.applied + ')');
+    }
 });
 
 // Check for order-level discounts
-if (totals.orderLevelDiscountTotal.value > 0) {
-    console.log('Order discount: ' + totals.orderLevelDiscountTotal.formatted);
+if (totalsModel.orderLevelDiscountTotal.value > 0) {
+    console.log('Order discount: ' + totalsModel.orderLevelDiscountTotal.formatted);
 }
 ```
 

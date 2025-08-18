@@ -2,7 +2,32 @@
 
 ## Overview
 
-The Order model represents an order or basket in SFRA applications, providing comprehensive order information including line items, totals, billing, shipping, and checkout step status. It's used for order confirmation pages, order history, and checkout processes.
+The Order model represents an order or basket in SFRA applications, providing comprehensive or## Helper Functions
+
+### getCheckoutStepInformation(lineItemContainer)
+Returns checkout step completion status.
+
+**Parameters:**
+- `lineItemContainer` (dw.order.LineItemCtnr) - Order or basket
+
+**Returns:** Object - Checkout step status with shipping and billing completion flags
+
+### getFirstProductLineItem(productLineItemsModel)
+Returns image information for the first product line item.
+
+**Parameters:**
+- `productLineItemsModel` (Object) - Product line items model
+
+**Returns:** Object | null - Object with imageURL, alt, and title properties, or null
+
+### getAssociatedAddress(lineItemContainer, customer)
+Returns the matching address ID for a billing address.
+
+**Parameters:**
+- `lineItemContainer` (dw.order.LineItemCtnr) - Order or basket
+- `customer` (Object) - Customer model
+
+**Returns:** string | boolean - Matching shipment UUID or customer address ID, or false if no matchuding line items, totals, billing, shipping, and checkout step status. It's used for order confirmation pages, order history, and checkout processes.
 
 ## Constructor
 
@@ -16,24 +41,81 @@ Creates an Order model instance from a line item container (order or basket).
 
 - `lineItemContainer` (dw.order.LineItemCtnr) - Order or basket object
 - `options` (Object) - Configuration options including:
-  - `numberOfLineItems` (string|number) - Number of line items to include (default: '*' for all)
+  - `config` (Object) - Configuration object with `numberOfLineItems` setting
+  - `countryCode` (string) - Current request country code
+  - `customer` (Object) - Customer object
+  - `containerView` (string) - View context ('order' or 'basket')
+  - `usingMultiShipping` (boolean) - Whether using multiple shipping addresses
+  - `shippable` (boolean) - Whether order contains shippable items
 
 ## Properties
 
+### resources
+**Type:** Object
+
+Resource strings for order-related messaging and labels.
+
 ### orderNumber
+**Type:** string | null
+
+The order number for completed orders, or null for baskets.
+
+### creationDate
+**Type:** Date | null
+
+Date when the order was created, or null for baskets.
+
+### orderEmail
 **Type:** string
 
-The order number for completed orders.
+Customer email address associated with the order.
 
-### items
-**Type:** ProductLineItemsModel
+### orderStatus
+**Type:** Object | null
 
-Product line items model containing all order items with detailed product information.
+Order status information, or null for baskets.
+
+### usingMultiShipping
+**Type:** boolean
+
+Indicates whether the order uses multiple shipping addresses.
+
+### shippable
+**Type:** boolean
+
+Indicates whether the order contains shippable items.
+
+### priceTotal
+**Type:** string | null
+
+Formatted grand total amount from the totals model.
+
+### productQuantityTotal
+**Type:** number | null
+
+Total quantity of all products in the order.
+
+## Conditional Properties (when numberOfLineItems = '*')
 
 ### totals
 **Type:** TotalsModel
 
 Order totals including subtotals, taxes, shipping costs, and grand total.
+
+### lineItemTotal
+**Type:** number | null
+
+Total number of line items in the order.
+
+### steps
+**Type:** Object | null
+
+Checkout step information with completion status.
+
+### items
+**Type:** ProductLineItemsModel
+
+Product line items model containing all order items with detailed product information.
 
 ### billing
 **Type:** BillingModel
@@ -45,75 +127,22 @@ Billing information including billing address and payment methods.
 
 Array of shipping models containing shipping address and method information for each shipment.
 
-### orderEmail
-**Type:** string
-
-Customer email address associated with the order.
-
-### phone
-**Type:** string
-
-Customer phone number from the order.
-
-### creationDate
-**Type:** Date
-
-Date when the order was created.
-
-### orderStatus
-**Type:** Object
-
-Order status information including current status and display values.
-
-### shippable
-**Type:** boolean
-
-Indicates whether the order contains shippable items.
-
-### taxTotal
-**Type:** string
-
-Formatted tax total amount.
-
-### merchandizeTotalExclOrderDiscounts
-**Type:** string
-
-Formatted merchandise total excluding order-level discounts.
-
-### orderDiscountTotal
-**Type:** string
-
-Formatted total of order-level discounts.
-
-### shippingTotalCost
-**Type:** string
-
-Formatted shipping cost total.
-
-### orderPromoTotal
-**Type:** string
-
-Formatted total of order-level promotions.
-
-### resources
-**Type:** Object
-
-Localized resource strings for UI display including labels and messages.
+## Conditional Properties (when numberOfLineItems = 'single')
 
 ### firstLineItem
-**Type:** Object
+**Type:** Object | null
 
-First product line item image information for order thumbnails:
-- `imageURL` - URL of the product image
-- `alt` - Alt text for the image
-- `title` - Title for the image
+Information about the first product line item including image details.
 
-### checkoutStep
-**Type:** Object
+### shippedToFirstName
+**Type:** string
 
-Checkout step completion status:
-- `shipping` - Object with `iscompleted` boolean
-- `billing` - Object with `iscompleted` boolean
+First name from the first shipment's shipping address.
+
+### shippedToLastName
+**Type:** string
+
+Last name from the first shipment's shipping address.
 
 ## Helper Functions
 

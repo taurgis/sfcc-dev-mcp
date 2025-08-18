@@ -81,27 +81,27 @@ Store hours information as markup/HTML content for display.
 ## Usage Example
 
 ```javascript
-var StoreModel = require('*/cartridge/models/store');
+var store = require('*/cartridge/models/store');
 var StoreMgr = require('dw/catalog/StoreMgr');
 
 // Get a specific store
 var storeObject = StoreMgr.getStore('store-001');
-var store = new StoreModel(storeObject);
+var storeModel = new store(storeObject);
 
 // Access store properties
-console.log(store.name);          // "Downtown Location"
-console.log(store.address1);      // "123 Main St"
-console.log(store.city);          // "New York"
-console.log(store.phone);         // "555-123-4567"
+console.log(storeModel.name);          // "Downtown Location"
+console.log(storeModel.address1);      // "123 Main St"
+console.log(storeModel.city);          // "New York"
+console.log(storeModel.phone);         // "555-123-4567"
 
 // Use coordinates for mapping
-if (store.latitude && store.longitude) {
-    console.log('Location: ' + store.latitude + ', ' + store.longitude);
+if (storeModel.latitude && storeModel.longitude) {
+    console.log('Location: ' + storeModel.latitude + ', ' + storeModel.longitude);
 }
 
 // Display store hours
-if (store.storeHours) {
-    console.log(store.storeHours); // HTML markup for hours display
+if (storeModel.storeHours) {
+    console.log(storeModel.storeHours); // HTML markup for hours display
 }
 ```
 

@@ -7,17 +7,18 @@ The Stores model represents a collection of store locations in SFRA applications
 ## Constructor
 
 ```javascript
-function stores(storesObject, radius, searchKey, googleMapsApi)
+function stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey)
 ```
 
 Creates a Stores model instance with store collection and search parameters.
 
 ### Parameters
 
-- `storesObject` (dw.util.Set) - A set of dw.catalog.Store objects
-- `radius` (number) - Search radius used to find stores
-- `searchKey` (string) - Search term or location used for store search
-- `googleMapsApi` (string) - Google Maps API key for map integration
+- `storesResultsObject` (dw.util.Set) - A set of dw.catalog.Store objects  
+- `searchKey` (Object) - What the user searched by (location or postal code)
+- `searchRadius` (number) - The radius used in the search  
+- `actionUrl` (dw.web.URL) - A relative URL for the search action
+- `apiKey` (string) - The Google Maps API key that is set in site preferences
 
 ## Properties
 
@@ -27,7 +28,7 @@ Creates a Stores model instance with store collection and search parameters.
 Array of individual store models, each containing complete store information including location, contact details, and hours.
 
 ### searchKey
-**Type:** string
+**Type:** Object
 
 The search term or location used to find the stores (e.g., ZIP code, address, city).
 
@@ -36,15 +37,30 @@ The search term or location used to find the stores (e.g., ZIP code, address, ci
 
 The search radius in miles/kilometers used to limit store results.
 
+### actionUrl
+**Type:** dw.web.URL
+
+A relative URL for the search action.
+
 ### googleMapsApi
 **Type:** string | null
 
 URL for Google Maps API integration, or null if no API key is configured.
 
-### locations
-**Type:** Array<Object>
+### radiusOptions
+**Type:** Array<number>
 
-Array of location objects optimized for map display. Each location contains:
+Array of available radius options: [15, 30, 50, 100, 300].
+
+### storesResultsHtml
+**Type:** string | null
+
+HTML-formatted string of store results for display, or null if no stores found.
+
+### locations
+**Type:** string
+
+JSON stringified array of location objects optimized for map display. Each location contains:
 - `name` (string) - Store name
 - `latitude` (number) - Geographic latitude
 - `longitude` (number) - Geographic longitude  
@@ -79,23 +95,28 @@ Constructs Google Maps API URL if API key is available.
 ## Usage Example
 
 ```javascript
-var StoresModel = require('*/cartridge/models/stores');
+var stores = require('*/cartridge/models/stores');
 var storeHelpers = require('*/cartridge/scripts/helpers/storeHelpers');
 
 // Search for stores
 var searchResults = storeHelpers.findStores('10001', 25);
 var apiKey = Site.getCurrent().getCustomPreferenceValue('googleMapsApiKey');
+var actionUrl = URLUtils.url('Stores-FindStores');
 
-var storesModel = new StoresModel(
+var storesModel = new stores(
     searchResults.stores, 
+    '10001',
     25, 
-    '10001', 
+    actionUrl,
     apiKey
 );
 
 // Access store collection
 console.log('Found ' + storesModel.stores.length + ' stores');
 console.log('Search: ' + storesModel.searchKey + ' within ' + storesModel.radius + ' miles');
+
+// Parse JSON locations for map
+var locations = JSON.parse(storesModel.locations);
 
 // Iterate through stores
 storesModel.stores.forEach(function(store) {
@@ -105,10 +126,16 @@ storesModel.stores.forEach(function(store) {
 // Use for map integration
 if (storesModel.googleMapsApi) {
     // Load Google Maps with locations
-    storesModel.locations.forEach(function(location) {
+    var locations = JSON.parse(storesModel.locations);
+    locations.forEach(function(location) {
         // Add markers to map using latitude/longitude
         // Use infoWindowHtml for marker popups
     });
+}
+
+// Display pre-rendered HTML results
+if (storesModel.storesResultsHtml) {
+    // Use the pre-rendered HTML for store display
 }
 ```
 
@@ -118,11 +145,11 @@ The model provides comprehensive mapping support:
 
 ### Google Maps Integration
 - **googleMapsApi** - Ready-to-use API URL
-- **locations** - Array of coordinates with info windows
+- **locations** - JSON string of coordinates with info windows (needs parsing)
 - **infoWindowHtml** - Pre-rendered HTML for map popups
 
 ### Location Data Structure
-Each location object includes:
+Each location object (after JSON parsing) includes:
 - Geographic coordinates for marker placement
 - Store name for marker labels
 - Rendered HTML content for info windows
@@ -132,6 +159,8 @@ Each location object includes:
 The model preserves search context:
 - **searchKey** - Original search term for reference
 - **radius** - Search distance for display and refinement
+- **actionUrl** - URL for additional search actions
+- **radiusOptions** - Available radius choices for refinement
 - Enables search result pagination and refinement
 
 ## Template Integration
@@ -144,12 +173,14 @@ Info windows use the `storeLocator/storeInfoWindow` template:
 ## Notes
 
 - Converts SFCC store objects to structured models
-- Provides map-ready coordinate data
-- Includes pre-rendered HTML for info windows
+- Provides map-ready coordinate data as JSON string
+- Includes pre-rendered HTML for info windows and store results
 - Supports Google Maps API integration
 - Maintains search context for user reference
+- Includes predefined radius options for search refinement
 - Handles missing API keys gracefully
 - Optimized for store locator interfaces
+- Uses storeHelpers.createStoresResultsHtml for consistent display
 
 ## Related Models
 

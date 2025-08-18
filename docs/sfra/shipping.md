@@ -14,10 +14,10 @@ Creates a Shipping model instance with complete shipping information.
 
 ### Parameters
 
-- `shipment` (dw.order.Shipment) - The shipment from the current basket
-- `address` (Object) - The address to use for filtering shipping methods
+- `shipment` (dw.order.Shipment) - The default shipment of the current basket
+- `address` (Object) - The address to use to filter the shipping method list  
 - `customer` (Object) - The current customer model
-- `containerView` (string) - View context ('order' or 'basket')
+- `containerView` (string) - The view of the product line items ('order' or 'basket')
 
 ## Properties
 
@@ -29,12 +29,12 @@ Unique identifier for the shipment.
 ### productLineItems
 **Type:** ProductLineItemsModel | null
 
-Product line items model containing all products in this shipment with detailed information.
+Product line items model containing all products in this shipment with detailed information. Created using `ProductLineItemsModel` (note the "Model" suffix).
 
 ### applicableShippingMethods
 **Type:** Array<Object>
 
-Array of shipping methods available for this shipment based on the shipping address and products.
+Array of shipping methods available for this shipment. Retrieved using `shippingHelpers.getApplicableShippingMethods(shipment, address)`.
 
 ### selectedShippingMethod
 **Type:** ShippingMethodModel | null
@@ -44,9 +44,9 @@ Currently selected shipping method for this shipment, or null if none selected.
 ### shippingAddress
 **Type:** Object
 
-Shipping address for this shipment. Uses either:
-- Formatted address from the shipment (if address exists)
-- Provided address parameter (if shipment address is empty)
+Shipping address for this shipment. Logic:
+- If shipment has address data (checked via `emptyAddress()` helper), uses `new AddressModel(shipment.shippingAddress).address`
+- Otherwise, uses the provided `address` parameter
 
 ### matchingAddressId
 **Type:** string | boolean
@@ -100,19 +100,20 @@ Finds matching customer address for the shipping address.
 **Returns:** string | boolean - Matching address ID or false
 
 ### emptyAddress(shipment)
-Checks if the shipment has any address information.
+Checks if the shipment has any address information populated.
 
 **Parameters:**
 - `shipment` (dw.order.Shipment) - Target shipment
 
-**Returns:** boolean - True if address has any populated fields
+**Returns:** boolean - True if ANY of the address fields ['firstName', 'lastName', 'address1', 'address2', 'phone', 'city', 'postalCode', 'stateCode'] have values
 
 ## Address Handling
 
 The model provides flexible address handling:
-- **Existing Address**: Uses shipment's shipping address if populated
+- **Address Population Check**: Uses `emptyAddress()` to check if shipment has address data
+- **Existing Address**: Uses `new AddressModel(shipment.shippingAddress).address` if address is populated
 - **Fallback Address**: Uses provided address parameter if shipment address is empty
-- **Address Matching**: Finds matching addresses in customer's address book
+- **Address Matching**: Finds matching addresses in customer's address book using `isEquivalentAddress()`
 
 ## Usage Example
 
@@ -122,17 +123,22 @@ var BasketMgr = require('dw/order/BasketMgr');
 
 var currentBasket = BasketMgr.getCurrentBasket();
 var shipment = currentBasket.defaultShipment;
-var shippingAddress = getShippingAddress();
+var shippingAddress = getShippingAddress(); // Your address object
 var customer = req.currentCustomer;
 
 var shipping = new ShippingModel(shipment, shippingAddress, customer, 'basket');
 
 // Access shipping information
-console.log(shipping.UUID);
-console.log(shipping.applicableShippingMethods.length);
+console.log('Shipment UUID: ' + shipping.UUID);
+console.log('Available methods: ' + shipping.applicableShippingMethods.length);
 
 if (shipping.selectedShippingMethod) {
     console.log('Selected: ' + shipping.selectedShippingMethod.displayName);
+}
+
+// Check address matching
+if (shipping.matchingAddressId) {
+    console.log('Matches customer address: ' + shipping.matchingAddressId);
 }
 
 // Check for gift options
@@ -140,10 +146,12 @@ if (shipping.isGift) {
     console.log('Gift message: ' + shipping.giftMessage);
 }
 
-// Access products in shipment
-shipping.productLineItems.items.forEach(function(item) {
-    console.log(item.productName + ' x ' + item.quantity);
-});
+// Access products in shipment (if productLineItems is not null)
+if (shipping.productLineItems) {
+    shipping.productLineItems.items.forEach(function(item) {
+        console.log(item.productName + ' x ' + item.quantity);
+    });
+}
 ```
 
 ## Gift Functionality
@@ -155,12 +163,14 @@ The model supports gift shipments:
 
 ## Notes
 
-- Handles both populated and empty shipping addresses
-- Integrates with shipping method calculation helpers
-- Provides address matching for saved customer addresses
-- Supports gift functionality with messages
-- Works with both basket and order contexts
-- Includes comprehensive product line item information
+- Handles both populated and empty shipping addresses with conditional logic
+- Integrates with `shippingHelpers.getApplicableShippingMethods()` for method calculation
+- Uses `AddressModel` for address formatting when shipment address exists
+- Provides address matching using `isEquivalentAddress()` for saved customer addresses  
+- Supports gift functionality with boolean flags and message text
+- Works with both basket and order contexts via `containerView` parameter
+- Uses `ProductLineItemsModel` (with "Model" suffix) for line item information
+- All properties handle null shipments gracefully
 
 ## Related Models
 

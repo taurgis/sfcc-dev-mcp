@@ -35,26 +35,26 @@ Object - Decorated product model with bundle-specific information
 The product bundle model applies the following decorators in sequence:
 
 ### Standard Product Decorators
-- **base** - Fundamental product information
-- **price** - Bundle pricing with promotions
-- **images** - Large and small product images
-- **quantity** - Quantity information and constraints
-- **description** - Product descriptions
-- **ratings** - Product ratings and reviews
-- **promotions** - Active promotion information
-- **attributes** - Product attributes
-- **availability** - Availability status and messages
-- **options** - Product option configurations
-- **quantitySelector** - Quantity selection parameters
+- **base** - Fundamental product information: `uuid`, `id`, `productName`, `productType`, `brand`
+- **price** - Bundle pricing: `price` and `renderedPrice` with promotions
+- **images** - Product images: `images` with large and small sizes
+- **quantity** - Quantity constraints: `selectedQuantity`, `minOrderQuantity`, `maxOrderQuantity`
+- **description** - Product descriptions: `longDescription` and `shortDescription` markup
+- **ratings** - Product rating: `rating` value calculated from product ID
+- **promotions** - Active promotions: `promotions` array with promotion details
+- **attributes** - Product attributes: `attributes` array with grouped attribute data
+- **availability** - Availability status: `availability` object with messages and stock status
+- **options** - Product options: `options` array with option configurations
+- **quantitySelector** - Quantity selection: `quantities` array with step quantity options
 
 ### Bundle-Specific Decorators
-- **bundledProducts** - Information about products included in the bundle
-- **bundleReadyToOrder** - Bundle-specific readiness validation
-- **currentUrl** - URL for the bundle product page
-- **sizeChart** - Size chart information (if applicable)
-- **raw** - Raw API product data
-- **pageMetaData** - SEO and page metadata
-- **template** - Template information for rendering
+- **sizeChart** (conditional) - Size chart: `sizeChartId` if category has custom sizeChartID
+- **currentUrl** - Product URL: `selectedProductUrl` with variation and option parameters
+- **bundledProducts** - Bundle contents: `bundledProducts` array with individual product models
+- **bundleReadyToOrder** - Bundle readiness: `readyToOrder` boolean validation for entire bundle
+- **raw** - Raw API data: `raw` property (non-enumerable) with original API product
+- **pageMetaData** - SEO metadata: `pageTitle`, `pageDescription`, `pageKeywords`, `pageMetaTags`
+- **template** - Template info: `template` property for rendering
 
 ## Bundle-Specific Features
 
@@ -115,16 +115,36 @@ bundleProduct.bundledProducts.forEach(function(bundledProduct) {
 After decoration, the bundle product contains:
 
 ### Standard Product Properties
-- Complete product information (name, ID, type, etc.)
-- Comprehensive pricing with bundle discounts
-- Product images, descriptions, and attributes
-- Availability and ordering information
+- **uuid** - Product UUID
+- **id** - Product ID  
+- **productName** - Product name
+- **productType** - Product type
+- **brand** - Product brand
+- **price** - Comprehensive pricing with bundle discounts
+- **renderedPrice** - HTML-rendered price for display
+- **images** - Product images (large and small sizes)
+- **selectedQuantity** - Currently selected quantity
+- **minOrderQuantity** - Minimum order quantity
+- **maxOrderQuantity** - Maximum order quantity
+- **longDescription** - Product long description markup
+- **shortDescription** - Product short description markup
+- **rating** - Product rating value
+- **promotions** - Active promotion information
+- **attributes** - Product attribute groups and values
+- **availability** - Availability status and messages
+- **options** - Product option configurations
+- **quantities** - Available quantity selection options
+- **selectedProductUrl** - Current product URL with parameters
 
 ### Bundle-Specific Properties
-- **bundledProducts** - Array of individual products in the bundle
+- **bundledProducts** - Array of individual product models in the bundle
 - **readyToOrder** - Boolean indicating if the entire bundle can be ordered
-- **bundlePrice** - Combined pricing information for the bundle
-- **bundlePromotions** - Bundle-specific promotional offers
+- **sizeChartId** - Size chart identifier (if applicable)
+- **pageTitle** - SEO page title
+- **pageDescription** - SEO page description  
+- **pageKeywords** - SEO page keywords
+- **pageMetaTags** - SEO meta tags array
+- **template** - Template identifier for rendering
 
 ## Notes
 

@@ -45,8 +45,27 @@ The customer's preferred/default address from their address book.
 
 The customer's order history information.
 
-### paymentInstruments
-**Type:** Array<Object>
+### payment
+**Type:** Object | null
+
+Primary payment instrument information including:
+- `maskedCreditCardNumber` (string) - Masked card number
+- `creditCardType` (string) - Type of credit card
+- `creditCardExpirationMonth` (number) - Expiration month
+- `creditCardExpirationYear` (number) - Expiration year
+
+### registeredUser
+**Type:** boolean
+
+Indicates if the customer is both authenticated and registered.
+
+### isExternallyAuthenticated
+**Type:** boolean
+
+Indicates if the customer is authenticated through an external provider.
+
+### customerPaymentInstruments
+**Type:** Array<Object> | null
 
 Array of customer's saved payment instruments. Each payment instrument contains:
 - `creditCardHolder` (string) - Name on the credit card
@@ -56,6 +75,8 @@ Array of customer's saved payment instruments. Each payment instrument contains:
 - `creditCardExpirationYear` (number) - Expiration year
 - `UUID` (string) - Unique identifier
 - `cardTypeImage` (Object) - Image source and alt text for card type
+  - `src` (string) - Image source URL
+  - `alt` (string) - Alt text for the image
 
 ## Helper Functions
 
@@ -103,7 +124,7 @@ Creates an array of payment instrument objects with card type images.
 
 ```javascript
 var AccountModel = require('*/cartridge/models/account');
-var currentCustomer = customer.getProfile();
+var currentCustomer = customer;
 var addressModel = null; // or specific address model
 var orderModel = getOrderHistory();
 
@@ -112,7 +133,9 @@ var account = new AccountModel(currentCustomer, addressModel, orderModel);
 // Access account properties
 console.log(account.profile.email);
 console.log(account.addresses.length);
-console.log(account.paymentInstruments);
+console.log(account.registeredUser);
+console.log(account.customerPaymentInstruments);
+console.log(account.payment);
 ```
 
 ## Related Models

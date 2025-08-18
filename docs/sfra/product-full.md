@@ -33,10 +33,10 @@ Object - Decorated product model with comprehensive product information
 The full product model applies the following decorators:
 
 ### base
-Adds fundamental product information including ID, name, type, and basic properties.
+Adds fundamental product information including uuid, id, productName, productType, and brand.
 
 ### price
-Adds comprehensive pricing information including promotional prices, with option model integration.
+Adds comprehensive pricing information including promotional prices, with option model integration. Sets `price` and `renderedPrice` properties.
 
 ### images
 Adds product images with full configuration:
@@ -44,7 +44,7 @@ Adds product images with full configuration:
 - **Quantity:** 'all' - All available images
 
 ### quantity
-Adds quantity information and constraints for the product.
+Adds quantity information and constraints: `selectedQuantity`, `minOrderQuantity`, and `maxOrderQuantity`.
 
 ### variationAttributes
 Adds variation attribute information with full configuration:
@@ -52,28 +52,46 @@ Adds variation attribute information with full configuration:
 - **EndPoint:** 'Variation' - Endpoint for variation handling
 
 ### description
-Adds product description and detailed information.
+Adds product description: `longDescription` and `shortDescription` markup properties.
 
 ### ratings
-Adds product rating and review information.
+Adds product rating information: `rating` value calculated from product ID.
 
 ### promotions
-Adds active promotion information for the product.
+Adds active promotion information: `promotions` array with promotion details.
 
 ### attributes
-Adds product attributes from the attribute model.
+Adds product attributes from the attribute model: `attributes` array with grouped attribute data.
 
 ### availability
-Adds availability information based on quantity, minimum order quantity, and availability model.
+Adds availability information: `availability` object with messages and stock status based on quantity and availability model.
 
 ### options
-Adds product option information including option model, variables, and quantity.
+Adds product option information: `options` array including option model, variables, and quantity.
 
 ### quantitySelector
-Adds quantity selector information with step quantity and variables.
+Adds quantity selector information: `quantities` array with step quantity and URL options.
 
 ### sizeChart (conditional)
-Adds size chart information if the product's category has a custom sizeChartID attribute.
+Adds size chart information: `sizeChartId` property if the product's category has a custom sizeChartID attribute.
+
+### currentUrl
+Adds current product URL: `selectedProductUrl` property with variation and option parameters.
+
+### readyToOrder
+Adds order readiness status: `readyToOrder` boolean indicating if product can be ordered.
+
+### online
+Adds online status: `online` boolean indicating if product is available online.
+
+### raw
+Adds raw API product: `raw` property (non-enumerable) containing the original dw.catalog.Product object.
+
+### pageMetaData
+Adds SEO metadata: `pageTitle`, `pageDescription`, `pageKeywords`, and `pageMetaTags` properties.
+
+### template
+Adds template information: `template` property for rendering purposes.
 
 ## Usage Example
 
@@ -106,21 +124,35 @@ console.log(fullProduct.variationAttributes);
 
 After applying all decorators, the full product object contains:
 
+- **uuid** - Product UUID  
 - **id** - Product ID
-- **name** - Product name and display information
-- **type** - Product type
+- **productName** - Product name and display information
+- **productType** - Product type
+- **brand** - Product brand
 - **price** - Comprehensive pricing with promotions
+- **renderedPrice** - HTML-rendered price for display
 - **images** - Large and small product images
-- **quantity** - Quantity information and constraints
+- **selectedQuantity** - Currently selected quantity
+- **minOrderQuantity** - Minimum order quantity
+- **maxOrderQuantity** - Maximum order quantity
 - **variationAttributes** - Complete variation attribute data
-- **description** - Product descriptions
-- **ratings** - Rating and review data
+- **longDescription** - Product long description markup
+- **shortDescription** - Product short description markup
+- **rating** - Product rating value
 - **promotions** - Active promotion information
-- **attributes** - Product attribute model data
+- **attributes** - Product attribute groups and values
 - **availability** - Availability status and messages
 - **options** - Product option configurations
-- **quantitySelector** - Quantity selection parameters
-- **sizeChart** - Size chart information (if applicable)
+- **quantities** - Available quantity selection options
+- **sizeChartId** - Size chart identifier (if applicable)
+- **selectedProductUrl** - Current product URL with selected variations and options
+- **readyToOrder** - Boolean indicating if product can be ordered
+- **online** - Boolean indicating if product is available online
+- **pageTitle** - SEO page title
+- **pageDescription** - SEO page description
+- **pageKeywords** - SEO page keywords
+- **pageMetaTags** - SEO meta tags array
+- **template** - Template identifier for rendering
 
 ## Size Chart Handling
 

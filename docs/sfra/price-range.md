@@ -27,12 +27,12 @@ Always set to 'range' to identify this as a range price model.
 ### min
 **Type:** DefaultPrice
 
-Minimum price in the range, formatted as a DefaultPrice model with value, currency, and formatted properties.
+Minimum price in the range, formatted as a DefaultPrice model with value, currency, and formatted properties. Created as `new DefaultPrice(min)` where only the sales price is provided.
 
 ### max
 **Type:** DefaultPrice
 
-Maximum price in the range, formatted as a DefaultPrice model with value, currency, and formatted properties.
+Maximum price in the range, formatted as a DefaultPrice model with value, currency, and formatted properties. Created as `new DefaultPrice(max)` where only the sales price is provided.
 
 ## Usage Example
 
@@ -46,11 +46,11 @@ var maxPrice = new Money(49.99, 'USD');
 var rangePrice = new RangePrice(minPrice, maxPrice);
 
 console.log(rangePrice.type);              // "range"
-console.log(rangePrice.min.formatted);     // "$19.99"
-console.log(rangePrice.max.formatted);     // "$49.99"
+console.log(rangePrice.min.sales.formatted);     // "$19.99"
+console.log(rangePrice.max.sales.formatted);     // "$49.99"
 
 // Display price range
-console.log(rangePrice.min.formatted + ' - ' + rangePrice.max.formatted);
+console.log(rangePrice.min.sales.formatted + ' - ' + rangePrice.max.sales.formatted);
 // Output: "$19.99 - $49.99"
 ```
 
@@ -64,7 +64,8 @@ Range prices are commonly used for:
 
 ## Notes
 
-- Both min and max are DefaultPrice models with full pricing information
+- Both min and max are DefaultPrice models created with only the sales price (no list price)
+- Min and max prices are accessed via `.sales` property (e.g., `rangePrice.min.sales.formatted`)
 - Type property helps identify this as a range price in templates
 - Useful for displaying "from X to Y" pricing
 - Maintains currency and formatting consistency through DefaultPrice

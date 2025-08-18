@@ -27,10 +27,10 @@ Object - Decorated product model with tile-specific information
 The product tile model applies the following decorators:
 
 ### base
-Adds fundamental product information including ID, name, type, and basic properties.
+Adds fundamental product information including uuid, id, productName, productType, and brand.
 
 ### searchPrice
-Adds pricing information optimized for search results and product tiles, including promotional pricing.
+Adds pricing information optimized for search results and product tiles: `price` property with promotional pricing.
 
 ### images
 Adds product images with the following configuration:
@@ -38,13 +38,13 @@ Adds product images with the following configuration:
 - **Quantity:** 'single' - Single image per type
 
 ### ratings
-Adds product rating and review information for display in tiles.
+Adds product rating information: `rating` value calculated from product ID.
 
 ### setProductsCollection (conditional)
-Applied only when `productType === 'set'`. Adds information about products included in the product set.
+Applied only when `productType === 'set'`. Adds `numberOfProductsInSet` property with count of products in the set.
 
 ### searchVariationAttributes
-Adds variation attribute information optimized for search results and product listings.
+Adds variation attribute information: `variationAttributes` array optimized for search results and product listings (specifically color swatches).
 
 ## Usage Example
 
@@ -68,15 +68,16 @@ console.log(tileProduct.ratings);
 
 After applying the product tile decorators, the product object typically contains:
 
+- **uuid** - Product UUID
 - **id** - Product ID
-- **name** - Product name
-- **type** - Product type
-- **price** - Pricing information with promotions
+- **productName** - Product name  
+- **productType** - Product type
+- **brand** - Product brand
+- **price** - Pricing information with promotions (DefaultPrice or RangePrice)
 - **images** - Medium-sized product images
-- **ratings** - Rating and review data
-- **url** - Product detail page URL
-- **variationAttributes** - Available variation options (for variable products)
-- **setProducts** - Included products (for product sets only)
+- **rating** - Product rating value
+- **variationAttributes** - Color variation swatches and options
+- **numberOfProductsInSet** - Number of products in set (for product sets only)
 
 ## Notes
 

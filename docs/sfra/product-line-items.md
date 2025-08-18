@@ -7,16 +7,15 @@ The Product Line Items model represents a collection of product line items in a 
 ## Constructor
 
 ```javascript
-function ProductLineItemsModel(productLineItems, view, options)
+function ProductLineItems(productLineItems, view)
 ```
 
 Creates a Product Line Items model with formatted line item information.
 
 ### Parameters
 
-- `productLineItems` (dw.util.Collection<dw.order.ProductLineItem>) - Collection of product line items
+- `productLineItems` (dw.util.Collection<dw.order.ProductLineItem>) - Collection of product line items from basket or order
 - `view` (string) - View context ('basket' or 'order')
-- `options` (Object) - Optional configuration object
 
 ## Properties
 
@@ -46,11 +45,6 @@ Array of formatted product line items. Each item contains:
 **Type:** number
 
 Total quantity of all items in the collection.
-
-### quantityTotal
-**Type:** number
-
-Same as totalQuantity - total count of all items.
 
 ## Helper Functions
 
@@ -85,11 +79,11 @@ Each product line item in the items array contains:
 ## Usage Example
 
 ```javascript
-var ProductLineItemsModel = require('*/cartridge/models/productLineItems');
+var ProductLineItems = require('*/cartridge/models/productLineItems');
 var BasketMgr = require('dw/order/BasketMgr');
 
 var currentBasket = BasketMgr.getCurrentBasket();
-var lineItemsModel = new ProductLineItemsModel(
+var lineItemsModel = new ProductLineItems(
     currentBasket.productLineItems, 
     'basket'
 );

@@ -39,7 +39,7 @@ Array of pricing tier objects, each containing:
 ### startingFromPrice
 **Type:** DefaultPrice
 
-The lowest price available across all tiers, representing the "starting from" price for marketing display.
+The lowest price available across all tiers, representing the "starting from" price for marketing display. Access the formatted price via `.sales.formatted`.
 
 ## Tier Structure
 
@@ -49,7 +49,8 @@ Each tier object in the tiers array contains:
 Minimum quantity required to qualify for this price tier.
 
 ### price
-Complete DefaultPrice object with formatted pricing information for this tier.
+### price
+Complete DefaultPrice object created with only the sales price for this tier (accessed via `.sales` property).
 
 ## Usage Example
 
@@ -63,11 +64,11 @@ var priceTable = product.getPriceModel().getPriceTable();
 var tieredPrice = new TieredPrice(priceTable, false);
 
 console.log(tieredPrice.type);                    // "tiered"
-console.log('Starting from: ' + tieredPrice.startingFromPrice.formatted);
+console.log('Starting from: ' + tieredPrice.startingFromPrice.sales.formatted);
 
 // Display all price tiers
 tieredPrice.tiers.forEach(function(tier) {
-    console.log('Buy ' + tier.quantity + '+ for ' + tier.price.formatted + ' each');
+    console.log('Buy ' + tier.quantity + '+ for ' + tier.price.sales.formatted + ' each');
 });
 
 // Example output:
@@ -79,10 +80,12 @@ tieredPrice.tiers.forEach(function(tier) {
 ## Price Calculation Logic
 
 The model automatically:
-1. **Processes all quantity breaks** from the price table
-2. **Identifies the lowest price** across all tiers
-3. **Sets startingFromPrice** to the best available price
-4. **Maintains tier order** based on quantity requirements
+1. **Processes all quantity breaks** from the price table using `collections.map`
+2. **Creates DefaultPrice instances** with only sales price for each tier
+3. **Identifies the lowest price** by comparing `price.sales.value` across all tiers
+4. **Sets startingFromPrice** to the best available price
+5. **Maintains tier order** based on quantity requirements
+6. **Converts quantities** to numeric values using `quantity.getValue()`
 
 ## Display Modes
 
@@ -98,11 +101,14 @@ The model automatically:
 
 ## Notes
 
-- Automatically calculates the best "starting from" price
+- Automatically calculates the best "starting from" price by comparing sales values
+- Each tier DefaultPrice is created with only sales price (access via `.sales` property)
+- Uses `collections.map` utility to process price table quantities
 - Supports unlimited number of quantity tiers
 - Each tier uses DefaultPrice for consistent formatting
 - Useful for B2B and bulk purchasing scenarios
 - Type property enables template conditional logic
+- `useSimplePrice` defaults to `false` if not provided
 
 ## Related Models
 

@@ -7,7 +7,7 @@ The Product Search model represents search functionality in SFRA applications, p
 ## Constructor
 
 ```javascript
-function ProductSearch(productSearch, httpParams, sortingRule, categoryTemplate, maxSlots)
+function ProductSearch(productSearch, httpParams, sortingRule, sortingOptions, rootCategory)
 ```
 
 Creates a Product Search model instance with search results and related functionality.
@@ -17,8 +17,8 @@ Creates a Product Search model instance with search results and related function
 - `productSearch` (dw.catalog.ProductSearchModel) - Product search object from the API
 - `httpParams` (Object) - HTTP query parameters including search terms and refinements
 - `sortingRule` (string) - Current sorting rule being applied
-- `categoryTemplate` (string) - Template to use for category-based searches
-- `maxSlots` (number) - Maximum number of promotional slots to include
+- `sortingOptions` (dw.util.ArrayList<dw.catalog.SortingOption>) - Options to sort search results
+- `rootCategory` (dw.catalog.Category) - Search result's root category if applicable
 
 ## Properties
 
@@ -33,37 +33,52 @@ The search keywords entered by the user.
 Current category information if this is a category-based search.
 
 ### productIds
-**Type:** Array<string>
+**Type:** Array<Object>
 
-Array of product IDs returned in the search results.
+Array of product information objects with `productID` and `productSearchHit` properties for search results.
 
 ### products
 **Type:** Array<Object>
 
-Array of product tile models for the search results.
+Array of product tile models for the search results. **Note:** This property is not directly set by the constructor but would be populated by calling code using the `productIds` array.
+
+### pageNumber
+**Type:** number
+
+Current page number for pagination (1-based).
+
+### pageSize
+**Type:** number
+
+Number of products displayed per page (from httpParams.sz or default).
 
 ### count
 **Type:** number
 
 Total number of products found matching the search criteria.
 
-### start
-**Type:** number
+### isCategorySearch
+**Type:** boolean
 
-Starting index for pagination (zero-based).
+Indicates whether this is a category-based search.
 
-### pageSize
-**Type:** number
+### isRefinedCategorySearch
+**Type:** boolean
 
-Number of products displayed per page.
+Indicates whether this is a refined category search.
 
 ### resetLink
 **Type:** string
 
-URL to reset all search refinements and return to base search.
+URL to reset all search refinements (AJAX endpoint).
+
+### resetLinkSeo
+**Type:** string
+
+SEO-friendly URL to reset all search refinements.
 
 ### refinements
-**Type:** Array<Object>
+**Type:** Array<Object> (computed property)
 
 Array of available search refinements including:
 - `displayName` - Human-readable refinement name
@@ -73,35 +88,55 @@ Array of available search refinements including:
 - `isPromotionRefinement` - Boolean flag for promotion refinements
 - `values` - Array of refinement value objects
 
-### selectedRefinements
-**Type:** Array<Object>
+### selectedFilters
+**Type:** Array<Object> (computed property)
 
-Array of currently applied refinements with removal URLs.
+Array of currently applied refinements extracted from the refinements.
 
-### sortingOptions
+### productSort
 **Type:** ProductSortOptions
 
-Available sorting options for the search results.
+Available sorting options for the search results (ProductSortOptions model instance).
 
-### isCategorySearch
-**Type:** boolean
+### bannerImageUrl
+**Type:** string | null
 
-Indicates whether this is a category-based search.
-
-### isRefinedSearch
-**Type:** boolean
-
-Indicates whether any refinements are currently applied.
+URL for category banner image (null if not available).
 
 ### showMoreUrl
 **Type:** string
 
-URL to load more search results (for infinite scroll).
+URL to load more search results (for infinite scroll or "show more" functionality).
 
-### bannerImageUrl
+### permalink
 **Type:** string
 
-URL for category or search result banner image.
+Permalink URL for the current search with filters and pagination preserved.
+
+### isSearchSuggestionsAvailable
+**Type:** boolean
+
+Indicates whether search suggestions are available for the current search.
+
+### suggestionPhrases
+**Type:** Array<Object>
+
+Array of suggested search phrases with `value` and `url` properties (only available when `isSearchSuggestionsAvailable` is true).
+
+### category
+**Type:** Object | null
+
+Current category information if this is a category-based search, including:
+- `name` - Category display name
+- `id` - Category ID
+- `pageTitle` - Category page title
+- `pageDescription` - Category page description  
+- `pageKeywords` - Category page keywords
+
+### pageMetaTags
+**Type:** Object
+
+Page meta tags for SEO purposes.
 
 ## Helper Functions
 
@@ -128,24 +163,24 @@ Retrieves and formats search refinements for display.
 ## Usage Example
 
 ```javascript
-var ProductSearchModel = require('*/cartridge/models/search/productSearch');
+var ProductSearch = require('*/cartridge/models/search/productSearch');
 
 // From search controller
-var productSearch = new ProductSearchModel(
+var productSearch = new ProductSearch(
     apiProductSearch,
     req.querystring,
     sortingRule,
-    'search/searchResults',
-    4
+    sortingOptions,
+    rootCategory
 );
 
 // Access search results
 console.log('Found ' + productSearch.count + ' products');
 console.log('Search term: ' + productSearch.searchKeywords);
 
-// Display products
-productSearch.products.forEach(function(product) {
-    console.log(product.productName + ' - ' + product.price.sales.formatted);
+// Display product IDs (products would be populated separately)
+productSearch.productIds.forEach(function(item) {
+    console.log('Product ID: ' + item.productID);
 });
 
 // Handle refinements
@@ -157,10 +192,13 @@ productSearch.refinements.forEach(function(refinement) {
 });
 
 // Pagination
-if (productSearch.count > productSearch.pageSize) {
-    console.log('Showing ' + productSearch.start + '-' + 
-                (productSearch.start + productSearch.pageSize) + 
-                ' of ' + productSearch.count);
+console.log('Page ' + productSearch.pageNumber + ', showing ' + productSearch.pageSize + ' items');
+
+// Check for search suggestions
+if (productSearch.isSearchSuggestionsAvailable) {
+    productSearch.suggestionPhrases.forEach(function(phrase) {
+        console.log('Suggested: ' + phrase.value);
+    });
 }
 ```
 

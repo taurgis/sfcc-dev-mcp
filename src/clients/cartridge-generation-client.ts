@@ -38,6 +38,23 @@ export class CartridgeGenerationClient {
   }
 
   /**
+   * Normalize the target path by removing /cartridges or /cartridges/ from the end
+   * The cartridge creation always happens from the root folder
+   */
+  private normalizeTargetPath(targetPath: string): string {
+    // Remove trailing slashes first
+    let normalized = targetPath.replace(/\/+$/, '');
+
+    // Remove /cartridges from the end if present
+    if (normalized.endsWith('/cartridges')) {
+      normalized = normalized.slice(0, -11); // Remove '/cartridges' (11 characters)
+    }
+
+    this.logger.debug(`Normalized target path from '${targetPath}' to '${normalized}'`);
+    return normalized;
+  }
+
+  /**
    * Generate a complete cartridge structure
    */
   async generateCartridgeStructure(options: CartridgeGenerationOptions): Promise<{
@@ -53,8 +70,9 @@ export class CartridgeGenerationClient {
     try {
       this.logger.info(`Starting cartridge generation for: ${cartridgeName}`);
 
-      // Determine the working directory
-      const workingDir = targetPath ?? process.cwd();
+      // Determine the working directory and normalize path
+      let workingDir = targetPath ?? process.cwd();
+      workingDir = this.normalizeTargetPath(workingDir);
 
       if (fullProjectSetup) {
         // Full project setup - create everything directly in the working directory
