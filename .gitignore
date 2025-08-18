@@ -1,3 +1,6 @@
 /node_modules/
 /dist/
 /.idea/
+/docs-site/.bundle
+/docs-site/_site
+/docs-site/vendor

@@ -1,6 +1,6 @@
 ---
 title: Examples & Use Cases
-layout: page
+layout: default
 nav_order: 6
 ---
 

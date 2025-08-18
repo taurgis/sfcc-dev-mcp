@@ -1,7 +1,10 @@
 ---
 ---
 
+@import "{{ site.theme }}";
+
 /* Custom styles for SFCC Dev MCP Server documentation */
+/* Note: Sass deprecation warnings come from the jekyll-theme-dinky theme itself */
 
 /* Grid layout for cards */
 .grid {

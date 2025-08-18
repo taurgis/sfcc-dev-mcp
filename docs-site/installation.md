@@ -1,6 +1,6 @@
 ---
 title: Installation & Setup
-layout: page
+layout: default
 nav_order: 2
 ---
 

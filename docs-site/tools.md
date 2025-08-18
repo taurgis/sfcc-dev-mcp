@@ -1,6 +1,6 @@
 ---
 title: Available Tools
-layout: page
+layout: default
 nav_order: 5
 ---
 

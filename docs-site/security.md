@@ -1,6 +1,6 @@
 ---
 title: Security Guidelines
-layout: page
+layout: default
 nav_order: 8
 ---
 

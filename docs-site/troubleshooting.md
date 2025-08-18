@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-layout: page
+layout: default
 nav_order: 7
 ---
 

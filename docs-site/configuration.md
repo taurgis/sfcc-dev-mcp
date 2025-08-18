@@ -1,6 +1,6 @@
 ---
 title: Configuration Guide
-layout: page
+layout: default
 nav_order: 4
 ---
 

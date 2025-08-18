@@ -1,9 +1,7 @@
 ---
-layout: home
+layout: default
 title: SFCC Development MCP Server
 ---
-
-# SFCC Development MCP Server
 
 An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
 
@@ -20,7 +18,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 
 Choose your preferred AI interface:
 
-- **[Claude Desktop Setup](ai-interfaces#claude-desktop)** - Most popular choice
+- **[Claude Desktop Setup](ai-interfaces#claude-desktop)** - Native desktop app for AI assistance
 - **[GitHub Copilot Setup](ai-interfaces#github-copilot)** - VS Code integration
 - **[Cursor Setup](ai-interfaces#cursor)** - Modern AI-powered editor
 
