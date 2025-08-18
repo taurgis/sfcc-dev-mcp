@@ -885,7 +885,7 @@ export const CARTRIDGE_GENERATION_TOOLS = [
         },
         fullProjectSetup: {
           type: 'boolean',
-          description: 'Whether to create a complete project setup (package.json, webpack, etc.) or just add a cartridge to existing project structure. Use true for new projects, false to add cartridge to existing projects.',
+          description: 'Whether to create a complete project setup (package.json, webpack, etc.) or just add a cartridge to existing project structure. Use true for new projects, false to add cartridge to existing projects. Always send the root of the project directory as the targetPath.',
           default: true,
         },
       },
