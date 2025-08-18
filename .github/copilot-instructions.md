@@ -102,6 +102,29 @@ sfcc-dev-mcp/
 │   ├── dw_order/                # SFCC Order API documentation
 │   ├── dw_system/               # SFCC System API documentation
 │   └── [other dw_* namespaces]  # Complete SFCC API documentation
+├── docs-site/                   # Jekyll documentation website
+│   ├── _config.yml              # Jekyll configuration
+│   ├── index.md                 # Homepage with quick start guide
+│   ├── ai-interfaces.md         # AI interface setup guides
+│   ├── configuration.md         # Configuration documentation
+│   ├── development.md           # Development guidelines
+│   ├── examples.md              # Usage examples
+│   ├── features.md              # Feature documentation
+│   ├── installation.md          # Installation instructions
+│   ├── security.md              # Security considerations
+│   ├── tools.md                 # Available tools documentation
+│   ├── troubleshooting.md       # Troubleshooting guide
+│   ├── Gemfile                  # Ruby gem dependencies
+│   ├── Gemfile.lock             # Locked gem versions
+│   ├── _site/                   # Generated Jekyll site (build output)
+│   ├── assets/                  # CSS, JS, and image assets
+│   └── vendor/                  # Bundler vendor directory
+├── ai-instructions/             # AI instruction files for different platforms
+│   ├── claude-desktop/          # Claude Desktop specific instructions
+│   │   └── claude_custom_instructions.md
+│   ├── cursor/                  # Cursor editor specific instructions
+│   └── github-copilot/          # GitHub Copilot specific instructions
+│       └── copilot-instructions.md
 ├── tests/                       # Comprehensive test suite
 ├── scripts/                     # Build and documentation scripts
 └── package.json                 # Node.js package configuration
