@@ -13,6 +13,24 @@ This class represents a site in Commerce Cloud Digital and provides access to se
 
 ## Constants
 
+### SITE_STATUS_MAINTENANCE
+
+**Type:** Number = 3
+
+Constant that represents the Site under maintenance/offline
+
+### SITE_STATUS_ONLINE
+
+**Type:** Number = 1
+
+Constant that represents the Site is Online
+
+### SITE_STATUS_PROTECTED
+
+**Type:** Number = 5
+
+Constant that represents the Site is in preview mode or online/password (protected)
+
 ## Properties
 
 ### allowedCurrencies

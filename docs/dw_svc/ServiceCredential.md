@@ -16,6 +16,12 @@ Configuration object for Service Credentials.
 
 ## Constants
 
+### ENCRYPTION_ALGORITHM_RSA
+
+**Type:** String = "RSA"
+
+Constant for specification of the public key encryption algorithm RSA.
+
 ## Properties
 
 ### ID

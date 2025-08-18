@@ -15,6 +15,24 @@ Represents a recommendation in Commerce Cloud Digital.
 
 ## Constants
 
+### RECOMMENDATION_TYPE_CROSS_SELL
+
+**Type:** Number = 1
+
+Represents a cross-sell recommendation.
+
+### RECOMMENDATION_TYPE_OTHER
+
+**Type:** Number = 3
+
+Represents a recommendation that is neither a cross-sell or an up-sell.
+
+### RECOMMENDATION_TYPE_UP_SELL
+
+**Type:** Number = 2
+
+Represents an up-sell recommendation.
+
 ## Properties
 
 ### calloutMsg

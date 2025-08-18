@@ -13,6 +13,72 @@ Superclass of all specific discount classes.
 
 ## Constants
 
+### TYPE_AMOUNT
+
+**Type:** String = "AMOUNT"
+
+Constant representing discounts of type amount.
+
+### TYPE_BONUS
+
+**Type:** String = "BONUS"
+
+Constant representing discounts of type bonus.
+
+### TYPE_BONUS_CHOICE
+
+**Type:** String = "BONUS_CHOICE"
+
+Constant representing discounts of type bonus choice.
+
+### TYPE_FIXED_PRICE
+
+**Type:** String = "FIXED_PRICE"
+
+Constant representing discounts of type fixed-price.
+
+### TYPE_FIXED_PRICE_SHIPPING
+
+**Type:** String = "FIXED_PRICE_SHIPPING"
+
+Constant representing discounts of type fixed price shipping.
+
+### TYPE_FREE
+
+**Type:** String = "FREE"
+
+Constant representing discounts of type free.
+
+### TYPE_FREE_SHIPPING
+
+**Type:** String = "FREE_SHIPPING"
+
+Constant representing discounts of type free shipping.
+
+### TYPE_PERCENTAGE
+
+**Type:** String = "PERCENTAGE"
+
+Constant representing discounts of type percentage.
+
+### TYPE_PERCENTAGE_OFF_OPTIONS
+
+**Type:** String = "PERCENTAGE_OFF_OPTIONS"
+
+Constant representing discounts of type percent off options.
+
+### TYPE_PRICEBOOK_PRICE
+
+**Type:** String = "PRICE_BOOK_PRICE"
+
+Constant representing discounts of type price book price.
+
+### TYPE_TOTAL_FIXED_PRICE
+
+**Type:** String = "TOTAL_FIXED_PRICE"
+
+Constant representing discounts of type total fixed price.
+
 ## Properties
 
 ### itemPromotionTiers

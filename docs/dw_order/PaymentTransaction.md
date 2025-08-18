@@ -15,6 +15,30 @@ The PaymentTransaction class represents a payment transaction.
 
 ## Constants
 
+### TYPE_AUTH
+
+**Type:** String = "AUTH"
+
+Constant representing the authorization type of payment transaction.
+
+### TYPE_AUTH_REVERSAL
+
+**Type:** String = "AUTH_REVERSAL"
+
+Constant representing the authorization reversal type of payment transaction.
+
+### TYPE_CAPTURE
+
+**Type:** String = "CAPTURE"
+
+Constant representing the capture type of payment transaction.
+
+### TYPE_CREDIT
+
+**Type:** String = "CREDIT"
+
+Constant representing the credit type of payment transaction.
+
 ## Properties
 
 ### accountID

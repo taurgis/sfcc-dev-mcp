@@ -16,6 +16,12 @@ Represents a specific line item in a shipment. A ProductShippingLineItem defines
 
 ## Constants
 
+### PRODUCT_SHIPPING_ID
+
+**Type:** String = "PRODUCT_SHIPPING"
+
+Reserved constant.
+
 ## Properties
 
 ### adjustedGrossPrice

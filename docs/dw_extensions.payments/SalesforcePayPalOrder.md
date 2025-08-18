@@ -13,6 +13,18 @@ Salesforce Payments representation of a PayPal order object. See Salesforce Paym
 
 ## Constants
 
+### TYPE_PAYPAL
+
+**Type:** String = "paypal"
+
+Represents the PayPal funding source.
+
+### TYPE_VENMO
+
+**Type:** String = "venmo"
+
+Represents the Venmo funding source.
+
 ## Properties
 
 ### amount

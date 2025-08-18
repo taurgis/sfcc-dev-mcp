@@ -14,6 +14,24 @@ Represents a coupon in Commerce Cloud Digital.
 
 ## Constants
 
+### TYPE_MULTIPLE_CODES
+
+**Type:** String = "MULTIPLE_CODES"
+
+Constant representing coupon type multiple-codes.
+
+### TYPE_SINGLE_CODE
+
+**Type:** String = "SINGLE_CODE"
+
+Constant representing coupon type single-code.
+
+### TYPE_SYSTEM_CODES
+
+**Type:** String = "SYSTEM_CODES"
+
+Constant representing coupon type system-codes.
+
 ## Properties
 
 ### codePrefix

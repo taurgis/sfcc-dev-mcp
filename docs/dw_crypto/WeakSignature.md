@@ -194,7 +194,7 @@ a boolean indicating success (true) or failure (false)
 
 - `signature`: signature to check as bytes
 - `contentToVerify`: as bytes
-- `certificate`: a reference to a trusted certificate entry in the keystore
+- `certificate`: a reference to a trusted certificate
 - `digestAlgorithm`: must be one of the currently supported ones
 
 **Returns:**
@@ -232,7 +232,7 @@ a boolean indicating success (true) or failure (false)
 
 - `signature`: base64 encoded signature
 - `contentToVerify`: base64 encoded content to verify
-- `certificate`: a reference to a trusted certificate entry in the keystore
+- `certificate`: a reference to a trusted certificate
 - `digestAlgorithm`: must be one of the currently supported ones
 
 **Returns:**

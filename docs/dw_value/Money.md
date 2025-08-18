@@ -13,6 +13,12 @@ Represents money in Commerce Cloud Digital.
 
 ## Constants
 
+### NOT_AVAILABLE
+
+**Type:** Money
+
+Represents that there is no money available.
+
 ## Properties
 
 ### available

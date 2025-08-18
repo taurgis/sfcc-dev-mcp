@@ -13,6 +13,138 @@ Utility class for working with SOAP web services. This class provides methods fo
 
 ## Constants
 
+### WS_ACTION
+
+**Type:** String = "action"
+
+WS-Security action property name. Allowed property values are WS_NO_SECURITY, WS_TIMESTAMP, WS_ENCRYPT, WS_SIGNATURE, WS_USERNAME_TOKEN or a space separated String with multiple values.
+
+### WS_ENC_PROP_KEYSTORE_ALIAS
+
+**Type:** String = "__EncryptionPropKeystoreAlias"
+
+WS-Security encryption: the encryption/decryption keystore alias name
+
+### WS_ENC_PROP_KEYSTORE_PW
+
+**Type:** String = "__EncryptionPropKeystorePassword"
+
+WS-Security encryption: the encryption/decryption keystore password
+
+### WS_ENC_PROP_KEYSTORE_TYPE
+
+**Type:** String = "__EncryptionPropKeystoreType"
+
+WS-Security encryption: the encryption/decryption keystore type ( jks or pkcs12 ), default is jks. Note: the keystore file must have the basename of the WSDL file and the file extension based on the keystore type. For example: MyService.jks. The keystore file must be placed in the same cartridge directory as the WSDL file.
+
+### WS_ENCRYPT
+
+**Type:** String = "Encrypt"
+
+WS-Security action: encrypt the message. The encryption-specific parameters define how to encrypt, which keys to use, and other parameters.
+
+### WS_ENCRYPTION_PARTS
+
+**Type:** String = "encryptionParts"
+
+WS-Security encryption: defines which parts of the request are encrypted.
+
+### WS_ENCRYPTION_USER
+
+**Type:** String = "encryptionUser"
+
+WS-Security encryption: the user's name for encryption.
+
+### WS_NO_SECURITY
+
+**Type:** String = "NoSecurity"
+
+WS-Security action: no security
+
+### WS_PASSWORD_TYPE
+
+**Type:** String = "passwordType"
+
+WS-Security password type: parameter for UsernameToken action to define the encoding of the password. Allowed values are PW_DIGEST or PW_TEXT.
+
+### WS_PW_DIGEST
+
+**Type:** String = "PasswordDigest"
+
+WS-Security password of type digest: use a password digest to send the password information.
+
+### WS_PW_TEXT
+
+**Type:** String = "PasswordText"
+
+WS-Security password of type text: send the password information in clear text.
+
+### WS_SECRETS_MAP
+
+**Type:** String = "__SecretsMap"
+
+A secrets map with the username/password entries is needed to create the password callback object.
+
+### WS_SIG_DIGEST_ALGO
+
+**Type:** String = "signatureDigestAlgorithm"
+
+WS-Security signature: sets the signature digest algorithm to use.
+
+### WS_SIG_PROP_KEYSTORE_ALIAS
+
+**Type:** String = "__SignaturePropKeystoreAlias"
+
+WS-Security signature: the signature keystore alias name
+
+### WS_SIG_PROP_KEYSTORE_PW
+
+**Type:** String = "__SignaturePropKeystorePassword"
+
+WS-Security signature: the signature keystore password.
+
+### WS_SIG_PROP_KEYSTORE_TYPE
+
+**Type:** String = "__SignaturePropKeystoreType"
+
+WS-Security: the signature keystore type ( jks or pkcs12 ). The default is jks. Note: The keystore file must have the basename of the WSDL file and the file extension of the keystore type. For example: MyService.jks. The keystore file must be placed in the same cartridge directory as the WSDL file.
+
+### WS_SIGNATURE
+
+**Type:** String = "Signature"
+
+WS-Security action: sign the message. The signature-specific parameters define how to sign, which keys to use, and other parameters.
+
+### WS_SIGNATURE_PARTS
+
+**Type:** String = "signatureParts"
+
+WS-Security signature: defines which parts of the request are signed.
+
+### WS_SIGNATURE_USER
+
+**Type:** String = "signatureUser"
+
+WS-Security signature: the user's name for signature.
+
+### WS_TIMESTAMP
+
+**Type:** String = "Timestamp"
+
+WS-Security action: add a timestamp to the security header.
+
+### WS_USER
+
+**Type:** String = "user"
+
+WS-Security user name.
+
+### WS_USERNAME_TOKEN
+
+**Type:** String = "UsernameToken"
+
+WS-Security action: add a UsernameToken identification.
+
 ## Properties
 
 ## Constructor Summary

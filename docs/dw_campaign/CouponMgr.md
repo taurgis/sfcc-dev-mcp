@@ -13,6 +13,12 @@ Manager to access coupons.
 
 ## Constants
 
+### MR_ERROR_INVALID_SITE_ID
+
+**Type:** String = "MASKREDEMPTIONS_SITE_NOT_FOUND"
+
+Indicates that an error occurred because a valid data domain cannot be found for given siteID.
+
 ## Properties
 
 ### coupons

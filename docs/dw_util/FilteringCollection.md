@@ -14,6 +14,12 @@ FilteringCollection is an extension of Collection which provides possibilities t
 
 ## Constants
 
+### ORDERBY_REVERSE
+
+**Type:** Object
+
+Pass this orderBy with the sort(Object) method to obtain a new FilteringCollection with the reversed sort order. Only use on a FilteringCollection which has been previously sorted.
+
 ## Properties
 
 ## Constructor Summary

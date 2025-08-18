@@ -15,6 +15,36 @@ An item of a ReturnCase, created using method ReturnCase.createItem(String). Ini
 
 ## Constants
 
+### STATUS_CANCELLED
+
+**Type:** String = "CANCELLED"
+
+constant for ReturnCase Status CANCELLED
+
+### STATUS_CONFIRMED
+
+**Type:** String = "CONFIRMED"
+
+constant for ReturnCase Status CONFIRMED
+
+### STATUS_NEW
+
+**Type:** String = "NEW"
+
+constant for ReturnCase Status NEW
+
+### STATUS_PARTIAL_RETURNED
+
+**Type:** String = "PARTIAL_RETURNED"
+
+constant for ReturnCase Status PARTIAL RETURNED
+
+### STATUS_RETURNED
+
+**Type:** String = "RETURNED"
+
+constant for ReturnCase Status RETURNED
+
 ## Properties
 
 ### authorizedQuantity

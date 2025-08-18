@@ -13,6 +13,12 @@ This class allows access to encryption services offered through the Java Cryptog
 
 ## Constants
 
+### CHAR_ENCODING
+
+**Type:** String = "UTF8"
+
+Strings containing keys, plain texts, cipher texts etc. are internally converted into byte arrays using this encoding (currently UTF8).
+
 ## Properties
 
 ## Constructor Summary
@@ -360,7 +366,7 @@ From version 15.5. No longer available as of version 16.2. Requires Base64-encry
 **Parameters:**
 
 - `message`: (see encrypt(String, String, String, String, Number))
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: (see encrypt(String, String, String, String, Number))
 - `saltOrIV`: (see encrypt(String, String, String, String, Number))
 - `iterations`: (see encrypt(String, String, String, String, Number))
@@ -408,7 +414,7 @@ From version 16.2. Does not use a default initialization vector.
 **Parameters:**
 
 - `message`: (see encrypt_3(String, String, String, String, Number))
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: (see encrypt_3(String, String, String, String, Number))
 - `saltOrIV`: (see encrypt_3(String, String, String, String, Number))
 - `iterations`: (see encrypt_3(String, String, String, String, Number))
@@ -460,7 +466,7 @@ From version 15.5. No longer available as of version 16.2. Requires Base64-encry
 **Parameters:**
 
 - `messageBytes`: (see encryptBytes(Bytes, String, String, String, Number))
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: (see encryptBytes(Bytes, String, String, String, Number))
 - `saltOrIV`: (see encryptBytes(Bytes, String, String, String, Number))
 - `iterations`: (see encryptBytes(Bytes, String, String, String, Number))
@@ -512,7 +518,7 @@ From version 16.2. Does not use a default initialization vector.
 **Parameters:**
 
 - `messageBytes`: (see encryptBytes_3(Bytes, String, String, String, Number))
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: (see encryptBytes_3(Bytes, String, String, String, Number))
 - `saltOrIV`: (see encryptBytes_3(Bytes, String, String, String, Number))
 - `iterations`: (see encryptBytes_3(Bytes, String, String, String, Number))

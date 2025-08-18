@@ -14,6 +14,126 @@ The class is the central interface to a product search result and a product sear
 
 ## Constants
 
+### CATEGORYID_PARAMETER
+
+**Type:** String = "cgid"
+
+URL Parameter for the category ID
+
+### INVENTORY_LIST_IDS_PARAMETER
+
+**Type:** String = "ilids"
+
+URL Parameter for the inventory list IDs
+
+### MAXIMUM_INVENTORY_LIST_IDS
+
+**Type:** Number = 10
+
+The maximum number of inventory list IDs that can be passed to setInventoryListIDs(List)
+
+### MAXIMUM_PRODUCT_IDS
+
+**Type:** Number = 30
+
+The maximum number of product IDs that can be passed to setProductIDs(List)
+
+### MAXIMUM_STORE_INVENTORY_FILTER_VALUES
+
+**Type:** Number = 10
+
+The maximum number of store inventory values for a store inventory filter that can be passed to setStoreInventoryFilter(StoreInventoryFilter)
+
+### PRICE_MAX_PARAMETER
+
+**Type:** String = "pmax"
+
+URL Parameter for the maximum price
+
+### PRICE_MIN_PARAMETER
+
+**Type:** String = "pmin"
+
+URL Parameter for the minimum price
+
+### PRODUCTID_PARAMETER
+
+**Type:** String = "pid"
+
+URL Parameter for the product ID
+
+### PROMOTION_PRODUCT_TYPE_ALL
+
+**Type:** String = "all"
+
+constant indicating that all related products should be returned for the next product search by promotion ID
+
+### PROMOTION_PRODUCT_TYPE_BONUS
+
+**Type:** String = "bonus"
+
+constant indicating that only bonus products should be returned for the next product search by promotion ID. This constant should be set using setPromotionProductType(String) when using the search model to find the available list of bonus products for a Choice of Bonus Product (Rule) promotion, along with setPromotionID(String).
+
+### PROMOTION_PRODUCT_TYPE_DISCOUNTED
+
+**Type:** String = "discounted"
+
+constant indicating that only discounted products should be returned for the next product search by promotion ID
+
+### PROMOTION_PRODUCT_TYPE_PARAMETER
+
+**Type:** String = "pmpt"
+
+URL Parameter for the promotion product type
+
+### PROMOTION_PRODUCT_TYPE_QUALIFYING
+
+**Type:** String = "qualifying"
+
+constant indicating that only qualifying products should be returned for the next product search by promotion ID
+
+### PROMOTIONID_PARAMETER
+
+**Type:** String = "pmid"
+
+URL Parameter for the promotion ID
+
+### REFINE_NAME_PARAMETER_PREFIX
+
+**Type:** String = "prefn"
+
+URL Parameter prefix for a refinement name
+
+### REFINE_VALUE_PARAMETER_PREFIX
+
+**Type:** String = "prefv"
+
+URL Parameter prefix for a refinement value
+
+### SORT_BY_PARAMETER_PREFIX
+
+**Type:** String = "psortb"
+
+URL Parameter prefix for a refinement value
+
+### SORT_DIRECTION_PARAMETER_PREFIX
+
+**Type:** String = "psortd"
+
+URL Parameter prefix for a refinement value
+
+### SORTING_OPTION_PARAMETER
+
+**Type:** String = "sopt"
+
+URL Parameter prefix for a sorting option
+
+### SORTING_RULE_PARAMETER
+
+**Type:** String = "srule"
+
+URL Parameter prefix for a sorting rule
+
 ## Properties
 
 ### category

@@ -13,6 +13,12 @@ An optimized array to store 64-bit floating point numbers. Elements of this arra
 
 ## Constants
 
+### BYTES_PER_ELEMENT
+
+**Type:** Number = 8
+
+Number value of the element size.
+
 ## Properties
 
 ### buffer

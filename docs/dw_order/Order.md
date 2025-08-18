@@ -16,6 +16,132 @@ The Order class represents an order. The correct way to retrieve an order is des
 
 ## Constants
 
+### CONFIRMATION_STATUS_CONFIRMED
+
+**Type:** Number = 2
+
+constant for when Confirmation Status is Confirmed
+
+### CONFIRMATION_STATUS_NOTCONFIRMED
+
+**Type:** Number = 0
+
+constant for when Confirmation Status is Not Confirmed
+
+### ENCRYPTION_ALGORITHM_RSA_ECB_OAEPWITHSHA_256ANDMGF1PADDING
+
+**Type:** String = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+
+The encryption algorithm "RSA/ECB/OAEPWithSHA-256AndMGF1Padding".
+
+### ENCRYPTION_ALGORITHM_RSA_ECB_PKCS1PADDING
+
+**Type:** String = "RSA/ECB/PKCS1Padding"
+
+The outdated encryption algorithm "RSA/ECB/PKCS1Padding". Please do not use anymore!
+
+### EXPORT_STATUS_EXPORTED
+
+**Type:** Number = 1
+
+constant for when Export Status is Exported
+
+### EXPORT_STATUS_FAILED
+
+**Type:** Number = 3
+
+constant for when Export Status is Failed
+
+### EXPORT_STATUS_NOTEXPORTED
+
+**Type:** Number = 0
+
+constant for when Export Status is Not Exported
+
+### EXPORT_STATUS_READY
+
+**Type:** Number = 2
+
+constant for when Export Status is ready to be exported.
+
+### ORDER_STATUS_CANCELLED
+
+**Type:** Number = 6
+
+constant for when Order Status is Cancelled
+
+### ORDER_STATUS_COMPLETED
+
+**Type:** Number = 5
+
+constant for when Order Status is Completed
+
+### ORDER_STATUS_CREATED
+
+**Type:** Number = 0
+
+constant for when Order Status is Created
+
+### ORDER_STATUS_FAILED
+
+**Type:** Number = 8
+
+constant for when Order Status is Failed
+
+### ORDER_STATUS_NEW
+
+**Type:** Number = 3
+
+constant for when Order Status is New
+
+### ORDER_STATUS_OPEN
+
+**Type:** Number = 4
+
+constant for when Order Status is Open
+
+### ORDER_STATUS_REPLACED
+
+**Type:** Number = 7
+
+constant for when Order Status is Replaced
+
+### PAYMENT_STATUS_NOTPAID
+
+**Type:** Number = 0
+
+constant for when Payment Status is Not Paid
+
+### PAYMENT_STATUS_PAID
+
+**Type:** Number = 2
+
+constant for when Payment Status is Paid
+
+### PAYMENT_STATUS_PARTPAID
+
+**Type:** Number = 1
+
+constant for when Payment Status is Part Paid
+
+### SHIPPING_STATUS_NOTSHIPPED
+
+**Type:** Number = 0
+
+constant for when Shipping Status is Not shipped
+
+### SHIPPING_STATUS_PARTSHIPPED
+
+**Type:** Number = 1
+
+constant for when Shipping Status is Part Shipped
+
+### SHIPPING_STATUS_SHIPPED
+
+**Type:** Number = 2
+
+constant for when Shipping Status is Shipped
+
 ## Properties
 
 ### affiliatePartnerID

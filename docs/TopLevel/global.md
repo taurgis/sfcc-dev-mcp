@@ -13,6 +13,18 @@ The global object is a pre-defined object that serves as a placeholder for the g
 
 ## Constants
 
+### PIPELET_ERROR
+
+**Type:** Number
+
+represents an error during pipelet execution
+
+### PIPELET_NEXT
+
+**Type:** Number
+
+represents the next pipelet to fire
+
 ## Properties
 
 ## Constructor Summary

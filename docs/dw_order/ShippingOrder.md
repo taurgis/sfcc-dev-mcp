@@ -15,6 +15,60 @@ A shipping order is used to specify items that should be shipped, and is typical
 
 ## Constants
 
+### ORDERBY_ITEMID
+
+**Type:** Object
+
+Sorting by item id. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_ITEMPOSITION
+
+**Type:** Object
+
+Sorting by the position of the related oder item. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_UNSORTED
+
+**Type:** Object
+
+Unsorted , as it is. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### QUALIFIER_PRODUCTITEMS
+
+**Type:** Object
+
+Selects the product items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_SERVICEITEMS
+
+**Type:** Object
+
+Selects for the service items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### STATUS_CANCELLED
+
+**Type:** String = "CANCELLED"
+
+Constant for Shipping Order Status CANCELLED
+
+### STATUS_CONFIRMED
+
+**Type:** String = "CONFIRMED"
+
+Constant for Shipping Order Status CONFIRMED
+
+### STATUS_SHIPPED
+
+**Type:** String = "SHIPPED"
+
+Constant for Shipping Order Status SHIPPED
+
+### STATUS_WAREHOUSE
+
+**Type:** String = "WAREHOUSE"
+
+Constant for Shipping Order Status WAREHOUSE
+
 ## Properties
 
 ### invoice

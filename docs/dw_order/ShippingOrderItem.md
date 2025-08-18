@@ -15,6 +15,30 @@ One or more ShippingOrderItems are contained in a ShippingOrder, created using S
 
 ## Constants
 
+### STATUS_CANCELLED
+
+**Type:** String = "CANCELLED"
+
+Constant for Order Item Status CANCELLED
+
+### STATUS_CONFIRMED
+
+**Type:** String = "CONFIRMED"
+
+Constant for Order Item Status CONFIRMED
+
+### STATUS_SHIPPED
+
+**Type:** String = "SHIPPED"
+
+Constant for Order Item Status SHIPPED
+
+### STATUS_WAREHOUSE
+
+**Type:** String = "WAREHOUSE"
+
+Constant for Order Item Status WAREHOUSE
+
 ## Properties
 
 ### basePrice

@@ -13,6 +13,54 @@ Represents the result of a service call.
 
 ## Constants
 
+### ERROR
+
+**Type:** String = "ERROR"
+
+Status indicating a general service error.
+
+### OK
+
+**Type:** String = "OK"
+
+Status indicating a successful service call.
+
+### SERVICE_UNAVAILABLE
+
+**Type:** String = "SERVICE_UNAVAILABLE"
+
+Status indicating the service is unavailable. This includes timeouts, rate limits, and remote server issues.
+
+### UNAVAILABLE_CIRCUIT_BROKEN
+
+**Type:** String = "CIRCUIT_BROKEN"
+
+Unavailable reason: No call was made because the circuit breaker prevented it.
+
+### UNAVAILABLE_CONFIG_PROBLEM
+
+**Type:** String = "CONFIG_PROBLEM"
+
+Unavailable reason: No call was made because the service was not configured correctly.
+
+### UNAVAILABLE_DISABLED
+
+**Type:** String = "DISABLED"
+
+Unavailable reason: No call was made because the service is disabled.
+
+### UNAVAILABLE_RATE_LIMITED
+
+**Type:** String = "RATE_LIMITED"
+
+Unavailable reason: No call was made because the rate limit was hit.
+
+### UNAVAILABLE_TIMEOUT
+
+**Type:** String = "TIMEOUT"
+
+Unavailable reason: A real call was made but a timeout occurred.
+
 ## Properties
 
 ### error

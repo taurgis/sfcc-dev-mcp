@@ -13,6 +13,12 @@ Instances of this class support reading from a random access file. A random acce
 
 ## Constants
 
+### MAX_READ_BYTES
+
+**Type:** Number = 10240L
+
+The maximum number of bytes that a single call to readBytes(Number) can return == 10KB
+
 ## Properties
 
 ### position

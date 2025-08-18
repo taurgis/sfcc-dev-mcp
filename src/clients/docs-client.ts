@@ -41,10 +41,20 @@ export interface SFCCProperty {
   deprecationMessage?: string;
 }
 
+export interface SFCCConstant {
+  name: string;
+  type: string;
+  value?: string;
+  description: string;
+  deprecated?: boolean;
+  deprecationMessage?: string;
+}
+
 export interface SFCCClassDetails {
   className: string;
   packageName: string;
   description: string;
+  constants: SFCCConstant[];
   properties: SFCCProperty[];
   methods: SFCCMethod[];
   inheritance?: string[];
@@ -316,6 +326,7 @@ export class SFCCDocumentationClient {
     let className = '';
     let packageName = '';
     let description = '';
+    const constants: SFCCConstant[] = [];
     const properties: SFCCProperty[] = [];
     const methods: SFCCMethod[] = [];
     const inheritance: string[] = [];
@@ -350,6 +361,66 @@ export class SFCCDocumentationClient {
         if (hierarchyItem) {
           inheritance.push(hierarchyItem);
         }
+      }
+
+      // Extract constants
+      if (currentSection === 'Constants' && line.startsWith('### ')) {
+        const constName = line.replace('### ', '').trim();
+        let constType = '';
+        let constValue = '';
+        let constDesc = '';
+        let deprecated = false;
+        let deprecationMessage = '';
+
+        // Look for type, value and description in following lines
+        for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
+          const nextLine = lines[j].trim();
+          if (nextLine.startsWith('**Type:**')) {
+            const typeMatch = nextLine.match(/\*\*Type:\*\*\s*(.+)/);
+            if (typeMatch) {
+              const typeInfo = typeMatch[1];
+              // Extract type and value if present (e.g., "String = 'COMPLETED'" or "Number = 8")
+              const valueMatch = typeInfo.match(/^(\w+)\s*=\s*(.+)$/);
+              if (valueMatch) {
+                constType = valueMatch[1];
+                constValue = valueMatch[2];
+              } else {
+                constType = typeInfo.trim();
+              }
+            }
+          } else if (nextLine.startsWith('**Deprecated:**')) {
+            deprecated = true;
+            // Check if there's a message on the same line
+            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
+            if (sameLineMessage) {
+              deprecationMessage = sameLineMessage;
+            } else {
+              // Look for the deprecation message on subsequent lines until next ** marker
+              const depLines: string[] = [];
+              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
+                const depLine = lines[k].trim();
+                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
+                  break; // Stop at next ** marker
+                }
+                if (depLine && !depLine.startsWith('---')) {
+                  depLines.push(depLine);
+                }
+              }
+              deprecationMessage = depLines.join(' ').trim();
+            }
+          } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#')) {
+            constDesc += `${nextLine  } `;
+          }
+        }
+
+        constants.push({
+          name: constName,
+          type: constType,
+          value: constValue || undefined,
+          description: constDesc.trim(),
+          deprecated: deprecated || undefined,
+          deprecationMessage: deprecationMessage || undefined,
+        });
       }
 
       // Extract properties
@@ -471,6 +542,7 @@ export class SFCCDocumentationClient {
       className: className.trim(),
       packageName: packageName.trim(),
       description: description.trim(),
+      constants,
       properties,
       methods,
       inheritance: inheritance.length > 0 ? inheritance : undefined,

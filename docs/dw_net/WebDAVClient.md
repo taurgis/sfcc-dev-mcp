@@ -13,6 +13,54 @@ The WebDAVClient class supports the WebDAV methods GET, PUT, MKCOL, MOVE, COPY, 
 
 ## Constants
 
+### DEFAULT_ENCODING
+
+**Type:** String = "UTF-8"
+
+The default encoding character set.
+
+### DEFAULT_GET_FILE_SIZE
+
+**Type:** Number = 5242880
+
+The default size for get() returning a File is 5MB.
+
+### DEFAULT_GET_STRING_SIZE
+
+**Type:** Number = 2097152
+
+The default size for get() returning a String is 2MB.
+
+### DEPTH_0
+
+**Type:** Number = 0
+
+The depth of searching a WebDAV destination using the PROPFIND method - if that depth is given to the PROPFIND method as an input parameter the destination will be searched only on the level of the given path and a list of all containing files on that level will be returned [is not supported by every server].
+
+### DEPTH_1
+
+**Type:** Number = 1
+
+The depth of searching a WebDAV destination using the PROPFIND method - if that depth is given to the PROPFIND method as an input parameter the destination will be searched until one level under the given path and a list of all containing files in that two levels [/path and one level underneath] will be returned [is not supported by every server].
+
+### DEPTH_INIFINITY
+
+**Type:** Number = 2147483647
+
+The depth of searching a WebDAV destination using the PROPFIND method - if that depth is given to the PROPFIND method as an input parameter the destination will be fully searched and a list of all containing files will be returned [is not supported by every server].
+
+### MAX_GET_FILE_SIZE
+
+**Type:** Number = 209715200
+
+The maximum size for get() returning a File is forty times the default size for getting a file. The largest file allowed is 200MB.
+
+### MAX_GET_STRING_SIZE
+
+**Type:** Number = 10485760
+
+The maximum size for get() returning a String is five times the default size for getting a String. The largest String allowed is 10MB.
+
 ## Properties
 
 ### allResponseHeaders

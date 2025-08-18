@@ -13,6 +13,24 @@ Class representing a code (i.e. a "source code") that has been applied to a cust
 
 ## Constants
 
+### STATUS_ACTIVE
+
+**Type:** Number = 2
+
+The literal source-code is found and currently active.
+
+### STATUS_INACTIVE
+
+**Type:** Number = 1
+
+The literal source-code is found but not active.
+
+### STATUS_INVALID
+
+**Type:** Number = 0
+
+The literal source-code is not found in the system.
+
 ## Properties
 
 ### code

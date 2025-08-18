@@ -13,6 +13,30 @@ The ProductAvailabilityModel provides methods for retrieving all information on 
 
 ## Constants
 
+### AVAILABILITY_STATUS_BACKORDER
+
+**Type:** String = "BACKORDER"
+
+Indicates that the product stock has run out, but will be replenished, and is therefore available for ordering.
+
+### AVAILABILITY_STATUS_IN_STOCK
+
+**Type:** String = "IN_STOCK"
+
+Indicates that the product is in stock and available for ordering.
+
+### AVAILABILITY_STATUS_NOT_AVAILABLE
+
+**Type:** String = "NOT_AVAILABLE"
+
+Indicates that the product is not currently available for ordering.
+
+### AVAILABILITY_STATUS_PREORDER
+
+**Type:** String = "PREORDER"
+
+Indicates that the product is not yet in stock but is available for ordering.
+
 ## Properties
 
 ### availability

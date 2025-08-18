@@ -13,6 +13,30 @@ Common search refinements base class.
 
 ## Constants
 
+### ASCENDING
+
+**Type:** Number = 0
+
+Flag for an ascending sort.
+
+### DESCENDING
+
+**Type:** Number = 1
+
+Flag for a descending sort.
+
+### SORT_VALUE_COUNT
+
+**Type:** Number = 1
+
+Flag for sorting on value count.
+
+### SORT_VALUE_NAME
+
+**Type:** Number = 0
+
+Flag for sorting on value name.
+
 ## Properties
 
 ### allRefinementDefinitions

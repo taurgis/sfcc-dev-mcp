@@ -15,6 +15,54 @@ This class represents a promotion in Commerce Cloud Digital. Examples of promoti
 
 ## Constants
 
+### EXCLUSIVITY_CLASS
+
+**Type:** String = "CLASS"
+
+Constant representing promotion exclusivity of type class.
+
+### EXCLUSIVITY_GLOBAL
+
+**Type:** String = "GLOBAL"
+
+Constant representing promotion exclusivity of type global.
+
+### EXCLUSIVITY_NO
+
+**Type:** String = "NO"
+
+Constant representing promotion exclusivity of type no.
+
+### PROMOTION_CLASS_ORDER
+
+**Type:** String = "ORDER"
+
+Constant representing promotion class of type order.
+
+### PROMOTION_CLASS_PRODUCT
+
+**Type:** String = "PRODUCT"
+
+Constant representing promotion class of type product.
+
+### PROMOTION_CLASS_SHIPPING
+
+**Type:** String = "SHIPPING"
+
+Constant representing promotion class of type shipping.
+
+### QUALIFIER_MATCH_MODE_ALL
+
+**Type:** String = "all"
+
+Constant indicating that that all qualifier conditions must be met in order for this promotion to apply for a given customer.
+
+### QUALIFIER_MATCH_MODE_ANY
+
+**Type:** String = "any"
+
+Constant indicating that that at least one qualifier condition must be met in order for this promotion to apply for a given customer.
+
 ## Properties
 
 ### active

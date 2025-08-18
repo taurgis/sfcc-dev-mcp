@@ -13,6 +13,66 @@ Defines extensions to ProductLineItems and ShippingLineItems belonging to an ord
 
 ## Constants
 
+### STATUS_BACKORDER
+
+**Type:** String = "BACKORDER"
+
+Constant for Order Item Status BACKORDER
+
+### STATUS_CANCELLED
+
+**Type:** String = "CANCELLED"
+
+Constant for Order Item Status CANCELLED
+
+### STATUS_CONFIRMED
+
+**Type:** String = "CONFIRMED"
+
+Constant for Order Item Status CONFIRMED
+
+### STATUS_CREATED
+
+**Type:** String = "CREATED"
+
+Constant for Order Item Status CREATED
+
+### STATUS_NEW
+
+**Type:** String = "NEW"
+
+Constant for Order Item Status NEW
+
+### STATUS_OPEN
+
+**Type:** String = "OPEN"
+
+Constant for Order Item Status OPEN
+
+### STATUS_SHIPPED
+
+**Type:** String = "SHIPPED"
+
+Constant for Order Item Status SHIPPED
+
+### STATUS_WAREHOUSE
+
+**Type:** String = "WAREHOUSE"
+
+Constant for Order Item Status WAREHOUSE
+
+### TYPE_PRODUCT
+
+**Type:** String = "PRODUCT"
+
+Constant for Order Item Type PRODUCT
+
+### TYPE_SERVICE
+
+**Type:** String = "SERVICE"
+
+Constant for Order Item Type SERVICE
+
 ## Properties
 
 ### appeasedAmount

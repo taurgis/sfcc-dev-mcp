@@ -257,20 +257,32 @@ function htmlToMarkdown(html) {
             $section.find('.summaryItem').each((j, item) => {
                 const $item = $(item);
 
-                // Extract constant name from anchor
-                const nameAnchor = $item.find('a[name]').first();
-                const constName = nameAnchor.text().trim();
+                // Extract constant name from the text content before the colon
+                const spanContent = $item.find('span').first();
+                const fullText = spanContent.text();
+                
+                // Parse the constant line: "CONSTANT_NAME : Type = value"
+                const constMatch = fullText.match(/^([A-Z_][A-Z0-9_]*)\s*:/);
+                const constName = constMatch ? constMatch[1].trim() : '';
 
-                // Extract type from the span after the colon
-                const typeSpan = $item.find('span a span').first();
-                const constType = typeSpan.text().trim();
+                // Extract type - look for the type link after the colon
+                const typeLink = spanContent.find('a span').first();
+                const constType = typeLink.text().trim();
+
+                // Extract value if present (after the = sign)
+                const valueMatch = fullText.match(/=\s*([^]+?)(?=\s|$)/);
+                const constValue = valueMatch ? valueMatch[1].trim() : '';
 
                 const desc = cleanText($item.find('.description').text());
 
                 if (constName) {
                     markdown += `### ${constName}\n\n`;
                     if (constType) {
-                        markdown += `**Type:** ${constType}\n\n`;
+                        let typeInfo = `**Type:** ${constType}`;
+                        if (constValue) {
+                            typeInfo += ` = ${constValue}`;
+                        }
+                        markdown += `${typeInfo}\n\n`;
                     }
                     if (desc) {
                         markdown += `${desc}\n\n`;

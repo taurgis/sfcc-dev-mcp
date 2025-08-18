@@ -13,6 +13,30 @@ A page model is a helper class to apply a pages to a collection of elements or a
 
 ## Constants
 
+### DEFAULT_PAGE_SIZE
+
+**Type:** Number = 10
+
+The default page size.
+
+### MAX_PAGE_SIZE
+
+**Type:** Number = 2000
+
+The maximum supported page size.
+
+### PAGING_SIZE_PARAMETER
+
+**Type:** String = "sz"
+
+The URL Parameter used for the page size.
+
+### PAGING_START_PARAMETER
+
+**Type:** String = "start"
+
+The URL parameter used for the start position.
+
 ## Properties
 
 ### count

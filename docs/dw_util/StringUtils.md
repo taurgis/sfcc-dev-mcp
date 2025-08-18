@@ -13,6 +13,42 @@ String utility class.
 
 ## Constants
 
+### ENCODE_TYPE_HTML
+
+**Type:** Number = 0
+
+String encoding type HTML.
+
+### ENCODE_TYPE_WML
+
+**Type:** Number = 2
+
+String encoding type WML.
+
+### ENCODE_TYPE_XML
+
+**Type:** Number = 1
+
+String encoding type XML.
+
+### TRUNCATE_CHAR
+
+**Type:** String = "char"
+
+String truncate mode 'char'. Truncate string to the nearest character. Default mode if no truncate mode is specified.
+
+### TRUNCATE_SENTENCE
+
+**Type:** String = "sentence"
+
+String truncate mode 'sentence'. Truncate string to the nearest sentence.
+
+### TRUNCATE_WORD
+
+**Type:** String = "word"
+
+String truncate mode 'word'. Truncate string to the nearest word.
+
 ## Properties
 
 ## Constructor Summary

@@ -15,6 +15,30 @@ Represents a Gift Certificate that can be used to purchase products.
 
 ## Constants
 
+### STATUS_ISSUED
+
+**Type:** Number = 1
+
+Represents a status of 'issued', which indicates that the Gift Certificate has been created and that it can be used to purchase products.
+
+### STATUS_PARTIALLY_REDEEMED
+
+**Type:** Number = 2
+
+Represents a status of 'partially redeemed', which indicates that the Gift Certificate has been used to purchase products, but that there is still a balance on the gift certificate.
+
+### STATUS_PENDING
+
+**Type:** Number = 0
+
+Represents a status of 'pending', which indicates that the Gift Certificate has been created but that it cannot be used yet.
+
+### STATUS_REDEEMED
+
+**Type:** Number = 3
+
+Represents a status of 'redeemed', which indicates that the Gift Certificate has been used and no longer contains a balance.
+
 ## Properties
 
 ### amount

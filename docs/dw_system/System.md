@@ -13,6 +13,24 @@ Represents the Commerce Cloud Digital server instance. An application server ins
 
 ## Constants
 
+### DEVELOPMENT_SYSTEM
+
+**Type:** Number = 0
+
+Represents the development system.
+
+### PRODUCTION_SYSTEM
+
+**Type:** Number = 2
+
+Represents the production system.
+
+### STAGING_SYSTEM
+
+**Type:** Number = 1
+
+Represents the staging system.
+
 ## Properties
 
 ### calendar

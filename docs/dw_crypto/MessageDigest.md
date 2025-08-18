@@ -13,6 +13,42 @@ This class provides the functionality of a message digest algorithm, such as MD5
 
 ## Constants
 
+### DIGEST_MD2
+
+**Type:** String = "MD2"
+
+Constant representing the MD2 algorithm.
+
+### DIGEST_MD5
+
+**Type:** String = "MD5"
+
+Constant representing the MD5 algorithm.
+
+### DIGEST_SHA
+
+**Type:** String = "SHA"
+
+Constant representing the SHA algorithm.
+
+### DIGEST_SHA_1
+
+**Type:** String = "SHA-1"
+
+Constant representing the SHA 1 algorithm.
+
+### DIGEST_SHA_256
+
+**Type:** String = "SHA-256"
+
+Constant representing the SHA 256 algorithm
+
+### DIGEST_SHA_512
+
+**Type:** String = "SHA-512"
+
+Constant representing the SHA 512 algorithm
+
 ## Properties
 
 ## Constructor Summary

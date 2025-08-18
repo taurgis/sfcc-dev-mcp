@@ -31,9 +31,9 @@ Get the value of the algorithm parameter (alg).
 
 ### parse
 
-**Signature:** `static parse(map : Map) : JWSHeader`
+**Signature:** `static parse(map : Object) : JWSHeader`
 
-Convert the given map into a JWS header.
+Convert the given Map or JavaScript object into a JWS header.
 
 ### parseEncoded
 
@@ -77,13 +77,13 @@ Algorithm parameter from this header.
 
 ### parse
 
-**Signature:** `static parse(map : Map) : JWSHeader`
+**Signature:** `static parse(map : Object) : JWSHeader`
 
-**Description:** Convert the given map into a JWS header. All keys correspond to JWS parameters. The algorithm parameter (alg) is required. See JWS.verify(CertificateRef) for supported values.
+**Description:** Convert the given Map or JavaScript object into a JWS header. All keys correspond to JWS parameters. The algorithm parameter (alg) is required. See JWS.verify(CertificateRef) for supported values.
 
 **Parameters:**
 
-- `map`: Map data to convert.
+- `map`: Map or object data to convert.
 
 **Returns:**
 

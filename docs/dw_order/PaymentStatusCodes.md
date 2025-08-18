@@ -13,6 +13,24 @@ Helper class containing status codes for the various errors that can occur when 
 
 ## Constants
 
+### CREDITCARD_INVALID_CARD_NUMBER
+
+**Type:** String = "CREDITCARD_INVALID_CARD_NUMBER"
+
+The code indicates that the credit card number is incorrect.
+
+### CREDITCARD_INVALID_EXPIRATION_DATE
+
+**Type:** String = "CREDITCARD_INVALID_EXPIRATION_DATE"
+
+The code indicates that the credit card is expired.
+
+### CREDITCARD_INVALID_SECURITY_CODE
+
+**Type:** String = "CREDITCARD_INVALID_SECURITY_CODE"
+
+The code indicates that the credit card security code length is invalid.
+
 ## Properties
 
 ## Constructor Summary

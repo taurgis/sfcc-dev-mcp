@@ -13,6 +13,18 @@ PromotionPlan represents a set of Promotion instances and is used to display act
 
 ## Constants
 
+### SORT_BY_EXCLUSIVITY
+
+**Type:** Number = 1
+
+Constant indicating that a collection of promotions should be sorted first by exclusivity, then rank, promotion class, etc. See class-level javadoc for details. This is the default sort order for methods that return a collection of promotions.
+
+### SORT_BY_START_DATE
+
+**Type:** Number = 2
+
+Constant indicating that a collection of promotions should be sorted by start date ascending. If there is no explicit start date for a promotion the start date of its containing Campaign or AB-test is used instead. Promotions without a start date are sorted before promotions with a start date in the future and after promotions with a start date in the past. In case two promotion assignments have the same start date, they are sorted by their ID.
+
 ## Properties
 
 ### orderPromotions

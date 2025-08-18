@@ -15,6 +15,48 @@ The Appeasement represents a shopper request for an order credit. Example: The b
 
 ## Constants
 
+### ORDERBY_ITEMID
+
+**Type:** Object
+
+Sorting by item id. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_ITEMPOSITION
+
+**Type:** Object
+
+Sorting by the position of the related order item. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_UNSORTED
+
+**Type:** Object
+
+Unsorted, as it is. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### QUALIFIER_PRODUCTITEMS
+
+**Type:** Object
+
+Selects the product items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_SERVICEITEMS
+
+**Type:** Object
+
+Selects the service items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### STATUS_COMPLETED
+
+**Type:** String = "COMPLETED"
+
+Constant for Appeasement Status COMPLETED
+
+### STATUS_OPEN
+
+**Type:** String = "OPEN"
+
+Constant for Appeasement Status OPEN
+
 ## Properties
 
 ### appeasementNumber

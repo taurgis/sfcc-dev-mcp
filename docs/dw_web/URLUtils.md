@@ -13,6 +13,24 @@ URL utility class. Methods in this class generate URLs used in Commerce Cloud Di
 
 ## Constants
 
+### CONTEXT_CATALOG
+
+**Type:** String = "ContextCatalog"
+
+ID for a catalog context. See staticURL() method.
+
+### CONTEXT_LIBRARY
+
+**Type:** String = "ContextLibrary"
+
+ID for a library context. See staticURL() method.
+
+### CONTEXT_SITE
+
+**Type:** String = "ContextSite"
+
+ID for a site context (= assigned cartridges). See staticURL() method.
+
 ## Properties
 
 ## Constructor Summary

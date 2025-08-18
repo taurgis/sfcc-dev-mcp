@@ -45,6 +45,10 @@ Get the decrypted payload.
 
 ## Constructor Summary
 
+JWE(header : JWEHeader, payload : String) Construct a new JWE for encryption.
+
+JWE(header : JWEHeader, payload : Bytes) Construct a new JWE for encryption.
+
 ## Method Summary
 
 ### decrypt
@@ -52,6 +56,12 @@ Get the decrypted payload.
 **Signature:** `decrypt(privateKey : KeyRef) : void`
 
 Decrypt the payload of this JWE object.
+
+### encrypt
+
+**Signature:** `encrypt(publicKey : CertificateRef) : void`
+
+Encrypt the payload of this JWE object.
 
 ### getAlgorithm
 
@@ -89,6 +99,14 @@ Get the decrypted payload.
 
 Parse a JSON Web Encryption (JWE) object from its compact serialization format.
 
+### serialize
+
+**Signature:** `serialize() : String`
+
+Get this JWE in compact serialization form.
+
+## Constructor Detail
+
 ## Method Detail
 
 ## Method Details
@@ -102,6 +120,18 @@ Parse a JSON Web Encryption (JWE) object from its compact serialization format.
 **Parameters:**
 
 - `privateKey`: Reference to private RSA or EC key to use for decryption.
+
+---
+
+### encrypt
+
+**Signature:** `encrypt(publicKey : CertificateRef) : void`
+
+**Description:** Encrypt the payload of this JWE object. Elliptic Curve (EC) and RSA keys are both supported. See decrypt(KeyRef) for the list of supported algorithms and encryption methods.
+
+**Parameters:**
+
+- `publicKey`: Reference to public RSA or EC key to use for decryption.
 
 ---
 
@@ -178,5 +208,17 @@ Payload or null if the payload is encrypted.
 **Returns:**
 
 JWE object.
+
+---
+
+### serialize
+
+**Signature:** `serialize() : String`
+
+**Description:** Get this JWE in compact serialization form.
+
+**Returns:**
+
+Compact serialized object.
 
 ---

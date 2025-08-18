@@ -13,6 +13,12 @@ Represents an HTTP cookie used for storing information on a client browser. Cook
 
 ## Constants
 
+### EMPTYNAME
+
+**Type:** String = "dw_emptyname__"
+
+Default name for cookies with empty strings.
+
 ## Properties
 
 ### comment

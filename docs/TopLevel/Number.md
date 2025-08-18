@@ -13,6 +13,48 @@ A Number object represents any numerical value, whether it is an integer or floa
 
 ## Constants
 
+### EPSILON
+
+**Type:** Number
+
+EPSILON is the Number value for the magnitude of the difference between 1 and the smallest value greater than 1 that is representable as a Number value, which is approximately 2.2204460492503130808472633361816 × 10-16.
+
+### MAX_SAFE_INTEGER
+
+**Type:** Number
+
+The maximum safe integer in JavaScript.
+
+### MAX_VALUE
+
+**Type:** Number
+
+The largest representable Number.
+
+### MIN_SAFE_INTEGER
+
+**Type:** Number
+
+The minimum safe integer in JavaScript.
+
+### MIN_VALUE
+
+**Type:** Number
+
+The smallest representable Number.
+
+### NEGATIVE_INFINITY
+
+**Type:** Number
+
+Negative infinite value; returned on overflow;
+
+### POSITIVE_INFINITY
+
+**Type:** Number
+
+Negative infinite value; returned on overflow;
+
 ## Properties
 
 ## Constructor Summary

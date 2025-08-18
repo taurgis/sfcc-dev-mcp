@@ -13,6 +13,12 @@ This class allows access to signature services offered through the Java Cryptogr
 
 ## Constants
 
+### SUPPORTED_DIGEST_ALGORITHMS_AS_ARRAY
+
+**Type:** String
+
+Supported digest algorithms exposed as a string array
+
 ## Properties
 
 ## Constructor Summary
@@ -198,7 +204,7 @@ a boolean indicating success (true) or failure (false)
 
 - `signature`: signature to check as bytes
 - `contentToVerify`: as bytes
-- `certificate`: a reference to a trusted certificate entry in the keystore
+- `certificate`: a reference to a trusted certificate
 - `digestAlgorithm`: must be one of the currently supported ones
 
 **Returns:**
@@ -236,7 +242,7 @@ a boolean indicating success (true) or failure (false)
 
 - `signature`: base64 encoded signature
 - `contentToVerify`: base64 encoded content to verify
-- `certificate`: a reference to a trusted certificate entry in the keystore
+- `certificate`: a reference to a trusted certificate
 - `digestAlgorithm`: must be one of the currently supported ones
 
 **Returns:**

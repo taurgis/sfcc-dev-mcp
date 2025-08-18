@@ -15,6 +15,30 @@ Represents an order shipment.
 
 ## Constants
 
+### SHIPMENT_NOTSHIPPED
+
+**Type:** Number = 0
+
+Shipment shipping status representing 'Not shipped'.
+
+### SHIPMENT_SHIPPED
+
+**Type:** Number = 2
+
+Shipment shipping status representing 'Shipped'.
+
+### SHIPPING_STATUS_NOTSHIPPED
+
+**Type:** Number = 0
+
+Shipment shipping status representing 'Not shipped'.
+
+### SHIPPING_STATUS_SHIPPED
+
+**Type:** Number = 2
+
+Shipment shipping status representing 'Shipped'.
+
 ## Properties
 
 ### adjustedMerchandizeTotalGrossPrice

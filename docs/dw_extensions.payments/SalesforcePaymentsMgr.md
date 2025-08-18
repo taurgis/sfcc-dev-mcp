@@ -13,6 +13,48 @@ Contains functionality for use with Salesforce Payments. See Salesforce Payments
 
 ## Constants
 
+### CANCELLATION_REASON_ABANDONED
+
+**Type:** String = "abandoned"
+
+Cancellation reason indicating customer abandoned payment.
+
+### CANCELLATION_REASON_DUPLICATE
+
+**Type:** String = "duplicate"
+
+Cancellation reason indicating payment intent was a duplicate.
+
+### CANCELLATION_REASON_FRAUDULENT
+
+**Type:** String = "fraudulent"
+
+Cancellation reason indicating payment was fraudulent.
+
+### CANCELLATION_REASON_REQUESTED_BY_CUSTOMER
+
+**Type:** String = "requested_by_customer"
+
+Cancellation reason indicating customer action or request.
+
+### REFUND_REASON_DUPLICATE
+
+**Type:** String = "duplicate"
+
+Refund reason indicating payment intent was a duplicate.
+
+### REFUND_REASON_FRAUDULENT
+
+**Type:** String = "fraudulent"
+
+Refund reason indicating payment was fraudulent.
+
+### REFUND_REASON_REQUESTED_BY_CUSTOMER
+
+**Type:** String = "requested_by_customer"
+
+Refund reason indicating customer action or request.
+
 ## Properties
 
 ### paymentsSiteConfig

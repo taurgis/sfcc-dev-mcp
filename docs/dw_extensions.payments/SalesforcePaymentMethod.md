@@ -13,6 +13,48 @@ Salesforce Payments representation of a payment method object. See Salesforce Pa
 
 ## Constants
 
+### TYPE_AFTERPAY_CLEARPAY
+
+**Type:** String = "afterpay_clearpay"
+
+Represents the Afterpay Clearpay payment method.
+
+### TYPE_BANCONTACT
+
+**Type:** String = "bancontact"
+
+Represents the Bancontact payment method.
+
+### TYPE_CARD
+
+**Type:** String = "card"
+
+Represents a credit card type of payment method.
+
+### TYPE_EPS
+
+**Type:** String = "eps"
+
+Represents the EPS (Electronic Payment Standard) payment method.
+
+### TYPE_IDEAL
+
+**Type:** String = "ideal"
+
+Represents the iDEAL payment method.
+
+### TYPE_KLARNA
+
+**Type:** String = "klarna"
+
+Represents the Klarna payment method.
+
+### TYPE_SEPA_DEBIT
+
+**Type:** String = "sepa_debit"
+
+Represents the SEPA Debit payment method.
+
 ## Properties
 
 ### bank

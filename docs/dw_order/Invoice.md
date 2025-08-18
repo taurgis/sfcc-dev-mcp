@@ -15,6 +15,108 @@ The Invoice can be a debit or credit invoice, and is created from custom scripts
 
 ## Constants
 
+### ORDERBY_CREATION_DATE
+
+**Type:** Object
+
+Sorting by creation date. Use with method getPaymentTransactions() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_ITEMID
+
+**Type:** Object
+
+Sorting by item id. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_ITEMPOSITION
+
+**Type:** Object
+
+Sorting by the position of the related oder item. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_REVERSE
+
+**Type:** Object
+
+Reverse orders. Use as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_UNSORTED
+
+**Type:** Object
+
+Unsorted , as it is. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### QUALIFIER_CAPTURE
+
+**Type:** Object
+
+Selects the capture transactions. Use with method getPaymentTransactions() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_PRODUCTITEMS
+
+**Type:** Object
+
+Selects the product items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_REFUND
+
+**Type:** Object
+
+Selects the refund transactions. Use with method getPaymentTransactions() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_SERVICEITEMS
+
+**Type:** Object
+
+Selects for the service items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### STATUS_FAILED
+
+**Type:** String = "FAILED"
+
+Constant for Invoice Status Failed. The invoice handling failed.
+
+### STATUS_MANUAL
+
+**Type:** String = "MANUAL"
+
+Constant for Invoice Status Manual. The invoice is not paid but will not be handled automatically. A manual invoice handling (capture or refund) is necessary.
+
+### STATUS_NOT_PAID
+
+**Type:** String = "NOT_PAID"
+
+Constant for Invoice Status Not Paid. The invoice is not paid and will be handled automatically.
+
+### STATUS_PAID
+
+**Type:** String = "PAID"
+
+Constant for Invoice Status Paid. The invoice was successfully paid.
+
+### TYPE_APPEASEMENT
+
+**Type:** String = "APPEASEMENT"
+
+Constant for Invoice Type Appeasement. The invoice was created for an appeasement. The invoice amount needs to be refunded.
+
+### TYPE_RETURN
+
+**Type:** String = "RETURN"
+
+Constant for Invoice Type Return. The invoice was created for a return. The invoice amount needs to be refunded.
+
+### TYPE_RETURN_CASE
+
+**Type:** String = "RETURN_CASE"
+
+Constant for Invoice Type Return Case. The invoice was created for a return case. The invoice amount needs to be refunded.
+
+### TYPE_SHIPPING
+
+**Type:** String = "SHIPPING"
+
+Constant for Invoice Type Shipping. The invoice was created for a shipping order. The invoice amount needs to be captured.
+
 ## Properties
 
 ### capturedAmount

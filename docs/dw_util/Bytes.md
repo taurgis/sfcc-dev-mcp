@@ -13,6 +13,12 @@ A simple immutable class representing an array of bytes, used for working with b
 
 ## Constants
 
+### MAX_BYTES
+
+**Type:** Number = 10240L
+
+The maximum number of bytes that a Bytes object can represent == 10KB
+
 ## Properties
 
 ### length

@@ -15,6 +15,18 @@ An item in a product list. Types of items are: An item that references a product
 
 ## Constants
 
+### TYPE_GIFT_CERTIFICATE
+
+**Type:** Number = 2
+
+Constant representing a gift certificate list item type.
+
+### TYPE_PRODUCT
+
+**Type:** Number = 1
+
+Constant representing a product list item type.
+
 ## Properties
 
 ### ID

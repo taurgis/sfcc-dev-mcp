@@ -13,6 +13,114 @@ Represents the definition of an object's attribute.
 
 ## Constants
 
+### VALUE_TYPE_BOOLEAN
+
+**Type:** Number = 8
+
+Boolean value type.
+
+### VALUE_TYPE_DATE
+
+**Type:** Number = 6
+
+Date value type.
+
+### VALUE_TYPE_DATETIME
+
+**Type:** Number = 11
+
+Date and Time value type.
+
+### VALUE_TYPE_EMAIL
+
+**Type:** Number = 12
+
+Email value type.
+
+### VALUE_TYPE_ENUM_OF_INT
+
+**Type:** Number = 31
+
+Enum of int value type.
+
+### VALUE_TYPE_ENUM_OF_STRING
+
+**Type:** Number = 33
+
+Enum of String value type.
+
+### VALUE_TYPE_HTML
+
+**Type:** Number = 5
+
+HTML value type.
+
+### VALUE_TYPE_IMAGE
+
+**Type:** Number = 7
+
+Image value type.
+
+### VALUE_TYPE_INT
+
+**Type:** Number = 1
+
+int value type.
+
+### VALUE_TYPE_MONEY
+
+**Type:** Number = 9
+
+Money value type.
+
+### VALUE_TYPE_NUMBER
+
+**Type:** Number = 2
+
+Number value type.
+
+### VALUE_TYPE_PASSWORD
+
+**Type:** Number = 13
+
+Password value type.
+
+### VALUE_TYPE_QUANTITY
+
+**Type:** Number = 10
+
+Quantity value type.
+
+### VALUE_TYPE_SET_OF_INT
+
+**Type:** Number = 21
+
+Set of int value type.
+
+### VALUE_TYPE_SET_OF_NUMBER
+
+**Type:** Number = 22
+
+Set of Number value type.
+
+### VALUE_TYPE_SET_OF_STRING
+
+**Type:** Number = 23
+
+Set of String value type.
+
+### VALUE_TYPE_STRING
+
+**Type:** Number = 3
+
+String value type.
+
+### VALUE_TYPE_TEXT
+
+**Type:** Number = 4
+
+Text value type.
+
 ## Properties
 
 ### attributeGroups

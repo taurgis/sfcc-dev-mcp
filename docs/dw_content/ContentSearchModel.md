@@ -14,6 +14,18 @@ The class is the central interface to a content search result and a content sear
 
 ## Constants
 
+### CONTENTID_PARAMETER
+
+**Type:** String = "cid"
+
+URL Parameter for the content ID
+
+### FOLDERID_PARAMETER
+
+**Type:** String = "fdid"
+
+URL Parameter for the folder ID
+
 ## Properties
 
 ### content

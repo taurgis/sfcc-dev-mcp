@@ -13,6 +13,36 @@ A CategoryLink represents a directed relationship between two catalog categories
 
 ## Constants
 
+### LINKTYPE_ACCESSORY
+
+**Type:** Number = 2
+
+Represents an accessory category link.
+
+### LINKTYPE_CROSS_SELL
+
+**Type:** Number = 4
+
+Represents a cross-sell category link.
+
+### LINKTYPE_OTHER
+
+**Type:** Number = 1
+
+Represents a miscellaneous category link.
+
+### LINKTYPE_SPARE_PART
+
+**Type:** Number = 6
+
+Represents a spare part category link.
+
+### LINKTYPE_UP_SELL
+
+**Type:** Number = 5
+
+Represents an up-sell category link.
+
 ## Properties
 
 ### sourceCategory

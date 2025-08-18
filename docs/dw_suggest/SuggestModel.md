@@ -13,6 +13,12 @@ The Suggest model provides methods and functions to access search suggestions. T
 
 ## Constants
 
+### MAX_SUGGESTIONS
+
+**Type:** Number = 10
+
+The maximum number of suggestions that can be obtain from this model: 10
+
 ## Properties
 
 ### brandSuggestions

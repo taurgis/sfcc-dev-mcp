@@ -13,6 +13,66 @@ Represents a file resource accessible from scripting. As with java.io.File, a Fi
 
 ## Constants
 
+### CATALOGS
+
+**Type:** String = "CATALOGS"
+
+Catalogs root directory.
+
+### CUSTOMER_SNAPSHOTS
+
+**Type:** String = "CUSTOMERSNAPSHOTS"
+
+Customer snapshots root directory.
+
+### CUSTOMERPI
+
+**Type:** String = "CUSTOMERPI"
+
+Customer Payment Instrument root directory.
+
+### DYNAMIC
+
+**Type:** String = "DYNAMIC"
+
+Reserved for future use.
+
+### IMPEX
+
+**Type:** String = "IMPEX"
+
+Import/export root directory.
+
+### LIBRARIES
+
+**Type:** String = "LIBRARIES"
+
+Libraries root directory.
+
+### REALMDATA
+
+**Type:** String = "REALMDATA"
+
+RealmData root directory.
+
+### SEPARATOR
+
+**Type:** String = "/"
+
+The UNIX style '/' path separator, which must be used for files paths.
+
+### STATIC
+
+**Type:** String = "STATIC"
+
+Static content root directory.
+
+### TEMP
+
+**Type:** String = "TEMP"
+
+Temp root directory.
+
 ## Properties
 
 ### directory

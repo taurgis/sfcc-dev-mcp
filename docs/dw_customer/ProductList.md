@@ -15,6 +15,54 @@ Represents a list of products (and optionally a gift certificate) that is typica
 
 ## Constants
 
+### EXPORT_STATUS_EXPORTED
+
+**Type:** Number = 1
+
+Constant for when Export Status is Exported
+
+### EXPORT_STATUS_NOTEXPORTED
+
+**Type:** Number = 0
+
+Constant for when Export Status is Not Exported
+
+### TYPE_CUSTOM_1
+
+**Type:** Number = 100
+
+Constant representing a custom list type attribute.
+
+### TYPE_CUSTOM_2
+
+**Type:** Number = 101
+
+Constant representing a custom list type attribute.
+
+### TYPE_CUSTOM_3
+
+**Type:** Number = 102
+
+Constant representing a custom list type attribute.
+
+### TYPE_GIFT_REGISTRY
+
+**Type:** Number = 11
+
+Constant representing the gift registry type attribute.
+
+### TYPE_SHOPPING_LIST
+
+**Type:** Number = 12
+
+Constant representing the shopping list type attribute.
+
+### TYPE_WISH_LIST
+
+**Type:** Number = 10
+
+Constant representing the wish list registry type attribute.
+
 ## Properties
 
 ### anonymous

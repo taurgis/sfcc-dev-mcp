@@ -13,6 +13,36 @@ This class provides the functionality of a "Message Authentication Code" (MAC) a
 
 ## Constants
 
+### HMAC_MD5
+
+**Type:** String = "HmacMD5"
+
+Constant representing the HMAC-MD5 keyed-hashing algorithm as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997). This algorithm uses as MD5 cryptographic hash function.
+
+### HMAC_SHA_1
+
+**Type:** String = "HmacSHA1"
+
+Constant representing the HmacSHA1 algorithms as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997) with SHA-1 as the message digest algorithm.
+
+### HMAC_SHA_256
+
+**Type:** String = "HmacSHA256"
+
+Constant representing the HmacSHA256 algorithms as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997) with SHA-256 as the message digest algorithm.
+
+### HMAC_SHA_384
+
+**Type:** String = "HmacSHA384"
+
+Constant representing the HmacSHA384 algorithms as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997) with SHA-384 as the message digest algorithm.
+
+### HMAC_SHA_512
+
+**Type:** String = "HmacSHA512"
+
+Constant representing the HmacSHA512 algorithms as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997) with SHA-512 as the message digest algorithm.
+
 ## Properties
 
 ## Constructor Summary

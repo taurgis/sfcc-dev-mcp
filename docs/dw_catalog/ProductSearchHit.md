@@ -13,6 +13,42 @@ ProductSearchHit is the result of a executed search query and wraps the actual p
 
 ## Constants
 
+### HIT_TYPE_PRODUCT_BUNDLE
+
+**Type:** String = "bundle"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with product bundles.
+
+### HIT_TYPE_PRODUCT_MASTER
+
+**Type:** String = "master"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with master products.
+
+### HIT_TYPE_PRODUCT_SET
+
+**Type:** String = "set"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with product sets.
+
+### HIT_TYPE_SIMPLE
+
+**Type:** String = "product"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with single, non-complex products, including product variants that are assigned to a category and are returned as the presentation product.
+
+### HIT_TYPE_SLICING_GROUP
+
+**Type:** String = "slicing_group"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with slicing groups.
+
+### HIT_TYPE_VARIATION_GROUP
+
+**Type:** String = "variation_group"
+
+Constant representing a product search hit type based on the presentation product of a hit. This hit type is used with variation groups.
+
 ## Properties
 
 ### allPromotionIDs

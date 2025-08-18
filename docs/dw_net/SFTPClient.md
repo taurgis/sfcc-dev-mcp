@@ -13,6 +13,18 @@ The SFTPClient class supports the SFTP commands GET, PUT, DEL, MKDIR, RENAME, an
 
 ## Constants
 
+### MAX_GET_FILE_SIZE
+
+**Type:** Number = 209715200
+
+The maximum size for get() methods returning a File is 200 MB.
+
+### MAX_GET_STRING_SIZE
+
+**Type:** Number = 10485760
+
+The maximum size for get() methods returning a String is 10 MB.
+
 ## Properties
 
 ### connected

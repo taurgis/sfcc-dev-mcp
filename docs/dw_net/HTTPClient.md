@@ -13,6 +13,24 @@ The HTTPClient class supports the HTTP methods GET, POST, HEAD, PUT, PATCH, OPTI
 
 ## Constants
 
+### DEFAULT_GET_FILE_SIZE
+
+**Type:** Number = 5242880
+
+The default size for sendAndReceiveToFile() returning a File is 5MB deprecated in favor of MAX_GET_FILE_SIZE
+
+### MAX_GET_FILE_SIZE
+
+**Type:** Number = 209715200
+
+The maximum permitted size (in bytes) of an HTTP response when calling operations which write the response to file. (200MB)
+
+### MAX_GET_MEM_SIZE
+
+**Type:** Number = 10485760
+
+The maximum permitted size (in bytes) of an HTTP response when calling operations which store the response in memory. (10MB)
+
 ## Properties
 
 ### allowRedirect

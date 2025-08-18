@@ -16,6 +16,54 @@ Base class for payment instrument either stored in the customers profile or rela
 
 ## Constants
 
+### ENCRYPTION_ALGORITHM_RSA
+
+**Type:** String = "RSA"
+
+The outdated encryption algorithm "RSA/ECB/PKCS1Padding". Please do not use anymore!
+
+### ENCRYPTION_ALGORITHM_RSA_ECB_OAEPWITHSHA_256ANDMGF1PADDING
+
+**Type:** String = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+
+The encryption algorithm "RSA/ECB/OAEPWithSHA-256AndMGF1Padding".
+
+### METHOD_BANK_TRANSFER
+
+**Type:** String = "BANK_TRANSFER"
+
+Represents a bank transfer type of payment.
+
+### METHOD_BML
+
+**Type:** String = "BML"
+
+Represents a 'bill me later' type of payment.
+
+### METHOD_CREDIT_CARD
+
+**Type:** String = "CREDIT_CARD"
+
+Represents a credit card type of payment.
+
+### METHOD_DW_ANDROID_PAY
+
+**Type:** String = "DW_ANDROID_PAY"
+
+Represents an Android Pay payment.
+
+### METHOD_DW_APPLE_PAY
+
+**Type:** String = "DW_APPLE_PAY"
+
+Represents an Apple Pay payment.
+
+### METHOD_GIFT_CERTIFICATE
+
+**Type:** String = "GIFT_CERTIFICATE"
+
+Represents a gift certificate.
+
 ## Properties
 
 ### bankAccountDriversLicense

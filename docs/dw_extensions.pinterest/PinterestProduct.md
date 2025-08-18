@@ -13,6 +13,42 @@ Represents a row in the Pinterest catalog feed export.
 
 ## Constants
 
+### AVAILABILITY_IN_STOCK
+
+**Type:** String = "in
+
+Indicates that the product is in stock.
+
+### AVAILABILITY_OUT_OF_STOCK
+
+**Type:** String = "out
+
+Indicates that the product is not in stock.
+
+### AVAILABILITY_PREORDER
+
+**Type:** String = "preorder"
+
+Indicates that the product is availabile in preorder.
+
+### CONDITION_NEW
+
+**Type:** String = "new"
+
+Indicates that the product has never been used.
+
+### CONDITION_REFURBISHED
+
+**Type:** String = "refurbished"
+
+Indicates that the product has been used but refurbished.
+
+### CONDITION_USED
+
+**Type:** String = "used"
+
+Indicates that the product has been used.
+
 ## Properties
 
 ### availability

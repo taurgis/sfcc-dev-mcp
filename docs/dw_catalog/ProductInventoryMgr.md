@@ -13,6 +13,24 @@ This manager provides access to inventory-related objects.
 
 ## Constants
 
+### INTEGRATIONMODE_B2C
+
+**Type:** String = "B2C"
+
+Integration mode 'B2C' - using B2C inventory, no integration with Omnichannel Inventory
+
+### INTEGRATIONMODE_OCI
+
+**Type:** String = "OCI"
+
+Integration mode 'OCI' - integration with Omnichannel Inventory enabled
+
+### INTEGRATIONMODE_OCI_CACHE
+
+**Type:** String = "OCI_CACHE"
+
+Integration mode 'OCI_CACHE' - using B2C inventory, initializing cache as preparation for integration with Omnichannel Inventory
+
 ## Properties
 
 ### inventoryIntegrationMode

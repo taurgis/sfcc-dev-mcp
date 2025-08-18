@@ -13,6 +13,168 @@ Salesforce Payments request for a shopper to make payment. See Salesforce Paymen
 
 ## Constants
 
+### ELEMENT_AFTERPAY_CLEARPAY_MESSAGE
+
+**Type:** String = "afterpayClearpayMessage"
+
+Element for the Stripe Afterpay/Clearpay message "afterpayClearpayMessage".
+
+### ELEMENT_CARD_CVC
+
+**Type:** String = "cardCvc"
+
+Element for the Stripe credit card CVC field "cardCvc".
+
+### ELEMENT_CARD_EXPIRY
+
+**Type:** String = "cardExpiry"
+
+Element for the Stripe credit card expiration date field "cardExpiry".
+
+### ELEMENT_CARD_NUMBER
+
+**Type:** String = "cardNumber"
+
+Element for the Stripe credit card number field "cardNumber".
+
+### ELEMENT_EPS_BANK
+
+**Type:** String = "epsBank"
+
+Element for the Stripe EPS bank selection field "epsBank".
+
+### ELEMENT_IBAN
+
+**Type:** String = "iban"
+
+Element for the Stripe IBAN field "iban".
+
+### ELEMENT_IDEAL_BANK
+
+**Type:** String = "idealBank"
+
+Element for the Stripe iDEAL bank selection field "idealBank".
+
+### ELEMENT_PAYMENT_REQUEST_BUTTON
+
+**Type:** String = "paymentRequestButton"
+
+Element for the Stripe payment request button "paymentRequestButton".
+
+### ELEMENT_TYPE_AFTERPAY_CLEARPAY
+
+**Type:** String = "afterpay_clearpay"
+
+Element type name for Afterpay.
+
+### ELEMENT_TYPE_AFTERPAY_CLEARPAY_MESSAGE
+
+**Type:** String = "afterpayclearpaymessage"
+
+Element type name for Afterpay/Clearpay message.
+
+### ELEMENT_TYPE_APPLEPAY
+
+**Type:** String = "applepay"
+
+Element type name for Apple Pay payment request buttons.
+
+### ELEMENT_TYPE_BANCONTACT
+
+**Type:** String = "bancontact"
+
+Element type name for Bancontact.
+
+### ELEMENT_TYPE_CARD
+
+**Type:** String = "card"
+
+Element type name for credit cards.
+
+### ELEMENT_TYPE_EPS
+
+**Type:** String = "eps"
+
+Element type name for EPS.
+
+### ELEMENT_TYPE_IDEAL
+
+**Type:** String = "ideal"
+
+Element type name for iDEAL.
+
+### ELEMENT_TYPE_PAYMENTREQUEST
+
+**Type:** String = "paymentrequest"
+
+Element type name for other payment request buttons besides Apple Pay, like Google Pay.
+
+### ELEMENT_TYPE_PAYPAL
+
+**Type:** String = "paypal"
+
+Element type name for PayPal in multi-step checkout.
+
+### ELEMENT_TYPE_PAYPAL_EXPRESS
+
+**Type:** String = "paypalexpress"
+
+Element type name for PayPal in express checkout.
+
+### ELEMENT_TYPE_PAYPAL_MESSAGE
+
+**Type:** String = "paypalmessage"
+
+Element type name for the PayPal messages component.
+
+### ELEMENT_TYPE_SEPA_DEBIT
+
+**Type:** String = "sepa_debit"
+
+Element type name for SEPA debit.
+
+### ELEMENT_TYPE_VENMO
+
+**Type:** String = "venmo"
+
+Element type name for Venmo in multi-step checkout.
+
+### ELEMENT_TYPE_VENMO_EXPRESS
+
+**Type:** String = "venmoexpress"
+
+Element type name for Venmo in express checkout.
+
+### PAYPAL_SHIPPING_PREFERENCE_GET_FROM_FILE
+
+**Type:** String = "GET_FROM_FILE"
+
+PayPal application context shipping_preference value "GET_FROM_FILE", to use the customer-provided shipping address on the PayPal site.
+
+### PAYPAL_SHIPPING_PREFERENCE_NO_SHIPPING
+
+**Type:** String = "NO_SHIPPING"
+
+PayPal application context shipping_preference value "NO_SHIPPING", to redact the shipping address from the PayPal site. Recommended for digital goods.
+
+### PAYPAL_SHIPPING_PREFERENCE_SET_PROVIDED_ADDRESS
+
+**Type:** String = "SET_PROVIDED_ADDRESS"
+
+PayPal application context shipping_preference value "SET_PROVIDED_ADDRESS", to use the merchant-provided address. The customer cannot change this address on the PayPal site.
+
+### PAYPAL_USER_ACTION_CONTINUE
+
+**Type:** String = "CONTINUE"
+
+PayPal application context user_action value "CONTINUE". Use this option when the final amount is not known when the checkout flow is initiated and you want to redirect the customer to the merchant page without processing the payment.
+
+### PAYPAL_USER_ACTION_PAY_NOW
+
+**Type:** String = "PAY_NOW"
+
+PayPal application context user_action value "PAY_NOW". Use this option when the final amount is known when the checkout is initiated and you want to process the payment immediately when the customer clicks Pay Now.
+
 ## Properties
 
 ### basketData

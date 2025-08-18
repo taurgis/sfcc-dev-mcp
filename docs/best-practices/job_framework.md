@@ -213,7 +213,7 @@ var Logger = require('dw/system/Logger');
 var csvReader;
 var totalLines = 0;
 var processedLines = 0;
-var logger = Logger.getLogger('jobs', 'BulkPriceUpdate');
+var logger = Logger.getLogger('jobs', 'BulkProductUpdate');
 
 /**
  * Setup function - opens input file and prepares for processing
@@ -259,7 +259,7 @@ exports.read = function (parameters, stepExecution) {
     if (line && line.length > 0) {
         return {
             productID: line[0],
-            newPrice: parseFloat(line[1]) || 0,
+            newOnlineStatus: line[1] === 'true',
             lineNumber: ++processedLines
         };
     }
@@ -283,11 +283,11 @@ exports.process = function (item, parameters, stepExecution) {
             };
         }
         
-        if (item.newPrice <= 0) {
+        if (typeof item.newOnlineStatus !== 'boolean') {
             return {
                 productID: item.productID,
                 status: 'SKIPPED',
-                message: 'Invalid price value',
+                message: 'Invalid online status value',
                 lineNumber: item.lineNumber
             };
         }
@@ -295,7 +295,7 @@ exports.process = function (item, parameters, stepExecution) {
         return {
             product: product,
             productID: item.productID,
-            newPrice: item.newPrice,
+            newOnlineStatus: item.newOnlineStatus,
             status: 'READY',
             lineNumber: item.lineNumber
         };
@@ -324,18 +324,12 @@ exports.write = function (chunk, parameters, stepExecution) {
         
         if (item.status === 'READY') {
             try {
-                // Update product price - transaction will be committed in afterChunk
-                var priceBook = item.product.getPriceModel().getPriceBook();
-                if (priceBook) {
-                    priceBook.setPriceInfo(item.product, null, 'list', item.newPrice);
-                    successCount++;
-                } else {
-                    errorCount++;
-                    logger.warn('No price book found for product: {0}', item.productID);
-                }
+                // Update product attribute - transaction will be committed in afterChunk
+                item.product.setOnlineFlag(item.newOnlineStatus);
+                successCount++;
             } catch (e) {
                 errorCount++;
-                logger.error('Failed to update price for {0}: {1}', item.productID, e.message);
+                logger.error('Failed to update product {0}: {1}', item.productID, e.message);
             }
         } else {
             errorCount++;
@@ -406,11 +400,11 @@ exports.afterStep = function (success, parameters, stepExecution) {
     "step-types": {
         "chunk-script-module-step": [
             {
-                "@type-id": "custom.BulkPriceUpdate",
+                "@type-id": "custom.BulkProductUpdate",
                 "@supports-site-context": true,
                 "@supports-organization-context": false,
-                "description": "Updates product prices from CSV file in chunks",
-                "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkPriceUpdate.js",
+                "description": "Updates product online status from CSV file in chunks",
+                "module": "plugin_examplecartridge/cartridge/scripts/jobs/bulkProductUpdate.js",
                 "before-step-function": "beforeStep",
                 "total-count-function": "getTotalCount",
                 "before-chunk-function": "beforeChunk",
@@ -556,7 +550,8 @@ for (var i = 0; i < productIDs.length; i++) {
 }
 
 // ✅ BETTER: Batch processing where possible
-var productSearchModel = ProductMgr.createProductSearchModel();
+var ProductSearchModel = require('dw/catalog/ProductSearchModel');
+var productSearchModel = new ProductSearchModel();
 productSearchModel.setSearchPhrase(productIDs.join(' OR '));
 var products = productSearchModel.getProductSearchHits();
 ```
@@ -690,15 +685,13 @@ exports.beforeStep = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'ReportingJob');
     
     logger.info('Job started with parameters: {0}', JSON.stringify(parameters));
-    logger.info('Available memory: {0} MB', 
-               Runtime.getRuntime().freeMemory() / (1024 * 1024));
+    // Memory monitoring not available in SFCC environment
 };
 
 exports.afterChunk = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'ReportingJob');
-    var runtime = Runtime.getRuntime();
-    var usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
-    logger.info('Chunk completed. Memory usage: {0} MB', usedMemory);
+    // Memory monitoring not available in SFCC environment
+    logger.info('Chunk completed successfully');
 };
 ```
 
@@ -988,7 +981,7 @@ exports.beforeStep = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'ReportingJob');
     var system = require('dw/system/System');
     
-    if (system.getInstanceType() === system.DEVELOPMENT_SYSTEM) {
+    if (system.getInstanceType() === 0) { // Development = 0, Staging = 1, Production = 2
         logger.debug('Running in development mode');
         // Enable verbose logging for development
     } else {

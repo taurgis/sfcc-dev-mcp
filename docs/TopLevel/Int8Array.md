@@ -13,6 +13,12 @@ An optimized array to store 8-bit signed integer numbers. Elements of this array
 
 ## Constants
 
+### BYTES_PER_ELEMENT
+
+**Type:** Number = 1
+
+Number value of the element size.
+
 ## Properties
 
 ### buffer

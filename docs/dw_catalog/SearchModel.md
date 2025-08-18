@@ -13,6 +13,30 @@ Common search model base class.
 
 ## Constants
 
+### SEARCH_PHRASE_PARAMETER
+
+**Type:** String = "q"
+
+URL Parameter for the Search Phrase
+
+### SORT_DIRECTION_ASCENDING
+
+**Type:** Number = 1
+
+Sorting parameter ASCENDING
+
+### SORT_DIRECTION_DESCENDING
+
+**Type:** Number = 2
+
+Sorting parameter DESCENDING
+
+### SORT_DIRECTION_NONE
+
+**Type:** Number = 0
+
+Sorting parameter NO_SORT - will remove a sorting condition
+
 ## Properties
 
 ### count

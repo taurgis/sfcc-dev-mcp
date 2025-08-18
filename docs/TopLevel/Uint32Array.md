@@ -13,6 +13,12 @@ An optimized array to store 32-bit unsigned integer numbers. Elements of this ar
 
 ## Constants
 
+### BYTES_PER_ELEMENT
+
+**Type:** Number = 4
+
+Number value of the element size.
+
 ## Properties
 
 ### buffer

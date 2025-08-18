@@ -13,6 +13,48 @@ Holds the status of an authentication process.
 
 ## Constants
 
+### AUTH_OK
+
+**Type:** String = "AUTH_OK"
+
+Authentication was successful
+
+### ERROR_CUSTOMER_DISABLED
+
+**Type:** String = "ERROR_CUSTOMER_DISABLED"
+
+customer could be found, but is disabled. Password was not verified.
+
+### ERROR_CUSTOMER_LOCKED
+
+**Type:** String = "ERROR_CUSTOMER_LOCKED"
+
+customer could be found, but is locked (too many failed login attempts). Password was verified before.
+
+### ERROR_CUSTOMER_NOT_FOUND
+
+**Type:** String = "ERROR_CUSTOMER_NOT_FOUND"
+
+customer could not be found
+
+### ERROR_PASSWORD_EXPIRED
+
+**Type:** String = "ERROR_PASSWORD_EXPIRED"
+
+Password does match, but is expired.
+
+### ERROR_PASSWORD_MISMATCH
+
+**Type:** String = "ERROR_PASSWORD_MISMATCH"
+
+the used password is not correct
+
+### ERROR_UNKNOWN
+
+**Type:** String = "ERROR_UNKNOWN"
+
+Any other error
+
 ## Properties
 
 ### authenticated

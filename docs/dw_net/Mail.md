@@ -32,6 +32,12 @@ Gets the cc address List.
 Gets the email address to use as the from address for the
  email.
 
+### replyTo
+
+**Type:** List (Read Only)
+
+Gets the replyTo address List.
+
 ### subject
 
 **Type:** String
@@ -62,6 +68,12 @@ Adds an address to the bcc List.
 
 Adds an address to the cc List.
 
+### addReplyTo
+
+**Signature:** `addReplyTo(replyTo : String) : Mail`
+
+Adds an address to the replyTo List.
+
 ### addTo
 
 **Signature:** `addTo(to : String) : Mail`
@@ -85,6 +97,12 @@ Gets the cc address List.
 **Signature:** `getFrom() : String`
 
 Gets the email address to use as the from address for the email.
+
+### getReplyTo
+
+**Signature:** `getReplyTo() : List`
+
+Gets the replyTo address List.
 
 ### getSubject
 
@@ -139,6 +157,18 @@ Mandatory Uses MimeEncodedText to set the content, MIME type and encoding.
 **Signature:** `setFrom(from : String) : Mail`
 
 Mandatory Sets the sender address for this email.
+
+### setListUnsubscribe
+
+**Signature:** `setListUnsubscribe(listUnsubscribe : String) : Mail`
+
+Sets the List-Unsubscribe header value to work with List-Unsubscribe-Post to allow integration with an externally-managed mailing list.
+
+### setListUnsubscribePost
+
+**Signature:** `setListUnsubscribePost(listUnsubscribePost : String) : Mail`
+
+Sets the List-Unsubscribe-Post header value.
 
 ### setSubject
 
@@ -196,6 +226,26 @@ this Mail object.
 
 ---
 
+### addReplyTo
+
+**Signature:** `addReplyTo(replyTo : String) : Mail`
+
+**Description:** Adds an address to the replyTo List. Address must conform to the RFC822 standard.
+
+**Parameters:**
+
+- `replyTo`: new replyTo address to add to replyTo address List.
+
+**Returns:**
+
+this Mail object.
+
+**Throws:**
+
+IllegalArgumentException - if the email address is invalid
+
+---
+
 ### addTo
 
 **Signature:** `addTo(to : String) : Mail`
@@ -245,6 +295,18 @@ cc address List or empty List if no cc addresses are set.
 **Returns:**
 
 the from address for this mail or null if no from address is set yet.
+
+---
+
+### getReplyTo
+
+**Signature:** `getReplyTo() : List`
+
+**Description:** Gets the replyTo address List.
+
+**Returns:**
+
+replyTo address List or empty List if no replyTo addresses are set.
 
 ---
 
@@ -379,6 +441,38 @@ this Mail object.
 **Returns:**
 
 this Mail object.
+
+---
+
+### setListUnsubscribe
+
+**Signature:** `setListUnsubscribe(listUnsubscribe : String) : Mail`
+
+**Description:** Sets the List-Unsubscribe header value to work with List-Unsubscribe-Post to allow integration with an externally-managed mailing list.
+
+**Parameters:**
+
+- `listUnsubscribe`: The List-Unsubscribe header value, e.g., "<https://example.com/unsubscribe>"
+
+**Returns:**
+
+this Mail object
+
+---
+
+### setListUnsubscribePost
+
+**Signature:** `setListUnsubscribePost(listUnsubscribePost : String) : Mail`
+
+**Description:** Sets the List-Unsubscribe-Post header value. This header supports one-click unsubscribe functionality.
+
+**Parameters:**
+
+- `listUnsubscribePost`: The List-Unsubscribe-Post header value, typically "List-Unsubscribe=One-Click"
+
+**Returns:**
+
+this Mail object
 
 ---
 

@@ -13,6 +13,42 @@ The GiftCertificateMgr class contains a set of static methods for interacting wi
 
 ## Constants
 
+### GC_ERROR_DISABLED
+
+**Type:** String = "GIFTCERTIFICATE-100"
+
+Indicates that an error occurred because the Gift Certificate is currently disabled.
+
+### GC_ERROR_INSUFFICIENT_BALANCE
+
+**Type:** String = "GIFTCERTIFICATE-110"
+
+Indicates that an error occurred because the Gift Certificate does not have a sufficient balance to perform the requested operation.
+
+### GC_ERROR_INVALID_AMOUNT
+
+**Type:** String = "GIFTCERTIFICATE-140"
+
+Indicates that an error occurred because the Gift Certificate Amount was not valid.
+
+### GC_ERROR_INVALID_CODE
+
+**Type:** String = "GIFTCERTIFICATE-150"
+
+Indicates that an error occurred because the Gift Certificate ID was not valid.
+
+### GC_ERROR_PENDING
+
+**Type:** String = "GIFTCERTIFICATE-130"
+
+Indicates that an error occurred because the Gift Certificate has been fully redeemed.
+
+### GC_ERROR_REDEEMED
+
+**Type:** String = "GIFTCERTIFICATE-120"
+
+Indicates that an error occurred because the Gift Certificate has been fully redeemed.
+
 ## Properties
 
 ## Constructor Summary

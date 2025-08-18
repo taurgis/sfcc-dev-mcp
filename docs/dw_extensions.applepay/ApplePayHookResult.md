@@ -13,6 +13,54 @@ Result of a hook handling an Apple Pay request. Use the constants in this type t
 
 ## Constants
 
+### REASON_BILLING_ADDRESS
+
+**Type:** String = "InvalidBillingPostalAddress"
+
+Error reason code representing an invalid billing address.
+
+### REASON_FAILURE
+
+**Type:** String = "Failure"
+
+Error reason code representing an error or failure not otherwise specified.
+
+### REASON_PIN_INCORRECT
+
+**Type:** String = "PINIncorrect"
+
+Error reason code representing the PIN is incorrect.
+
+### REASON_PIN_LOCKOUT
+
+**Type:** String = "PINLockout"
+
+Error reason code representing a PIN lockout.
+
+### REASON_PIN_REQUIRED
+
+**Type:** String = "PINRequired"
+
+Error reason code representing a PIN is required.
+
+### REASON_SHIPPING_ADDRESS
+
+**Type:** String = "InvalidShippingPostalAddress"
+
+Error reason code representing an invalid shipping address.
+
+### REASON_SHIPPING_CONTACT
+
+**Type:** String = "InvalidShippingContact"
+
+Error reason code representing invalid shipping contact information.
+
+### STATUS_REASON_DETAIL_KEY
+
+**Type:** String = "reason"
+
+Key for the detail to be used in Status objects to indicate the reason to communicate to Apple Pay for errors.
+
 ## Properties
 
 ### eventDetail

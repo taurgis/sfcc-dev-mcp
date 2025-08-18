@@ -16,6 +16,12 @@ Represents a specific line item in a shipment. The ShippingLineItem defines the 
 
 ## Constants
 
+### STANDARD_SHIPPING_ID
+
+**Type:** String = "STANDARD_SHIPPING"
+
+Constant used to get the standard shipping line item.
+
 ## Properties
 
 ### adjustedGrossPrice

@@ -822,7 +822,7 @@ Set the step quantity value for this object.
 
 **Signature:** `updateOptionPrice() : void`
 
-Determines and sets the price of a option line item based on the selected option value the line item represents.
+Determines and sets the price of a option line item based on the selected option value this line item represents.
 
 ### updateOptionValue
 
@@ -1768,7 +1768,7 @@ true if line item is reserved, false otherwise.
 
 **Signature:** `updateOptionPrice() : void`
 
-**Description:** Determines and sets the price of a option line item based on the selected option value the line item represents.
+**Description:** Determines and sets the price of a option line item based on the selected option value this line item represents.
 
 ---
 

@@ -13,6 +13,54 @@ Mathematical functions and constants.
 
 ## Constants
 
+### E
+
+**Type:** Number
+
+The constant e, which is the base of natural logarithms.
+
+### LN10
+
+**Type:** Number
+
+The natural logarithm of 10.
+
+### LN2
+
+**Type:** Number
+
+The natural logarithm of 2.
+
+### LOG10E
+
+**Type:** Number
+
+The base-10 logarithm of e.
+
+### LOG2E
+
+**Type:** Number
+
+The base-2 logarithm of e.
+
+### PI
+
+**Type:** Number
+
+The constant for PI.
+
+### SQRT1_2
+
+**Type:** Number
+
+1 divided by the square root of 2.
+
+### SQRT2
+
+**Type:** Number
+
+The square root of 2.
+
 ## Properties
 
 ## Constructor Summary

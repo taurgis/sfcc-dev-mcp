@@ -15,6 +15,66 @@ All returns exist in the context of a ReturnCase, each Order can have any number
 
 ## Constants
 
+### ORDERBY_ITEMID
+
+**Type:** Object
+
+Sorting by item id. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_ITEMPOSITION
+
+**Type:** Object
+
+Sorting by the position of the related oder item. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### ORDERBY_UNSORTED
+
+**Type:** Object
+
+Unsorted , as it is. Use with method getItems() as an argument to method FilteringCollection.sort(Object).
+
+### QUALIFIER_PRODUCTITEMS
+
+**Type:** Object
+
+Selects the product items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### QUALIFIER_SERVICEITEMS
+
+**Type:** Object
+
+Selects for the service items. Use with method getItems() as an argument to method FilteringCollection.select(Object).
+
+### STATUS_CANCELLED
+
+**Type:** String = "CANCELLED"
+
+constant for ReturnCase Status CANCELLED
+
+### STATUS_CONFIRMED
+
+**Type:** String = "CONFIRMED"
+
+constant for ReturnCase Status CONFIRMED
+
+### STATUS_NEW
+
+**Type:** String = "NEW"
+
+constant for ReturnCase Status NEW
+
+### STATUS_PARTIAL_RETURNED
+
+**Type:** String = "PARTIAL_RETURNED"
+
+constant for ReturnCase Status PARTIAL RETURNED
+
+### STATUS_RETURNED
+
+**Type:** String = "RETURNED"
+
+constant for ReturnCase Status RETURNED
+
 ## Properties
 
 ### invoice

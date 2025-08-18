@@ -30,9 +30,8 @@ A collection of price books that are set in the user session.
 **Type:** Collection (Read Only)
 
 All price books assigned to the current site. 
-
- Please note that this doesn't include parent price books not assigned
- to the site, but considered by the price lookup.
+ Please note that this doesn't include parent price books not assigned to the site, but considered by the price
+ lookup.
 
 ## Constructor Summary
 

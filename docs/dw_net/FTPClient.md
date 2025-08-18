@@ -13,6 +13,30 @@ The FTPClient class supports the FTP commands CD, GET, PUT, DEL, MKDIR, RENAME, 
 
 ## Constants
 
+### DEFAULT_GET_FILE_SIZE
+
+**Type:** Number = 5242880
+
+The default size for get() returning a File is 5MB
+
+### DEFAULT_GET_STRING_SIZE
+
+**Type:** Number = 2097152
+
+The default size for get() returning a String is 2MB
+
+### MAX_GET_FILE_SIZE
+
+**Type:** Number = 209715200
+
+The maximum size for get() returning a File is forty times the default size for getting a file. The largest file allowed is 200MB.
+
+### MAX_GET_STRING_SIZE
+
+**Type:** Number = 10485760
+
+The maximum size for get() returning a String is five times the default size for getting a String. The largest String allowed is 10MB.
+
 ## Properties
 
 ### connected

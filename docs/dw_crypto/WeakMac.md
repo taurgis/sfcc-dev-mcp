@@ -13,6 +13,18 @@ This API provides access to Deprecated algorithms. See Mac for full documentatio
 
 ## Constants
 
+### HMAC_MD5
+
+**Type:** String = "HmacMD5"
+
+Constant representing the HMAC-MD5 keyed-hashing algorithm as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997). This algorithm uses as MD5 cryptographic hash function. This algorithm is obsolete. Do not use it for any sensitive data
+
+### HMAC_SHA_1
+
+**Type:** String = "HmacSHA1"
+
+Constant representing the HmacSHA1 algorithms as defined in RFC 2104 "HMAC: Keyed-Hashing for Message Authentication" (February 1997) with SHA-1 as the message digest algorithm. This algorithm is obsolete. Do not use it for any sensitive data
+
 ## Properties
 
 ## Constructor Summary

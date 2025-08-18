@@ -13,6 +13,144 @@ Represents a row in the Facebook catalog feed export.
 
 ## Constants
 
+### AGE_GROUP_ADULT
+
+**Type:** String = "adult"
+
+Indicates that the product is for adults.
+
+### AGE_GROUP_INFANT
+
+**Type:** String = "infant"
+
+Indicates that the product is for infant children.
+
+### AGE_GROUP_KIDS
+
+**Type:** String = "kids"
+
+Indicates that the product is for children.
+
+### AGE_GROUP_NEWBORN
+
+**Type:** String = "newborn"
+
+Indicates that the product is for newborn children.
+
+### AGE_GROUP_TODDLER
+
+**Type:** String = "toddler"
+
+Indicates that the product is for toddler children.
+
+### AVAILABILITY_AVAILABLE_FOR_ORDER
+
+**Type:** String = "available
+
+Indicates that the product can be ordered for later shipment.
+
+### AVAILABILITY_IN_STOCK
+
+**Type:** String = "in
+
+Indicates that the product is available to ship immediately.
+
+### AVAILABILITY_OUT_OF_STOCK
+
+**Type:** String = "out
+
+Indicates that the product is out of stock.
+
+### AVAILABILITY_PREORDER
+
+**Type:** String = "preorder"
+
+Indicates that the product will be available in the future.
+
+### CONDITION_NEW
+
+**Type:** String = "new"
+
+Indicates that the product is new.
+
+### CONDITION_REFURBISHED
+
+**Type:** String = "refurbished"
+
+Indicates that the product is used but has been refurbished.
+
+### CONDITION_USED
+
+**Type:** String = "used"
+
+Indicates that the product has been used.
+
+### GENDER_FEMALE
+
+**Type:** String = "female"
+
+Indicates that the product is for females.
+
+### GENDER_MALE
+
+**Type:** String = "male"
+
+Indicates that the product is for males.
+
+### GENDER_UNISEX
+
+**Type:** String = "unisex"
+
+Indicates that the product is for both males and females.
+
+### SHIPPING_SIZE_UNIT_CM
+
+**Type:** String = "cm"
+
+Indicates that the product is measured in centimeters.
+
+### SHIPPING_SIZE_UNIT_FT
+
+**Type:** String = "ft"
+
+Indicates that the product is measured in feet.
+
+### SHIPPING_SIZE_UNIT_IN
+
+**Type:** String = "in"
+
+Indicates that the product is measured in inches.
+
+### SHIPPING_SIZE_UNIT_M
+
+**Type:** String = "m"
+
+Indicates that the product is measured in meters.
+
+### SHIPPING_WEIGHT_UNIT_G
+
+**Type:** String = "g"
+
+Indicates that the product is weighed in grams.
+
+### SHIPPING_WEIGHT_UNIT_KG
+
+**Type:** String = "kg"
+
+Indicates that the product is weighed in kilograms.
+
+### SHIPPING_WEIGHT_UNIT_LB
+
+**Type:** String = "lb"
+
+Indicates that the product is weighed in pounds.
+
+### SHIPPING_WEIGHT_UNIT_OZ
+
+**Type:** String = "oz"
+
+Indicates that the product is weighed in ounces.
+
 ## Properties
 
 ### ageGroup

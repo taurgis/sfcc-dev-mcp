@@ -15,6 +15,18 @@ Represents a category in a product catalog.
 
 ## Constants
 
+### DISPLAY_MODE_INDIVIDUAL
+
+**Type:** Number = 0
+
+Constant representing the Variation Group Display Mode individual setting.
+
+### DISPLAY_MODE_MERGED
+
+**Type:** Number = 1
+
+Constant representing the Variation Group Display Mode merged setting.
+
 ## Properties
 
 ### allRecommendations

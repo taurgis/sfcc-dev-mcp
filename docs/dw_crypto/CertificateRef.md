@@ -9,11 +9,11 @@
 
 ## Description
 
-This class is used as a reference to a certificate in the keystore which can be managed in the Business Manager. Note: this class handles sensitive security-related data. Pay special attention to PCI DSS v3. requirements 2, 4, and 12.
+This class is used as a reference to a certificate or public key. Note: this class handles sensitive security-related data. Pay special attention to PCI DSS v3. requirements 2, 4, and 12.
 
 ## Constructor Summary
 
-CertificateRef(alias : String) Creates a CertificateRef from the passed alias.
+CertificateRef(alias : String) Creates a CertificateRef from the passed alias as a reference to a certificate in Business Manager.
 
 ## Method Summary
 

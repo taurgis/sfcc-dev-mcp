@@ -13,6 +13,12 @@ CustomerStatusCodes contains constants representing status codes that can be use
 
 ## Constants
 
+### CUSTOMER_ADDRESS_REFERENCED_BY_PRODUCT_LIST
+
+**Type:** String = "CUSTOMER_ADDRESS_REFERENCED_BY_PRODUCT_LIST"
+
+Indicates that an error occurred when trying to perform an operation on an address that is currently associated with a product list.
+
 ## Properties
 
 ## Constructor Summary

@@ -13,6 +13,18 @@ Provides methods to access the tax table.
 
 ## Constants
 
+### TAX_POLICY_GROSS
+
+**Type:** Number = 0
+
+Constant representing the gross taxation policy.
+
+### TAX_POLICY_NET
+
+**Type:** Number = 1
+
+Constant representing the net taxation policy.
+
 ## Properties
 
 ### customRateTaxClassID

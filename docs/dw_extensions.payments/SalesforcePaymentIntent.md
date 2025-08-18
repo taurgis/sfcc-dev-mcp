@@ -13,6 +13,18 @@ Salesforce Payments representation of a payment intent object. See Salesforce Pa
 
 ## Constants
 
+### SETUP_FUTURE_USAGE_OFF_SESSION
+
+**Type:** String = "off_session"
+
+Represents the payment method setup future usage is off session.
+
+### SETUP_FUTURE_USAGE_ON_SESSION
+
+**Type:** String = "on_session"
+
+Represents the payment method setup future usage is on session.
+
 ## Properties
 
 ### amount

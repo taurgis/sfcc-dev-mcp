@@ -15,6 +15,120 @@ A container for line items, such as ProductLineItems, CouponLineItems, GiftCerti
 
 ## Constants
 
+### BUSINESS_TYPE_B2B
+
+**Type:** Number = 2
+
+constant for Business Type B2B
+
+### BUSINESS_TYPE_B2C
+
+**Type:** Number = 1
+
+constant for Business Type B2C
+
+### CHANNEL_TYPE_CALLCENTER
+
+**Type:** Number = 2
+
+constant for Channel Type CallCenter
+
+### CHANNEL_TYPE_CUSTOMERSERVICECENTER
+
+**Type:** Number = 11
+
+constant for Channel Type Customer Service Center
+
+### CHANNEL_TYPE_DSS
+
+**Type:** Number = 4
+
+constant for Channel Type DSS
+
+### CHANNEL_TYPE_FACEBOOKADS
+
+**Type:** Number = 8
+
+constant for Channel Type Facebook Ads
+
+### CHANNEL_TYPE_GOOGLE
+
+**Type:** Number = 13
+
+constant for Channel Type Google
+
+### CHANNEL_TYPE_INSTAGRAMCOMMERCE
+
+**Type:** Number = 12
+
+constant for Channel Type Instagram Commerce
+
+### CHANNEL_TYPE_MARKETPLACE
+
+**Type:** Number = 3
+
+constant for Channel Type Marketplace
+
+### CHANNEL_TYPE_ONLINERESERVATION
+
+**Type:** Number = 10
+
+constant for Channel Type Online Reservation
+
+### CHANNEL_TYPE_PINTEREST
+
+**Type:** Number = 6
+
+constant for Channel Type Pinterest
+
+### CHANNEL_TYPE_SNAPCHAT
+
+**Type:** Number = 15
+
+constant for Channel Type Snapchat
+
+### CHANNEL_TYPE_STORE
+
+**Type:** Number = 5
+
+constant for Channel Type Store
+
+### CHANNEL_TYPE_STOREFRONT
+
+**Type:** Number = 1
+
+constant for Channel Type Storefront
+
+### CHANNEL_TYPE_SUBSCRIPTIONS
+
+**Type:** Number = 9
+
+constant for Channel Type Subscriptions
+
+### CHANNEL_TYPE_TIKTOK
+
+**Type:** Number = 14
+
+constant for Channel Type TikTok
+
+### CHANNEL_TYPE_TWITTER
+
+**Type:** Number = 7
+
+constant for Channel Type Twitter
+
+### CHANNEL_TYPE_WHATSAPP
+
+**Type:** Number = 16
+
+constant for Channel Type WhatsApp
+
+### CHANNEL_TYPE_YOUTUBE
+
+**Type:** Number = 17
+
+constant for Channel Type YouTube
+
 ## Properties
 
 ### adjustedMerchandizeTotalGrossPrice

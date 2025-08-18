@@ -13,6 +13,210 @@ Represents an HTTP response in Commerce Cloud Digital. An instance of this class
 
 ## Constants
 
+### ACCESS_CONTROL_ALLOW_CREDENTIALS
+
+**Type:** String = "Access-Control-Allow-Credentials"
+
+An allowed header name constant for Access-Control-Allow-Credentials
+
+### ACCESS_CONTROL_ALLOW_HEADERS
+
+**Type:** String = "Access-Control-Allow-Headers"
+
+An allowed header name constant for Access-Control-Allow-Headers
+
+### ACCESS_CONTROL_ALLOW_METHODS
+
+**Type:** String = "Access-Control-Allow-Methods"
+
+An allowed header name constant for Access-Control-Allow-Methods
+
+### ACCESS_CONTROL_ALLOW_ORIGIN
+
+**Type:** String = "Access-Control-Allow-Origin"
+
+An allowed header name constant for Access-Control-Allow-Origin
+
+### ACCESS_CONTROL_EXPOSE_HEADERS
+
+**Type:** String = "Access-Control-Expose-Headers"
+
+An allowed header name constant for Access-Control-Expose-Headers
+
+### ALLOW
+
+**Type:** String = "Allow"
+
+An allowed header name constant for Allow
+
+### CONTENT_DISPOSITION
+
+**Type:** String = "Content-Disposition"
+
+An allowed header name constant for Content-Disposition
+
+### CONTENT_LANGUAGE
+
+**Type:** String = "Content-Language"
+
+An allowed header name constant for Content-Language
+
+### CONTENT_LOCATION
+
+**Type:** String = "Content-Location"
+
+An allowed header name constant for Content-Location
+
+### CONTENT_MD5
+
+**Type:** String = "Content-MD5"
+
+An allowed header name constant for Content-MD5
+
+### CONTENT_SECURITY_POLICY
+
+**Type:** String = "Content-Security-Policy"
+
+An allowed header name constant for Content-Security-Policy. Note: The Commerce Cloud platform can override this header for tools like the Storefront Toolkit.
+
+### CONTENT_SECURITY_POLICY_REPORT_ONLY
+
+**Type:** String = "Content-Security-Policy-Report-Only"
+
+An allowed header name constant for Content-Security-Policy-Report-Only. You can set this response header only for storefront requests. Report recipient can't be a B2C Commerce system.
+
+### CONTENT_TYPE
+
+**Type:** String = "Content-Type"
+
+An allowed header name constant for Content-Type
+
+### CROSS_ORIGIN_EMBEDDER_POLICY
+
+**Type:** String = "Cross-Origin-Embedder-Policy"
+
+An allowed header name constant for Cross-Origin-Embedder-Policy
+
+### CROSS_ORIGIN_EMBEDDER_POLICY_REPORT_ONLY
+
+**Type:** String = "Cross-Origin-Embedder-Policy-Report-Only"
+
+An allowed header name constant for Cross-Origin-Embedder-Policy-Report-Only. You can set this response header only for storefront requests. Report recipient can't be a B2C Commerce system.
+
+### CROSS_ORIGIN_OPENER_POLICY
+
+**Type:** String = "Cross-Origin-Opener-Policy"
+
+An allowed header name constant for Cross-Origin-Opener-Policy
+
+### CROSS_ORIGIN_OPENER_POLICY_REPORT_ONLY
+
+**Type:** String = "Cross-Origin-Opener-Policy-Report-Only"
+
+An allowed header name constant for Cross-Origin-Opener-Policy-Report-Only. You can set this response header only for storefront requests. Report recipient can't be a B2C Commerce system.
+
+### CROSS_ORIGIN_RESOURCE_POLICY
+
+**Type:** String = "Cross-Origin-Resource-Policy"
+
+An allowed header name constant for Cross-Origin-Resource-Policy
+
+### LINK
+
+**Type:** String = "Link"
+
+An allowed header name constant for Link
+
+### LOCATION
+
+**Type:** String = "Location"
+
+An allowed header name constant for Location
+
+### PERMISSIONS_POLICY
+
+**Type:** String = "Permissions-Policy"
+
+An allowed header name constant for Permissions-Policy
+
+### PLATFORM_FOR_PRIVACY_PREFERENCES_PROJECT
+
+**Type:** String = "P3P"
+
+An allowed header name constant for Platform for Privacy Preferences Project
+
+### REFERRER_POLICY
+
+**Type:** String = "Referrer-Policy"
+
+An allowed header name constant for Referrer-Policy
+
+### REFRESH
+
+**Type:** String = "Refresh"
+
+An allowed header name constant for Refresh
+
+### RETRY_AFTER
+
+**Type:** String = "Retry-After"
+
+An allowed header name constant for Retry-After
+
+### SERVICE_WORKER_ALLOWED
+
+**Type:** String = "service-worker-allowed"
+
+An allowed header name constant for service-worker-allowed
+
+### VARY
+
+**Type:** String = "Vary"
+
+An allowed header name constant for Vary
+
+### X_CONTENT_TYPE_OPTIONS
+
+**Type:** String = "X-Content-Type-Options"
+
+An allowed header name constant for X-Content-Type-Options
+
+### X_FRAME_OPTIONS
+
+**Type:** String = "X-FRAME-OPTIONS"
+
+An allowed header name constant for X-FRAME-OPTIONS. Note: The Commerce Cloud platform can override this header for tools like the Storefront Toolkit.
+
+### X_FRAME_OPTIONS_ALLOW_FROM
+
+**Type:** String = "ALLOW-FROM"
+
+An allowed value ALLOW-FROM for X-FRAME-OPTIONS
+
+### X_FRAME_OPTIONS_DENY_VALUE
+
+**Type:** String = "DENY"
+
+An allowed value DENY for X-FRAME-OPTIONS
+
+### X_FRAME_OPTIONS_SAMEORIGIN_VALUE
+
+**Type:** String = "SAMEORIGIN"
+
+An allowed value SAME-ORIGIN value for X-FRAME-OPTIONS
+
+### X_ROBOTS_TAG
+
+**Type:** String = "X-Robots-Tag"
+
+An allowed header name constant for X-Robots-Tag
+
+### X_XSS_PROTECTION
+
+**Type:** String = "X-XSS-Protection"
+
+An allowed header name constant for X-XSS-Protection
+
 ## Properties
 
 ### writer

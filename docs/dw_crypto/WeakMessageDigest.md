@@ -13,6 +13,30 @@ This API provides access to Deprecated algorithms. See MessageDigest for full do
 
 ## Constants
 
+### DIGEST_MD2
+
+**Type:** String = "MD2"
+
+Constant representing the MD2 algorithm. This algorithm is obsolete. Do not use it for any sensitive data
+
+### DIGEST_MD5
+
+**Type:** String = "MD5"
+
+Constant representing the MD5 algorithm. This algorithm is obsolete. Do not use it for any sensitive data
+
+### DIGEST_SHA
+
+**Type:** String = "SHA"
+
+Constant representing the SHA algorithm. This algorithm is obsolete. Do not use it for any sensitive data
+
+### DIGEST_SHA_1
+
+**Type:** String = "SHA-1"
+
+Constant representing the SHA 1 algorithm. This algorithm is obsolete. Do not use it for any sensitive data
+
 ## Properties
 
 ## Constructor Summary

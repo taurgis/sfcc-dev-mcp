@@ -13,6 +13,264 @@ Represents a Calendar and is based on the java.util.Calendar class. Refer to the
 
 ## Constants
 
+### AM_PM
+
+**Type:** Number = 9
+
+Indicates whether the HOUR is before or after noon.
+
+### APRIL
+
+**Type:** Number = 3
+
+Value for the month of year field representing April.
+
+### AUGUST
+
+**Type:** Number = 7
+
+Value for the month of year field representing August.
+
+### DATE
+
+**Type:** Number = 5
+
+Represents a date.
+
+### DAY_OF_MONTH
+
+**Type:** Number = 5
+
+Represents a day of the month.
+
+### DAY_OF_WEEK
+
+**Type:** Number = 7
+
+Represents a day of the week.
+
+### DAY_OF_WEEK_IN_MONTH
+
+**Type:** Number = 8
+
+Represents a day of the week in a month.
+
+### DAY_OF_YEAR
+
+**Type:** Number = 6
+
+Represents a day of the year.
+
+### DECEMBER
+
+**Type:** Number = 11
+
+Value for the month of year field representing December.
+
+### DST_OFFSET
+
+**Type:** Number = 16
+
+Indicates the daylight savings offset in milliseconds.
+
+### ERA
+
+**Type:** Number = 0
+
+Indicates the era such as 'AD' or 'BC' in the Julian calendar.
+
+### FEBRUARY
+
+**Type:** Number = 1
+
+Value for the month of year field representing February.
+
+### FRIDAY
+
+**Type:** Number = 6
+
+Value for the day of the week field representing Friday.
+
+### HOUR
+
+**Type:** Number = 10
+
+Represents an hour.
+
+### HOUR_OF_DAY
+
+**Type:** Number = 11
+
+Represents an hour of the day.
+
+### INPUT_DATE_PATTERN
+
+**Type:** Number = 3
+
+The input date pattern, for instance MM/dd/yyyy
+
+### INPUT_DATE_TIME_PATTERN
+
+**Type:** Number = 5
+
+The input date time pattern, for instance MM/dd/yyyy h:mm a
+
+### INPUT_TIME_PATTERN
+
+**Type:** Number = 4
+
+The input time pattern, for instance h:mm a
+
+### JANUARY
+
+**Type:** Number = 0
+
+Value for the month of year field representing January.
+
+### JULY
+
+**Type:** Number = 6
+
+Value for the month of year field representing July.
+
+### JUNE
+
+**Type:** Number = 5
+
+Value for the month of year field representing June.
+
+### LONG_DATE_PATTERN
+
+**Type:** Number = 1
+
+The long date pattern, for instance MMM/d/yyyy
+
+### MARCH
+
+**Type:** Number = 2
+
+Value for the month of year field representing March.
+
+### MAY
+
+**Type:** Number = 4
+
+Value for the month of year field representing May.
+
+### MILLISECOND
+
+**Type:** Number = 14
+
+Represents a millisecond.
+
+### MINUTE
+
+**Type:** Number = 12
+
+Represents a minute.
+
+### MONDAY
+
+**Type:** Number = 2
+
+Value for the day of the week field representing Monday.
+
+### MONTH
+
+**Type:** Number = 2
+
+Represents a month where the first month of the year is 0.
+
+### NOVEMBER
+
+**Type:** Number = 10
+
+Value for the month of year field representing November.
+
+### OCTOBER
+
+**Type:** Number = 9
+
+Value for the month of year field representing October.
+
+### SATURDAY
+
+**Type:** Number = 7
+
+Value for the day of the week field representing Saturday.
+
+### SECOND
+
+**Type:** Number = 13
+
+Represents a second.
+
+### SEPTEMBER
+
+**Type:** Number = 8
+
+Value for the month of year field representing September.
+
+### SHORT_DATE_PATTERN
+
+**Type:** Number = 0
+
+The short date pattern, for instance M/d/yy
+
+### SUNDAY
+
+**Type:** Number = 1
+
+Value for the day of the week field representing Sunday.
+
+### THURSDAY
+
+**Type:** Number = 5
+
+Value for the day of the week field representing Thursday.
+
+### TIME_PATTERN
+
+**Type:** Number = 2
+
+The time pattern, for instance h:mm:ss a
+
+### TUESDAY
+
+**Type:** Number = 3
+
+Value for the day of the week field representing Tuesday.
+
+### WEDNESDAY
+
+**Type:** Number = 4
+
+Value for the day of the week field representing Wednesday.
+
+### WEEK_OF_MONTH
+
+**Type:** Number = 4
+
+Represents a week of the month.
+
+### WEEK_OF_YEAR
+
+**Type:** Number = 3
+
+Represents a week in the year.
+
+### YEAR
+
+**Type:** Number = 1
+
+Represents a year.
+
+### ZONE_OFFSET
+
+**Type:** Number = 15
+
+Indicates the raw offset from GMT in milliseconds.
+
 ## Properties
 
 ### firstDayOfWeek

@@ -13,6 +13,36 @@ This is the base class for all service stubs accessible through a WebReference o
 
 ## Constants
 
+### CONNECTION_TIMEOUT
+
+**Type:** String
+
+This property allows the user to set the web service connection timeout value in milliseconds. By default, the web service connection timeout is 5000 milliseconds (5 seconds). The minimum allowed value is 100 milliseconds and the maximum allowed value is 15000 milliseconds (15 seconds). Demandware recommends setting timeout values in Business Manager Services module as it provides better analytics and timeout management.
+
+### ENDPOINT_ADDRESS_PROPERTY
+
+**Type:** String
+
+Standard property: target service endpoint address. The URI scheme for the endpoint address specification must correspond to the protocol/transport binding for this stub class.
+
+### PASSWORD_PROPERTY
+
+**Type:** String
+
+Standard property: password for authentication.
+
+### SESSION_MAINTAIN_PROPERTY
+
+**Type:** String
+
+Standard property: this boolean property is used by a service client to indicate whether or not it wants to participate in a session with a service endpoint. If this property is set to true, the service client indicates that it wants the session to be maintained. If set to false, the session is not maintained. The default value for this property is false.
+
+### USERNAME_PROPERTY
+
+**Type:** String
+
+Standard property: user name for authentication.
+
 ## Properties
 
 ### password

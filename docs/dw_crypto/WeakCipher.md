@@ -13,6 +13,12 @@ This API provides access to Deprecated algorithms. See Cipher for full documenta
 
 ## Constants
 
+### CHAR_ENCODING
+
+**Type:** String = "UTF8"
+
+Strings containing keys, plain texts, cipher texts etc. are internally converted into byte arrays using this encoding (currently UTF8).
+
 ## Properties
 
 ## Constructor Summary
@@ -360,7 +366,7 @@ From version 15.5. No longer available as of version 16.2. Requires Base64-encry
 **Parameters:**
 
 - `message`: Message to encrypt (this will be converted to UTF-8 first)
-- `publicKey`: A reference to a public key in the key store
+- `publicKey`: A reference to a public key
 - `transformation`: Transformation in "algorithm/mode/padding" format
 - `saltOrIV`: Initialization value appropriate for the algorithm
 - `iterations`: The number of passes to make when turning a passphrase into a key, if applicable
@@ -408,7 +414,7 @@ From version 16.2. Does not use a default initialization vector.
 **Parameters:**
 
 - `message`: Message to encrypt (this will be converted to UTF-8 first)
-- `publicKey`: A reference to a public key in the key store
+- `publicKey`: A reference to a public key
 - `transformation`: Transformation in "algorithm/mode/padding" format
 - `saltOrIV`: Initialization value appropriate for the algorithm
 - `iterations`: The number of passes to make when turning a passphrase into a key, if applicable
@@ -460,7 +466,7 @@ From version 15.5. No longer available as of version 16.2. Requires Base64-encry
 **Parameters:**
 
 - `messageBytes`: The bytes to encrypt.
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: Transformation in "algorithm/mode/padding" format.
 - `saltOrIV`: Initialization value appropriate for the algorithm.
 - `iterations`: The number of passes to make when turning a passphrase into a key.
@@ -516,7 +522,7 @@ From version 16.2. Does not use a default initialization vector.
 **Parameters:**
 
 - `messageBytes`: The bytes to encrypt.
-- `publicKey`: A reference to a public key in the key store.
+- `publicKey`: A reference to a public key.
 - `transformation`: Transformation in "algorithm/mode/padding" format.
 - `saltOrIV`: Initialization value appropriate for the algorithm.
 - `iterations`: The number of passes to make when turning a passphrase into a key.

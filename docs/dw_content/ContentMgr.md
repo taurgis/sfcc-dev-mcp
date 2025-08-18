@@ -13,6 +13,12 @@ Provides helper methods for getting content assets, library folders and the cont
 
 ## Constants
 
+### PRIVATE_LIBRARY
+
+**Type:** String = "PrivateLibrary"
+
+The input string to identify that the library is a private site library when invoking getLibrary(String).
+
 ## Properties
 
 ### siteLibrary
