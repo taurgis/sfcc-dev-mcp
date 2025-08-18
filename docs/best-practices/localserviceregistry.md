@@ -336,9 +336,5 @@ The Service Definition links the Credential and Profile to create the final, nam
    - **Profile**: Select the Service Profile you configured in Step 2 from the dropdown list.
 
    - **Credential**: Select the Service Credential you created in Step 1 from the dropdown list.
-   
-
-   
-   
 
 4. Click **Apply** to save the service definition.Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.
