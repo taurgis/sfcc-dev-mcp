@@ -26,6 +26,9 @@ header_pages:
 # Social links
 github_username: taurgis
 
+github:
+  repository_url: "https://github.com/taurgis/sfcc-dev-mcp"
+
 # Build settings
 markdown: kramdown
 highlighter: rouge
