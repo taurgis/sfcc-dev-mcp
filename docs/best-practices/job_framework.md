@@ -979,12 +979,15 @@ Configure resource locks in Business Manager to prevent conflicts:
 ```javascript
 exports.beforeStep = function (parameters, stepExecution) {
     var logger = Logger.getLogger('jobs', 'ReportingJob');
-    var system = require('dw/system/System');
+    var System = require('dw/system/System');
     
-    if (system.getInstanceType() === 0) { // Development = 0, Staging = 1, Production = 2
+    if (System.getInstanceType() === System.DEVELOPMENT_SYSTEM) {
         logger.debug('Running in development mode');
         // Enable verbose logging for development
-    } else {
+    } else if (System.getInstanceType() === System.STAGING_SYSTEM) {
+        logger.debug('Running in staging mode');
+        // Moderate logging for staging
+    } else if (System.getInstanceType() === System.PRODUCTION_SYSTEM) {
         logger.info('Running in production mode');
         // Minimal logging for performance
     }
