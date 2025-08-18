@@ -67,6 +67,198 @@ Models are passed to templates via the `viewData` variable (accessible as `pdict
 4. **Performance**: Minimize API calls and database queries within models
 5. **Testability**: Models should be unit-testable with mock data
 
+## Default SFRA Model Project Structure
+
+Understanding the default SFRA model structure is essential for building consistent and maintainable e-commerce applications. The base SFRA cartridge (`app_storefront_base`) provides a comprehensive model library that follows established patterns and conventions.
+
+### Directory Organization
+
+```
+cartridge/models/
+├── account.js                    # Customer account model
+├── address.js                    # Address transformation model
+├── billing.js                    # Billing information model
+├── cart.js                       # Shopping cart model with totals
+├── categories.js                 # Category navigation model
+├── content.js                    # Content asset model
+├── locale.js                     # Locale and currency model
+├── order.js                      # Order model for order history
+├── payment.js                    # Payment instrument model
+├── productLineItems.js           # Collection of product line items
+├── shipping.js                   # Shipping address and methods
+├── store.js                      # Individual store model
+├── stores.js                     # Store locator collection model
+├── totals.js                     # Order/cart totals calculation model
+├── price/                        # Price-related models
+│   ├── default.js                # Standard price model
+│   ├── range.js                  # Price range model (min-max)
+│   └── tiered.js                 # Tiered pricing model
+├── product/                      # Product-related models
+│   ├── bonusProduct.js           # Bonus/promotional product model
+│   ├── fullProduct.js            # Complete product details model
+│   ├── productAttributes.js     # Product attributes model
+│   ├── productBundle.js          # Product bundle model
+│   ├── productImages.js          # Product images model
+│   ├── productSet.js             # Product set model
+│   ├── productTile.js            # Product tile/listing model
+│   └── decorators/               # Product decorator functions
+│       ├── index.js              # Decorator registry
+│       ├── attributes.js         # Product attributes decorator
+│       ├── availability.js       # Stock availability decorator
+│       ├── base.js               # Core product information
+│       ├── bonusUnitPrice.js     # Bonus pricing decorator
+│       ├── bundleReadyToOrder.js # Bundle ordering readiness
+│       ├── bundledProducts.js    # Bundle component products
+│       ├── currentUrl.js         # Product URL decorator
+│       ├── description.js        # Product description decorator
+│       ├── images.js             # Product images decorator
+│       ├── online.js             # Online availability decorator
+│       ├── options.js            # Product options decorator
+│       ├── pageMetaData.js       # SEO metadata decorator
+│       ├── price.js              # Price calculation decorator
+│       ├── promotions.js         # Promotional pricing decorator
+│       ├── quantity.js           # Quantity handling decorator
+│       ├── quantitySelector.js   # Quantity selector decorator
+│       ├── ratings.js            # Product ratings decorator
+│       ├── raw.js                # Raw API object decorator
+│       ├── readyToOrder.js       # Order readiness decorator
+│       ├── searchPrice.js        # Search result pricing
+│       ├── searchVariationAttributes.js # Search variation handling
+│       ├── setIndividualProducts.js # Product set individuals
+│       ├── setProductsCollection.js # Product set collection
+│       ├── setReadyToOrder.js    # Set ordering readiness
+│       ├── sizeChart.js          # Size chart decorator
+│       ├── template.js           # Template selection decorator
+│       └── variationAttributes.js # Variation attributes decorator
+├── productLineItem/              # Product line item models
+│   ├── bonusOrderLineItem.js     # Bonus order line item
+│   ├── bonusProductLineItem.js   # Bonus product line item
+│   ├── bundleLineItem.js         # Bundle line item model
+│   ├── bundleOrderLineItem.js    # Bundle order line item
+│   ├── orderLineItem.js          # Order line item model
+│   ├── productLineItem.js        # Cart line item model
+│   └── decorators/               # Line item decorators
+│       ├── index.js              # Decorator registry
+│       ├── appliedPromotions.js  # Applied promotion decorator
+│       ├── bonusProductLineItem.js # Bonus product decorator
+│       ├── bonusProductLineItemUUID.js # Bonus UUID decorator
+│       ├── bonusUnitPrice.js     # Bonus pricing decorator
+│       ├── bundledProductLineItems.js # Bundle items decorator
+│       ├── discountBonusLineItems.js # Discount bonus decorator
+│       ├── gift.js               # Gift message decorator
+│       ├── options.js            # Line item options decorator
+│       ├── orderable.js          # Orderability decorator
+│       ├── preOrderUUID.js       # Pre-order UUID decorator
+│       ├── priceTotal.js         # Price total decorator
+│       ├── quantity.js           # Quantity decorator
+│       ├── quantityOptions.js    # Quantity options decorator
+│       ├── renderedPromotions.js # Rendered promotions decorator
+│       ├── shipment.js           # Shipment decorator
+│       └── uuid.js               # UUID decorator
+├── search/                       # Search-related models
+│   ├── contentSearch.js          # Content search results model
+│   ├── productSearch.js          # Product search results model
+│   ├── productSortOptions.js     # Sort options model
+│   ├── attributeRefinementValue/ # Search refinement models
+│   └── suggestions/              # Search suggestion models
+└── shipping/                     # Shipping-related models
+    └── shippingMethod.js         # Shipping method model
+```
+
+### Key Model Categories
+
+#### **1. Core Commerce Models**
+- **`cart.js`** - Central shopping cart model with totals, line items, and promotions
+- **`order.js`** - Order model for order history and confirmation pages
+- **`account.js`** - Customer account information and preferences
+- **`payment.js`** - Payment instruments and billing information
+
+#### **2. Product Models**
+- **`product/fullProduct.js`** - Complete product details for PDP
+- **`product/productTile.js`** - Lightweight product info for listings
+- **`product/productBundle.js`** - Bundle product handling
+- **`product/decorators/`** - Modular product enhancement functions
+
+#### **3. Line Item Models**
+- **`productLineItem/productLineItem.js`** - Cart line items
+- **`productLineItem/orderLineItem.js`** - Order line items
+- **`productLineItem/decorators/`** - Line item enhancement functions
+
+#### **4. Pricing Models**
+- **`price/default.js`** - Standard pricing model
+- **`price/range.js`** - Price range for variable pricing
+- **`price/tiered.js`** - Volume-based pricing tiers
+- **`totals.js`** - Cart/order total calculations
+
+#### **5. Location & Shipping Models**
+- **`store.js`** & **`stores.js`** - Store locator functionality
+- **`shipping.js`** - Shipping address and method selection
+- **`address.js`** - Address transformation and validation
+
+#### **6. Search Models**
+- **`search/productSearch.js`** - Search results and refinements
+- **`search/contentSearch.js`** - Content search functionality
+- **`search/productSortOptions.js`** - Sorting options for search
+
+### Model Inheritance Patterns
+
+The SFRA model structure follows several key patterns:
+
+#### **Decorator Pattern** (Product Models)
+```javascript
+// product/decorators/index.js - Central decorator registry
+module.exports = {
+    base: require('*/cartridge/models/product/decorators/base'),
+    price: require('*/cartridge/models/product/decorators/price'),
+    images: require('*/cartridge/models/product/decorators/images'),
+    // ... other decorators
+};
+
+// Usage in fullProduct.js
+var decorators = require('*/cartridge/models/product/decorators/index');
+function fullProduct(product, apiProduct, options) {
+    decorators.base(product, apiProduct, options.productType);
+    decorators.price(product, apiProduct, options.promotions);
+    decorators.images(product, apiProduct, options);
+    return product;
+}
+```
+
+#### **Composition Pattern** (Complex Models)
+```javascript
+// cart.js - Composes multiple sub-models
+var TotalsModel = require('*/cartridge/models/totals');
+var ProductLineItemsModel = require('*/cartridge/models/productLineItems');
+
+function Cart(basket) {
+    this.totals = new TotalsModel(basket);
+    this.items = new ProductLineItemsModel(basket.productLineItems);
+    this.shipments = createShipmentModels(basket.shipments);
+}
+```
+
+#### **Factory Pattern** (Conditional Models)
+```javascript
+// Different models based on product type
+function createProductModel(apiProduct, type) {
+    switch (type) {
+        case 'full': return require('*/cartridge/models/product/fullProduct');
+        case 'tile': return require('*/cartridge/models/product/productTile');
+        case 'bundle': return require('*/cartridge/models/product/productBundle');
+    }
+}
+```
+
+### Best Practices for Structure
+
+1. **Follow the Directory Convention**: Maintain the same directory structure in custom cartridges
+2. **Use Decorator Registries**: Create `index.js` files to register and export decorators
+3. **Separate Concerns**: Keep pricing, images, and availability in separate decorators
+4. **Maintain Model Hierarchy**: Extend base models rather than replacing entirely
+5. **Consistent Naming**: Follow SFRA naming conventions for predictable imports
+
+This structure provides a solid foundation for building scalable, maintainable e-commerce models that integrate seamlessly with the SFRA framework.
+
 ## Model Architecture Patterns
 
 ### 1. Simple Data Models
@@ -153,6 +345,39 @@ function fullProduct(product, apiProduct, options) {
 
 module.exports = fullProduct;
 ```
+
+**⚠️ CRITICAL DECORATOR WARNING**
+
+**NEVER** create decorators that return a new object or use `Object.assign()` to clone the product. This breaks the SFRA model pattern and causes unpredictable behavior:
+
+```javascript
+// ❌ WRONG: Never do this in a decorator
+module.exports = function randomString(product) {
+    var decoratedProduct = Object.assign({}, product);
+    decoratedProduct.randomString = Math.random().toString(36).substring(2, 15);
+    return decoratedProduct;  // This breaks the model!
+};
+```
+
+**Why this breaks models:**
+- Decorators should **mutate** the original product object, not create copies
+- Returning a new object breaks the reference chain between decorators
+- Subsequent decorators will operate on the wrong object
+- The final model will be incomplete or corrupted
+
+```javascript
+// ✅ CORRECT: Mutate the original object
+module.exports = function randomString(product) {
+    product.randomString = Math.random().toString(36).substring(2, 15);
+    // No return statement - decorators modify in place
+};
+```
+
+**Decorator Best Practices:**
+1. **Mutate, don't clone** - Always modify the passed product object directly
+2. **No return values** - Decorators should not return anything
+3. **Side effects only** - Decorators should only add/modify properties
+4. **Reference preservation** - Keep the original object reference intact
 
 ### 3. Factory Pattern Models
 
