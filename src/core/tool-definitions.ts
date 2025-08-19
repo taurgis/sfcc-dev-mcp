@@ -913,12 +913,8 @@ export const CODE_VERSION_TOOLS = [
           type: 'string',
           description: 'The ID of the code version to activate. Must be an existing inactive code version.',
         },
-        resourceState: {
-          type: 'string',
-          description: 'The _resource_state value from the code version object. Required for optimistic locking. Get this from get_code_versions response.',
-        },
       },
-      required: ['codeVersionId', 'resourceState'],
+      required: ['codeVersionId'],
     },
   },
 ];

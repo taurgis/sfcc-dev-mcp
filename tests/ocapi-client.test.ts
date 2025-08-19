@@ -236,10 +236,9 @@ describe('OCAPIClient', () => {
       (client as any).codeVersions = mockCodeVersionsClient;
 
       const codeVersionId = 'version2';
-      const resourceState = 'resource-state-12345';
-      const result = await client.activateCodeVersion(codeVersionId, resourceState);
+      const result = await client.activateCodeVersion(codeVersionId);
 
-      expect(mockCodeVersionsClient.activateCodeVersion).toHaveBeenCalledWith(codeVersionId, resourceState);
+      expect(mockCodeVersionsClient.activateCodeVersion).toHaveBeenCalledWith(codeVersionId);
       expect(result).toBe(mockActivatedVersion);
     });
   });

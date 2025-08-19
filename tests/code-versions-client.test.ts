@@ -101,11 +101,9 @@ describe('OCAPICodeVersionsClient', () => {
       (client as any).patch = mockPatch;
 
       const codeVersionId = 'version2';
-      const resourceState = 'resource-state-12345';
-      const result = await client.activateCodeVersion(codeVersionId, resourceState);
+      const result = await client.activateCodeVersion(codeVersionId);
 
       expect(mockPatch).toHaveBeenCalledWith('/code_versions/version2', {
-        _resource_state: resourceState,
         active: true,
       });
       expect(result).toBe(mockActivatedVersion);
@@ -118,17 +116,16 @@ describe('OCAPICodeVersionsClient', () => {
       (Validator as any).validateRequired = mockValidateRequired;
 
       const codeVersionId = 'version2';
-      const resourceState = 'resource-state-12345';
 
       // Mock the patch method
       const mockPatch = jest.fn().mockResolvedValue({});
       (client as any).patch = mockPatch;
 
-      await client.activateCodeVersion(codeVersionId, resourceState);
+      await client.activateCodeVersion(codeVersionId);
 
       expect(mockValidateRequired).toHaveBeenCalledWith(
-        { codeVersionId, resourceState },
-        ['codeVersionId', 'resourceState'],
+        { codeVersionId },
+        ['codeVersionId'],
       );
     });
   });

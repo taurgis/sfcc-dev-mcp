@@ -182,11 +182,11 @@ export class OCAPIClient {
    * Activate a specific code version on the SFCC instance
    *
    * @param {string} codeVersionId - The ID of the code version to activate
-   * @param {string} resourceState - The _resource_state for optimistic locking
+   * @param {string} codeVersionId - The ID of the code version to activate
    * @returns {Promise<any>} Updated code version object
    */
-  async activateCodeVersion(codeVersionId: string, resourceState: string): Promise<any> {
-    return this.codeVersions.activateCodeVersion(codeVersionId, resourceState);
+  async activateCodeVersion(codeVersionId: string): Promise<any> {
+    return this.codeVersions.activateCodeVersion(codeVersionId);
   }
 
   // =============================================================================

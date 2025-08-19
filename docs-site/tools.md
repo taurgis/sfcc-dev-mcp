@@ -473,7 +473,6 @@ Activate a specific code version to resolve deployment issues and perform code-s
 
 **Parameters:**
 - `codeVersionId` (required): The ID of the code version to activate
-- `resourceState` (required): The _resource_state value for optimistic locking (get from `get_code_versions`)
 
 **Use Cases:**
 - Perform code-switch fixes for SCAPI endpoint registration issues
@@ -484,17 +483,15 @@ Activate a specific code version to resolve deployment issues and perform code-s
 **Important Notes:**
 - Only inactive code versions can be activated
 - Activating a version automatically deactivates the currently active version
-- The `resourceState` parameter prevents conflicts during concurrent modifications
 
 **Example Usage:**
 ```javascript
-// First, get available code versions to find the ID and resource state
+// First, get available code versions to find the ID
 get_code_versions()
 
-// Then activate a specific version using the resource state from above
+// Then activate a specific version
 activate_code_version({
-  codeVersionId: "version2",
-  resourceState: "950cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd6"
+  codeVersionId: "version2"
 })
 ```
 
@@ -528,10 +525,9 @@ Here's a typical workflow for performing a code-switch fix:
 get_code_versions()
 // Response shows version1 is active, version2 is inactive
 
-// Step 2: Activate the desired version using its resource state
+// Step 2: Activate the desired version
 activate_code_version({
-  codeVersionId: "version2", 
-  resourceState: "950cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd6"
+  codeVersionId: "version2"
 })
 // This automatically deactivates version1 and activates version2
 

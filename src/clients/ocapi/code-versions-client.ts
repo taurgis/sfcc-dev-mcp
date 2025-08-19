@@ -31,14 +31,12 @@ export class OCAPICodeVersionsClient extends OCAPIAuthClient {
    * Activate a specific code version by setting its active flag to true
    *
    * @param {string} codeVersionId - The ID of the code version to activate
-   * @param {string} resourceState - The _resource_state for optimistic locking
    * @returns {Promise<any>} Updated code version object
    */
-  async activateCodeVersion(codeVersionId: string, resourceState: string): Promise<any> {
-    Validator.validateRequired({ codeVersionId, resourceState }, ['codeVersionId', 'resourceState']);
+  async activateCodeVersion(codeVersionId: string): Promise<any> {
+    Validator.validateRequired({ codeVersionId }, ['codeVersionId']);
 
     const requestBody = {
-      _resource_state: resourceState,
       active: true,
     };
 

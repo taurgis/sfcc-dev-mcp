@@ -378,11 +378,9 @@ export class SFCCDevServer {
         break;
       case 'activate_code_version':
         if (!args?.codeVersionId) {throw new Error('codeVersionId is required');}
-        if (!args?.resourceState) {throw new Error('resourceState is required');}
         logMessage = `Activating code version: "${args.codeVersionId}"`;
         result = await this.ocapiClient?.activateCodeVersion(
           args.codeVersionId as string,
-          args.resourceState as string,
         );
         this.logger.debug(`Successfully activated code version "${args.codeVersionId}"`);
         break;
