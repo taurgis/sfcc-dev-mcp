@@ -266,8 +266,9 @@ npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug true
 **Additional tools in full mode:**
 - Log analysis (7 tools) - Requires hostname, username, password
 - System object definitions (6 tools) - Requires client-id, client-secret
+- Code version management (2 tools) - Requires client-id, client-secret
 
-**Total: 28 tools available** (15 documentation + 13 full mode)
+**Total: 30 tools available** (15 documentation + 15 full mode)
 
 ## 🔒 Security Configuration
 

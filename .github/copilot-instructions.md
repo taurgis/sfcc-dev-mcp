@@ -202,6 +202,10 @@ sfcc-dev-mcp/
    - System object schema exploration
    - Custom object attribute definitions search
 
+7. **Code Version Tools** (2 tools)
+   - Code version listing and management
+   - Code version activation for deployment fixes
+
 ### 🚀 Operating Modes
 
 #### **Documentation-Only Mode**

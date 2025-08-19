@@ -135,7 +135,7 @@ The most comprehensive setup with full MCP integration for complex debugging and
 - ✅ **Architecture review** and planning
 - ✅ **Complete log analysis** (Full Mode)
 - ✅ **System object exploration** (Full Mode)
-- ✅ **Site preference management** (Full Mode)
+- ✅ **Code version management** (Full Mode)
 
 ### Troubleshooting Claude Desktop
 - **Server not starting**: Check config file syntax with [JSON validator](https://jsonlint.com/)

@@ -132,7 +132,7 @@ Complete development experience with SFCC instance access:
 - All documentation-only features
 - Real-time log analysis
 - System object definitions
-- Site preference management
+- Code version management
 
 ## 🔗 Quick Links
 

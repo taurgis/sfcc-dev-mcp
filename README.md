@@ -55,7 +55,7 @@ Create a `dw.json` file with your SFCC credentials:
 
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
-| **Documentation-Only** | 12 tools | ❌ No |
+| **Documentation-Only** | 15 tools | ❌ No |
 | **Full Mode** | 30 tools | ✅ Yes |
 
 ### Documentation-Only Mode
@@ -67,10 +67,9 @@ Perfect for learning and development - no SFCC instance required:
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
-- All documentation-only features (12 tools)
+- All documentation-only features (15 tools)
 - Real-time log analysis (7 tools)
 - System object definitions (6 tools)
-- Site preference management (2 tools)
 - Code version management (2 tools)
 
 ## 🤖 AI Interface Setup
