@@ -14,7 +14,31 @@ global.fetch = jest.fn();
 jest.mock('../src/clients/base/oauth-token.js');
 
 // Mock Logger
-jest.mock('../src/utils/logger.js');
+jest.mock('../src/utils/logger.js', () => ({
+  Logger: {
+    initialize: jest.fn(),
+    getInstance: jest.fn(() => ({
+      methodEntry: jest.fn(),
+      methodExit: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      timing: jest.fn(),
+      log: jest.fn(),
+      info: jest.fn(),
+    })),
+    getChildLogger: jest.fn(() => ({
+      methodEntry: jest.fn(),
+      methodExit: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      timing: jest.fn(),
+      log: jest.fn(),
+      info: jest.fn(),
+    })),
+  },
+}));
 
 // Mock BaseHttpClient
 jest.mock('../src/clients/base/http-client.js');

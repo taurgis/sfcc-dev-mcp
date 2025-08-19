@@ -12,9 +12,6 @@ import { OCAPICodeVersionsClient } from './ocapi/code-versions-client.js';
 import { OCAPIAuthClient } from './base/ocapi-auth-client.js';
 import { Logger } from '../utils/logger.js';
 
-// Create a logger instance for this module
-const logger = new Logger('OCAPIClient');
-
 /**
  * Interface for common query parameters used across multiple endpoints
  */
@@ -73,9 +70,11 @@ export class OCAPIClient {
   public readonly sitePreferences: OCAPISitePreferencesClient;
   public readonly codeVersions: OCAPICodeVersionsClient;
   private readonly authClient: OCAPIAuthClient;
+  private logger: Logger;
 
   constructor(config: OCAPIConfig) {
-    logger.debug(`Initializing OCAPI client for hostname: ${config.hostname}`);
+    this.logger = Logger.getChildLogger('OCAPIClient');
+    this.logger.debug(`Initializing OCAPI client for hostname: ${config.hostname}`);
 
     const finalConfig = {
       version: 'v21_3',
@@ -88,7 +87,7 @@ export class OCAPIClient {
     this.codeVersions = new OCAPICodeVersionsClient(finalConfig);
     this.authClient = new OCAPIAuthClient(finalConfig);
 
-    logger.debug('OCAPI client initialized with specialized modules');
+    this.logger.debug('OCAPI client initialized with specialized modules');
   }
 
   // =============================================================================

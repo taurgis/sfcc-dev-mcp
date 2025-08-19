@@ -12,9 +12,6 @@ import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
 
-// Create a logger instance for this module
-const logger = new Logger('DocsClient');
-
 export interface SFCCClassInfo {
   className: string;
   packageName: string;
@@ -66,10 +63,12 @@ export class SFCCDocumentationClient {
   private classCache: Map<string, SFCCClassInfo> = new Map();
   private cacheManager: CacheManager;
   private initialized = false;
+  private logger: Logger;
 
   constructor() {
     this.docsPath = PathResolver.getDocsPath();
     this.cacheManager = new CacheManager();
+    this.logger = Logger.getChildLogger('DocsClient');
   }
 
   /**
@@ -109,25 +108,25 @@ export class SFCCDocumentationClient {
             try {
               // Enhanced security validation - validate file name before path operations
               if (!file || typeof file !== 'string') {
-                logger.warn(`Warning: Invalid file name type: ${file}`);
+                this.logger.warn(`Warning: Invalid file name type: ${file}`);
                 continue;
               }
 
               // Prevent null bytes and dangerous characters in the file name itself
               if (file.includes('\0') || file.includes('\x00')) {
-                logger.warn(`Warning: File name contains null bytes: ${file}`);
+                this.logger.warn(`Warning: File name contains null bytes: ${file}`);
                 continue;
               }
 
               // Prevent path traversal sequences in the file name
               if (file.includes('..') || file.includes('/') || file.includes('\\')) {
-                logger.warn(`Warning: File name contains path traversal sequences: ${file}`);
+                this.logger.warn(`Warning: File name contains path traversal sequences: ${file}`);
                 continue;
               }
 
               // Only allow alphanumeric characters, underscores, hyphens, and dots for file names
               if (!/^[a-zA-Z0-9_.-]+$/.test(file)) {
-                logger.warn(`Warning: File name contains invalid characters: ${file}`);
+                this.logger.warn(`Warning: File name contains invalid characters: ${file}`);
                 continue;
               }
 
@@ -138,13 +137,13 @@ export class SFCCDocumentationClient {
 
               // Ensure the file is within the package directory and docs directory
               if (!resolvedPath.startsWith(resolvedPackagePath) || !resolvedPath.startsWith(resolvedDocsPath)) {
-                logger.warn(`Warning: File path outside allowed directory: ${file}`);
+                this.logger.warn(`Warning: File path outside allowed directory: ${file}`);
                 continue;
               }
 
               // Ensure the file still ends with .md after path resolution
               if (!resolvedPath.toLowerCase().endsWith('.md')) {
-                logger.warn(`Warning: File does not reference a markdown file: ${file}`);
+                this.logger.warn(`Warning: File does not reference a markdown file: ${file}`);
                 continue;
               }
 
@@ -152,13 +151,13 @@ export class SFCCDocumentationClient {
 
               // Basic content validation
               if (!content.trim()) {
-                logger.warn(`Warning: Empty documentation file: ${file}`);
+                this.logger.warn(`Warning: Empty documentation file: ${file}`);
                 continue;
               }
 
               // Check for binary content
               if (content.includes('\0')) {
-                logger.warn(`Warning: Binary content detected in: ${file}`);
+                this.logger.warn(`Warning: Binary content detected in: ${file}`);
                 continue;
               }
 
@@ -172,12 +171,12 @@ export class SFCCDocumentationClient {
                 },
               );
             } catch (fileError) {
-              logger.warn(`Warning: Could not read file ${file}: ${fileError}`);
+              this.logger.warn(`Warning: Could not read file ${file}: ${fileError}`);
             }
           }
         }
       } catch (error) {
-        logger.warn(`Warning: Could not read package ${packageName}: ${error}`);
+        this.logger.warn(`Warning: Could not read package ${packageName}: ${error}`);
       }
     }
   }
@@ -640,7 +639,7 @@ export class SFCCDocumentationClient {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // Silently skip types that can't be found
-        logger.warn(`Could not find details for referenced type: ${typeName}`);
+        this.logger.warn(`Could not find details for referenced type: ${typeName}`);
       }
     }
 

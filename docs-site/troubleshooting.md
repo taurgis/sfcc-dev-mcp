@@ -286,36 +286,46 @@ npx sfcc-dev-mcp --debug false --dw-json ./dw.json
 
 **MCP Server Logs:**
 
-Logs are stored in the system temporary directory under `sfcc-mcp-logs/`:
+Logs are stored in the operating system's temporary directory via Node.js `os.tmpdir()`:
 
-| OS | Base Log Location | 
-|----|-------------------|
-| **macOS** | `/tmp/sfcc-mcp-logs/` |
+| OS | Log Location | 
+|----|--------------|
+| **macOS** | `/var/folders/{user-id}/T/sfcc-mcp-logs/` |
+| **Linux** | `/tmp/sfcc-mcp-logs/` (typically) |
 | **Windows** | `%TEMP%\sfcc-mcp-logs\` |
-| **Linux** | `/tmp/sfcc-mcp-logs/` |
+
+> **Note**: On macOS, the actual path includes a user-specific folder ID. This provides better security and user isolation compared to the system-wide `/tmp` directory.
+
+**Find Your Exact Log Directory:**
+```bash
+# Get the exact path for your system
+node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
+
+# Or check the debug logs which show the directory on startup
+```
 
 **Log Files Generated:**
-- `sfcc-mcp-info.log` - Informational messages
+- `sfcc-mcp-info.log` - Informational messages and startup logs
 - `sfcc-mcp-warn.log` - Warning messages  
-- `sfcc-mcp-error.log` - Error messages
-- `sfcc-mcp-debug.log` - Debug messages (when `--debug` is enabled)
+- `sfcc-mcp-error.log` - Error messages and stack traces
+- `sfcc-mcp-debug.log` - Debug messages (only when `--debug` is enabled)
 
 **View Logs in Real-Time:**
 ```bash
-# macOS/Linux - View error logs
+# Find and view error logs (macOS)
+find /var/folders -name "sfcc-mcp-error.log" 2>/dev/null | head -1 | xargs tail -f
+
+# Find and view info logs (macOS)  
+find /var/folders -name "sfcc-mcp-info.log" 2>/dev/null | head -1 | xargs tail -f
+
+# Linux - use traditional /tmp path
 tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-error.log
 
-# View info logs
-tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-info.log
-
-# View debug logs (when debug mode is enabled)
-tail -f /tmp/sfcc-mcp-logs/sfcc-mcp-debug.log
-
-# Windows - View logs with PowerShell
+# Windows - use PowerShell
 Get-Content -Wait "$env:TEMP\sfcc-mcp-logs\sfcc-mcp-error.log"
 
-# View last 100 lines
-tail -n 100 /tmp/sfcc-mcp-logs/sfcc-mcp-error.log
+# View last 100 lines (replace path with your actual log directory)
+tail -n 100 /path/to/your/sfcc-mcp-logs/sfcc-mcp-error.log
 ```
 
 ---

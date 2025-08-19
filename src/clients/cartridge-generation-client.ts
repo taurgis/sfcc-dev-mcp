@@ -32,8 +32,8 @@ export class CartridgeGenerationClient {
   private logger: Logger;
   private templates: CartridgeTemplates;
 
-  constructor(debug: boolean = false) {
-    this.logger = new Logger('CartridgeGenerationClient', debug);
+  constructor() {
+    this.logger = Logger.getChildLogger('CartridgeGenerationClient');
     this.templates = this.initializeTemplates();
   }
 

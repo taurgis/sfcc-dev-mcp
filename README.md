@@ -99,6 +99,36 @@ npm install -g sfcc-dev-mcp
 sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ```
 
+## 🐛 Debug Mode & Logging
+
+### Enable Debug Logging
+```bash
+# Enable debug mode for detailed logging
+npx sfcc-dev-mcp --debug
+
+# Or with configuration file
+npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
+```
+
+### Log File Locations
+
+The server writes logs to your system's temporary directory:
+
+- **macOS**: `/var/folders/{user-id}/T/sfcc-mcp-logs/`
+- **Linux**: `/tmp/sfcc-mcp-logs/` 
+- **Windows**: `%TEMP%\sfcc-mcp-logs\`
+
+**Log Files Created:**
+- `sfcc-mcp-info.log` - General application logs and startup messages
+- `sfcc-mcp-debug.log` - Detailed debug information (only when `--debug` is enabled)
+- `sfcc-mcp-error.log` - Error messages and stack traces
+- `sfcc-mcp-warn.log` - Warning messages
+
+### Finding Your Log Directory
+```javascript
+// The exact path varies by system - to find yours:
+node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
+
 ## 📖 Documentation
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references

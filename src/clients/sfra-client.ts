@@ -10,6 +10,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
+import { Logger } from '../utils/logger.js';
 
 export interface SFRADocument {
   title: string;
@@ -85,10 +86,12 @@ export class SFRAClient {
   private documentsCache: Map<string, SFRADocument> = new Map();
   private lastScanTime: number = 0;
   private static readonly SCAN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private logger: Logger;
 
   constructor() {
     this.cache = new CacheManager();
     this.docsPath = PathResolver.getSFRADocsPath();
+    this.logger = Logger.getChildLogger('SFRAClient');
   }
 
   /**
@@ -130,7 +133,7 @@ export class SFRAClient {
             });
           }
         } catch (error) {
-          console.error(`Error processing SFRA document ${filename}:`, error);
+          this.logger.error(`Error processing SFRA document ${filename}:`, error);
           // Continue processing other files
         }
       }
@@ -151,7 +154,7 @@ export class SFRAClient {
 
       return documents;
     } catch (error) {
-      console.error('Error scanning SFRA documents directory:', error);
+      this.logger.error('Error scanning SFRA documents directory:', error);
       return [];
     }
   }
@@ -223,7 +226,7 @@ export class SFRAClient {
 
       return document;
     } catch (error) {
-      console.error(`Error loading SFRA document metadata ${documentName}:`, error);
+      this.logger.error(`Error loading SFRA document metadata ${documentName}:`, error);
       return null;
     }
   }
@@ -257,7 +260,7 @@ export class SFRAClient {
       this.documentsCache.set(documentName, fullDocument);
       return fullDocument;
     } catch (error) {
-      console.error(`Error loading full SFRA document ${documentName}:`, error);
+      this.logger.error(`Error loading full SFRA document ${documentName}:`, error);
       return metadata; // Return metadata even if content loading failed
     }
   }

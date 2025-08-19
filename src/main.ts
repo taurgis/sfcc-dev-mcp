@@ -10,8 +10,6 @@ import { Logger } from './utils/logger.js';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 
-const logger = new Logger('SFCC-MCP-Server');
-
 /**
  * Parse command line arguments to extract configuration options
  */
@@ -51,6 +49,7 @@ function findDwJsonFile(): string | undefined {
 
   for (const path of commonPaths) {
     if (existsSync(path)) {
+      const logger = Logger.getInstance();
       logger.debug(`Found dw.json at: ${path}`);
       return path;
     }
@@ -66,6 +65,10 @@ async function main(): Promise<void> {
   try {
     const options = parseCommandLineArgs();
     const debug = options.debug ?? false;
+
+    // Initialize the global logger with debug setting
+    Logger.initialize('SFCC-MCP-Server', true, debug);
+    const logger = Logger.getInstance();
 
     logger.log('Starting SFCC Development MCP Server...');
     if (debug) {
@@ -98,9 +101,10 @@ async function main(): Promise<void> {
     }
 
     // Create and start the server
-    const server = new SFCCDevServer(config, debug);
+    const server = new SFCCDevServer(config);
     await server.run();
   } catch (error) {
+    const logger = Logger.getInstance();
     logger.error('Failed to start SFCC Development MCP Server:', error);
 
     if (error instanceof Error) {
@@ -118,6 +122,7 @@ async function main(): Promise<void> {
 
 // Run the main function
 main().catch((error) => {
+  const logger = Logger.getInstance();
   logger.error('Unhandled error:', error);
   process.exit(1);
 });

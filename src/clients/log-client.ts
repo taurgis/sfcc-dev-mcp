@@ -17,9 +17,6 @@ import {
 } from '../utils/utils.js';
 import { Logger } from '../utils/logger.js';
 
-// Create a logger instance for this module
-const logger = new Logger('LogClient');
-
 /**
  * Client for accessing SFCC logs via WebDAV
  *
@@ -29,6 +26,7 @@ const logger = new Logger('LogClient');
 export class SFCCLogClient {
   private webdavClient: any;
   private config: SFCCConfig;
+  private logger: Logger;
 
   /**
    * Initialize the SFCC log client
@@ -37,6 +35,7 @@ export class SFCCLogClient {
    */
   constructor(config: SFCCConfig) {
     this.config = config;
+    this.logger = Logger.getChildLogger('LogClient');
     this.setupWebDAVClient();
   }
 
@@ -78,11 +77,11 @@ export class SFCCLogClient {
    */
   async getLogFiles(date?: string): Promise<Array<{ filename: string; lastmod: string }>> {
     const targetDate = date ?? getCurrentDate();
-    logger.methodEntry('getLogFiles', { date: targetDate });
+    this.logger.methodEntry('getLogFiles', { date: targetDate });
 
     const startTime = Date.now();
     const contents = await this.webdavClient.getDirectoryContents('/');
-    logger.timing('webdav_getDirectoryContents', startTime);
+    this.logger.timing('webdav_getDirectoryContents', startTime);
 
     const logFiles = contents
       .filter((item: any) =>
@@ -95,8 +94,8 @@ export class SFCCLogClient {
         lastmod: item.lastmod ?? new Date().toISOString(), // Fallback to current time if no lastmod
       }));
 
-    logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles.map((f: { filename: string; lastmod: string }) => f.filename));
-    logger.methodExit('getLogFiles', { count: logFiles.length });
+    this.logger.debug(`Found ${logFiles.length} log files for date ${targetDate}:`, logFiles.map((f: { filename: string; lastmod: string }) => f.filename));
+    this.logger.methodExit('getLogFiles', { count: logFiles.length });
     return logFiles;
   }
 
@@ -110,7 +109,7 @@ export class SFCCLogClient {
    */
   async getLatestLogs(level: LogLevel, limit: number, date?: string): Promise<string> {
     const targetDate = date ?? getCurrentDate();
-    logger.methodEntry('getLatestLogs', { level, limit, date: targetDate });
+    this.logger.methodEntry('getLatestLogs', { level, limit, date: targetDate });
 
     const startTime = Date.now();
     const logFiles = await this.getLogFiles(targetDate);
@@ -122,13 +121,13 @@ export class SFCCLogClient {
       return filename.startsWith(`${level}-`) || filename.startsWith(`custom${level}-`);
     });
 
-    logger.debug(`Filtered to ${levelFiles.length} ${level} log files (including custom logs):`, levelFiles.map(f => f.filename));
+    this.logger.debug(`Filtered to ${levelFiles.length} ${level} log files (including custom logs):`, levelFiles.map(f => f.filename));
 
     if (levelFiles.length === 0) {
       const availableFiles = logFiles.map(f => normalizeFilePath(f.filename)).join(', ');
       const result = `No ${level} log files found for date ${targetDate}. Available files: ${availableFiles}`;
-      logger.warn(result);
-      logger.methodExit('getLatestLogs', { result: 'no_files' });
+      this.logger.warn(result);
+      this.logger.methodExit('getLatestLogs', { result: 'no_files' });
       return result;
     }
 
@@ -142,12 +141,12 @@ export class SFCCLogClient {
 
     for (let i = 0; i < sortedFiles.length; i++) {
       const file = sortedFiles[i];
-      logger.debug(`Processing file: ${file} (priority: ${i})`);
+      this.logger.debug(`Processing file: ${file} (priority: ${i})`);
 
       try {
         const fileStartTime = Date.now();
         const logContent = await this.webdavClient.getFileContents(file, { format: 'text' });
-        logger.timing(`webdav_getFileContents_${file}`, fileStartTime);
+        this.logger.timing(`webdav_getFileContents_${file}`, fileStartTime);
 
         const logEntries = parseLogEntries(logContent as string, level.toUpperCase());
 
@@ -160,7 +159,7 @@ export class SFCCLogClient {
           });
         });
       } catch (error) {
-        logger.error(`Error reading file ${file}:`, error);
+        this.logger.error(`Error reading file ${file}:`, error);
         // Continue processing other files even if one fails
       }
     }
@@ -174,9 +173,9 @@ export class SFCCLogClient {
 
     const latestEntries = sortedEntries.map(item => item.entry);
 
-    logger.debug(`Parsed ${allLogEntries.length} total entries from ${sortedFiles.length} files, returning latest ${latestEntries.length}`);
-    logger.timing('getLatestLogs', startTime);
-    logger.methodExit('getLatestLogs', { entriesReturned: latestEntries.length, filesProcessed: sortedFiles.length });
+    this.logger.debug(`Parsed ${allLogEntries.length} total entries from ${sortedFiles.length} files, returning latest ${latestEntries.length}`);
+    this.logger.timing('getLatestLogs', startTime);
+    this.logger.methodExit('getLatestLogs', { entriesReturned: latestEntries.length, filesProcessed: sortedFiles.length });
 
     const fileList = sortedFiles.map(f => normalizeFilePath(f)).join(', ');
     return `Latest ${limit} ${level} messages from files: ${fileList}\n\n${latestEntries.join('\n\n---\n\n')}`;
@@ -228,7 +227,7 @@ export class SFCCLogClient {
           summary.keyIssues.push(...uniqueErrors);
         }
       } catch (error) {
-        logger.error(`Error reading file ${file.filename}:`, error);
+        this.logger.error(`Error reading file ${file.filename}:`, error);
       }
     }
 
@@ -273,7 +272,7 @@ export class SFCCLogClient {
           }
         }
       } catch (error) {
-        logger.error(`Error searching file ${file.filename}:`, error);
+        this.logger.error(`Error searching file ${file.filename}:`, error);
       }
     }
 

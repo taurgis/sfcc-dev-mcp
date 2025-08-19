@@ -2,6 +2,22 @@
  * Logger class for standardized logging across the SFCC MCP application.
  * Provides consistent logging with timestamps and log levels.
  * Always logs to files for consistent debugging and to avoid interfering with stdio.
+ *
+ * ## Log Directory Location
+ *
+ * The logger uses the operating system's temporary directory via Node.js `os.tmpdir()`:
+ * - **macOS**: `/var/folders/{user-specific-path}/T/sfcc-mcp-logs/`
+ * - **Linux**: `/tmp/sfcc-mcp-logs/` (typically)
+ * - **Windows**: `%TEMP%\sfcc-mcp-logs\` (typically `C:\Users\{user}\AppData\Local\Temp\`)
+ *
+ * This approach provides:
+ * - User-specific isolation (more secure than system-wide `/tmp`)
+ * - Automatic cleanup by the OS
+ * - Platform-appropriate temporary storage
+ * - Proper permissions handling
+ *
+ * To find your log directory, use `Logger.getInstance().getLogDirectory()` or check
+ * the debug logs which show the directory path during initialization.
  */
 
 import { appendFileSync, existsSync, mkdirSync } from 'fs';
@@ -13,6 +29,7 @@ export class Logger {
   private enableTimestamp: boolean;
   private debugEnabled: boolean;
   private logDir: string;
+  private static instance: Logger | null = null;
 
   /**
    * Create a new Logger instance
@@ -31,6 +48,33 @@ export class Logger {
     if (!existsSync(this.logDir)) {
       mkdirSync(this.logDir, { recursive: true });
     }
+  }
+
+  /**
+   * Initialize the global logger instance with specific settings
+   * This should be called once at application startup
+   */
+  public static initialize(context: string = 'SFCC-MCP', enableTimestamp: boolean = true, debugEnabled: boolean = false, customLogDir?: string): void {
+    Logger.instance = new Logger(context, enableTimestamp, debugEnabled, customLogDir);
+  }
+
+  /**
+   * Get the global logger instance
+   * If not initialized, creates a default instance
+   */
+  public static getInstance(): Logger {
+    Logger.instance ??= new Logger();
+    return Logger.instance;
+  }
+
+  /**
+   * Create a child logger with a new context but inheriting other settings from the global instance
+   * @param subContext The sub-context to append to the current context
+   * @returns A new Logger instance with the combined context
+   */
+  public static getChildLogger(subContext: string): Logger {
+    const globalLogger = Logger.getInstance();
+    return new Logger(`${globalLogger.context}:${subContext}`, globalLogger.enableTimestamp, globalLogger.debugEnabled, globalLogger.logDir);
   }
 
   /**
@@ -175,5 +219,5 @@ export class Logger {
   }
 }
 
-// Create a default instance for global usage
-export const logger = new Logger();
+// Export the singleton instance getter for convenience
+export const getLogger = Logger.getInstance;

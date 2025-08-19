@@ -8,14 +8,29 @@ const mockWebdavClient = webdav.__mockWebdavClient;
 
 // Mock the logger
 jest.mock('../src/utils/logger', () => ({
-  Logger: jest.fn().mockImplementation(() => ({
-    methodEntry: jest.fn(),
-    methodExit: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    timing: jest.fn(),
-  })),
+  Logger: {
+    initialize: jest.fn(),
+    getInstance: jest.fn(() => ({
+      methodEntry: jest.fn(),
+      methodExit: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      timing: jest.fn(),
+      log: jest.fn(),
+      info: jest.fn(),
+    })),
+    getChildLogger: jest.fn(() => ({
+      methodEntry: jest.fn(),
+      methodExit: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      timing: jest.fn(),
+      log: jest.fn(),
+      info: jest.fn(),
+    })),
+  },
 }));
 
 // Mock utils

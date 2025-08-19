@@ -23,7 +23,7 @@ export abstract class BaseHttpClient {
 
   constructor(baseUrl: string, loggerContext: string) {
     this.baseUrl = baseUrl;
-    this.logger = new Logger(loggerContext);
+    this.logger = Logger.getChildLogger(loggerContext);
   }
 
   /**

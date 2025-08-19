@@ -10,6 +10,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
+import { Logger } from '../utils/logger.js';
 
 export interface BestPracticeGuide {
   title: string;
@@ -24,10 +25,12 @@ export interface BestPracticeGuide {
 export class SFCCBestPracticesClient {
   private cache: CacheManager;
   private docsPath: string;
+  private logger: Logger;
 
   constructor() {
     this.cache = new CacheManager();
     this.docsPath = PathResolver.getBestPracticesPath();
+    this.logger = Logger.getChildLogger('BestPracticesClient');
   }
 
   /**
@@ -183,7 +186,7 @@ export class SFCCBestPracticesClient {
       this.cache.setFileContent(cacheKey, JSON.stringify(guide));
       return guide;
     } catch (error) {
-      console.error(`Error reading best practice guide ${guideName}:`, error);
+      this.logger.error(`Error reading best practice guide ${guideName}:`, error);
       return null;
     }
   }

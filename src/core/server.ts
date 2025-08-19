@@ -52,27 +52,26 @@ export class SFCCDevServer {
    * Initialize the SFCC Development MCP Server
    *
    * @param config - SFCC configuration for connecting to the logging system
-   * @param debug - Whether to enable debug logging (default: true)
    */
-  constructor(config: SFCCConfig, debug: boolean = false) {
-    this.logger = new Logger('Server', true, debug);
-    this.logMethodEntry('constructor', { hostname: config.hostname, debug });
+  constructor(config: SFCCConfig) {
+    this.logger = Logger.getChildLogger('Server');
+    this.logMethodEntry('constructor', { hostname: config.hostname });
 
     this.capabilities = ConfigurationFactory.getCapabilities(config);
-    this.initializeClients(config, debug);
+    this.initializeClients(config);
     this.initializeServer();
     this.setupToolHandlers();
 
     this.logMethodExit('constructor');
   }
 
-  private initializeClients(config: SFCCConfig, debug: boolean): void {
+  private initializeClients(config: SFCCConfig): void {
     // Always available clients
     this.docsClient = new SFCCDocumentationClient();
     this.bestPracticesClient = new SFCCBestPracticesClient();
     this.sfraClient = new SFRAClient();
 
-    this.cartridgeClient = new CartridgeGenerationClient(debug);
+    this.cartridgeClient = new CartridgeGenerationClient();
     // Conditional clients based on capabilities
     if (this.capabilities.canAccessLogs) {
       this.logClient = new SFCCLogClient(config);
