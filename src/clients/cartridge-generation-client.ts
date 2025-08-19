@@ -452,6 +452,10 @@ module.exports = [{
       eslintrc: () => ({
         root: true,
         extends: 'airbnb-base/legacy',
+        globals: {
+          session: 'readonly',
+          request: 'readonly',
+        },
         rules: {
           'import/no-unresolved': 'off',
           indent: ['error', 4, { SwitchCase: 1, VariableDeclarator: 1 }],
