@@ -25,7 +25,7 @@ Get detailed information about any SFCC class including properties, methods, and
 
 **Parameters:**
 - `className` (required): The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')
-- `expand` (optional): Include detailed information about referenced types
+- `expand` (optional): Whether to include detailed information about referenced types used by this class (boolean, default: false)
 
 **Example Usage:**
 ```javascript
@@ -249,8 +249,8 @@ Generate complete cartridge directory structures with all necessary files.
 
 **Parameters:**
 - `cartridgeName` (required): Name of the cartridge (e.g., "plugin_example")
-- `targetPath` (optional): Target directory path for cartridge files
-- `fullProjectSetup` (optional): Whether to create complete project setup (default: true)
+- `targetPath` (optional): Target directory path where the cartridge files should be placed. If not specified, files will be placed in the current working directory. Use absolute paths for best results.
+- `fullProjectSetup` (optional): Whether to create a complete project setup (package.json, webpack, etc.) or just add a cartridge to existing project structure (boolean, default: true)
 
 **Example Usage:**
 ```javascript

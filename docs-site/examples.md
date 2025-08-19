@@ -20,6 +20,7 @@ Real-world examples of how to use the SFCC Development MCP Server with AI assist
 'use strict';
 
 var server = require('server');
+var Logger = require('dw/system/Logger');
 var ProductSearchModel = require('*/cartridge/models/search');
 var ProductFactory = require('*/cartridge/scripts/factories/product');
 var cache = require('*/cartridge/scripts/middleware/cache');
@@ -51,7 +52,8 @@ server.get('Show', cache.applyDefaultCache, function (req, res, next) {
         });
         
     } catch (e) {
-        Logger.error('Product search error: ' + e.message);
+        var logger = Logger.getLogger('ProductSearch');
+        logger.error('Product search error: ' + e.message);
         res.setStatusCode(500);
         res.render('error/somethingwentwrong');
     }
