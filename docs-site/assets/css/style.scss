@@ -51,6 +51,9 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 table th,
@@ -58,15 +61,22 @@ table td {
   padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid #e1e4e8;
+  color: #24292e;
 }
 
 table th {
   background-color: #f6f8fa;
   font-weight: 600;
+  color: #24292e;
+  border-bottom: 2px solid #e1e4e8;
 }
 
 table tr:hover {
-  background-color: #f6f8fa;
+  background-color: #f8f9fa;
+}
+
+table tr:last-child td {
+  border-bottom: none;
 }
 
 /* Code blocks */
