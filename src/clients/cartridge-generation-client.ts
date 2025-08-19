@@ -62,10 +62,12 @@ export class CartridgeGenerationClient {
     message: string;
     createdFiles: string[];
     createdDirectories: string[];
+    skippedFiles: string[];
   }> {
     const { cartridgeName, targetPath, fullProjectSetup = true } = options;
     const createdFiles: string[] = [];
     const createdDirectories: string[] = [];
+    const skippedFiles: string[] = [];
 
     try {
       this.logger.info(`Starting cartridge generation for: ${cartridgeName}`);
@@ -78,17 +80,24 @@ export class CartridgeGenerationClient {
         // Full project setup - create everything directly in the working directory
         this.logger.info(`Creating full project setup directly in: ${workingDir}`);
 
+        // Ensure the working directory exists
+        await this.ensureDirectory(workingDir);
+        if (!createdDirectories.includes(workingDir)) {
+          createdDirectories.push(workingDir);
+        }
+
         // Create root files directly in working directory
-        await this.createRootFiles(workingDir, cartridgeName, createdFiles);
+        await this.createRootFiles(workingDir, cartridgeName, createdFiles, skippedFiles);
 
         // Create cartridge structure directly in working directory
-        await this.createCartridgeStructure(workingDir, cartridgeName, createdFiles, createdDirectories);
+        await this.createCartridgeStructure(workingDir, cartridgeName, createdFiles, createdDirectories, skippedFiles);
 
         return {
           success: true,
           message: `Successfully created full project setup for cartridge '${cartridgeName}' in '${workingDir}'`,
           createdFiles,
           createdDirectories,
+          skippedFiles,
         };
       } else {
         // Cartridge-only setup - add to existing project
@@ -101,13 +110,14 @@ export class CartridgeGenerationClient {
         }
 
         // Create cartridge structure
-        await this.createCartridgeStructure(workingDir, cartridgeName, createdFiles, createdDirectories);
+        await this.createCartridgeStructure(workingDir, cartridgeName, createdFiles, createdDirectories, skippedFiles);
 
         return {
           success: true,
           message: `Successfully created cartridge '${cartridgeName}' in existing project at '${workingDir}'`,
           createdFiles,
           createdDirectories,
+          skippedFiles,
         };
       }
     } catch (error) {
@@ -117,6 +127,7 @@ export class CartridgeGenerationClient {
         message: `Failed to generate cartridge structure: ${error instanceof Error ? error.message : 'Unknown error'}`,
         createdFiles,
         createdDirectories,
+        skippedFiles,
       };
     }
   }
@@ -124,41 +135,74 @@ export class CartridgeGenerationClient {
   /**
    * Create root project files (package.json, webpack, etc.)
    */
-  private async createRootFiles(projectDir: string, cartridgeName: string, createdFiles: string[]): Promise<void> {
+  private async createRootFiles(
+    projectDir: string,
+    cartridgeName: string,
+    createdFiles: string[],
+    skippedFiles: string[],
+  ): Promise<void> {
     // Create package.json
     const packageJsonPath = path.join(projectDir, 'package.json');
-    await fs.writeFile(packageJsonPath, JSON.stringify(this.templates.packageJson(cartridgeName), null, 2));
-    createdFiles.push(packageJsonPath);
+    await this.safeWriteFile(
+      packageJsonPath,
+      JSON.stringify(this.templates.packageJson(cartridgeName), null, 2),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create dw.json
     const dwJsonPath = path.join(projectDir, 'dw.json');
-    await fs.writeFile(dwJsonPath, JSON.stringify(this.templates.dwJson(), null, 2));
-    createdFiles.push(dwJsonPath);
+    await this.safeWriteFile(
+      dwJsonPath,
+      JSON.stringify(this.templates.dwJson(), null, 2),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create webpack.config.js
     const webpackPath = path.join(projectDir, 'webpack.config.js');
-    await fs.writeFile(webpackPath, this.templates.webpackConfig(cartridgeName));
-    createdFiles.push(webpackPath);
+    await this.safeWriteFile(
+      webpackPath,
+      this.templates.webpackConfig(cartridgeName),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create .eslintrc.json
     const eslintrcPath = path.join(projectDir, '.eslintrc.json');
-    await fs.writeFile(eslintrcPath, JSON.stringify(this.templates.eslintrc(), null, 2));
-    createdFiles.push(eslintrcPath);
+    await this.safeWriteFile(
+      eslintrcPath,
+      JSON.stringify(this.templates.eslintrc(), null, 2),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create .stylelintrc.json
     const stylelintrcPath = path.join(projectDir, '.stylelintrc.json');
-    await fs.writeFile(stylelintrcPath, JSON.stringify(this.templates.stylelintrc(), null, 2));
-    createdFiles.push(stylelintrcPath);
+    await this.safeWriteFile(
+      stylelintrcPath,
+      JSON.stringify(this.templates.stylelintrc(), null, 2),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create .eslintignore
     const eslintignorePath = path.join(projectDir, '.eslintignore');
-    await fs.writeFile(eslintignorePath, this.templates.eslintignore());
-    createdFiles.push(eslintignorePath);
+    await this.safeWriteFile(
+      eslintignorePath,
+      this.templates.eslintignore(),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create .gitignore
     const gitignorePath = path.join(projectDir, '.gitignore');
-    await fs.writeFile(gitignorePath, this.templates.gitignore());
-    createdFiles.push(gitignorePath);
+    await this.safeWriteFile(
+      gitignorePath,
+      this.templates.gitignore(),
+      createdFiles,
+      skippedFiles,
+    );
   }
 
   /**
@@ -169,6 +213,7 @@ export class CartridgeGenerationClient {
     cartridgeName: string,
     createdFiles: string[],
     createdDirectories: string[],
+    skippedFiles: string[],
   ): Promise<void> {
     // Create cartridges directory
     const cartridgesDir = path.join(baseDir, 'cartridges');
@@ -182,8 +227,12 @@ export class CartridgeGenerationClient {
 
     // Create .project file
     const projectPath = path.join(cartridgeDir, '.project');
-    await fs.writeFile(projectPath, this.templates.dotProject(cartridgeName));
-    createdFiles.push(projectPath);
+    await this.safeWriteFile(
+      projectPath,
+      this.templates.dotProject(cartridgeName),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create cartridge subdirectory
     const cartridgeSubDir = path.join(cartridgeDir, 'cartridge');
@@ -192,8 +241,12 @@ export class CartridgeGenerationClient {
 
     // Create cartridge properties file
     const propertiesPath = path.join(cartridgeSubDir, `${cartridgeName}.properties`);
-    await fs.writeFile(propertiesPath, this.templates.projectProperties(cartridgeName));
-    createdFiles.push(propertiesPath);
+    await this.safeWriteFile(
+      propertiesPath,
+      this.templates.projectProperties(cartridgeName),
+      createdFiles,
+      skippedFiles,
+    );
 
     // Create directory structure
     const directories = [
@@ -224,6 +277,28 @@ export class CartridgeGenerationClient {
     } catch {
       await fs.mkdir(dirPath, { recursive: true });
       this.logger.info(`Created directory: ${dirPath}`);
+    }
+  }
+
+  /**
+   * Safely write a file, skipping if it already exists
+   */
+  private async safeWriteFile(
+    filePath: string,
+    content: string,
+    createdFiles: string[],
+    skippedFiles: string[],
+  ): Promise<void> {
+    try {
+      await fs.access(filePath);
+      // File exists, skip it
+      skippedFiles.push(filePath);
+      this.logger.info(`Skipped existing file: ${filePath}`);
+    } catch {
+      // File doesn't exist, create it
+      await fs.writeFile(filePath, content);
+      createdFiles.push(filePath);
+      this.logger.info(`Created file: ${filePath}`);
     }
   }
 
@@ -374,6 +449,26 @@ module.exports = [{
       eslintrc: () => ({
         root: true,
         extends: 'airbnb-base/legacy',
+        rules: {
+          'import/no-unresolved': 'off',
+          indent: ['error', 4, { SwitchCase: 1, VariableDeclarator: 1 }],
+          'func-names': 'off',
+          'require-jsdoc': 'error',
+          'valid-jsdoc': ['error', {
+            preferType: {
+              Boolean: 'boolean',
+              Number: 'number',
+              object: 'Object',
+              String: 'string',
+            },
+            requireReturn: false,
+          }],
+          'vars-on-top': 'off',
+          'global-require': 'off',
+          'no-shadow': ['error', { allow: ['err', 'callback'] }],
+          'max-len': 'off',
+          'no-plusplus': 'off',
+        },
       }),
 
       stylelintrc: () => ({
