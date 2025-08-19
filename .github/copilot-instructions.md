@@ -51,7 +51,16 @@ sfcc-dev-mcp/
 │   ├── index.ts                  # Package exports and compatibility
 │   ├── core/                     # Core MCP server functionality
 │   │   ├── server.ts             # Main MCP server implementation
-│   │   └── tool-definitions.ts   # MCP tool schema definitions
+│   │   ├── tool-definitions.ts   # MCP tool schema definitions
+│   │   └── handlers/             # Modular tool handlers
+│   │       ├── base-handler.ts   # Abstract base handler with common functionality
+│   │       ├── docs-handler.ts   # SFCC documentation tool handler
+│   │       ├── best-practices-handler.ts # Best practices tool handler
+│   │       ├── sfra-handler.ts   # SFRA documentation tool handler
+│   │       ├── log-handler.ts    # Log analysis tool handler
+│   │       ├── system-object-handler.ts # System object tool handler
+│   │       ├── code-version-handler.ts # Code version tool handler
+│   │       └── cartridge-handler.ts # Cartridge generation tool handler
 │   ├── clients/                  # API clients for different services
 │   │   ├── base/                 # Base client classes and shared functionality
 │   │   │   ├── http-client.ts    # Base HTTP client with authentication
@@ -137,6 +146,17 @@ sfcc-dev-mcp/
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
 - Provides error handling and response formatting
+- Orchestrates modular tool handlers for different functionality areas
+
+#### **Tool Handler Architecture** (`core/handlers/`)
+- **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
+- **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
+- **BestPracticesToolHandler** (`best-practices-handler.ts`): Manages best practice guides, security recommendations, and hook reference tables
+- **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
+- **LogToolHandler** (`log-handler.ts`): Handles real-time log analysis, error monitoring, and system health summarization
+- **SystemObjectToolHandler** (`system-object-handler.ts`): Manages system object definitions, custom attributes, and site preferences
+- **CodeVersionToolHandler** (`code-version-handler.ts`): Handles code version listing, activation, and deployment management
+- **CartridgeToolHandler** (`cartridge-handler.ts`): Processes cartridge generation requests with complete project setup
 
 #### **Client Architecture**
 
@@ -296,13 +316,15 @@ When working on this project:
 
 ### 🔍 Common Development Tasks
 
-- **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate client in `clients/`
+- **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
+- **Creating New Handlers**: Extend `BaseToolHandler` class, implement `canHandle()` and `handle()` methods, register in `server.ts`
 - **Updating Documentation**: Modify files in `docs/` and run conversion scripts
 - **Enhancing Authentication**: Update `clients/base/oauth-token.ts` and client authentication logic
 - **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
+- **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
 
 ### 📁 Directory Organization Benefits
@@ -314,6 +336,19 @@ The new organized structure provides:
 3. **Better Maintainability**: Changes are isolated to relevant directories
 4. **Scalable Architecture**: New features can be added without cluttering
 5. **Professional Standards**: Follows TypeScript/Node.js project conventions
+
+### 🏗️ Handler Architecture Benefits
+
+The modular handler refactoring provides:
+
+1. **Separation of Concerns**: Each handler is responsible for a specific category of tools
+2. **Standardized Interface**: All handlers extend `BaseToolHandler` with consistent patterns
+3. **Better Error Handling**: Centralized error handling and response formatting in base class
+4. **Improved Maintainability**: Tool logic is organized by functional area rather than mixed together
+5. **Easier Testing**: Individual handlers can be tested in isolation
+6. **Performance Monitoring**: Standardized execution timing and logging across all handlers
+7. **Extensibility**: New tool categories can be added by creating new handler classes
+8. **Code Reusability**: Common functionality shared through the base handler class
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
 
