@@ -313,8 +313,9 @@ export class CartridgeGenerationClient {
         description: 'New overlay cartridge',
         main: 'index.js',
         scripts: {
-          lint: 'sgmf-scripts --lint js && sgmf-scripts --lint css',
-          'lint:fix': 'sgmf-scripts --lint js --fix && sgmf-scripts --lint css --fix',
+          'lint': 'npm run lint:css && npm run lint:js',
+          'lint:css': 'sgmf-scripts --lint css',
+          'lint:js': 'sgmf-scripts --lint js',
           upload: 'sgmf-scripts --upload -- ',
           uploadCartridge: `sgmf-scripts --uploadCartridge ${cartridgeName}`,
           'compile:js': 'sgmf-scripts --compile js',
@@ -354,7 +355,9 @@ export class CartridgeGenerationClient {
         'code-version': '',
       }),
 
-      webpackConfig: (cartridgeName: string) => `var path = require('path');
+      webpackConfig: (cartridgeName: string) => `'use strict';
+
+      var path = require('path');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 var RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');

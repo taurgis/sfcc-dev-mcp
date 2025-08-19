@@ -502,7 +502,117 @@ Requires SLAS Shopper Token with scope: `c_read_pricing`
 
 This URL structure understanding is essential for both endpoint development and client integration, ensuring your custom SCAPI endpoints are accessible and properly documented.
 
-## 3. Core Concept: The Three Pillars of a Custom API
+## 3. Securing Endpoints
+
+Endpoints must be associated with a security scheme in the API contract. SCAPI supports two primary security schemes for custom endpoints:
+
+- **ShopperToken**: For Shopper APIs and storefront use cases. Use Shopper Login and API Access to obtain tokens.
+- **AmOAuth2**: For SCAPI Admin APIs to be used with backoffice apps. Use Account Manager to obtain tokens.
+
+Association is either per operation or global, with the operation scheme taking precedence. The schemes are the same as those used for non-custom B2C Commerce APIs (SCAPI).
+
+The scheme must set exactly one custom scope.
+
+### 3.1 Security Scheme Configuration
+
+Schemes used in the contract must be defined in the components section, for example:
+
+```yaml
+components:
+  securitySchemes:
+    ShopperToken: {}
+    AmOAuth2:
+      type: oauth2
+
+# 👇 A global scheme applies to all operations in this file.
+security:
+  - AmOAuth2: ["c_loyalty_rw"]
+
+paths:
+  /customer:
+    get:
+      operationId: getLoyaltyInfo
+      parameters:
+        - in: query
+          name: siteId
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        200:
+          description: OK
+      # 👇 An operation scheme applies only to this operation and takes precedence over the global scheme.
+      security:
+        - ShopperToken: ["c_loyalty"]
+```
+
+### 3.2 Custom Scope Requirements
+
+Custom scopes must meet the following requirements:
+
+- The name must begin with `c_`.
+- The name must not contain characters other than alphanumeric, period, hyphen and underscore.
+- The name must not be more than 25 characters.
+
+Endpoints without correct scheme or scope assignments are not registered.
+
+You can review registration errors by searching in the Log Center for messages with a category that includes `CustomApiRegistry`.
+
+### 3.3 Requesting Endpoints
+
+#### ShopperLogin
+
+Scopes for ShopperLogin can be assigned to a client in the SLAS Admin UI. For example:
+
+> Custom API SLAS scope configuration and permissions
+
+To obtain a SLAS token, follow the steps in the Shopper Login overview.
+
+#### AmOAuth2
+
+Custom scopes for AmOAuth2 can be assigned to a client in Account Manager. For example:
+
+> Account Manager OAuth2 scopes configuration for Custom APIs
+
+To obtain an Account Manager token follow the steps in the Authorization for Admin APIs guide.
+
+Unauthorized requests receive a 401 Unauthorized response.
+
+### 3.4 Complete Security Scheme Definition
+
+While endpoint registration does not require the complete definition of the security schemes, it can be useful to have a complete and valid scheme to enable the creation of documentation, tests and code stubs, and mock requests. The following code provides a complete example:
+
+```yaml
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://my-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://my-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            c_my-scopes: description of my-scopes
+        clientCredentials:
+          tokenUrl: https://my-shortcode.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            c_my-scopes: description of my-scopes
+    AmOAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            c_my-scopes: description of my-scopes
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            c_my-scopes: description of my-scopes
+```
+
+## 4. Core Concept: The Three Pillars of a Custom API
 
 Every Custom SCAPI Endpoint is built from three mandatory files, located within a dedicated cartridge directory: `your_cartridge/cartridge/rest-apis/{api-name}/`.
 
@@ -512,7 +622,7 @@ Every Custom SCAPI Endpoint is built from three mandatory files, located within 
 
 - **`api.json` (The Mapping)**: A simple JSON file that links the `operationId` from the schema to the correct implementation script.
 
-### 3.1 Development Approach: Start Simple, Then Expand **!IMPORTANT!**
+### 4.1 Development Approach: Start Simple, Then Expand **!IMPORTANT!**
 
 When building custom endpoints, **always start with a minimal implementation** to establish connectivity and basic functionality before adding complexity. This mirrors how experienced SFCC developers approach endpoint development and significantly reduces debugging time.
 
@@ -530,7 +640,7 @@ When building custom endpoints, **always start with a minimal implementation** t
 
 This approach helps you isolate issues early - if the simple version doesn't work, you know the problem is with basic setup (cartridge registration, API configuration, authentication) rather than your business logic. Once the foundation is solid, you can confidently build upon it.
 
-## 3. Quick Start Example: A "Loyalty Info" Endpoint
+## 5. Quick Start Example: A "Loyalty Info" Endpoint
 
 Here is a complete example for a custom Shopper API endpoint `GET /custom/loyalty-api/v1/.../loyalty-info?c_customer_id={id}`.
 
@@ -647,7 +757,7 @@ exports.getLoyaltyInfo.public = true;
 }
 ```
 
-## 3.1 Working with Path Parameters
+## 5.1 Working with Path Parameters
 
 When your OpenAPI schema defines parameters with `in: path`, you must use the `getSCAPIPathParameters()` method to access them in your script implementation.
 
@@ -779,7 +889,7 @@ exports.getProductReviews.public = true;
    ```
 
 
-## 4. Core Best Practices
+## 6. Core Best Practices
 
 ### Design & Architecture
 
@@ -836,7 +946,7 @@ exports.getProductReviews.public = true;
 5. **Systematic Verification**: Follow the file structure, naming, and syntax checklist rather than relying on log confirmation
 
 
-## 5. Custom APIs vs. Hooks
+## 7. Custom APIs vs. Hooks
 
 This is a critical architectural decision.
 
