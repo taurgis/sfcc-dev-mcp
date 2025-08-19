@@ -428,7 +428,7 @@ The server loads configuration with the following priority:
 | **SFRA Documentation** | None | 5 |
 | **Cartridge Generation** | None | 1 |
 | **Log Analysis** | hostname, username, password | 7 |
-| **System Objects** | client-id, client-secret | 6 |
+| **System Objects** | hostname, client-id, client-secret | 6 |
 
 ---
 
