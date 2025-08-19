@@ -569,6 +569,63 @@ function getCachedCategory(categoryID) {
 }
 ```
 
+#### 3. 🔥 Critical Performance Pattern: Leverage SeekableIterator Built-in Count
+
+**ALWAYS use the SeekableIterator's built-in count property instead of creating separate iterators for counting.** A common but severely inefficient anti-pattern is implementing getTotalCount() by creating a dedicated iterator just to count records (e.g., creating a second ProductMgr.queryAllSiteProducts() call). SFCC's SeekableIterator provides a getCount() method and count property that returns the total count without any additional database queries or iteration.
+
+##### ✅ OPTIMAL Pattern:
+
+```javascript
+var products; // Declare at module level
+
+// Initialize iterator once in beforeStep
+exports.beforeStep = function(parameters) {
+    products = ProductMgr.queryAllSiteProductsSorted(); // Single query
+}
+
+// Use iterator's built-in count - no additional overhead!
+exports.getTotalCount = function() {
+    if (products && products.getCount) {
+        var totalCount = products.getCount(); // Instant, no DB hit
+        return totalCount >= 0 ? totalCount : null;
+    }
+    return null;
+}
+
+// Use the same iterator for reading
+exports.read = function() {
+    return products.hasNext() ? products.next() : null;
+}
+```
+
+##### ❌ SEVERELY INEFFICIENT Anti-Pattern:
+
+```javascript
+// This creates TWO expensive database queries!
+exports.getTotalCount = function() {
+    var counter = ProductMgr.queryAllSiteProducts(); // Unnecessary Query #1
+    var count = 0;
+    while (counter.hasNext()) { counter.next(); count++; } // Manual counting!
+    counter.close();
+    return count;
+}
+
+exports.read = function() {
+    if (!products) {
+        products = ProductMgr.queryAllSiteProductsSorted(); // Query #2
+    }
+    return products.hasNext() ? products.next() : null;
+}
+```
+
+##### 📊 Performance Impact
+
+The anti-pattern increases database load by **100%** and can add **1-5 minutes** to job startup for large catalogs. Using SeekableIterator.getCount() provides instant total count retrieval with zero additional overhead.
+
+##### 🎯 Key Insight
+
+SFCC's query methods return SeekableIterator instances that already know their total count from the database query execution. Leveraging this built-in capability eliminates the need for manual counting entirely while providing accurate progress tracking for Business Manager users.
+
 ## Security Best Practices
 
 ### Secure Logging Practices
