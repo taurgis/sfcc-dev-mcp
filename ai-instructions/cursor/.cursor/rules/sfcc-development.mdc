@@ -66,6 +66,10 @@ Be sure to follow the best practices provided by the MCP server on this item.
 2. `mcp_sfcc-dev_search_site_preferences` - Configure site-specific settings
 3. `mcp_sfcc-dev_search_custom_object_attribute_definitions` - Work with custom objects
 
+### 🚀 Deployment and Code Version Management:
+1. `mcp_sfcc-dev_get_code_versions` - Get all code versions on the instance
+2. `mcp_sfcc-dev_activate_code_version` - Activate specific code version (for code-switch fixes)
+
 ## Mandatory MCP Tool Workflow
 
 **BEFORE writing ANY SFCC code:**

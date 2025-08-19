@@ -316,3 +316,24 @@ Implementation verification:
 - ❌ Don't implement without performance patterns - use MCP performance guide
 - ❌ Don't skip parameter validation - use MCP security patterns
 - ❌ Don't assume job framework APIs - use `mcp_sfcc-dev_search_sfcc_classes`
+
+## 🚀 Job Deployment Troubleshooting
+
+**If custom jobs don't appear in Business Manager after deployment:**
+
+1. **Check Current Code Version:**
+   ```
+   Use: mcp_sfcc-dev_get_code_versions
+   Purpose: Verify which code version is currently active
+   ```
+
+2. **Perform Code-Switch Fix:**
+   ```
+   Use: mcp_sfcc-dev_activate_code_version with versionId: [target_version]
+   Purpose: Switch to activate job registrations in Business Manager
+   ```
+
+**Common Job Deployment Issues:**
+- Jobs missing from Administration > Operations > Jobs → Use code-switch fix
+- Job steps not executing → Check job registration in active code version
+- Intermittent job visibility → Multiple code versions active, use activation tool

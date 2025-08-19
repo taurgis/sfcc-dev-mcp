@@ -829,7 +829,10 @@ exports.getProductReviews.public = true;
 1. **Direct Endpoint Testing**: Make a test API call to your endpoint URL to verify registration
 2. **404 vs Other Errors**: A 404 response indicates registration failure; other HTTP status codes (400, 401, 403, 500) suggest the endpoint is registered but has implementation issues
 3. **Log Search for Errors**: Search for `CustomApiRegistry` with error levels to find registration problems from the last server restart
-4. **Code Version Switching**: If your endpoint returns errors as if it doesn't exist, try switching code versions in Business Manager (`Administration > Site Development > Code Deployment > Activate`) - sometimes endpoints fail to register properly on the active code version but work after switching
+4. **Code Version Management**: If your endpoint returns errors as if it doesn't exist, use automated code version switching:
+   - **Check Available Versions**: Use MCP `get_code_versions` tool to see all code versions on the instance
+   - **Activate Different Version**: Use MCP `activate_code_version` tool to switch to a different code version
+   - **Alternative Manual Method**: Switch code versions in Business Manager (`Administration > Site Development > Code Deployment > Activate`) - sometimes endpoints fail to register properly on the active code version but work after switching
 5. **Systematic Verification**: Follow the file structure, naming, and syntax checklist rather than relying on log confirmation
 
 

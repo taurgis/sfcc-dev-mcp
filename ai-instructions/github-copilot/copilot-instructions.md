@@ -98,7 +98,13 @@ Use these for understanding SFCC data models and custom attributes:
 - **`search_system_object_attribute_groups`** - Search for attribute groups (essential for finding site preference groups)
 - **`search_custom_object_attribute_definitions`** - Search for attributes in custom object types
 
-### 📊 Log Analysis Tools
+### � Code Version Management
+Use these for deployment and code version operations:
+
+- **`get_code_versions`** - Get all code versions on the SFCC instance
+- **`activate_code_version`** - Activate a specific code version (useful for code-switch fixes)
+
+### �📊 Log Analysis Tools
 Use these for debugging and troubleshooting:
 
 - **`get_latest_errors`** - Get recent error messages from SFCC logs
@@ -140,7 +146,16 @@ Use these for debugging and troubleshooting:
    → Use: get_latest_errors
    ```
 
-6. **Hook Development**
+6. **Code Version Management**
+   ```
+   "What code versions are available on the instance?"
+   → Use: get_code_versions
+   
+   "Need to do a code-switch fix for SCAPI endpoints"
+   → Use: activate_code_version with versionId: "target_version"
+   ```
+
+7. **Hook Development**
    ```
    "What SCAPI hooks are available?"
    → Use: get_hook_reference with guideName: "scapi_hooks"
@@ -212,7 +227,7 @@ Some tools require specific SFCC credentials:
 
 - **Documentation & Best Practices**: Always available
 - **Log Analysis**: Requires SFCC instance credentials (hostname, username, password)
-- **System Objects**: Requires OCAPI credentials (clientId, clientSecret)
+- **System Objects & Code Versions**: Requires OCAPI credentials (clientId, clientSecret)
 
 If a tool isn't available, the MCP server will provide clear error messages about what credentials are needed.
 

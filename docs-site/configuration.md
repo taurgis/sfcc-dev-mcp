@@ -176,6 +176,18 @@ For system object definition tools (`get_system_object_definitions`, `get_system
           "methods": ["post"],
           "read_attributes": "(**)",
           "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/code_versions",
+          "methods": ["get"],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        },
+        {
+          "resource_id": "/code_versions/*",
+          "methods": ["get", "patch"],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
         }
       ]
     }

@@ -64,6 +64,8 @@ Claude Desktop integrates MCP tools seamlessly into the conversation. When you s
 - `mcp_sfcc-dev_search_site_preferences` - Search site preferences
 - `mcp_sfcc-dev_search_system_object_attribute_groups` - Search attribute groups
 - `mcp_sfcc-dev_search_custom_object_attribute_definitions` - Search custom attributes
+- `mcp_sfcc-dev_get_code_versions` - Get all code versions on SFCC instance
+- `mcp_sfcc-dev_activate_code_version` - Activate a specific code version (for code-switch fixes)
 - `mcp_sfcc-dev_get_latest_error` - Get recent error logs
 - `mcp_sfcc-dev_get_latest_warn` - Get recent warning logs
 - `mcp_sfcc-dev_get_latest_info` - Get recent info logs
@@ -219,7 +221,16 @@ Use these for debugging and troubleshooting:
    → Use: mcp_sfcc-dev_get_latest_error
    ```
 
-6. **Hook Development**
+6. **Code Version Management**
+   ```
+   "What code versions are available on the instance?"
+   → Use: mcp_sfcc-dev_get_code_versions
+   
+   "Need to do a code-switch fix for SCAPI endpoints"
+   → Use: mcp_sfcc-dev_activate_code_version with versionId: "target_version"
+   ```
+
+7. **Hook Development**
    ```
    "What SCAPI hooks are available?"
    → Use: mcp_sfcc-dev_get_hook_reference with guideName: "scapi_hooks"
@@ -239,7 +250,7 @@ Some tools require specific SFCC credentials:
 
 - **Documentation & Best Practices**: Always available
 - **Log Analysis**: Requires SFCC instance credentials (hostname, username, password)
-- **System Objects**: Requires OCAPI credentials (clientId, clientSecret)
+- **System Objects & Code Versions**: Requires OCAPI credentials (clientId, clientSecret)
 
 If a tool isn't available, the MCP server will provide clear error messages about what credentials are needed.
 

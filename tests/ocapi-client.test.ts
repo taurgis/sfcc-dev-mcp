@@ -16,6 +16,7 @@ jest.mock('../src/clients/base/oauth-token.js');
 // Mock the specialized clients
 jest.mock('../src/clients/ocapi/system-objects-client.js');
 jest.mock('../src/clients/ocapi/site-preferences-client.js');
+jest.mock('../src/clients/ocapi/code-versions-client.js');
 jest.mock('../src/clients/base/ocapi-auth-client.js');
 
 describe('OCAPIClient', () => {
@@ -178,6 +179,68 @@ describe('OCAPIClient', () => {
       await client.refreshToken();
 
       expect(mockAuthClient.refreshToken).toHaveBeenCalled();
+    });
+
+    it('should delegate getCodeVersions to CodeVersionsClient', async () => {
+      // Mock the codeVersions client's getCodeVersions method
+      const mockCodeVersions = {
+        _v: '23.2',
+        _type: 'code_version_result',
+        count: 1,
+        data: [
+          {
+            _type: 'code_version',
+            id: 'version1',
+            active: true,
+            cartridges: 'app_storefront_base',
+            compatibility_mode: '23.2',
+            activation_time: '2024-01-01T00:00:00Z',
+            total_size: '1024 KB',
+          },
+        ],
+        total: 1,
+      };
+
+      const mockCodeVersionsClient = {
+        getCodeVersions: jest.fn().mockResolvedValue(mockCodeVersions),
+      };
+
+      // Access the private codeVersions property and mock it
+      (client as any).codeVersions = mockCodeVersionsClient;
+
+      const result = await client.getCodeVersions();
+
+      expect(mockCodeVersionsClient.getCodeVersions).toHaveBeenCalled();
+      expect(result).toBe(mockCodeVersions);
+    });
+
+    it('should delegate activateCodeVersion to CodeVersionsClient', async () => {
+      // Mock the codeVersions client's activateCodeVersion method
+      const mockActivatedVersion = {
+        _v: '23.2',
+        _type: 'code_version',
+        _resource_state: 'new-resource-state-12345',
+        id: 'version2',
+        active: true,
+        cartridges: 'app_storefront_base',
+        compatibility_mode: '23.2',
+        activation_time: '2024-01-15T10:30:00Z',
+        total_size: '1024 KB',
+      };
+
+      const mockCodeVersionsClient = {
+        activateCodeVersion: jest.fn().mockResolvedValue(mockActivatedVersion),
+      };
+
+      // Access the private codeVersions property and mock it
+      (client as any).codeVersions = mockCodeVersionsClient;
+
+      const codeVersionId = 'version2';
+      const resourceState = 'resource-state-12345';
+      const result = await client.activateCodeVersion(codeVersionId, resourceState);
+
+      expect(mockCodeVersionsClient.activateCodeVersion).toHaveBeenCalledWith(codeVersionId, resourceState);
+      expect(result).toBe(mockActivatedVersion);
     });
   });
 

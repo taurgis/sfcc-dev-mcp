@@ -6,14 +6,14 @@ nav_order: 5
 
 # 🛠️ Available Tools
 
-The SFCC Development MCP Server provides 28 specialized tools organized into logical categories based on functionality and required credentials.
+The SFCC Development MCP Server provides 30 specialized tools organized into logical categories based on functionality and required credentials.
 
 ## Tool Availability by Mode
 
 | Mode | Total Tools | Description |
 |------|-------------|-------------|
 | **Documentation-Only** | 15 tools | No SFCC credentials required |
-| **Full Mode** | 28 tools | Requires SFCC instance access |
+| **Full Mode** | 30 tools | Requires SFCC instance access |
 
 ---
 
@@ -415,6 +415,139 @@ search_system_object_attribute_definitions({
 
 ---
 
+## 🔄 Code Version Management Tools (2 tools)
+*Requires Full Mode (OCAPI credentials)*
+
+### `get_code_versions`
+Retrieve all code versions from the SFCC instance for deployment management and troubleshooting.
+
+**Parameters:**
+- None required
+
+**Use Cases:**
+- Code-switch fixes for SCAPI endpoint registration issues
+- Job deployment troubleshooting  
+- Deployment conflict resolution
+- Version management and rollback planning
+
+**Example Usage:**
+```javascript
+// Get all available code versions
+get_code_versions()
+```
+
+**Sample Response:**
+```json
+{
+  "_v": "23.2",
+  "_type": "code_version_result", 
+  "count": 2,
+  "data": [
+    {
+      "_type": "code_version",
+      "_resource_state": "860cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd5",
+      "id": "version1",
+      "active": true,
+      "cartridges": "app_storefront_base, plugin_cartridge", 
+      "compatibility_mode": "23.2",
+      "activation_time": "2024-01-15T10:30:00Z",
+      "total_size": "2.1 MB"
+    },
+    {
+      "_type": "code_version",
+      "_resource_state": "950cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd6", 
+      "id": "version2",
+      "active": false,
+      "cartridges": "app_storefront_base",
+      "compatibility_mode": "23.1", 
+      "activation_time": "2024-01-10T14:20:00Z",
+      "total_size": "1.8 MB"
+    }
+  ],
+  "total": 2
+}
+```
+
+### `activate_code_version`
+Activate a specific code version to resolve deployment issues and perform code-switch fixes.
+
+**Parameters:**
+- `codeVersionId` (required): The ID of the code version to activate
+- `resourceState` (required): The _resource_state value for optimistic locking (get from `get_code_versions`)
+
+**Use Cases:**
+- Perform code-switch fixes for SCAPI endpoint registration issues
+- Resolve job deployment conflicts
+- Switch to a known working version during incidents
+- Activate newly deployed code versions
+
+**Important Notes:**
+- Only inactive code versions can be activated
+- Activating a version automatically deactivates the currently active version
+- The `resourceState` parameter prevents conflicts during concurrent modifications
+
+**Example Usage:**
+```javascript
+// First, get available code versions to find the ID and resource state
+get_code_versions()
+
+// Then activate a specific version using the resource state from above
+activate_code_version({
+  codeVersionId: "version2",
+  resourceState: "950cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd6"
+})
+```
+
+**Sample Response:**
+```json
+{
+  "_v": "23.2",
+  "_type": "code_version",
+  "_resource_state": "a60cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd7",
+  "id": "version2",
+  "active": true,
+  "cartridges": "app_storefront_base",
+  "compatibility_mode": "23.1",
+  "activation_time": "2024-01-19T15:45:22Z",
+  "last_modification_time": "2024-01-19T15:45:22Z",
+  "total_size": "1.8 MB",
+  "web_dav_url": "https://example.com/on/demandware.servlet/webdav/Sites/Cartridges/version2"
+}
+```
+
+**Error Handling:**
+- **404 Not Found**: Code version ID doesn't exist
+- **400 Bad Request**: Trying to modify an already active code version
+- **409 Conflict**: Code version ID already exists (when renaming)
+
+### **Complete Code-Switch Workflow**
+Here's a typical workflow for performing a code-switch fix:
+
+```javascript
+// Step 1: View current code versions to understand the situation
+get_code_versions()
+// Response shows version1 is active, version2 is inactive
+
+// Step 2: Activate the desired version using its resource state
+activate_code_version({
+  codeVersionId: "version2", 
+  resourceState: "950cde3040519cce439cd99e209f8a87c3ad0b7e2813edbf6f5501f763b73bd6"
+})
+// This automatically deactivates version1 and activates version2
+
+// Step 3: Verify the activation was successful
+get_code_versions()
+// Response now shows version2 is active, version1 is inactive
+```
+
+This workflow is particularly useful when:
+- SCAPI endpoints fail to register properly
+- Job definitions don't deploy correctly  
+- You need to quickly revert to a known working state
+- Testing different cartridge configurations
+
+---
+
 ## 🎯 Tool Selection Guide
 
 ### For Learning SFCC
@@ -425,7 +558,7 @@ search_system_object_attribute_definitions({
 - `get_sfra_document` - Study SFRA architecture
 
 ### For Active Development  
-**Use Full Mode (28 tools):**
+**Use Full Mode (30 tools):**
 - All documentation tools for reference
 - `generate_cartridge_structure` - Start new features
 - `get_latest_error` - Debug issues quickly
@@ -444,6 +577,12 @@ search_system_object_attribute_definitions({
 - `get_system_object_definitions` - Understand available objects
 - `search_system_object_attribute_definitions` - Find custom attributes
 - `search_site_preferences` - Explore configuration options
+
+### For Deployment Management
+**Use Code Version Tools:**
+- `get_code_versions` - View available code versions for deployment troubleshooting
+- `activate_code_version` - Perform code-switch fixes and activate specific versions
+- Useful for SCAPI endpoint registration issues and job deployment conflicts
 
 ---
 

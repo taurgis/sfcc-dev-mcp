@@ -27,6 +27,7 @@ import {
   LOG_TOOLS,
   SYSTEM_OBJECT_TOOLS,
   CARTRIDGE_GENERATION_TOOLS,
+  CODE_VERSION_TOOLS,
 } from './tool-definitions.js';
 
 import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
@@ -361,6 +362,38 @@ export class SFCCDevServer {
   }
 
   /**
+   * Handle code version tools with common pattern
+   */
+  private async handleCodeVersionTool(toolName: string, args: any, startTime: number): Promise<any> {
+    this.validateClientAvailability('ocapi');
+
+    let logMessage: string;
+    let result: any;
+
+    switch (toolName) {
+      case 'get_code_versions':
+        logMessage = 'Getting all code versions from SFCC instance';
+        result = await this.ocapiClient?.getCodeVersions();
+        this.logger.debug(`Retrieved ${result.total ?? result.data?.length ?? 0} code versions`);
+        break;
+      case 'activate_code_version':
+        if (!args?.codeVersionId) {throw new Error('codeVersionId is required');}
+        if (!args?.resourceState) {throw new Error('resourceState is required');}
+        logMessage = `Activating code version: "${args.codeVersionId}"`;
+        result = await this.ocapiClient?.activateCodeVersion(
+          args.codeVersionId as string,
+          args.resourceState as string,
+        );
+        this.logger.debug(`Successfully activated code version "${args.codeVersionId}"`);
+        break;
+      default:
+        throw new Error(`Unknown code version tool: ${toolName}`);
+    }
+
+    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
+  }
+
+  /**
    * Handle SFRA documentation tools with common pattern
    */
   private async handleSFRATool(toolName: string, args: any, startTime: number): Promise<any> {
@@ -419,6 +452,7 @@ export class SFCCDevServer {
 
       if (this.ocapiClient) {
         tools.push(...SYSTEM_OBJECT_TOOLS);
+        tools.push(...CODE_VERSION_TOOLS);
       }
 
       return { tools };
@@ -447,6 +481,8 @@ export class SFCCDevServer {
           'search_system_object_attribute_definitions', 'search_site_preferences',
           'search_system_object_attribute_groups', 'search_custom_object_attribute_definitions'].includes(name)) {
           result = await this.handleSystemObjectTool(name, args, startTime);
+        } else if (['get_code_versions', 'activate_code_version'].includes(name)) {
+          result = await this.handleCodeVersionTool(name, args, startTime);
         } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
           'get_sfra_documents_by_category', 'get_sfra_categories'].includes(name)) {
           result = await this.handleSFRATool(name, args, startTime);

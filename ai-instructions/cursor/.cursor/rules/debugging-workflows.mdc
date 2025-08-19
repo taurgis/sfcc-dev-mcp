@@ -31,6 +31,16 @@ Use this rule when investigating errors, performance issues, or debugging SFCC a
 3. `mcp_sfcc-dev_get_latest_info` - Review normal operations
 4. `mcp_sfcc-dev_get_latest_debug` - Detailed execution traces (when needed)
 
+### 🚀 For Deployment and Code Version Issues:
+1. `mcp_sfcc-dev_get_code_versions` - Check available code versions on instance
+2. `mcp_sfcc-dev_activate_code_version` - Perform code-switch fix for SCAPI endpoints/jobs
+
+**Common Code-Switch Fix Scenarios:**
+- New SCAPI endpoints not accessible after deployment
+- Custom jobs not appearing in Business Manager
+- Hook registrations not taking effect
+- Custom object definitions not recognized
+
 ## MCP-Enhanced Error Handling Code Patterns
 
 Get patterns from MCP first, then implement:

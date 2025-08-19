@@ -8,6 +8,7 @@
 import { OCAPIConfig } from '../types/types.js';
 import { OCAPISystemObjectsClient } from './ocapi/system-objects-client.js';
 import { OCAPISitePreferencesClient } from './ocapi/site-preferences-client.js';
+import { OCAPICodeVersionsClient } from './ocapi/code-versions-client.js';
 import { OCAPIAuthClient } from './base/ocapi-auth-client.js';
 import { Logger } from '../utils/logger.js';
 
@@ -63,12 +64,14 @@ interface SearchRequest {
  * This class serves as a facade that orchestrates specialized client modules:
  * - SystemObjectsClient: Handles system object definitions and attributes
  * - SitePreferencesClient: Manages site preference operations
+ * - CodeVersionsClient: Manages code version operations
  * - AuthClient: Manages OAuth authentication and token lifecycle
  */
 export class OCAPIClient {
   // Specialized client modules
   public readonly systemObjects: OCAPISystemObjectsClient;
   public readonly sitePreferences: OCAPISitePreferencesClient;
+  public readonly codeVersions: OCAPICodeVersionsClient;
   private readonly authClient: OCAPIAuthClient;
 
   constructor(config: OCAPIConfig) {
@@ -82,6 +85,7 @@ export class OCAPIClient {
     // Initialize specialized clients
     this.systemObjects = new OCAPISystemObjectsClient(finalConfig);
     this.sitePreferences = new OCAPISitePreferencesClient(finalConfig);
+    this.codeVersions = new OCAPICodeVersionsClient(finalConfig);
     this.authClient = new OCAPIAuthClient(finalConfig);
 
     logger.debug('OCAPI client initialized with specialized modules');
@@ -159,6 +163,30 @@ export class OCAPIClient {
     },
   ): Promise<any> {
     return this.sitePreferences.searchSitePreferences(groupId, instanceType, searchRequest, options);
+  }
+
+  // =============================================================================
+  // Code Versions API - Delegated to CodeVersionsClient
+  // =============================================================================
+
+  /**
+   * Get all code versions from the SFCC instance
+   *
+   * @returns {Promise<any>} Code version result with data array containing version information
+   */
+  async getCodeVersions(): Promise<any> {
+    return this.codeVersions.getCodeVersions();
+  }
+
+  /**
+   * Activate a specific code version on the SFCC instance
+   *
+   * @param {string} codeVersionId - The ID of the code version to activate
+   * @param {string} resourceState - The _resource_state for optimistic locking
+   * @returns {Promise<any>} Updated code version object
+   */
+  async activateCodeVersion(codeVersionId: string, resourceState: string): Promise<any> {
+    return this.codeVersions.activateCodeVersion(codeVersionId, resourceState);
   }
 
   // =============================================================================

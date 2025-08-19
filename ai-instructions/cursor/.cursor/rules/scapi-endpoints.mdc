@@ -75,3 +75,24 @@ Follow MCP performance patterns:
 - ❌ Don't skip security validation - use `mcp_sfcc-dev_search_best_practices`
 - ❌ Don't assume SFCC APIs - use `mcp_sfcc-dev_search_sfcc_classes`
 - ❌ Don't implement without proper error handling - follow MCP patterns
+
+## 🚀 SCAPI Endpoint Deployment Troubleshooting
+
+**If new SCAPI endpoints are not accessible after deployment:**
+
+1. **Check Deployment Status:**
+   ```
+   Use: mcp_sfcc-dev_get_code_versions
+   Purpose: Verify which code version is currently active
+   ```
+
+2. **Perform Code-Switch Fix:**
+   ```
+   Use: mcp_sfcc-dev_activate_code_version with versionId: [target_version]
+   Purpose: Switch to activate SCAPI endpoint registrations
+   ```
+
+**Common SCAPI Deployment Issues:**
+- Endpoint returns 404 after deployment → Use code-switch fix
+- Authorization errors → Check endpoint registration in active code version
+- Intermittent access → Multiple code versions active, use activation tool

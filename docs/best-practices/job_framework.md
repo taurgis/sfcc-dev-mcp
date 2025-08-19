@@ -1108,5 +1108,9 @@ exports.afterStep = function (success, parameters, stepExecution) {
 3. **Transaction timeouts**: Reduce chunk size, commit per chunk
 4. **Job hangs**: Check resource locks, review for infinite loops
 5. **Poor performance**: Use Code Profiler, review API usage patterns
+6. **Job Not Visible in Business Manager**: If custom jobs don't appear in Administration > Operations > Jobs after deployment:
+   - **Check Available Versions**: Use MCP `get_code_versions` tool to see all code versions on the instance
+   - **Activate Different Version**: Use MCP `activate_code_version` tool to switch code versions
+   - **Alternative Manual Method**: Switch code versions in Business Manager (`Administration > Site Development > Code Deployment > Activate`)
 
 Remember: **The Job Framework is critical infrastructure**. Always prioritize stability, performance, and maintainability over quick implementation.

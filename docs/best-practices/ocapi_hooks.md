@@ -295,3 +295,21 @@ exports.afterPOST = function (order) {
 | `DELETE /libraries/{library_id}/content/{content_id}` | `dw.ocapi.data.content.content.beforeDelete`, `dw.ocapi.data.content.content.afterDelete` |
 | **User** |  |
 | `PATCH /users/this/password` | `dw.ocapi.data.users.afterPATCH` |
+
+## Troubleshooting Hook Registration
+
+**If OCAPI hooks are not executing after deployment:**
+
+1. **Check Code Version**: If hooks don't execute after upload:
+   - **Check Available Versions**: Use MCP `get_code_versions` tool to see all code versions on the instance
+   - **Activate Different Version**: Use MCP `activate_code_version` tool to switch code versions
+   - **Alternative Manual Method**: Switch code versions in Business Manager (Administration > Site Development > Code Deployment > Activate)
+2. **Verify Hook Registration**: Check logs for hook registration confirmations after version activation
+3. **Test Hook Execution**: Make OCAPI calls to endpoints that should trigger your hooks and verify they execute
+4. **Verify API Settings**: Ensure OCAPI settings in Business Manager allow your endpoints and include proper hook configurations
+
+**Common Hook Issues:**
+- Hooks not triggering → Check code version activation and OCAPI settings
+- Hook scripts not found → Verify file paths match registration in hooks.json
+- Runtime errors in hooks → Check logs for specific error messages during hook execution
+- Data API hooks → Ensure proper authentication and permissions are configured

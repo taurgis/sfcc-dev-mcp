@@ -295,3 +295,20 @@ This section provides a reference list of the available hook extension points fo
 | `GET /product_search` | `dw.ocapi.shop.product_search.modifyGETResponse` | `modifyGETResponse(doc : ProductSearchResult) : dw.system.Status` |
 | `GET /categories/{id}` | `dw.ocapi.shop.category.beforeGET` | `beforeGET(categoryId : String) : dw.system.Status` |
 | `GET /categories/{id}` | `dw.ocapi.shop.category.modifyGETResponse` | `modifyGETResponse(scriptCategory : dw.catalog.Category, doc : Category) : dw.system.Status` |
+
+## Troubleshooting Hook Registration
+
+**If SCAPI hooks are not executing after deployment:**
+
+1. **Verify Feature Switches**: Ensure hooks are enabled in Business Manager (Administration > Global Preferences > Feature Switches)
+2. **Check Code Version**: If hooks still don't execute:
+   - **Check Available Versions**: Use MCP `get_code_versions` tool to see all code versions on the instance
+   - **Activate Different Version**: Use MCP `activate_code_version` tool to switch code versions
+   - **Alternative Manual Method**: Switch code versions in Business Manager (Administration > Site Development > Code Deployment > Activate)
+3. **Verify Hook Registration**: Check logs for hook registration confirmations after version activation
+4. **Test Hook Execution**: Make API calls to endpoints that should trigger your hooks and verify they execute
+
+**Common Hook Issues:**
+- Hooks not triggering → Check feature switches and code version activation
+- Hook scripts not found → Verify file paths match registration in hooks.json
+- Runtime errors in hooks → Check logs for specific error messages during hook execution

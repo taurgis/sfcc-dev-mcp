@@ -197,5 +197,20 @@ When using this MCP server for cartridge development, follow this enhanced workf
 3. **Search Documentation**: Use `search_sfcc_classes` and `get_sfcc_class_info` for API reference
 4. **Validate Implementation**: Use `search_best_practices` to ensure your code follows security and performance guidelines
 5. **Debug Issues**: Use log analysis tools to troubleshoot deployment or runtime issues
+6. **Handle Deployment Issues**: If new cartridge features (jobs, SCAPI endpoints, hooks) don't appear after upload:
+   - **Check Code Versions**: Use `get_code_versions` tool to see available versions
+   - **Activate Version**: Use `activate_code_version` tool to ensure proper registration
+   - **Alternative**: Manually switch code versions in Business Manager (Administration > Site Development > Code Deployment)
+
+### Common Deployment Troubleshooting
+
+**Issue**: Custom jobs or SCAPI endpoints not visible after cartridge deployment
+**Solution**: 
+1. Use MCP `get_code_versions` tool to check available code versions
+2. Use MCP `activate_code_version` tool to switch to the uploaded version
+3. Verify registration in logs using log analysis tools
+
+**Issue**: Hooks not taking effect after deployment
+**Solution**: Follow the same code version activation process above
 
 This integrated approach ensures your cartridge follows all best practices and leverages the full power of the SFCC development ecosystem with direct file generation capabilities.
