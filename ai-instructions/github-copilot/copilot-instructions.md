@@ -38,6 +38,8 @@ When providing assistance:
 
 ### 🔧 Code Quality & Linting
 
+**SFCC Class Verification**: Before using any SFCC class, verify its existence and check for information about its methods and properties. Pay attention to deprecations and changes in the API.
+
 **ESLint Integration**: Before manually fixing linting errors:
 1. **First attempt automatic fixes**: Run `npm run lint:fix` or `eslint --fix` if available
 2. **Check results**: Use `get_errors` tool to verify what remains after auto-fix
