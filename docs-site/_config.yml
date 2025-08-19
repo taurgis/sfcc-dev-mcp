@@ -19,8 +19,8 @@ header_pages:
   - configuration.md
   - tools.md
   - examples.md
-  - security.md
   - troubleshooting.md
+  - security.md
   - development.md
 
 # Social links

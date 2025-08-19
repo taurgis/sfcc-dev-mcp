@@ -1,7 +1,7 @@
 ---
 title: Security Guidelines
 layout: page
-nav_order: 8
+nav_order: 9
 ---
 
 # 🔒 Security Guidelines
@@ -127,12 +127,14 @@ Before using the MCP server:
 - [ ] **Logs**: Log directory has appropriate permissions
 - [ ] **Environment**: Using in local development environment only
 
-## 🔗 Security Resources
+## � Security Resources
 
-### SFCC Security Documentation
-- [SFCC Security Best Practices](docs/best-practices/security.md)
-- [OCAPI Security Guidelines](docs/best-practices/ocapi_hooks.md)
-- [SCAPI Security Patterns](docs/best-practices/scapi_hooks.md)
+### SFCC-Specific Security Guides
+The MCP server includes comprehensive security guides accessible through the best practices tools:
+
+- **SFCC Security Best Practices** - Access via `get_best_practice_guide({ guideName: "security" })`
+- **OCAPI Security Guidelines** - Access via `get_best_practice_guide({ guideName: "ocapi_hooks" })`
+- **SCAPI Security Patterns** - Access via `get_best_practice_guide({ guideName: "scapi_hooks" })`
 
 ### External Security Resources
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
