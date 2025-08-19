@@ -18,6 +18,7 @@ import { SFCCDocumentationClient } from '../clients/docs-client.js';
 import { SFCCBestPracticesClient } from '../clients/best-practices-client.js';
 import { SFRAClient } from '../clients/sfra-client.js';
 import { OCAPIClient } from '../clients/ocapi-client.js';
+import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
 import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
 import {
@@ -30,7 +31,15 @@ import {
   CODE_VERSION_TOOLS,
 } from './tool-definitions.js';
 
-import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
+// Modular tool handlers
+import { BaseToolHandler, HandlerContext } from './handlers/base-handler.js';
+import { LogToolHandler } from './handlers/log-handler.js';
+import { DocsToolHandler } from './handlers/docs-handler.js';
+import { BestPracticesToolHandler } from './handlers/best-practices-handler.js';
+import { SFRAToolHandler } from './handlers/sfra-handler.js';
+import { SystemObjectToolHandler } from './handlers/system-object-handler.js';
+import { CodeVersionToolHandler } from './handlers/code-version-handler.js';
+import { CartridgeToolHandler } from './handlers/cartridge-handler.js';
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -47,6 +56,7 @@ export class SFCCDevServer {
   private logger: Logger;
   private cartridgeClient: CartridgeGenerationClient | null = null;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
+  private handlers: BaseToolHandler[] = [];
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -56,10 +66,10 @@ export class SFCCDevServer {
   constructor(config: SFCCConfig) {
     this.logger = Logger.getChildLogger('Server');
     this.logMethodEntry('constructor', { hostname: config.hostname });
-
     this.capabilities = ConfigurationFactory.getCapabilities(config);
     this.initializeClients(config);
     this.initializeServer();
+    this.registerHandlers();
     this.setupToolHandlers();
 
     this.logMethodExit('constructor');
@@ -111,322 +121,28 @@ export class SFCCDevServer {
     this.logger.methodExit(methodName, result);
   }
 
-  /**
-   * Helper method to validate client availability and throw consistent error messages
-   */
-  private validateClientAvailability(clientType: 'log' | 'ocapi'): void {
-    if (clientType === 'log' && !this.logClient) {
-      throw new Error('Log client not available. SFCC credentials are required for log analysis tools. Please provide hostname, username, and password via dw.json or environment variables.');
-    }
-    if (clientType === 'ocapi' && !this.ocapiClient) {
-      throw new Error('OCAPI client not available. OAuth credentials (clientId and clientSecret) are required for system object definition tools.');
-    }
-  }
+  // (Legacy helper methods removed after modular refactor)
 
-  /**
-   * Helper method to create consistent response format
-   */
-  private createResponse(data: any, isText: boolean = true): any {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: isText ? JSON.stringify(data) : data,
-        },
-      ],
-    };
-  }
-
-  /**
-   * Helper method to handle tool execution with consistent logging and timing
-   */
-  private async executeToolHandler<T>(
-    toolName: string,
-    startTime: number,
-    handler: () => Promise<T>,
-    logMessage?: string,
-  ): Promise<any> {
-    if (logMessage) {
-      this.logger.debug(logMessage);
-    }
-    const result = await handler();
-    this.logger.timing(toolName, startTime);
-    return this.createResponse(result);
-  }
-
-  /**
-   * Handle log-related tools with common pattern
-   */
-  private async handleLogTool(
-    toolName: string,
-    args: any,
-    startTime: number,
-  ): Promise<any> {
-    this.validateClientAvailability('log');
-
-    const limit = (args?.limit as number) || (toolName === 'search_logs' ? 20 : 10);
-    const date = args?.date as string;
-
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_latest_error':
-      case 'get_latest_warn':
-      case 'get_latest_info':
-      case 'get_latest_debug': {
-        const level = toolName.replace('get_latest_', '') === 'warnings' ? 'warn' : toolName.replace('get_latest_', '');
-        logMessage = `Fetching latest ${level} logs with limit: ${limit}, date: ${date || 'today'}`;
-        result = await this.logClient!.getLatestLogs(level as any, limit, date);
-        break;
-      }
-      case 'summarize_logs':
-        logMessage = `Summarizing logs for date: ${date || 'today'}`;
-        result = await this.logClient!.summarizeLogs(date);
-        break;
-      case 'search_logs':
-        if (!args?.pattern) {throw new Error('Pattern is required for log search');}
-        logMessage = `Searching logs for pattern: "${args.pattern}", logLevel: ${args.logLevel ?? 'all'}, limit: ${limit}`;
-        result = await this.logClient!.searchLogs(args.pattern as string, args.logLevel, limit, date);
-        break;
-      case 'list_log_files':
-        logMessage = 'Listing all available log files';
-        result = await this.logClient!.listLogFiles();
-        break;
-      default:
-        throw new Error(`Unknown log tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-  }
-
-  /**
-   * Handle documentation-related tools with common pattern
-   */
-  private async handleDocsTool(toolName: string, args: any, startTime: number): Promise<any> {
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_sfcc_class_info':
-      {
-        if (!args?.className) {
-          throw new Error('className is required');
-        }
-        const expand = args?.expand as boolean ?? false;
-        logMessage = `Getting class info for: "${args.className}", expand: ${expand}`;
-        result = await this.docsClient.getClassDetailsExpanded(args.className as string, expand);
-        if (!result) {throw new Error(`Class "${args.className}" not found`);}
-        this.logger.debug(`Retrieved class info with ${result.methods?.length ?? 0} methods and ${result.properties?.length ?? 0} properties`);
-        break;
-      }
-      case 'search_sfcc_classes':
-        if (!args?.query) {throw new Error('query is required');}
-        logMessage = `Searching SFCC classes for query: "${args.query}"`;
-        result = await this.docsClient.searchClasses(args.query as string);
-        this.logger.debug(`Found ${result.length} matching classes`);
-        break;
-      case 'search_sfcc_methods':
-        if (!args?.methodName) {throw new Error('methodName is required');}
-        logMessage = `Searching for methods with name: "${args.methodName}"`;
-        result = await this.docsClient.searchMethods(args.methodName as string);
-        this.logger.debug(`Found ${result.length} methods matching "${args.methodName}"`);
-        break;
-      case 'list_sfcc_classes':
-        logMessage = 'Listing all available SFCC classes';
-        result = await this.docsClient.getAvailableClasses();
-        this.logger.debug(`Retrieved ${result.length} available classes`);
-        break;
-      case 'get_sfcc_class_documentation':
-        if (!args?.className) {throw new Error('className is required');}
-        logMessage = `Getting raw documentation for class: "${args.className}"`;
-        result = await this.docsClient.getClassDocumentation(args.className as string);
-        if (!result) {throw new Error(`Documentation for class "${args.className}" not found`);}
-        this.logger.debug(`Retrieved documentation for "${args.className}" (${result.length} characters)`);
-        return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-      default:
-        throw new Error(`Unknown docs tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-  }
-
-  /**
-   * Handle best practices tools with common pattern
-   */
-  private async handleBestPracticesTool(toolName: string, args: any, startTime: number): Promise<any> {
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_available_best_practice_guides':
-        logMessage = 'Getting list of available best practice guides';
-        result = await this.bestPracticesClient.getAvailableGuides();
-        break;
-      case 'get_best_practice_guide':
-        if (!args?.guideName) {throw new Error('guideName is required');}
-        logMessage = `Getting best practice guide: "${args.guideName}"`;
-        result = await this.bestPracticesClient.getBestPracticeGuide(args.guideName as string);
-        break;
-      case 'search_best_practices':
-        if (!args?.query) {throw new Error('query is required');}
-        logMessage = `Searching best practices for query: "${args.query}"`;
-        result = await this.bestPracticesClient.searchBestPractices(args.query as string);
-        break;
-      case 'get_hook_reference':
-        if (!args?.guideName) {throw new Error('guideName is required');}
-        logMessage = `Getting hook reference for: "${args.guideName}"`;
-        result = await this.bestPracticesClient.getHookReference(args.guideName as string);
-        break;
-      default:
-        throw new Error(`Unknown best practices tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-  }
-
-  /**
-   * Handle system object tools with common pattern
-   */
-  private async handleSystemObjectTool(toolName: string, args: any, startTime: number): Promise<any> {
-    this.validateClientAvailability('ocapi');
-
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_system_object_definitions':
-        logMessage = `Getting all system object definitions with start: ${args?.start ?? 0}, count: ${args?.count ?? 200}, select: ${args?.select ?? '(**)'}`;
-        result = await this.ocapiClient?.getSystemObjectDefinitions({
-          start: args?.start as number,
-          count: args?.count as number,
-          select: args?.select as string,
-        });
-        this.logger.debug(`Retrieved ${(result.total ?? result.data?.length) ?? 0} system object definitions`);
-        break;
-      case 'get_system_object_definition':
-        if (!args?.objectType) {throw new Error('objectType is required');}
-        logMessage = `Getting system object definition for: "${args.objectType}"`;
-        result = await this.ocapiClient?.getSystemObjectDefinition(args.objectType as string);
-        this.logger.debug(`Retrieved system object definition for "${args.objectType}" with ${result.attribute_definition_count ?? 0} attributes`);
-        break;
-      case 'search_system_object_attribute_definitions':
-        if (!args?.objectType) {throw new Error('objectType is required');}
-        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
-        logMessage = `Searching attribute definitions for object type: "${args.objectType}"`;
-        result = await this.ocapiClient?.searchSystemObjectAttributeDefinitions(
-          args.objectType as string,
-          args.searchRequest,
-        );
-        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute definitions for object type "${args.objectType}"`);
-        break;
-      case 'search_site_preferences':
-        if (!args?.groupId) {throw new Error('groupId is required');}
-        if (!args?.instanceType) {throw new Error('instanceType is required');}
-        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
-        logMessage = `Searching site preferences for group: "${args.groupId}", instance: "${args.instanceType}"`;
-        result = await this.ocapiClient?.searchSitePreferences(
-          args.groupId as string,
-          args.instanceType as 'staging' | 'development' | 'sandbox' | 'production',
-          args.searchRequest,
-          args.options,
-        );
-        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching site preferences for group "${args.groupId}" in ${args.instanceType} instance`);
-        break;
-      case 'search_system_object_attribute_groups':
-        if (!args?.objectType) {throw new Error('objectType is required');}
-        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
-        logMessage = `Searching attribute groups for object type: "${args.objectType}"`;
-        result = await this.ocapiClient?.searchSystemObjectAttributeGroups(
-          args.objectType as string,
-          args.searchRequest,
-        );
-        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching attribute groups for object type "${args.objectType}"`);
-        break;
-      case 'search_custom_object_attribute_definitions':
-        if (!args?.objectType) {throw new Error('objectType is required');}
-        if (!args?.searchRequest) {throw new Error('searchRequest is required');}
-        logMessage = `Searching custom object attribute definitions for object type: "${args.objectType}"`;
-        result = await this.ocapiClient?.searchCustomObjectAttributeDefinitions(
-          args.objectType as string,
-          args.searchRequest,
-        );
-        this.logger.debug(`Found ${result.total ?? result.hits?.length ?? 0} matching custom object attribute definitions for object type "${args.objectType}"`);
-        break;
-      default:
-        throw new Error(`Unknown system object tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-  }
-
-  /**
-   * Handle code version tools with common pattern
-   */
-  private async handleCodeVersionTool(toolName: string, args: any, startTime: number): Promise<any> {
-    this.validateClientAvailability('ocapi');
-
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_code_versions':
-        logMessage = 'Getting all code versions from SFCC instance';
-        result = await this.ocapiClient?.getCodeVersions();
-        this.logger.debug(`Retrieved ${result.total ?? result.data?.length ?? 0} code versions`);
-        break;
-      case 'activate_code_version':
-        if (!args?.codeVersionId) {throw new Error('codeVersionId is required');}
-        logMessage = `Activating code version: "${args.codeVersionId}"`;
-        result = await this.ocapiClient?.activateCodeVersion(
-          args.codeVersionId as string,
-        );
-        this.logger.debug(`Successfully activated code version "${args.codeVersionId}"`);
-        break;
-      default:
-        throw new Error(`Unknown code version tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
-  }
-
-  /**
-   * Handle SFRA documentation tools with common pattern
-   */
-  private async handleSFRATool(toolName: string, args: any, startTime: number): Promise<any> {
-    let logMessage: string;
-    let result: any;
-
-    switch (toolName) {
-      case 'get_available_sfra_documents':
-        logMessage = 'Getting list of available SFRA documents';
-        result = await this.sfraClient.getAvailableDocuments();
-        break;
-      case 'get_sfra_document':
-        if (!args?.documentName) {throw new Error('documentName is required');}
-        logMessage = `Getting SFRA document: "${args.documentName}"`;
-        result = await this.sfraClient.getSFRADocument(args.documentName as string);
-        if (!result) {throw new Error(`SFRA document "${args.documentName}" not found`);}
-        break;
-      case 'search_sfra_documentation':
-        if (!args?.query) {throw new Error('query is required');}
-        logMessage = `Searching SFRA documentation for query: "${args.query}"`;
-        result = await this.sfraClient.searchSFRADocumentation(args.query as string);
-        break;
-      case 'get_sfra_documents_by_category':
-        if (!args?.category) {throw new Error('category is required');}
-        logMessage = `Getting SFRA documents by category: "${args.category}"`;
-        result = await this.sfraClient.getDocumentsByCategory(args.category as string);
-        break;
-      case 'get_sfra_categories':
-        logMessage = 'Getting all SFRA document categories';
-        result = await this.sfraClient.getAvailableCategories();
-        break;
-      default:
-        throw new Error(`Unknown SFRA tool: ${toolName}`);
-    }
-
-    return this.executeToolHandler(toolName, startTime, async () => result, logMessage);
+  // Register modular handlers (each encapsulates its own responsibility)
+  private registerHandlers(): void {
+    const context: HandlerContext = {
+      logger: this.logger,
+      logClient: this.logClient ?? undefined,
+      docsClient: this.docsClient,
+      bestPracticesClient: this.bestPracticesClient,
+      sfraClient: this.sfraClient,
+      ocapiClient: this.ocapiClient ?? undefined,
+      cartridgeGenerator: this.cartridgeClient ?? undefined,
+    } as HandlerContext;
+    this.handlers = [
+      new LogToolHandler(context, 'Log'),
+      new DocsToolHandler(context, 'Docs'),
+      new BestPracticesToolHandler(context, 'BestPractices'),
+      new SFRAToolHandler(context, 'SFRA'),
+      new SystemObjectToolHandler(context, 'SystemObjects'),
+      new CodeVersionToolHandler(context, 'CodeVersions'),
+      new CartridgeToolHandler(context, 'Cartridge'),
+    ];
   }
 
   /**
@@ -455,50 +171,19 @@ export class SFCCDevServer {
       return { tools };
     });
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
       const { name, arguments: args } = request.params;
       const startTime = Date.now();
 
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
-        let result: any;
-
-        // Route to appropriate handler based on tool category
-        if (['get_latest_error', 'get_latest_warn', 'get_latest_info', 'get_latest_debug',
-          'summarize_logs', 'search_logs', 'list_log_files'].includes(name)) {
-          result = await this.handleLogTool(name, args, startTime);
-        } else if (['get_sfcc_class_info', 'search_sfcc_classes', 'search_sfcc_methods',
-          'list_sfcc_classes', 'get_sfcc_class_documentation'].includes(name)) {
-          result = await this.handleDocsTool(name, args, startTime);
-        } else if (['get_available_best_practice_guides', 'get_best_practice_guide',
-          'search_best_practices', 'get_hook_reference'].includes(name)) {
-          result = await this.handleBestPracticesTool(name, args, startTime);
-        } else if (['get_system_object_definitions', 'get_system_object_definition',
-          'search_system_object_attribute_definitions', 'search_site_preferences',
-          'search_system_object_attribute_groups', 'search_custom_object_attribute_definitions'].includes(name)) {
-          result = await this.handleSystemObjectTool(name, args, startTime);
-        } else if (['get_code_versions', 'activate_code_version'].includes(name)) {
-          result = await this.handleCodeVersionTool(name, args, startTime);
-        } else if (['get_available_sfra_documents', 'get_sfra_document', 'search_sfra_documentation',
-          'get_sfra_documents_by_category', 'get_sfra_categories'].includes(name)) {
-          result = await this.handleSFRATool(name, args, startTime);
-        } else if(['generate_cartridge_structure'].includes(name)) {
-          if (!this.cartridgeClient) {
-            throw new Error('Cartridge generation client not available. Please ensure it is initialized.');
-          }
-
-          if(!args || typeof args !== 'object') {
-            throw new Error('Invalid arguments provided for cartridge generation. Expected an object with properties like "cartridgeName", "namespace", etc.');
-          }
-
-          result = await this.executeToolHandler(name, startTime, async () => {
-            return this.cartridgeClient!.generateCartridgeStructure(args as any ?? {});
-          }, `Generating cartridge structure with args: ${JSON.stringify(args)}`);
-        } else {
+        const handler = this.handlers.find((h) => h.canHandle(name));
+        if (!handler) {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new Error(`Unknown tool: ${name}`);
         }
+        const result = await handler.handle(name, args, startTime);
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {
@@ -508,7 +193,7 @@ export class SFCCDevServer {
           fullResponse: result.content?.[0]?.text,
         });
 
-        return result;
+        return result as any;
       } catch (error) {
         this.logger.error(`Error handling tool "${name}":`, error);
         this.logger.timing(`${name}_error`, startTime);
@@ -525,7 +210,7 @@ export class SFCCDevServer {
         // Log error response in debug mode
         this.logger.debug(`Error response for ${name}:`, errorResult);
 
-        return errorResult;
+        return errorResult as any;
       } finally {
         this.logger.methodExit(`handleToolRequest:${name}`);
       }
