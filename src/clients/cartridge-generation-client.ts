@@ -316,6 +316,7 @@ export class CartridgeGenerationClient {
           'lint': 'npm run lint:css && npm run lint:js',
           'lint:css': 'sgmf-scripts --lint css',
           'lint:js': 'sgmf-scripts --lint js',
+          'lint:fix': 'sgmf-scripts --lint js -- --fix',
           upload: 'sgmf-scripts --upload -- ',
           uploadCartridge: `sgmf-scripts --uploadCartridge ${cartridgeName}`,
           'compile:js': 'sgmf-scripts --compile js',
