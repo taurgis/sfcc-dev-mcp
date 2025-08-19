@@ -13,12 +13,6 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { SFCCConfig } from '../types/types.js';
-import { SFCCLogClient } from '../clients/log-client.js';
-import { SFCCDocumentationClient } from '../clients/docs-client.js';
-import { SFCCBestPracticesClient } from '../clients/best-practices-client.js';
-import { SFRAClient } from '../clients/sfra-client.js';
-import { OCAPIClient } from '../clients/ocapi-client.js';
-import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
 import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
 import {
@@ -48,13 +42,8 @@ import { CartridgeToolHandler } from './handlers/cartridge-handler.js';
  */
 export class SFCCDevServer {
   private server!: Server;
-  private logClient: SFCCLogClient | null = null;
-  private docsClient!: SFCCDocumentationClient;
-  private bestPracticesClient!: SFCCBestPracticesClient;
-  private sfraClient!: SFRAClient;
-  private ocapiClient: OCAPIClient | null = null;
   private logger: Logger;
-  private cartridgeClient: CartridgeGenerationClient | null = null;
+  private config: SFCCConfig;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
   private handlers: BaseToolHandler[] = [];
 
@@ -65,38 +54,14 @@ export class SFCCDevServer {
    */
   constructor(config: SFCCConfig) {
     this.logger = Logger.getChildLogger('Server');
+    this.config = config;
     this.logMethodEntry('constructor', { hostname: config.hostname });
     this.capabilities = ConfigurationFactory.getCapabilities(config);
-    this.initializeClients(config);
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
 
     this.logMethodExit('constructor');
-  }
-
-  private initializeClients(config: SFCCConfig): void {
-    // Always available clients
-    this.docsClient = new SFCCDocumentationClient();
-    this.bestPracticesClient = new SFCCBestPracticesClient();
-    this.sfraClient = new SFRAClient();
-
-    this.cartridgeClient = new CartridgeGenerationClient();
-    // Conditional clients based on capabilities
-    if (this.capabilities.canAccessLogs) {
-      this.logClient = new SFCCLogClient(config);
-      this.logger.debug('Log client initialized');
-    }
-
-    if (this.capabilities.canAccessOCAPI) {
-      this.ocapiClient = new OCAPIClient({
-        hostname: config.hostname!,
-        clientId: config.clientId!,
-        clientSecret: config.clientSecret!,
-        version: 'v23_2',
-      });
-      this.logger.debug('OCAPI client initialized');
-    }
   }
 
   private initializeServer(): void {
@@ -121,19 +86,13 @@ export class SFCCDevServer {
     this.logger.methodExit(methodName, result);
   }
 
-  // (Legacy helper methods removed after modular refactor)
-
   // Register modular handlers (each encapsulates its own responsibility)
   private registerHandlers(): void {
     const context: HandlerContext = {
       logger: this.logger,
-      logClient: this.logClient ?? undefined,
-      docsClient: this.docsClient,
-      bestPracticesClient: this.bestPracticesClient,
-      sfraClient: this.sfraClient,
-      ocapiClient: this.ocapiClient ?? undefined,
-      cartridgeGenerator: this.cartridgeClient ?? undefined,
-    } as HandlerContext;
+      config: this.config,
+      capabilities: this.capabilities,
+    };
     this.handlers = [
       new LogToolHandler(context, 'Log'),
       new DocsToolHandler(context, 'Docs'),
@@ -158,12 +117,12 @@ export class SFCCDevServer {
       tools.push(...SFRA_DOCUMENTATION_TOOLS);
       tools.push(...CARTRIDGE_GENERATION_TOOLS);
 
-      // Conditional tools based on available clients
-      if (this.logClient) {
+      // Conditional tools based on available capabilities
+      if (this.capabilities.canAccessLogs) {
         tools.push(...LOG_TOOLS);
       }
 
-      if (this.ocapiClient) {
+      if (this.capabilities.canAccessOCAPI) {
         tools.push(...SYSTEM_OBJECT_TOOLS);
         tools.push(...CODE_VERSION_TOOLS);
       }
@@ -183,7 +142,7 @@ export class SFCCDevServer {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new Error(`Unknown tool: ${name}`);
         }
-        const result = await handler.handle(name, args, startTime);
+        const result = await handler.handle(name, args ?? {}, startTime);
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {
@@ -222,7 +181,25 @@ export class SFCCDevServer {
    */
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
+
+    // Set up graceful shutdown
+    process.on('SIGINT', () => this.shutdown());
+    process.on('SIGTERM', () => this.shutdown());
+
     await this.server.connect(transport);
     this.logger.log('SFCC Development MCP server running on stdio');
+  }
+
+  /**
+   * Gracefully shutdown the server and dispose of resources
+   */
+  private async shutdown(): Promise<void> {
+    this.logger.log('Shutting down SFCC Development MCP server...');
+
+    // Dispose of all handlers
+    await Promise.all(this.handlers.map(handler => handler.dispose()));
+
+    this.logger.log('SFCC Development MCP server shutdown complete');
+    process.exit(0);
   }
 }

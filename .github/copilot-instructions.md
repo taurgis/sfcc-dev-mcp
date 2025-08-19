@@ -54,6 +54,8 @@ sfcc-dev-mcp/
 │   │   ├── tool-definitions.ts   # MCP tool schema definitions
 │   │   └── handlers/             # Modular tool handlers
 │   │       ├── base-handler.ts   # Abstract base handler with common functionality
+│   │       ├── client-factory.ts # Centralized client creation with dependency injection
+│   │       ├── validation-helpers.ts # Common validation utilities for handlers
 │   │       ├── docs-handler.ts   # SFCC documentation tool handler
 │   │       ├── best-practices-handler.ts # Best practices tool handler
 │   │       ├── sfra-handler.ts   # SFRA documentation tool handler
@@ -69,15 +71,19 @@ sfcc-dev-mcp/
 │   │   ├── ocapi/                # Specialized OCAPI clients
 │   │   │   ├── site-preferences-client.ts # Site preferences management
 │   │   │   └── system-objects-client.ts # System object definitions
+│   │   ├── cartridge-generation-client.ts # Cartridge structure generation client
 │   │   ├── log-client.ts         # SFCC log analysis client
 │   │   ├── docs-client.ts        # SFCC documentation client
 │   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
 │   │   └── best-practices-client.ts # Best practices guide client
+│   ├── services/                 # Service layer with clean abstractions
+│   │   ├── index.ts              # Service exports and type definitions
+│   │   ├── file-system-service.ts # File system operations service
+│   │   └── path-service.ts       # Path manipulation service
 │   ├── config/                   # Configuration management
-│   │   ├── config.ts             # Configuration loading and validation
 │   │   ├── configuration-factory.ts # Config factory for different modes
-│   │   └── constants.ts          # Application constants
+│   │   └── dw-json-loader.ts     # dw.json configuration loader
 │   ├── utils/                    # Utility functions and helpers
 │   │   ├── cache.ts              # Caching layer for API responses
 │   │   ├── logger.ts             # Structured logging system
@@ -150,13 +156,15 @@ sfcc-dev-mcp/
 
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
+- **ClientFactory** (`client-factory.ts`): Centralized client creation with dependency injection support for testing and clean architecture
+- **ValidationHelpers** (`validation-helpers.ts`): Common validation utilities shared across all handlers
 - **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
 - **BestPracticesToolHandler** (`best-practices-handler.ts`): Manages best practice guides, security recommendations, and hook reference tables
 - **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
 - **LogToolHandler** (`log-handler.ts`): Handles real-time log analysis, error monitoring, and system health summarization
 - **SystemObjectToolHandler** (`system-object-handler.ts`): Manages system object definitions, custom attributes, and site preferences
 - **CodeVersionToolHandler** (`code-version-handler.ts`): Handles code version listing, activation, and deployment management
-- **CartridgeToolHandler** (`cartridge-handler.ts`): Processes cartridge generation requests with complete project setup
+- **CartridgeToolHandler** (`cartridge-handler.ts`): Processes cartridge generation requests with complete project setup using dependency injection
 
 #### **Client Architecture**
 
@@ -175,11 +183,17 @@ sfcc-dev-mcp/
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
 - **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+- **CartridgeGenerationClient** (`cartridge-generation-client.ts`): Generates complete cartridge structures with clean dependency injection for file system and path operations
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
-- **Config Loader** (`config.ts`): Handles dw.json and environment variable loading
-- **Constants** (`constants.ts`): Application-wide constants and defaults
+- **Config Loader** (`dw-json-loader.ts`): Handles dw.json and environment variable loading
+
+#### **Service Layer** (`services/`)
+- **Service Interfaces** (`index.ts`): Exports clean abstractions for system operations (IFileSystemService, IPathService)
+- **FileSystemService** (`file-system-service.ts`): Production implementation of file system operations with Node.js fs module
+- **PathService** (`path-service.ts`): Production implementation of path manipulation with Node.js path module
+- **Mock Services**: Test implementations providing controlled behavior for unit testing without real file system access
 
 #### **Utilities** (`utils/`)
 - **Caching System** (`cache.ts`): Efficient caching for API responses and documentation
@@ -318,11 +332,14 @@ When working on this project:
 
 - **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
 - **Creating New Handlers**: Extend `BaseToolHandler` class, implement `canHandle()` and `handle()` methods, register in `server.ts`
+- **Using ClientFactory**: Create clients using `ClientFactory` for centralized creation and dependency injection support
+- **Implementing Services**: Create service interfaces in `services/index.ts`, implement production versions, and provide mock implementations for testing
+- **Dependency Injection**: Use constructor injection for services, leverage `ClientFactory` for client creation with optional service injection
 - **Updating Documentation**: Modify files in `docs/` and run conversion scripts
 - **Enhancing Authentication**: Update `clients/base/oauth-token.ts` and client authentication logic
 - **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
-- **Adding Tests**: Create comprehensive test coverage in the `tests/` directory
+- **Adding Tests**: Create comprehensive test coverage in the `tests/` directory with proper service mocking
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
 - **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
@@ -349,6 +366,19 @@ The modular handler refactoring provides:
 6. **Performance Monitoring**: Standardized execution timing and logging across all handlers
 7. **Extensibility**: New tool categories can be added by creating new handler classes
 8. **Code Reusability**: Common functionality shared through the base handler class
+
+### 🔧 Dependency Injection Architecture
+
+The comprehensive dependency injection implementation provides:
+
+1. **Clean Testing**: Mock services replace complex system module mocking patterns
+2. **Modular Design**: Service interfaces enable easy swapping of implementations
+3. **Reduced Coupling**: Components depend on abstractions, not concrete implementations
+4. **Centralized Creation**: `ClientFactory` provides consistent client instantiation patterns
+5. **Type Safety**: Full TypeScript support for all service interfaces and implementations
+6. **Maintainable Tests**: Simple interface mocking instead of complex system module stubs
+7. **Production Flexibility**: Easy to swap implementations for different environments
+8. **Clear Boundaries**: Well-defined service layer separates business logic from system operations
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
 

@@ -6,9 +6,8 @@
  * with a modern, integrated approach.
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
 import { Logger } from '../utils/logger.js';
+import { IFileSystemService, IPathService } from '../services/index.js';
 
 interface CartridgeGenerationOptions {
   cartridgeName: string;
@@ -31,9 +30,13 @@ interface CartridgeTemplates {
 export class CartridgeGenerationClient {
   private logger: Logger;
   private templates: CartridgeTemplates;
+  private fileSystem: IFileSystemService;
+  private pathService: IPathService;
 
-  constructor() {
+  constructor(fileSystem: IFileSystemService, pathService: IPathService) {
     this.logger = Logger.getChildLogger('CartridgeGenerationClient');
+    this.fileSystem = fileSystem;
+    this.pathService = pathService;
     this.templates = this.initializeTemplates();
   }
 
@@ -101,7 +104,7 @@ export class CartridgeGenerationClient {
         };
       } else {
         // Cartridge-only setup - add to existing project
-        const cartridgesDir = path.join(workingDir, 'cartridges');
+        const cartridgesDir = this.pathService.join(workingDir, 'cartridges');
 
         // Ensure cartridges directory exists
         await this.ensureDirectory(cartridgesDir);
@@ -142,7 +145,7 @@ export class CartridgeGenerationClient {
     skippedFiles: string[],
   ): Promise<void> {
     // Create package.json
-    const packageJsonPath = path.join(projectDir, 'package.json');
+    const packageJsonPath = this.pathService.join(projectDir, 'package.json');
     await this.safeWriteFile(
       packageJsonPath,
       JSON.stringify(this.templates.packageJson(cartridgeName), null, 2),
@@ -151,7 +154,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create dw.json
-    const dwJsonPath = path.join(projectDir, 'dw.json');
+    const dwJsonPath = this.pathService.join(projectDir, 'dw.json');
     await this.safeWriteFile(
       dwJsonPath,
       JSON.stringify(this.templates.dwJson(), null, 2),
@@ -160,7 +163,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create webpack.config.js
-    const webpackPath = path.join(projectDir, 'webpack.config.js');
+    const webpackPath = this.pathService.join(projectDir, 'webpack.config.js');
     await this.safeWriteFile(
       webpackPath,
       this.templates.webpackConfig(cartridgeName),
@@ -169,7 +172,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create .eslintrc.json
-    const eslintrcPath = path.join(projectDir, '.eslintrc.json');
+    const eslintrcPath = this.pathService.join(projectDir, '.eslintrc.json');
     await this.safeWriteFile(
       eslintrcPath,
       JSON.stringify(this.templates.eslintrc(), null, 2),
@@ -178,7 +181,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create .stylelintrc.json
-    const stylelintrcPath = path.join(projectDir, '.stylelintrc.json');
+    const stylelintrcPath = this.pathService.join(projectDir, '.stylelintrc.json');
     await this.safeWriteFile(
       stylelintrcPath,
       JSON.stringify(this.templates.stylelintrc(), null, 2),
@@ -187,7 +190,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create .eslintignore
-    const eslintignorePath = path.join(projectDir, '.eslintignore');
+    const eslintignorePath = this.pathService.join(projectDir, '.eslintignore');
     await this.safeWriteFile(
       eslintignorePath,
       this.templates.eslintignore(),
@@ -196,7 +199,7 @@ export class CartridgeGenerationClient {
     );
 
     // Create .gitignore
-    const gitignorePath = path.join(projectDir, '.gitignore');
+    const gitignorePath = this.pathService.join(projectDir, '.gitignore');
     await this.safeWriteFile(
       gitignorePath,
       this.templates.gitignore(),
@@ -216,17 +219,17 @@ export class CartridgeGenerationClient {
     skippedFiles: string[],
   ): Promise<void> {
     // Create cartridges directory
-    const cartridgesDir = path.join(baseDir, 'cartridges');
+    const cartridgesDir = this.pathService.join(baseDir, 'cartridges');
     await this.ensureDirectory(cartridgesDir);
     createdDirectories.push(cartridgesDir);
 
     // Create specific cartridge directory
-    const cartridgeDir = path.join(cartridgesDir, cartridgeName);
+    const cartridgeDir = this.pathService.join(cartridgesDir, cartridgeName);
     await this.ensureDirectory(cartridgeDir);
     createdDirectories.push(cartridgeDir);
 
     // Create .project file
-    const projectPath = path.join(cartridgeDir, '.project');
+    const projectPath = this.pathService.join(cartridgeDir, '.project');
     await this.safeWriteFile(
       projectPath,
       this.templates.dotProject(cartridgeName),
@@ -235,12 +238,12 @@ export class CartridgeGenerationClient {
     );
 
     // Create cartridge subdirectory
-    const cartridgeSubDir = path.join(cartridgeDir, 'cartridge');
+    const cartridgeSubDir = this.pathService.join(cartridgeDir, 'cartridge');
     await this.ensureDirectory(cartridgeSubDir);
     createdDirectories.push(cartridgeSubDir);
 
     // Create cartridge properties file
-    const propertiesPath = path.join(cartridgeSubDir, `${cartridgeName}.properties`);
+    const propertiesPath = this.pathService.join(cartridgeSubDir, `${cartridgeName}.properties`);
     await this.safeWriteFile(
       propertiesPath,
       this.templates.projectProperties(cartridgeName),
@@ -262,7 +265,7 @@ export class CartridgeGenerationClient {
     ];
 
     for (const dir of directories) {
-      const fullPath = path.join(cartridgeSubDir, dir);
+      const fullPath = this.pathService.join(cartridgeSubDir, dir);
       await this.ensureDirectory(fullPath);
       createdDirectories.push(fullPath);
     }
@@ -273,9 +276,9 @@ export class CartridgeGenerationClient {
    */
   private async ensureDirectory(dirPath: string): Promise<void> {
     try {
-      await fs.access(dirPath);
+      await this.fileSystem.access(dirPath);
     } catch {
-      await fs.mkdir(dirPath, { recursive: true });
+      await this.fileSystem.mkdir(dirPath, { recursive: true });
       this.logger.info(`Created directory: ${dirPath}`);
     }
   }
@@ -290,13 +293,13 @@ export class CartridgeGenerationClient {
     skippedFiles: string[],
   ): Promise<void> {
     try {
-      await fs.access(filePath);
+      await this.fileSystem.access(filePath);
       // File exists, skip it
       skippedFiles.push(filePath);
       this.logger.info(`Skipped existing file: ${filePath}`);
     } catch {
       // File doesn't exist, create it
-      await fs.writeFile(filePath, content);
+      await this.fileSystem.writeFile(filePath, content);
       createdFiles.push(filePath);
       this.logger.info(`Created file: ${filePath}`);
     }
