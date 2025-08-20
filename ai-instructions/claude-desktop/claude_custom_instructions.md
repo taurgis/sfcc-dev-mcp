@@ -186,6 +186,7 @@ Use these for debugging and troubleshooting:
 - **`mcp_sfcc-dev_summarize_logs`** - Get log overview
 - **`mcp_sfcc-dev_search_logs`** - Search logs by pattern
 - **`mcp_sfcc-dev_list_log_files`** - List available log files
+- **`mcp_sfcc-dev_get_log_file_contents`** - Get contents of a specific log file (supports size limits and head/tail reading)
 
 ## 🚀 When to Use These Tools
 
@@ -219,6 +220,15 @@ Use these for debugging and troubleshooting:
    ```
    "Are there any recent errors in the logs?"
    → Use: mcp_sfcc-dev_get_latest_error
+   
+   "What log files are available for today?"
+   → Use: mcp_sfcc-dev_list_log_files
+   
+   "I need to see the full contents of a specific error log file"
+   → Use: mcp_sfcc-dev_get_log_file_contents with filename: "error-2023-01-01.log"
+   
+   "Show me just the first 1MB of a large log file"
+   → Use: mcp_sfcc-dev_get_log_file_contents with filename: "large.log", maxBytes: 1048576, tailOnly: false
    ```
 
 6. **Code Version Management**

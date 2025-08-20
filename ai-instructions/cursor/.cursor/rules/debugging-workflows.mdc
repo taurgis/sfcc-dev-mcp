@@ -28,8 +28,9 @@ Use this rule when investigating errors, performance issues, or debugging SFCC a
 ### 📊 For System Health Assessment:
 1. `mcp_sfcc-dev_summarize_logs` - Overall system status
 2. `mcp_sfcc-dev_list_log_files` - Check log availability and sizes
-3. `mcp_sfcc-dev_get_latest_info` - Review normal operations
-4. `mcp_sfcc-dev_get_latest_debug` - Detailed execution traces (when needed)
+3. `mcp_sfcc-dev_get_log_file_contents` - Read specific log files (with size limits: maxBytes, tailOnly options)
+4. `mcp_sfcc-dev_get_latest_info` - Review normal operations
+5. `mcp_sfcc-dev_get_latest_debug` - Detailed execution traces (when needed)
 
 ### 🚀 For Deployment and Code Version Issues:
 1. `mcp_sfcc-dev_get_code_versions` - Check available code versions on instance
@@ -127,6 +128,25 @@ mcp_sfcc-dev_search_logs with pattern: "performance"
 mcp_sfcc-dev_search_logs with pattern: "authentication"
 mcp_sfcc-dev_search_logs with pattern: "authorization"
 mcp_sfcc-dev_search_logs with pattern: "security"
+```
+
+## MCP Log File Analysis
+
+**When to Use `mcp_sfcc-dev_get_log_file_contents`:**
+- After `mcp_sfcc-dev_list_log_files` identifies specific files of interest
+- When you need complete context around an error (not just recent entries)
+- For analyzing large log files with size constraints
+
+**Usage Patterns:**
+```
+# Read specific error log file completely
+mcp_sfcc-dev_get_log_file_contents with filename: "error-2024-01-15.log"
+
+# Read first 1MB of large log for pattern analysis  
+mcp_sfcc-dev_get_log_file_contents with filename: "debug.log", maxBytes: 1048576, tailOnly: false
+
+# Read last 500KB for most recent activity
+mcp_sfcc-dev_get_log_file_contents with filename: "error.log", maxBytes: 512000, tailOnly: true
 ```
 
 ## NEVER Debug Without MCP

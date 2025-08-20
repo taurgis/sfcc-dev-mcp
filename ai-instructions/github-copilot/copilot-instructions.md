@@ -113,6 +113,8 @@ Use these for debugging and troubleshooting:
 - **`get_latest_warnings`** - Get recent warnings from SFCC logs
 - **`search_logs`** - Search logs for specific patterns or keywords
 - **`summarize_logs`** - Get overview of log activity and issues
+- **`list_log_files`** - List available log files with metadata
+- **`get_log_file_contents`** - Get contents of a specific log file (supports size limits and head/tail reading)
 
 ## 🚀 When to Use These Tools
 
@@ -146,6 +148,18 @@ Use these for debugging and troubleshooting:
    ```
    "Are there any recent errors in the logs?"
    → Use: get_latest_errors
+   
+   "What log files are available for today?"
+   → Use: list_log_files
+   
+   "I need to see the full contents of a specific error log file"
+   → Use: get_log_file_contents with filename: "error-2023-01-01.log"
+   
+   "Show me just the first 1MB of a large log file"
+   → Use: get_log_file_contents with filename: "large.log", maxBytes: 1048576, tailOnly: false
+   
+   "Get the last 500KB of a log file to see recent entries"
+   → Use: get_log_file_contents with filename: "debug.log", maxBytes: 512000, tailOnly: true
    ```
 
 6. **Code Version Management**
@@ -691,8 +705,11 @@ cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
 - [ ] Included proper error handling
 
 ### When Debugging/Troubleshooting:
-- [ ] Checked system logs for actual errors
-- [ ] Analyzed error patterns over time
+- [ ] Checked system logs for actual errors (use `get_latest_errors`, `get_latest_warnings`)
+- [ ] Listed available log files to understand scope (use `list_log_files`)
+- [ ] Analyzed specific log files for detailed context (use `get_log_file_contents`)
+- [ ] Searched logs for patterns related to the issue (use `search_logs`)
+- [ ] Analyzed error patterns over time (use `summarize_logs`)
 - [ ] Investigated related system components
 - [ ] Provided both immediate fixes and preventive measures
 - [ ] Validated solutions against current system state
