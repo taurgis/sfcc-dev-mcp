@@ -916,26 +916,3 @@ This is a critical architectural decision.
 > **Note**: Choosing the wrong tool leads to technical debt. Do not use hooks to create net-new functionality.
 
 ---
-
-## Appendix: Configuration Reference
-
-### A.1 Common Configuration Parameters
-
-| Parameter | Description | Example |
-|-----------|-------------|---------|
-| `your-shortcode` | Your SFCC realm shortcode | `kv7kzm78` |
-| `f_ecom_your_org` | Your organization ID | `f_ecom_zzrf_001` |
-| `your-private-client-id` | Private client ID from Account Manager | `d125886c-c45a-...` |
-| `your-public-client-id` | Public client ID from Account Manager | `18f2a947-c8ae-...` |
-| `your-client-secret` | Private client secret (keep secure!) | `your-secret-here` |
-| `your-site-id` | Site ID from Business Manager | `RefArch` |
-| `your-host` | Your sandbox hostname | `zzrf-001.dx.commercecloud.salesforce.com` |
-
-### A.2 Security Guidelines
-
-1. **Never expose private client secrets** in browser code
-2. **Use HTTPS for all authentication calls**
-3. **Store tokens securely** and implement proper refresh logic
-4. **Private clients should only be used server-side**
-5. **Token expiration**: SLAS tokens typically expire in 30 minutes
-6. **CORS considerations**: Use server-side calls for private clients, browser calls for public clients
