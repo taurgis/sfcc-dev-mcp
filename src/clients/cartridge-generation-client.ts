@@ -326,24 +326,22 @@ export class CartridgeGenerationClient {
           'compile:scss': 'sgmf-scripts --compile css',
         },
         devDependencies: {
-          autoprefixer: '^10.4.16',
+          autoprefixer: '^10.4.14',
+          bestzip: '^2.2.1',
+          'css-loader': '^6.0.0',
           'css-minimizer-webpack-plugin': '^5.0.1',
-          'mini-css-extract-plugin': '^2.7.6',
           eslint: '^8.56.0',
           'eslint-config-airbnb-base': '^15.0.0',
+          'eslint-config-prettier': '^9.1.0',
           'eslint-plugin-import': '^2.29.0',
-          stylelint: '^15.4.0',
-          'stylelint-config-standard-scss': '^10.0.0',
-          nyc: '^15.1.0',
-          mocha: '^10.0.0',
-          sinon: '^17.0.1',
-          chai: '^3.5.0',
-          proxyquire: '1.7.4',
-          'sgmf-scripts': '^2.0.0',
-          'css-loader': '^6.0.0',
+          'mini-css-extract-plugin': '^2.7.6',
           'postcss-loader': '^7.0.0',
           sass: '^1.69.7',
           'sass-loader': '^13.3.2',
+          'sgmf-scripts': '^3.0.0',
+          shx: '^0.3.4',
+          stylelint: '^15.4.0',
+          'stylelint-config-standard-scss': '^11.0.0',
           'webpack-remove-empty-scripts': '^1.0.4',
         },
         browserslist: [
@@ -361,27 +359,61 @@ export class CartridgeGenerationClient {
 
       webpackConfig: (cartridgeName: string) => `'use strict';
 
-      var path = require('path');
+var path = require('path');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-var RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 var sgmfScripts = require('sgmf-scripts');
+var RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 
 module.exports = [{
-    mode: 'production',
+    mode: 'development',
     name: 'js',
     entry: sgmfScripts.createJsPath(),
     output: {
         path: path.resolve('./cartridges/${cartridgeName}/cartridge/static'),
         filename: '[name].js'
     }
-},
-{
+}, {
     mode: 'none',
     name: 'scss',
     entry: sgmfScripts.createScssPath(),
     output: {
         path: path.resolve('./cartridges/${cartridgeName}/cartridge/static')
+    },
+    module: {
+        rules: [{
+            test: /\\.scss$/,
+            use: [{
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                    esModule: false
+                }
+            },
+            {
+                loader: 'css-loader',
+                options: {
+                    url: false
+                }
+            }, {
+                loader: 'postcss-loader',
+                options: {
+                    postcssOptions: {
+                        plugins: [require('autoprefixer')]
+                    }
+                }
+            }, {
+                loader: 'sass-loader',
+                options: {
+                    implementation: require('sass'),
+                    sassOptions: {
+                        includePaths: [
+                            path.resolve(path.resolve(process.cwd(), '../storefront-reference-architecture/node_modules/')),
+                            path.resolve(process.cwd(), '../storefront-reference-architecture/node_modules/flag-icons/sass')
+                        ]
+                    }
+                }
+            }]
+        }]
     },
     plugins: [
         new RemoveEmptyScriptsPlugin(),
@@ -390,45 +422,8 @@ module.exports = [{
             chunkFilename: '[name].css'
         })
     ],
-    module: {
-        rules: [{
-            test: /\\.scss$/,
-            use: [
-                MiniCssExtractPlugin.loader,
-                {
-                    loader: 'css-loader',
-                    options: {
-                        url: false
-                    }
-                },
-                {
-                    loader: 'postcss-loader',
-                    options: {
-                        postcssOptions: {
-                            plugins: [
-                                require('autoprefixer')
-                            ]
-                        }
-                    }
-                },
-                {
-                    loader: 'sass-loader',
-                    options: {
-                        sassOptions: {
-                            includePaths: [
-                                path.resolve('node_modules'),
-                                path.resolve('cartridges')
-                            ]
-                        }
-                    }
-                }
-            ]
-        }]
-    },
     optimization: {
-        minimizer: [
-            new CssMinimizerPlugin()
-        ]
+        minimizer: ['...', new CssMinimizerPlugin()]
     }
 }];`,
 
