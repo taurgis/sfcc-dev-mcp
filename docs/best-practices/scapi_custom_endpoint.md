@@ -557,8 +557,6 @@ Custom scopes must meet the following requirements:
 
 Endpoints without correct scheme or scope assignments are not registered.
 
-You can review registration errors by searching in the Log Center for messages with a category that includes `CustomApiRegistry`.
-
 ### 3.3 Requesting Endpoints
 
 #### ShopperLogin
@@ -921,29 +919,8 @@ exports.getProductReviews.public = true;
 ### Troubleshooting
 
 - **404 Not Found**: This almost always means the API failed to register. Systematically check your cartridge structure, file names, `operationId` matching, and `api.json` syntax.
-- **Log Center**: Use the Log Center with the query `CustomApiRegistry` to find detailed error messages about registration failures.
 - **403 Forbidden**: The client's token is valid but is missing the required custom scope. Check the scope assignments in SLAS or Account Manager.
 - **504 Gateway Timeout**: Your script exceeded the performance limit. Use the Code Profiler to find and optimize the bottleneck in your code.
-
-#### Custom API Registry Debugging Limitation
-
-**Important**: The Custom API Registry log messages (like `"Registered SCAPI Custom API translation for /custom/pricing/v1/organizations/f_ecom_zziu_006/product-pricing/{productId}"`) **only appear during server boot/startup**, not when:
-
-- Uploading new code with endpoints via VS Code or other deployment tools
-- Switching between code servers (active/staging)
-- Making changes to existing endpoint files
-
-**Why This Matters for Debugging**: You cannot rely on these registration messages to confirm that your newly uploaded endpoint has been registered successfully. The absence of these messages in the logs after a code deployment does **not** indicate a registration failure.
-
-**Alternative Debugging Approaches**:
-1. **Direct Endpoint Testing**: Make a test API call to your endpoint URL to verify registration
-2. **404 vs Other Errors**: A 404 response indicates registration failure; other HTTP status codes (400, 401, 403, 500) suggest the endpoint is registered but has implementation issues
-3. **Log Search for Errors**: Search for `CustomApiRegistry` with error levels to find registration problems from the last server restart
-4. **Code Version Management**: If your endpoint returns errors as if it doesn't exist, use automated code version switching:
-   - **Check Available Versions**: Use MCP `get_code_versions` tool to see all code versions on the instance
-   - **Activate Different Version**: Use MCP `activate_code_version` tool to switch to a different code version
-   - **Alternative Manual Method**: Switch code versions in Business Manager (`Administration > Site Development > Code Deployment > Activate`) - sometimes endpoints fail to register properly on the active code version but work after switching
-5. **Systematic Verification**: Follow the file structure, naming, and syntax checklist rather than relying on log confirmation
 
 
 ## 7. Custom APIs vs. Hooks
