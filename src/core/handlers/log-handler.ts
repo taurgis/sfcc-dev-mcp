@@ -11,6 +11,7 @@ const LOG_TOOL_NAMES = [
   'summarize_logs',
   'search_logs',
   'list_log_files',
+  'get_log_file_contents',
 ] as const;
 
 type LogToolName = typeof LOG_TOOL_NAMES[number];
@@ -75,6 +76,8 @@ export class LogToolHandler extends BaseToolHandler {
         return this.handleSearchLogs(args, limit, date);
       case 'list_log_files':
         return this.handleListLogFiles();
+      case 'get_log_file_contents':
+        return this.handleGetLogFileContents(args);
       default:
         throw new Error(`Unknown log tool: ${toolName}`);
     }
@@ -98,6 +101,13 @@ export class LogToolHandler extends BaseToolHandler {
     return this.logClient!.listLogFiles();
   }
 
+  private async handleGetLogFileContents(args: ToolArguments): Promise<any> {
+    ValidationHelpers.validateArguments(args, CommonValidations.requiredString('filename'), 'get_log_file_contents');
+    const maxBytes = args.maxBytes as number | undefined;
+    const tailOnly = args.tailOnly as boolean | undefined;
+    return this.logClient!.getLogFileContents(args.filename, maxBytes, tailOnly);
+  }
+
   private getLogMessage(toolName: LogToolName, args: ToolArguments): string {
     const limit = (args?.limit as number) || (toolName === 'search_logs' ? 20 : 10);
     const date = args?.date as string;
@@ -116,6 +126,8 @@ export class LogToolHandler extends BaseToolHandler {
         return `Searching logs pattern="${args.pattern}" level=${args.logLevel ?? 'all'} limit=${limit}`;
       case 'list_log_files':
         return 'Listing log files';
+      case 'get_log_file_contents':
+        return `Reading log file contents: ${args.filename} (maxBytes=${args.maxBytes ?? 'default'}, tailOnly=${args.tailOnly ?? false})`;
       default:
         return `Executing ${toolName}`;
     }

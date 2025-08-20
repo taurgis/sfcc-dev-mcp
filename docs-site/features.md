@@ -169,6 +169,7 @@ The SFCC Development MCP Server provides comprehensive tools and documentation a
 - **Summarize Logs** - Get overview of log activity with error counts and key issues
 - **Search Logs** - Search for specific patterns, keywords, or error messages across log files
 - **List Log Files** - View available log files with metadata including sizes and modification dates
+- **Get Log File Contents** - Read complete contents of specific log files for detailed analysis
 
 **Monitoring Capabilities:**
 - Real-time error tracking and alerting
@@ -195,10 +196,10 @@ Perfect for learning, reference, and development without requiring SFCC instance
 - SFRA documentation access (5 tools)
 - Cartridge generation (1 tool)
 
-### Full Mode (30 tools)
+### Full Mode (31 tools)
 Complete development experience with SFCC instance access:
 - All documentation-only features (15 tools)
-- Real-time log analysis (7 tools)
+- Real-time log analysis (8 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
 

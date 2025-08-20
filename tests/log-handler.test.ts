@@ -27,6 +27,7 @@ describe('LogToolHandler', () => {
       summarizeLogs: jest.fn(),
       searchLogs: jest.fn(),
       listLogFiles: jest.fn(),
+      getLogFileContents: jest.fn(),
     } as any;
 
     (SFCCLogClient as jest.MockedClass<typeof SFCCLogClient>).mockImplementation(() => mockLogClient);
@@ -61,6 +62,7 @@ describe('LogToolHandler', () => {
       expect(handler.canHandle('summarize_logs')).toBe(true);
       expect(handler.canHandle('search_logs')).toBe(true);
       expect(handler.canHandle('list_log_files')).toBe(true);
+      expect(handler.canHandle('get_log_file_contents')).toBe(true);
     });
 
     it('should not handle non-log tools', () => {
@@ -232,6 +234,67 @@ describe('LogToolHandler', () => {
       const result = await handler.handle('search_logs', { pattern: '' }, Date.now());
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain('pattern must be a non-empty string');
+    });
+  });
+
+  describe('get_log_file_contents tool', () => {
+    beforeEach(async () => {
+      await initializeHandler();
+    });
+
+    it('should handle get_log_file_contents with filename', async () => {
+      const mockFileContents = 'Log file contents with some test data\nMore log entries...';
+      mockLogClient.getLogFileContents.mockResolvedValue(mockFileContents);
+
+      const result = await handler.handle('get_log_file_contents', { filename: 'error-2023-01-01.log' }, Date.now());
+
+      expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('error-2023-01-01.log', undefined, undefined);
+      expect(result.content[0].text).toContain('Log file contents with some test data');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: error-2023-01-01.log (maxBytes=default, tailOnly=false)');
+    });
+
+    it('should handle get_log_file_contents with maxBytes and tailOnly options', async () => {
+      const mockFileContents = 'Tail content of log file...';
+      mockLogClient.getLogFileContents.mockResolvedValue(mockFileContents);
+
+      const result = await handler.handle('get_log_file_contents', {
+        filename: 'large-log.log',
+        maxBytes: 1024,
+        tailOnly: true,
+      }, Date.now());
+
+      expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('large-log.log', 1024, true);
+      expect(result.content[0].text).toContain('Tail content of log file');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: large-log.log (maxBytes=1024, tailOnly=true)');
+    });
+
+    it('should handle get_log_file_contents with maxBytes and tailOnly=false (full file with size limit)', async () => {
+      const mockFileContents = 'Full file content with size limit applied...';
+      mockLogClient.getLogFileContents.mockResolvedValue(mockFileContents);
+
+      const result = await handler.handle('get_log_file_contents', {
+        filename: 'large-log.log',
+        maxBytes: 512,
+        tailOnly: false,
+      }, Date.now());
+
+      expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('large-log.log', 512, false);
+      expect(result.content[0].text).toContain('Full file content with size limit');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: large-log.log (maxBytes=512, tailOnly=false)');
+    });
+
+    it('should require filename parameter', async () => {
+      const result = await handler.handle('get_log_file_contents', {}, Date.now());
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('filename must be a non-empty string');
+    });
+
+    it('should handle empty filename', async () => {
+      const result = await handler.handle('get_log_file_contents', { filename: '' }, Date.now());
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('filename must be a non-empty string');
     });
   });
 

@@ -61,5 +61,4 @@ export interface WebDAVClientConfig {
 
 export interface FileReadOptions {
   maxBytes?: number;
-  useRangeRequest?: boolean;
 }

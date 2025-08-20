@@ -220,8 +220,8 @@ All AI interfaces can access these tools based on configuration mode:
 - ✅ **Enhanced SFRA Documentation** (5 tools) - Complete SFRA ecosystem with 26+ documents
 - ✅ **Cartridge Generation** (1 tool) - Automated cartridge structure creation
 
-### Full Mode Additional Tools (13 tools)
-- ✅ **Log Analysis** (7 tools) - Real-time error monitoring and pattern search
+### Full Mode Additional Tools (16 tools)
+- ✅ **Log Analysis** (8 tools) - Real-time error monitoring and pattern search
 - ✅ **System Object Definitions** (6 tools) - Custom attributes and site preferences
 
 ---

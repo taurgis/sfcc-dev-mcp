@@ -659,6 +659,84 @@ describe('SFCCLogClient', () => {
     });
   });
 
+  describe('getLogFileContents', () => {
+    it('should read full file content when tailOnly is false and no maxBytes', async () => {
+      const mockFileContent = 'This is a full log file content\nLine 2\nLine 3\nLine 4';
+      mockWebdavClient.getFileContents.mockResolvedValue(mockFileContent);
+
+      const result = await logClient.getLogFileContents('test.log', undefined, false);
+
+      expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith('test.log', { format: 'text' });
+      expect(result).toContain('This is a full log file content');
+      expect(result).toContain('Line 4');
+    });
+
+    it('should respect maxBytes when tailOnly is false and maxBytes is specified', async () => {
+      const mockFileContent = 'This is a very long log file content that should be truncated';
+      const mockStat = { size: 1000 }; // Simulate a large file
+      mockWebdavClient.stat.mockResolvedValue(mockStat);
+
+      // Mock the stream for range request from start
+      const mockStream = {
+        on: jest.fn((event, callback) => {
+          if (event === 'data') {
+            callback(Buffer.from(mockFileContent.substring(0, 50))); // First 50 bytes
+          } else if (event === 'end') {
+            callback();
+          }
+        }),
+      };
+      mockWebdavClient.createReadStream.mockReturnValue(mockStream);
+
+      const result = await logClient.getLogFileContents('test.log', 50, false);
+
+      expect(mockWebdavClient.stat).toHaveBeenCalledWith('test.log');
+      expect(mockWebdavClient.createReadStream).toHaveBeenCalledWith('test.log', {
+        range: { start: 0, end: 49 },
+      });
+      expect(result).toContain('This is a very long log file content that should');
+    });
+
+    it('should read tail content when tailOnly is true', async () => {
+      const mockFileContent = 'Tail content from the end of the file';
+      const mockStat = { size: 1000 };
+      mockWebdavClient.stat.mockResolvedValue(mockStat);
+
+      // Mock the stream for range request
+      const mockStream = {
+        on: jest.fn((event, callback) => {
+          if (event === 'data') {
+            callback(Buffer.from(mockFileContent));
+          } else if (event === 'end') {
+            callback();
+          }
+        }),
+      };
+      mockWebdavClient.createReadStream.mockReturnValue(mockStream);
+
+      const result = await logClient.getLogFileContents('test.log', 200, true);
+
+      expect(mockWebdavClient.stat).toHaveBeenCalledWith('test.log');
+      expect(mockWebdavClient.createReadStream).toHaveBeenCalledWith('test.log', {
+        range: { start: 800, end: 999 },
+      });
+      expect(result).toContain('Tail content from the end');
+    });
+
+    it('should handle file that is smaller than maxBytes when using tail', async () => {
+      const mockFileContent = 'Small file';
+      const mockStat = { size: 10 };
+      mockWebdavClient.stat.mockResolvedValue(mockStat);
+      mockWebdavClient.getFileContents.mockResolvedValue(mockFileContent);
+
+      const result = await logClient.getLogFileContents('test.log', 200, true);
+
+      // Should read full file since it's smaller than maxBytes
+      expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith('test.log', { format: 'text' });
+      expect(result).toContain('Small file');
+    });
+  });
+
   describe('error handling', () => {
     it('should handle WebDAV connection errors in getLogFiles', async () => {
       mockWebdavClient.getDirectoryContents.mockRejectedValue(new Error('Connection failed'));

@@ -247,7 +247,7 @@ sfcc-dev-mcp/
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-5. **Log Analysis Tools** (7 tools)
+5. **Log Analysis Tools** (8 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization

@@ -13,7 +13,7 @@ The SFCC Development MCP Server provides 30 specialized tools organized into log
 | Mode | Total Tools | Description |
 |------|-------------|-------------|
 | **Documentation-Only** | 15 tools | No SFCC credentials required |
-| **Full Mode** | 30 tools | Requires SFCC instance access |
+| **Full Mode** | 31 tools | Requires SFCC instance access |
 
 ---
 
@@ -270,7 +270,7 @@ generate_cartridge_structure({
 
 ---
 
-## 📊 Log Analysis Tools (7 tools)
+## 📊 Log Analysis Tools (8 tools)
 *Full Mode only - requires SFCC credentials*
 
 ### `get_latest_error`
@@ -319,6 +319,14 @@ Search for specific patterns, keywords, or error messages across SFCC logs.
 ### `list_log_files`
 View available log files with metadata including sizes and modification dates.
 
+### `get_log_file_contents`
+Get the complete contents of a specific log file.
+
+**Parameters:**
+- `filename` (required): The complete filename or path of the log file to read
+- `maxBytes` (optional): Maximum number of bytes to read (default: 1MB)
+- `tailOnly` (optional): Whether to read only the tail (end) of the file (default: false)
+
 **Example Usage:**
 ```javascript
 // Get recent errors
@@ -328,6 +336,19 @@ get_latest_error({ limit: 5 })
 search_logs({ 
   pattern: "NullPointerException",
   logLevel: "error" 
+})
+
+// List available log files
+list_log_files()
+
+// Read complete contents of a specific log file
+get_log_file_contents({ filename: "error-2024-12-18.log" })
+
+// Read only the tail of a large log file
+get_log_file_contents({ 
+  filename: "large-log.log", 
+  tailOnly: true, 
+  maxBytes: 524288 
 })
 
 // Get daily log summary
@@ -554,7 +575,7 @@ This workflow is particularly useful when:
 - `get_sfra_document` - Study SFRA architecture
 
 ### For Active Development  
-**Use Full Mode (30 tools):**
+**Use Full Mode (31 tools):**
 - All documentation tools for reference
 - `generate_cartridge_structure` - Start new features
 - `get_latest_error` - Debug issues quickly
@@ -566,6 +587,8 @@ This workflow is particularly useful when:
 - `summarize_logs` - Get overview of system health
 - `get_latest_error` - Find recent failures
 - `search_logs` - Look for specific error patterns
+- `list_log_files` - See available log files
+- `get_log_file_contents` - Read specific log files
 - `get_latest_debug` - Trace execution flow
 
 ### For Data Model Work

@@ -316,6 +316,30 @@ export const LOG_TOOLS = [
       properties: {},
     },
   },
+  {
+    name: 'get_log_file_contents',
+    description: 'Get the complete contents of a specific log file. Use this when you need to read the full content of a specific log file identified by the list_log_files tool. Essential for detailed analysis of specific log files, reading complete error traces, or when you need the full context of a log file rather than just recent entries.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        filename: {
+          type: 'string',
+          description: 'The complete filename or path of the log file to read (e.g., "error-blade-20240820-000000.log")',
+        },
+        maxBytes: {
+          type: 'number',
+          description: 'Maximum number of bytes to read from the file (default: 1MB). Use this to limit the amount of data returned for very large files.',
+          default: 1048576,
+        },
+        tailOnly: {
+          type: 'boolean',
+          description: 'Whether to read only the tail (end) of the file instead of the full contents (default: false). Set to true for large files to get recent entries.',
+          default: false,
+        },
+      },
+      required: ['filename'],
+    },
+  },
 ];
 
 export const SYSTEM_OBJECT_TOOLS = [

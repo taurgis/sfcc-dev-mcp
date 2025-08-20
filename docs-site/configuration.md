@@ -264,11 +264,11 @@ npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug true
 ```
 
 **Additional tools in full mode:**
-- Log analysis (7 tools) - Requires hostname, username, password
+- Log analysis (8 tools) - Requires hostname, username, password
 - System object definitions (6 tools) - Requires client-id, client-secret
 - Code version management (2 tools) - Requires client-id, client-secret
 
-**Total: 30 tools available** (15 documentation + 15 full mode)
+**Total: 31 tools available** (15 documentation + 16 full mode)
 
 ## 🔒 Security Configuration
 
@@ -427,7 +427,7 @@ The server loads configuration with the following priority:
 | **Best Practices** | None | 4 |
 | **SFRA Documentation** | None | 5 |
 | **Cartridge Generation** | None | 1 |
-| **Log Analysis** | hostname, username, password | 7 |
+| **Log Analysis** | hostname, username, password | 8 |
 | **System Objects** | hostname, client-id, client-secret | 6 |
 
 ---

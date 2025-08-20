@@ -203,22 +203,77 @@ export class SFCCLogClient {
   }
 
   /**
-   * List all available log files with metadata
+   * List available log files with metadata
    */
   async listLogFiles(): Promise<string> {
     this.logger.methodEntry('listLogFiles');
 
+    const startTime = Date.now();
     try {
-      const logFiles = await this.fileDiscovery.getAllLogFiles();
-      const result = LogFormatter.formatLogFilesList(logFiles);
-
-      this.logger.methodExit('listLogFiles', { filesFound: logFiles.length });
+      const files = await this.fileDiscovery.getAllLogFiles();
+      const result = LogFormatter.formatLogFilesList(files);
+      this.logger.methodExit('listLogFiles', { fileCount: files.length });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('list log files', error);
-      this.logger.methodExit('listLogFiles', { error: errorMessage });
-      throw new Error(errorMessage);
+      const errorMessage = LogFormatter.formatError('list_log_files', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('listLogFiles', { error: true });
+      throw new Error(`Failed to list log files: ${(error as Error).message}`);
+    } finally {
+      const duration = Date.now() - startTime;
+      this.logger.debug(`listLogFiles completed in ${duration}ms`);
     }
+  }
+
+  /**
+   * Get the complete contents of a specific log file
+   */
+  async getLogFileContents(filename: string, maxBytes?: number, tailOnly?: boolean): Promise<string> {
+    this.logger.methodEntry('getLogFileContents', { filename, maxBytes, tailOnly });
+
+    const startTime = Date.now();
+    try {
+      // Use tailOnly flag to determine reading strategy
+      if (tailOnly) {
+        const content = await this.fileReader.getFileContentsTail(filename, {
+          maxBytes: maxBytes ?? LOG_CONSTANTS.DEFAULT_TAIL_BYTES,
+        });
+        const result = this.formatLogFileContents(filename, content, true);
+        this.logger.methodExit('getLogFileContents', { tailOnly: true });
+        return result;
+      } else {
+        // Read full file from beginning with optional size limit
+        const content = await this.fileReader.getFileContentsHead(filename, maxBytes);
+        const result = this.formatLogFileContents(filename, content, false);
+        this.logger.methodExit('getLogFileContents', { tailOnly: false });
+        return result;
+      }
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('get_log_file_contents', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('getLogFileContents', { error: true });
+      return errorMessage;
+    } finally {
+      const duration = Date.now() - startTime;
+      this.logger.debug(`getLogFileContents completed in ${duration}ms`);
+    }
+  }
+
+  /**
+   * Format log file contents for display
+   */
+  private formatLogFileContents(filename: string, content: string, isTailOnly: boolean): string {
+    const lines = content.split('\n').filter(line => line.trim());
+    const readType = isTailOnly ? 'tail' : 'full';
+
+    return `# Log File Contents: ${filename} (${readType} read)
+
+Total lines: ${lines.length}
+Content size: ${content.length} bytes
+
+---
+
+${content}`;
   }
 
   /**
