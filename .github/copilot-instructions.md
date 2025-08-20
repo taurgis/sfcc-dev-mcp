@@ -71,8 +71,19 @@ sfcc-dev-mcp/
 │   │   ├── ocapi/                # Specialized OCAPI clients
 │   │   │   ├── site-preferences-client.ts # Site preferences management
 │   │   │   └── system-objects-client.ts # System object definitions
+│   │   ├── logs/                 # Modular log analysis system
+│   │   │   ├── log-client.ts     # Main log client orchestrator
+│   │   │   ├── webdav-client-manager.ts # WebDAV setup & authentication
+│   │   │   ├── log-file-reader.ts # File reading with range requests
+│   │   │   ├── log-file-discovery.ts # File listing & filtering
+│   │   │   ├── log-processor.ts  # Log parsing & entry processing
+│   │   │   ├── log-analyzer.ts   # Analysis & summarization
+│   │   │   ├── log-formatter.ts  # Output formatting
+│   │   │   ├── log-constants.ts  # Constants & configuration
+│   │   │   ├── log-types.ts      # TypeScript interfaces
+│   │   │   └── index.ts          # Module exports
 │   │   ├── cartridge-generation-client.ts # Cartridge structure generation client
-│   │   ├── log-client.ts         # SFCC log analysis client
+│   │   ├── log-client.ts         # Log client compatibility wrapper
 │   │   ├── docs-client.ts        # SFCC documentation client
 │   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
@@ -177,9 +188,20 @@ sfcc-dev-mcp/
 - **OCAPISitePreferencesClient** (`site-preferences-client.ts`): Manages site preference searches and configuration discovery
 - **OCAPISystemObjectsClient** (`system-objects-client.ts`): Provides system object definitions, attribute schemas, and custom object exploration
 
+##### **Modular Log Analysis System** (`clients/logs/`)
+- **SFCCLogClient** (`log-client.ts`): Main orchestrator that composes specialized log modules for comprehensive log analysis
+- **WebDAVClientManager** (`webdav-client-manager.ts`): WebDAV authentication and client setup with OAuth and basic auth support
+- **LogFileReader** (`log-file-reader.ts`): File reading with range request optimization (200KB tail reading) and comprehensive fallback mechanisms
+- **LogFileDiscovery** (`log-file-discovery.ts`): File listing, filtering by date/level, metadata operations, and chronological sorting
+- **LogProcessor** (`log-processor.ts`): Log parsing, entry extraction, data manipulation, and pattern processing
+- **LogAnalyzer** (`log-analyzer.ts`): Advanced analysis including pattern detection, health scoring, trend analysis, and recommendation generation
+- **LogFormatter** (`log-formatter.ts`): Output formatting, presentation logic, and user-friendly message templates
+- **LogConstants** (`log-constants.ts`): Centralized constants, configuration values, and message templates
+- **LogTypes** (`log-types.ts`): Comprehensive TypeScript interfaces for all log operations
+
 ##### **Service Clients** (`clients/`)
 - **DocsClient** (`docs-client.ts`): Processes SFCC documentation and provides search capabilities across all namespaces
-- **LogClient** (`log-client.ts`): Connects to SFCC instances for real-time log analysis and monitoring
+- **LogClient** (`log-client.ts`): Backward compatibility wrapper that re-exports the modular log system
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
 - **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
@@ -343,6 +365,7 @@ When working on this project:
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
 - **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
+- **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
 
 ### 📁 Directory Organization Benefits
 
@@ -379,6 +402,20 @@ The comprehensive dependency injection implementation provides:
 6. **Maintainable Tests**: Simple interface mocking instead of complex system module stubs
 7. **Production Flexibility**: Easy to swap implementations for different environments
 8. **Clear Boundaries**: Well-defined service layer separates business logic from system operations
+
+### 📊 Modular Log Architecture Benefits
+
+The comprehensive log client refactoring provides:
+
+1. **Single Responsibility Principle**: Each module has one focused purpose (reading, parsing, analysis, formatting)
+2. **Improved Maintainability**: Changes to log parsing logic don't affect file reading or output formatting
+3. **Better Testing**: Individual modules can be tested in isolation with targeted test cases
+4. **Performance Optimization**: Range request optimization isolated in `log-file-reader.ts` for focused improvements
+5. **Extensible Analysis**: New analysis patterns can be added to `log-analyzer.ts` without affecting other components
+6. **Flexible Output**: Multiple output formats can be supported by extending `log-formatter.ts`
+7. **Centralized Configuration**: All constants and configuration values managed in `log-constants.ts`
+8. **Type Safety**: Comprehensive TypeScript interfaces in `log-types.ts` for all log operations
+9. **Backward Compatibility**: Original API preserved through orchestrator pattern in main `log-client.ts`
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
 
