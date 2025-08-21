@@ -161,6 +161,29 @@ Quick Links:
 - **Network Security**: All API calls use HTTPS with proper authentication
 - **No Data Storage**: Server doesn't persist any SFCC data locally
 
+## 🔮 Future Plans
+
+We're continuously improving the SFCC Development MCP Server with exciting new features planned:
+
+### 🎯 Upcoming Enhancements
+
+- **🧠 Smarter Log Fetching** - Enhanced log analysis with intelligent filtering, pattern recognition, and contextual error correlation
+- **⚙️ Job Log Access** - Direct access to SFCC job execution logs for debugging scheduled processes and custom jobs
+- **🚀 Deployment Tools** - Integration with SFCC deployment processes and code version management
+
+### 🤝 We Welcome Your Contributions!
+
+Have ideas for new features or improvements? We'd love to hear from you! 
+
+- **💡 Feature Requests**: Open an issue to discuss your ideas
+- **🐛 Bug Reports**: Help us improve by reporting any issues you encounter  
+- **🔧 Pull Requests**: Contribute code, documentation, or examples
+- **📚 Documentation**: Help expand our guides and best practices
+
+Check out our [Contributing Guide](CONTRIBUTING.md) to get started, or browse our [open issues](https://github.com/taurgis/sfcc-dev-mcp/issues) to see where you can help.
+
+**Your expertise and feedback make this tool better for the entire SFCC community!**
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.

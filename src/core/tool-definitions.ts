@@ -207,8 +207,8 @@ export const LOG_TOOLS = [
         },
         limit: {
           type: 'number',
-          description: 'Number of error entries to return (default: 10)',
-          default: 10,
+          description: 'Number of error entries to return (default: 20)',
+          default: 20,
         },
       },
     },
@@ -225,8 +225,8 @@ export const LOG_TOOLS = [
         },
         limit: {
           type: 'number',
-          description: 'Number of warning entries to return (default: 10)',
-          default: 10,
+          description: 'Number of warning entries to return (default: 20)',
+          default: 20,
         },
       },
     },
@@ -243,8 +243,8 @@ export const LOG_TOOLS = [
         },
         limit: {
           type: 'number',
-          description: 'Number of info entries to return (default: 10)',
-          default: 10,
+          description: 'Number of info entries to return (default: 20)',
+          default: 20,
         },
       },
     },
@@ -261,8 +261,8 @@ export const LOG_TOOLS = [
         },
         limit: {
           type: 'number',
-          description: 'Number of debug entries to return (default: 10)',
-          default: 10,
+          description: 'Number of debug entries to return (default: 20)',
+          default: 20,
         },
       },
     },
