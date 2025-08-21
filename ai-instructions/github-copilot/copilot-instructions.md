@@ -702,7 +702,7 @@ cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
 - [ ] Included proper error handling
 
 ### When Debugging/Troubleshooting:
-- [ ] Checked system logs for actual errors (use `get_latest_errors`, `get_latest_warnings`)
+- [ ] Checked system logs for actual errors (use `get_latest_error`, `get_latest_warn`) Note: Job logs are not supported yet
 - [ ] Listed available log files to understand scope (use `list_log_files`)
 - [ ] Analyzed specific log files for detailed context (use `get_log_file_contents`)
 - [ ] Searched logs for patterns related to the issue (use `search_logs`)
