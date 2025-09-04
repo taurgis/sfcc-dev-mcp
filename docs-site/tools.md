@@ -2,6 +2,9 @@
 title: Available Tools
 layout: page
 nav_order: 6
+description: Complete reference of all 30+ MCP tools including SFCC documentation, log analysis, cartridge generation, and system object management
+keywords: MCP tools, SFCC tools, log analysis tools, cartridge generation, SFRA documentation, system objects
+author: Thomas Theunen
 ---
 
 # 🛠️ Available Tools

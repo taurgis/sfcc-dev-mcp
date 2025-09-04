@@ -2,6 +2,9 @@
 title: Configuration Guide
 layout: page
 nav_order: 5
+description: Complete configuration guide for SFCC Dev MCP Server including dw.json setup, OCAPI configuration, and Business Manager settings
+keywords: SFCC configuration, dw.json setup, OCAPI settings, Business Manager configuration, WebDAV credentials
+author: Thomas Theunen
 ---
 
 # ⚙️ Configuration Guide

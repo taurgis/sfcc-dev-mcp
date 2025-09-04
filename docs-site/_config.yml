@@ -4,12 +4,41 @@ description: AI-powered development tools for Salesforce B2C Commerce Cloud
 url: "https://sfcc-mcp-dev.rhino-inquisitor.com"
 baseurl: ""
 
+# SEO and Social Media
+author:
+  name: "Thomas Theunen"
+  twitter: "@taurgis"
+
+twitter:
+  username: taurgis
+  card: summary_large_image
+
+social:
+  name: SFCC Dev MCP Server
+  links:
+    - https://github.com/taurgis/sfcc-dev-mcp
+    - https://x.com/theunenth
+
+# Additional SEO tags
+lang: en_US
+timezone: Europe/Brussels
+
 # Theme
 theme: jekyll-theme-dinky
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+
+# SEO Plugin configuration
+webmaster_verifications:
+  google: # Add your Google Search Console verification code here when available
+  bing: # Add your Bing Webmaster verification code here when available
+
+# Feed configuration
+feed:
+  excerpt_only: true
+  tags: true
 
 # Navigation
 header_pages:
@@ -49,11 +78,15 @@ defaults:
       type: "pages"
     values:
       layout: "default"
+      image: /assets/images/og-image.png
+      author: Thomas Theunen
   - scope:
       path: ""
       type: "guides"
     values:
       layout: "default"
+      image: /assets/images/og-image.png
+      author: Thomas Theunen
 
 # Exclude from processing
 exclude:
@@ -66,3 +99,13 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
+
+# Sitemap configuration
+plugins:
+  - jekyll-sitemap
+
+# Custom sitemap settings
+sitemap:
+  file: "/sitemap.xml"
+  exclude:
+    - "/404.html"

@@ -2,6 +2,9 @@
 title: Features
 layout: page
 nav_order: 3
+description: Comprehensive features of SFCC Dev MCP Server including cartridge generation, SFCC documentation access, log analysis, and AI-powered development tools
+keywords: SFCC features, cartridge generation, SFCC documentation, log analysis, SFRA tools, Commerce Cloud development
+author: Thomas Theunen
 ---
 
 # ✨ Features

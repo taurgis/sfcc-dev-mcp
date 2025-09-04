@@ -2,6 +2,9 @@
 title: Installation & Setup
 layout: page
 nav_order: 2
+description: Complete installation and setup guide for SFCC Dev MCP Server with Node.js, npm, and AI interface configuration
+keywords: SFCC installation, MCP server setup, Node.js installation, Claude Desktop, GitHub Copilot, Cursor setup
+author: Thomas Theunen
 ---
 
 # 📦 Installation & Setup

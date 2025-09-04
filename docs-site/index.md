@@ -1,6 +1,10 @@
 ---
 layout: page
 title: SFCC Development MCP Server
+description: AI-powered Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation, log analysis, and best practices
+keywords: SFCC, Salesforce Commerce Cloud, MCP, Model Context Protocol, AI development tools, ecommerce development
+author: Thomas Theunen
+image: /assets/images/og-image.png
 ---
 
 An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.

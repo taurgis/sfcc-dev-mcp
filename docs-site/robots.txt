@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://sfcc-mcp-dev.rhino-inquisitor.com/sitemap.xml
+
+# Disallow development files
+Disallow: /vendor/
+Disallow: /_site/
+Disallow: /.sass-cache/
+Disallow: /.jekyll-cache/

@@ -2,6 +2,9 @@
 title: AI Interface Setup
 layout: page
 nav_order: 4
+description: Setup guides for integrating SFCC Dev MCP Server with Claude Desktop, GitHub Copilot, Cursor, and other AI development interfaces
+keywords: Claude Desktop setup, GitHub Copilot MCP, Cursor AI setup, AI development tools, MCP configuration
+author: Thomas Theunen
 ---
 
 # 🤖 AI Interface Setup
