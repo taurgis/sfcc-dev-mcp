@@ -1,8 +1,8 @@
 # GitHub Pages Configuration for SFCC Development MCP Server
 title: SFCC Dev MCP Server
 description: AI-powered development tools for Salesforce B2C Commerce Cloud
-url: "https://taurgis.github.io"
-baseurl: "/sfcc-dev-mcp"
+url: "https://sfcc-mcp-dev.rhino-inquisitor.com"
+baseurl: ""
 
 # Theme
 theme: jekyll-theme-dinky
