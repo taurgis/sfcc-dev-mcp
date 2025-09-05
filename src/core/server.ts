@@ -20,6 +20,7 @@ import {
   BEST_PRACTICES_TOOLS,
   SFRA_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
+  JOB_LOG_TOOLS,
   SYSTEM_OBJECT_TOOLS,
   CARTRIDGE_GENERATION_TOOLS,
   CODE_VERSION_TOOLS,
@@ -28,6 +29,7 @@ import {
 // Modular tool handlers
 import { BaseToolHandler, HandlerContext } from './handlers/base-handler.js';
 import { LogToolHandler } from './handlers/log-handler.js';
+import { JobLogToolHandler } from './handlers/job-log-handler.js';
 import { DocsToolHandler } from './handlers/docs-handler.js';
 import { BestPracticesToolHandler } from './handlers/best-practices-handler.js';
 import { SFRAToolHandler } from './handlers/sfra-handler.js';
@@ -95,6 +97,7 @@ export class SFCCDevServer {
     };
     this.handlers = [
       new LogToolHandler(context, 'Log'),
+      new JobLogToolHandler(context, 'JobLog'),
       new DocsToolHandler(context, 'Docs'),
       new BestPracticesToolHandler(context, 'BestPractices'),
       new SFRAToolHandler(context, 'SFRA'),
@@ -120,6 +123,7 @@ export class SFCCDevServer {
       // Conditional tools based on available capabilities
       if (this.capabilities.canAccessLogs) {
         tools.push(...LOG_TOOLS);
+        tools.push(...JOB_LOG_TOOLS);
       }
 
       if (this.capabilities.canAccessOCAPI) {

@@ -340,6 +340,9 @@ export const LOG_TOOLS = [
       required: ['filename'],
     },
   },
+];
+
+export const JOB_LOG_TOOLS = [
   {
     name: 'get_latest_job_log_files',
     description: 'Get the latest job log files from the SFCC jobs folder. Use this to discover recent job executions, identify available job logs, and understand which jobs have run recently. Job logs are stored in a deeper folder structure (/Logs/jobs/[job name ID]/Job-*.log) and contain all log levels (error, warn, info, debug) in single files. Essential for debugging custom job steps and monitoring job execution.',
