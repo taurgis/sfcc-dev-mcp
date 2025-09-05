@@ -181,7 +181,7 @@ describe('CodeVersionToolHandler', () => {
 
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
-        .rejects.toThrow('Unsupported code version tool');
+        .rejects.toThrow('Unsupported tool');
     });
 
     it('should handle OCAPI client not configured error', async () => {

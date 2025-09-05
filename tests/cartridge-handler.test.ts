@@ -195,7 +195,7 @@ describe('CartridgeToolHandler', () => {
 
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
-        .rejects.toThrow('Unsupported cartridge tool');
+        .rejects.toThrow('Unsupported tool');
     });
   });
 

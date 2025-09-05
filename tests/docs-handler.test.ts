@@ -257,7 +257,7 @@ describe('DocsToolHandler', () => {
 
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
-        .rejects.toThrow('Unsupported docs tool');
+        .rejects.toThrow('Unsupported tool');
     });
   });
 

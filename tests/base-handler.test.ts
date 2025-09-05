@@ -1,4 +1,4 @@
-import { BaseToolHandler, HandlerContext, ToolArguments, ToolExecutionResult, HandlerError } from '../src/core/handlers/base-handler.js';
+import { BaseToolHandler, HandlerContext, ToolArguments, ToolExecutionResult, HandlerError, GenericToolSpec, ToolExecutionContext } from '../src/core/handlers/base-handler.js';
 import { Logger } from '../src/utils/logger.js';
 
 // Mock implementation for testing
@@ -7,9 +7,73 @@ class TestHandler extends BaseToolHandler {
   public disposeCalled = false;
   public initializeError: Error | null = null;
   public disposeError: Error | null = null;
+  private toolConfig: Record<string, GenericToolSpec> = {
+    'test_tool': {
+      exec: async (args) => `test_tool executed successfully with ${JSON.stringify(args)}`,
+      logMessage: () => 'Testing tool execution',
+    },
+    'failing_tool': {
+      exec: async () => {
+        throw new Error('Test operation failed');
+      },
+      logMessage: () => 'Testing failing tool',
+    },
+    'validate_tool': {
+      validate: (args, toolName) => {
+        this.validateArgs(args, ['required_field'], toolName);
+      },
+      exec: async (args) => `validate_tool executed successfully with ${JSON.stringify(args)}`,
+      logMessage: () => 'Testing validation tool',
+    },
+    'defaults_tool': {
+      defaults: (args) => ({
+        ...args,
+        defaultValue: args.defaultValue ?? 'default_applied',
+        numericDefault: args.numericDefault ?? 42,
+      }),
+      exec: async (args) => ({ receivedArgs: args }),
+      logMessage: (args) => `Defaults tool with ${JSON.stringify(args)}`,
+    },
+    'context_tool': {
+      exec: async (args, context) => ({
+        hasContext: !!context,
+        hasHandlerContext: !!context.handlerContext,
+        hasLogger: !!context.logger,
+        contextKeys: Object.keys(context),
+      }),
+      logMessage: () => 'Testing execution context',
+    },
+    'complex_validation_tool': {
+      validate: (args, toolName) => {
+        if (!args.email?.includes('@')) {
+          throw new HandlerError('Invalid email format', toolName, 'VALIDATION_ERROR');
+        }
+        if (!args.age || args.age < 18) {
+          throw new HandlerError('Age must be 18 or older', toolName, 'AGE_VALIDATION_ERROR');
+        }
+      },
+      exec: async (args) => ({ validated: true, args }),
+      logMessage: () => 'Testing complex validation',
+    },
+  };
 
   constructor(context: HandlerContext, subLoggerName: string = 'Test') {
     super(context, subLoggerName);
+  }
+
+  protected getToolConfig(): Record<string, GenericToolSpec> {
+    return this.toolConfig;
+  }
+
+  protected getToolNameSet(): Set<string> {
+    return new Set(['test_tool', 'failing_tool', 'validate_tool', 'defaults_tool', 'context_tool', 'complex_validation_tool']);
+  }
+
+  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+    return {
+      handlerContext: this.context,
+      logger: this.logger,
+    };
   }
 
   protected async onInitialize(): Promise<void> {
@@ -24,24 +88,6 @@ class TestHandler extends BaseToolHandler {
     if (this.disposeError) {
       throw this.disposeError;
     }
-  }
-
-  canHandle(toolName: string): boolean {
-    return ['test_tool', 'failing_tool', 'validate_tool'].includes(toolName);
-  }
-
-  async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
-    return this.executeWithLogging(toolName, startTime, async () => {
-      if (toolName === 'failing_tool') {
-        throw new Error('Test operation failed');
-      }
-
-      if (toolName === 'validate_tool') {
-        this.validateArgs(args, ['required_field'], toolName);
-      }
-
-      return `${toolName} executed successfully with ${JSON.stringify(args)}`;
-    });
   }
 
   // Expose protected methods for testing
@@ -346,6 +392,136 @@ describe('BaseToolHandler', () => {
       const result = await handler.handle('failing_tool', {}, Date.now());
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain('Test operation failed');
+    });
+  });
+
+  describe('config-driven functionality', () => {
+    describe('unsupported tools', () => {
+      it('should throw error for unsupported tools', async () => {
+        await expect(handler.handle('unknown_tool', {}, Date.now()))
+          .rejects.toThrow('Unsupported tool: unknown_tool');
+      });
+
+      it('should return false for canHandle on unsupported tools', () => {
+        expect(handler.canHandle('unknown_tool')).toBe(false);
+      });
+    });
+
+    describe('default values', () => {
+      it('should apply default values when not provided', async () => {
+        const result = await handler.handle('defaults_tool', {}, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
+        expect(parsedResult.receivedArgs.numericDefault).toBe(42);
+      });
+
+      it('should not override provided values with defaults', async () => {
+        const args = { defaultValue: 'custom_value', numericDefault: 100 };
+        const result = await handler.handle('defaults_tool', args, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
+        expect(parsedResult.receivedArgs.numericDefault).toBe(100);
+      });
+
+      it('should mix provided and default values', async () => {
+        const args = { defaultValue: 'custom_value', otherParam: 'other' };
+        const result = await handler.handle('defaults_tool', args, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
+        expect(parsedResult.receivedArgs.numericDefault).toBe(42); // default applied
+        expect(parsedResult.receivedArgs.otherParam).toBe('other');
+      });
+    });
+
+    describe('execution context', () => {
+      it('should provide ToolExecutionContext to tool functions', async () => {
+        const result = await handler.handle('context_tool', {}, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.hasContext).toBe(true);
+        expect(parsedResult.hasHandlerContext).toBe(true);
+        expect(parsedResult.hasLogger).toBe(true);
+        expect(parsedResult.contextKeys).toContain('handlerContext');
+        expect(parsedResult.contextKeys).toContain('logger');
+      });
+    });
+
+    describe('complex validation', () => {
+      it('should pass complex validation with valid args', async () => {
+        const args = { email: 'test@example.com', age: 25 };
+        const result = await handler.handle('complex_validation_tool', args, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.validated).toBe(true);
+        expect(parsedResult.args).toEqual(args);
+      });
+
+      it('should fail validation with invalid email', async () => {
+        const args = { email: 'invalid-email', age: 25 };
+        const result = await handler.handle('complex_validation_tool', args, Date.now());
+
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Invalid email format');
+      });
+
+      it('should fail validation with invalid age', async () => {
+        const args = { email: 'test@example.com', age: 16 };
+        const result = await handler.handle('complex_validation_tool', args, Date.now());
+
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Age must be 18 or older');
+      });
+
+      it('should handle validation errors with custom error codes', async () => {
+        const args = { email: 'invalid-email', age: 25 };
+        const result = await handler.handle('complex_validation_tool', args, Date.now());
+
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Invalid email format');
+        // The error should be a HandlerError with VALIDATION_ERROR code
+      });
+    });
+
+    describe('logging with defaults', () => {
+      it('should use log message with applied defaults', async () => {
+        const args = { customParam: 'test' };
+
+        // Spy on the debug method to capture log messages
+        const debugSpy = jest.spyOn(mockLogger, 'debug');
+
+        await handler.handle('defaults_tool', args, Date.now());
+
+        // Check that the log message includes the default values
+        const debugCalls = debugSpy.mock.calls;
+        const logMessageCall = debugCalls.find(call =>
+          typeof call[0] === 'string' && call[0].includes('Defaults tool with'),
+        );
+
+        expect(logMessageCall).toBeDefined();
+        expect(logMessageCall?.[0]).toContain('default_applied');
+        expect(logMessageCall?.[0]).toContain('42');
+      });
+    });
+
+    describe('tool config edge cases', () => {
+      it('should handle tools with minimal config', async () => {
+        // The test_tool has minimal config - no validation, no defaults
+        const result = await handler.handle('test_tool', { param: 'value' }, Date.now());
+
+        expect(result.content[0].text).toContain('test_tool executed successfully');
+        expect(result.content[0].text).toContain('value');
+      });
+
+      it('should handle empty arguments with defaults', async () => {
+        const result = await handler.handle('defaults_tool', {}, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
+        expect(parsedResult.receivedArgs.numericDefault).toBe(42);
+      });
     });
   });
 });

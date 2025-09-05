@@ -333,7 +333,7 @@ describe('LogToolHandler', () => {
 
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
-        .rejects.toThrow('Unsupported log tool');
+        .rejects.toThrow('Unsupported tool');
     });
   });
 

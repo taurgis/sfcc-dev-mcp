@@ -1,15 +1,17 @@
-import { BaseToolHandler, ToolExecutionResult, ToolArguments, HandlerContext } from './base-handler.js';
-import { ValidationHelpers, CommonValidations } from './validation-helpers.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
 import { CartridgeGenerationClient } from '../../clients/cartridge-generation-client.js';
 import { ClientFactory } from './client-factory.js';
+import {
+  CARTRIDGE_TOOL_CONFIG,
+  CartridgeToolName,
+  CARTRIDGE_TOOL_NAMES_SET,
+} from '../../tool-configs/cartridge-tool-config.js';
 
-const CARTRIDGE_TOOL_NAMES = [
-  'generate_cartridge_structure',
-] as const;
-
-type CartridgeToolName = typeof CARTRIDGE_TOOL_NAMES[number];
-
-export class CartridgeToolHandler extends BaseToolHandler {
+/**
+ * Handler for cartridge generation tools using config-driven dispatch
+ * Provides automated cartridge structure creation with complete project setup
+ */
+export class CartridgeToolHandler extends BaseToolHandler<CartridgeToolName> {
   private cartridgeClient: CartridgeGenerationClient | null = null;
   private clientFactory: ClientFactory;
 
@@ -31,58 +33,26 @@ export class CartridgeToolHandler extends BaseToolHandler {
   }
 
   canHandle(toolName: string): boolean {
-    return (CARTRIDGE_TOOL_NAMES as readonly string[]).includes(toolName);
+    return CARTRIDGE_TOOL_NAMES_SET.has(toolName as CartridgeToolName);
   }
 
-  async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
-    if (!this.canHandle(toolName)) {
-      throw new Error(`Unsupported cartridge tool: ${toolName}`);
-    }
-
-    const cartridgeTool = toolName as CartridgeToolName;
-
-    return this.executeWithLogging(
-      toolName,
-      startTime,
-      () => this.executeCartridgeTool(cartridgeTool, args),
-      this.getLogMessage(cartridgeTool, args),
-    );
+  protected getToolNameSet(): Set<CartridgeToolName> {
+    return CARTRIDGE_TOOL_NAMES_SET;
   }
 
-  private async executeCartridgeTool(toolName: CartridgeToolName, args: ToolArguments): Promise<any> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+    return CARTRIDGE_TOOL_CONFIG;
+  }
+
+  protected async createExecutionContext(): Promise<ToolExecutionContext> {
     if (!this.cartridgeClient) {
       throw new Error('Cartridge generation client not initialized');
     }
 
-    switch (toolName) {
-      case 'generate_cartridge_structure':
-        return this.handleGenerateCartridgeStructure(args);
-      default:
-        throw new Error(`Unknown cartridge tool: ${toolName}`);
-    }
-  }
-
-  private async handleGenerateCartridgeStructure(args: ToolArguments): Promise<any> {
-    ValidationHelpers.validateArguments(args, CommonValidations.requiredField(
-      'cartridgeName',
-      'string',
-      (value: string) => /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
-      'cartridgeName must be a valid identifier (letters, numbers, underscore, hyphen)',
-    ), 'generate_cartridge_structure');
-
-    return this.cartridgeClient!.generateCartridgeStructure({
-      cartridgeName: args.cartridgeName,
-      targetPath: args.targetPath,
-      fullProjectSetup: args.fullProjectSetup ?? true,
-    });
-  }
-
-  private getLogMessage(toolName: CartridgeToolName, args: ToolArguments): string {
-    switch (toolName) {
-      case 'generate_cartridge_structure':
-        return `Generate cartridge structure for ${args.cartridgeName}`;
-      default:
-        return `Executing ${toolName}`;
-    }
+    return {
+      handlerContext: this.context,
+      logger: this.logger,
+      cartridgeClient: this.cartridgeClient,
+    };
   }
 }

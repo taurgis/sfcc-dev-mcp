@@ -1,17 +1,16 @@
-import { BaseToolHandler, ToolExecutionResult, ToolArguments, HandlerContext } from './base-handler.js';
-import { ValidationHelpers, CommonValidations } from './validation-helpers.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
 import { SFCCBestPracticesClient } from '../../clients/best-practices-client.js';
+import {
+  BEST_PRACTICES_TOOL_CONFIG,
+  BestPracticeToolName,
+  BEST_PRACTICE_TOOL_NAMES_SET,
+} from '../../tool-configs/best-practices-tool-config.js';
 
-const BEST_PRACTICE_TOOL_NAMES = [
-  'get_available_best_practice_guides',
-  'get_best_practice_guide',
-  'search_best_practices',
-  'get_hook_reference',
-] as const;
-
-type BestPracticeToolName = typeof BEST_PRACTICE_TOOL_NAMES[number];
-
-export class BestPracticesToolHandler extends BaseToolHandler {
+/**
+ * Handler for SFCC best practices tools using config-driven dispatch
+ * Provides access to development guides, security recommendations, and hook references
+ */
+export class BestPracticesToolHandler extends BaseToolHandler<BestPracticeToolName> {
   private bestPracticesClient: SFCCBestPracticesClient | null = null;
 
   constructor(context: HandlerContext, subLoggerName: string) {
@@ -31,74 +30,26 @@ export class BestPracticesToolHandler extends BaseToolHandler {
   }
 
   canHandle(toolName: string): boolean {
-    return (BEST_PRACTICE_TOOL_NAMES as readonly string[]).includes(toolName);
+    return BEST_PRACTICE_TOOL_NAMES_SET.has(toolName as BestPracticeToolName);
   }
 
-  async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
-    if (!this.canHandle(toolName)) {
-      throw new Error(`Unsupported best practices tool: ${toolName}`);
-    }
-
-    const bpTool = toolName as BestPracticeToolName;
-
-    return this.executeWithLogging(
-      toolName,
-      startTime,
-      () => this.executeBestPracticesTool(bpTool, args),
-      this.getLogMessage(bpTool, args),
-    );
+  protected getToolNameSet(): Set<BestPracticeToolName> {
+    return BEST_PRACTICE_TOOL_NAMES_SET;
   }
 
-  private async executeBestPracticesTool(toolName: BestPracticeToolName, args: ToolArguments): Promise<any> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+    return BEST_PRACTICES_TOOL_CONFIG;
+  }
+
+  protected async createExecutionContext(): Promise<ToolExecutionContext> {
     if (!this.bestPracticesClient) {
       throw new Error('Best practices client not initialized');
     }
 
-    switch (toolName) {
-      case 'get_available_best_practice_guides':
-        return this.handleGetAvailableGuides();
-      case 'get_best_practice_guide':
-        return this.handleGetBestPracticeGuide(args);
-      case 'search_best_practices':
-        return this.handleSearchBestPractices(args);
-      case 'get_hook_reference':
-        return this.handleGetHookReference(args);
-      default:
-        throw new Error(`Unknown best practices tool: ${toolName}`);
-    }
-  }
-
-  private async handleGetAvailableGuides(): Promise<any> {
-    return this.bestPracticesClient!.getAvailableGuides();
-  }
-
-  private async handleGetBestPracticeGuide(args: ToolArguments): Promise<any> {
-    ValidationHelpers.validateArguments(args, CommonValidations.requiredString('guideName'), 'get_best_practice_guide');
-    return this.bestPracticesClient!.getBestPracticeGuide(args.guideName);
-  }
-
-  private async handleSearchBestPractices(args: ToolArguments): Promise<any> {
-    ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), 'search_best_practices');
-    return this.bestPracticesClient!.searchBestPractices(args.query);
-  }
-
-  private async handleGetHookReference(args: ToolArguments): Promise<any> {
-    ValidationHelpers.validateArguments(args, CommonValidations.requiredString('guideName'), 'get_hook_reference');
-    return this.bestPracticesClient!.getHookReference(args.guideName);
-  }
-
-  private getLogMessage(toolName: BestPracticeToolName, args: ToolArguments): string {
-    switch (toolName) {
-      case 'get_available_best_practice_guides':
-        return 'List guides';
-      case 'get_best_practice_guide':
-        return `Guide ${args.guideName}`;
-      case 'search_best_practices':
-        return `Search best practices ${args.query}`;
-      case 'get_hook_reference':
-        return `Hook reference ${args.guideName}`;
-      default:
-        return `Executing ${toolName}`;
-    }
+    return {
+      handlerContext: this.context,
+      logger: this.logger,
+      bestPracticesClient: this.bestPracticesClient,
+    };
   }
 }

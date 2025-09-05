@@ -1,16 +1,17 @@
-import { BaseToolHandler, ToolExecutionResult, ToolArguments, HandlerContext } from './base-handler.js';
-import { ValidationHelpers, CommonValidations } from './validation-helpers.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
 import { OCAPICodeVersionsClient } from '../../clients/ocapi/code-versions-client.js';
 import { ClientFactory } from './client-factory.js';
+import {
+  CODE_VERSION_TOOL_CONFIG,
+  CodeVersionToolName,
+  CODE_VERSION_TOOL_NAMES_SET,
+} from '../../tool-configs/code-version-tool-config.js';
 
-const CODE_VERSION_TOOL_NAMES = [
-  'get_code_versions',
-  'activate_code_version',
-] as const;
-
-type CodeVersionToolName = typeof CODE_VERSION_TOOL_NAMES[number];
-
-export class CodeVersionToolHandler extends BaseToolHandler {
+/**
+ * Handler for code version management tools using config-driven dispatch
+ * Provides code version listing, activation, and deployment management
+ */
+export class CodeVersionToolHandler extends BaseToolHandler<CodeVersionToolName> {
   private codeVersionsClient: OCAPICodeVersionsClient | null = null;
   private clientFactory: ClientFactory;
 
@@ -32,56 +33,26 @@ export class CodeVersionToolHandler extends BaseToolHandler {
   }
 
   canHandle(toolName: string): boolean {
-    return (CODE_VERSION_TOOL_NAMES as readonly string[]).includes(toolName);
+    return CODE_VERSION_TOOL_NAMES_SET.has(toolName as CodeVersionToolName);
   }
 
-  async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
-    if (!this.canHandle(toolName)) {
-      throw new Error(`Unsupported code version tool: ${toolName}`);
-    }
-
-    const codeVersionTool = toolName as CodeVersionToolName;
-
-    return this.executeWithLogging(
-      toolName,
-      startTime,
-      () => this.executeCodeVersionTool(codeVersionTool, args),
-      this.getCodeVersionMessage(codeVersionTool, args),
-    );
+  protected getToolNameSet(): Set<CodeVersionToolName> {
+    return CODE_VERSION_TOOL_NAMES_SET;
   }
 
-  private async executeCodeVersionTool(toolName: CodeVersionToolName, args: ToolArguments): Promise<any> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+    return CODE_VERSION_TOOL_CONFIG;
+  }
+
+  protected async createExecutionContext(): Promise<ToolExecutionContext> {
     if (!this.codeVersionsClient) {
       throw new Error(ClientFactory.getClientRequiredError('OCAPI'));
     }
 
-    switch (toolName) {
-      case 'get_code_versions':
-        return this.handleGetCodeVersions();
-      case 'activate_code_version':
-        return this.handleActivateCodeVersion(args);
-      default:
-        throw new Error(`Unknown code version tool: ${toolName}`);
-    }
-  }
-
-  private async handleGetCodeVersions(): Promise<any> {
-    return this.codeVersionsClient!.getCodeVersions();
-  }
-
-  private async handleActivateCodeVersion(args: ToolArguments): Promise<any> {
-    ValidationHelpers.validateArguments(args, CommonValidations.requiredString('codeVersionId'), 'activate_code_version');
-    return this.codeVersionsClient!.activateCodeVersion(args.codeVersionId);
-  }
-
-  private getCodeVersionMessage(toolName: CodeVersionToolName, args: ToolArguments): string {
-    switch (toolName) {
-      case 'get_code_versions':
-        return 'Get code versions';
-      case 'activate_code_version':
-        return `Activate code version ${args?.codeVersionId}`;
-      default:
-        return `Executing ${toolName}`;
-    }
+    return {
+      handlerContext: this.context,
+      logger: this.logger,
+      codeVersionsClient: this.codeVersionsClient,
+    };
   }
 }

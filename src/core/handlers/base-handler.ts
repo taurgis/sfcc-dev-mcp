@@ -19,6 +19,34 @@ export interface ToolArguments {
   [key: string]: any;
 }
 
+/**
+ * Generic tool specification interface
+ * Defines the contract for declarative tool configuration
+ */
+export interface GenericToolSpec<TArgs = ToolArguments, TResult = any> {
+  /** Optional validation function for tool arguments */
+  validate?: (args: TArgs, toolName: string) => void;
+  /** Optional function to apply default values to arguments */
+  defaults?: (args: TArgs) => Partial<TArgs>;
+  /** Main execution function for the tool */
+  exec: (args: TArgs, context: ToolExecutionContext) => Promise<TResult>;
+  /** Function to generate log message for the tool execution */
+  logMessage: (args: TArgs) => string;
+}
+
+/**
+ * Context provided to tool execution functions
+ * Allows tools to access clients and other resources
+ */
+export interface ToolExecutionContext {
+  /** Handler context with configuration and capabilities */
+  handlerContext: HandlerContext;
+  /** Logger instance for the handler */
+  logger: any;
+  /** Additional context data that can be provided by concrete handlers */
+  [key: string]: any;
+}
+
 export class HandlerError extends Error {
   constructor(
     message: string,
@@ -31,7 +59,7 @@ export class HandlerError extends Error {
   }
 }
 
-export abstract class BaseToolHandler {
+export abstract class BaseToolHandler<TToolName extends string = string> {
   protected context: HandlerContext;
   protected logger: Logger;
   private _isInitialized = false;
@@ -41,8 +69,92 @@ export abstract class BaseToolHandler {
     this.logger = Logger.getChildLogger(`Handler:${subLoggerName}`);
   }
 
-  abstract canHandle(toolName: string): boolean;
-  abstract handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult>;
+  /**
+   * Abstract method to get tool configuration
+   * Each concrete handler implements this with their specific config
+   */
+  protected abstract getToolConfig(): Record<TToolName, GenericToolSpec>;
+
+  /**
+   * Abstract method to get tool name set for O(1) lookup
+   * Each concrete handler implements this with their specific tool set
+   */
+  protected abstract getToolNameSet(): Set<string>;
+
+  /**
+   * Abstract method to create execution context
+   * Each concrete handler can provide specialized context
+   */
+  protected abstract createExecutionContext(): Promise<ToolExecutionContext>;
+
+  /**
+   * Check if this handler can handle the given tool
+   */
+  canHandle(toolName: string): boolean {
+    return this.getToolNameSet().has(toolName);
+  }
+
+  /**
+   * Config-driven tool execution
+   * Handles validation, defaults, execution, and logging uniformly
+   */
+  async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
+    if (!this.canHandle(toolName)) {
+      throw new Error(`Unsupported tool: ${toolName}`);
+    }
+
+    const toolConfig = this.getToolConfig();
+    const spec = toolConfig[toolName as TToolName];
+
+    if (!spec) {
+      throw new Error(`No configuration found for tool: ${toolName}`);
+    }
+
+    return this.executeWithLogging(
+      toolName,
+      startTime,
+      () => this.dispatchTool(spec, args),
+      spec.logMessage(this.applyDefaults(spec, args)),
+    );
+  }
+
+  /**
+   * Generic tool dispatch using configuration
+   * Handles validation, defaults, and execution
+   */
+  private async dispatchTool(spec: GenericToolSpec, args: ToolArguments): Promise<any> {
+    const context = await this.createExecutionContext();
+    const processedArgs = this.createValidatedArgs(spec, args, 'tool');
+
+    return spec.exec(processedArgs, context);
+  }
+
+  /**
+   * Apply default values to arguments
+   */
+  private applyDefaults(spec: GenericToolSpec, args: ToolArguments): ToolArguments {
+    if (!spec.defaults) {
+      return args;
+    }
+
+    const defaults = spec.defaults(args);
+    return { ...args, ...defaults };
+  }
+
+  /**
+   * Create validated arguments with defaults applied
+   */
+  private createValidatedArgs(spec: GenericToolSpec, args: ToolArguments, toolName: string): ToolArguments {
+    // Apply defaults first
+    const processedArgs = this.applyDefaults(spec, args);
+
+    // Validate if validator exists
+    if (spec.validate) {
+      spec.validate(processedArgs, toolName);
+    }
+
+    return processedArgs;
+  }
 
   /**
    * Initialize the handler (lazy initialization)
