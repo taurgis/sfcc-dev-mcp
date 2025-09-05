@@ -5,8 +5,8 @@
 import type { WebDAVClient } from 'webdav';
 import { Logger } from '../../utils/logger.js';
 import { getCurrentDate, normalizeFilePath } from '../../utils/utils.js';
-import { LOG_CONSTANTS, LOG_FILE_PATTERNS } from './log-constants.js';
-import type { LogFileMetadata, LogFileInfo, LogLevel, LogFileFilter } from './log-types.js';
+import { LOG_CONSTANTS, LOG_FILE_PATTERNS, JOB_LOG_CONSTANTS } from './log-constants.js';
+import type { LogFileMetadata, LogFileInfo, LogLevel, LogFileFilter, JobLogInfo, JobLogFilter } from './log-types.js';
 
 export class LogFileDiscovery {
   private logger: Logger;
@@ -188,5 +188,112 @@ export class LogFileDiscovery {
     }
 
     return stats;
+  }
+
+  /**
+   * Get job log files from the /jobs/ folder structure
+   */
+  async getJobLogFiles(filter?: JobLogFilter): Promise<JobLogInfo[]> {
+    this.logger.methodEntry('getJobLogFiles', filter);
+
+    try {
+      // List all directories in the jobs folder
+      const jobsContents = await this.webdavClient.getDirectoryContents(JOB_LOG_CONSTANTS.JOBS_FOLDER);
+
+      const jobDirs = (jobsContents as any[])
+        .filter((item: any) => item.type === 'directory')
+        .map((item: any) => ({
+          name: item.filename.replace(JOB_LOG_CONSTANTS.JOBS_FOLDER, ''),
+          path: item.filename,
+          lastModified: item.lastmod ?? new Date().toISOString(),
+        }));
+
+      this.logger.debug(`Found ${jobDirs.length} job directories`);
+
+      const jobLogInfos: JobLogInfo[] = [];
+
+      // Process each job directory to find log files
+      for (const jobDir of jobDirs) {
+        try {
+          const jobContents = await this.webdavClient.getDirectoryContents(jobDir.path);
+          const logFiles = (jobContents as any[])
+            .filter((item: any) =>
+              item.type === 'file' &&
+              JOB_LOG_CONSTANTS.JOB_LOG_PATTERN.test(item.filename.split('/').pop() ?? ''),
+            );
+
+          for (const logFile of logFiles) {
+            const fileName = logFile.filename.split('/').pop() ?? '';
+            jobLogInfos.push({
+              jobName: decodeURIComponent(jobDir.name),
+              jobId: this.extractJobIdFromFilename(fileName),
+              logFile: logFile.filename,
+              lastModified: logFile.lastmod ?? jobDir.lastModified,
+              size: logFile.size,
+            });
+          }
+        } catch (error) {
+          this.logger.warn(`Failed to read job directory ${jobDir.name}: ${error}`);
+        }
+      }
+
+      // Apply filtering
+      let filteredLogs = jobLogInfos;
+
+      if (filter?.jobName) {
+        const searchName = filter.jobName.toLowerCase();
+        filteredLogs = filteredLogs.filter(log =>
+          log.jobName.toLowerCase().includes(searchName),
+        );
+      }
+
+      // Sort by most recent first if requested (default behavior)
+      if (filter?.sortByRecent !== false) {
+        filteredLogs.sort((a, b) =>
+          new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime(),
+        );
+      }
+
+      // Apply limit
+      if (filter?.limit) {
+        filteredLogs = filteredLogs.slice(0, filter.limit);
+      }
+
+      this.logger.methodExit('getJobLogFiles', { count: filteredLogs.length });
+      return filteredLogs;
+
+    } catch (error) {
+      this.logger.error(`Failed to get job log files: ${error}`);
+      throw new Error(`Failed to access job logs: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Get the latest job log files, sorted by modification date
+   */
+  async getLatestJobLogFiles(limit?: number): Promise<JobLogInfo[]> {
+    return this.getJobLogFiles({
+      limit: limit ?? JOB_LOG_CONSTANTS.DEFAULT_JOB_LOG_LIMIT,
+      sortByRecent: true,
+    });
+  }
+
+  /**
+   * Search for job logs by job name
+   */
+  async searchJobLogsByName(jobName: string, limit?: number): Promise<JobLogInfo[]> {
+    return this.getJobLogFiles({
+      jobName,
+      limit: limit ?? JOB_LOG_CONSTANTS.DEFAULT_JOB_LOG_LIMIT,
+      sortByRecent: true,
+    });
+  }
+
+  /**
+   * Extract job ID from filename (Job-JobName-ID.log format)
+   */
+  private extractJobIdFromFilename(filename: string): string {
+    const match = filename.match(/Job-.+-([^.]+)\.log$/);
+    return match ? match[1] : 'unknown';
   }
 }

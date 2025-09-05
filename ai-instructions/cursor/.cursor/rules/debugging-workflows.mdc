@@ -32,6 +32,20 @@ Use this rule when investigating errors, performance issues, or debugging SFCC a
 4. `mcp_sfcc-dev_get_latest_info` - Review normal operations
 5. `mcp_sfcc-dev_get_latest_debug` - Detailed execution traces (when needed)
 
+### 🔧 For Job Analysis and Debugging:
+1. `mcp_sfcc-dev_get_latest_job_log_files` - Get recent job log files
+2. `mcp_sfcc-dev_search_job_logs_by_name` - Find logs for specific jobs
+3. `mcp_sfcc-dev_get_job_log_entries` - Get job entries by level (error, warn, info, debug, all)
+4. `mcp_sfcc-dev_search_job_logs` - Search for patterns in job logs
+5. `mcp_sfcc-dev_get_job_execution_summary` - Get comprehensive execution summary with timing and status
+
+**Job Debugging Use Cases:**
+- Custom job steps failing with specific errors
+- Job performance issues and bottlenecks
+- Job step execution order and timing problems
+- Custom logging from job steps
+- Job completion status and statistics
+
 ### 🚀 For Deployment and Code Version Issues:
 1. `mcp_sfcc-dev_get_code_versions` - Check available code versions on instance
 2. `mcp_sfcc-dev_activate_code_version` - Perform code-switch fix for SCAPI endpoints/jobs

@@ -10,7 +10,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
 - **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **📊 Log Analysis Tools** - Real-time error monitoring and debugging for SFCC instances
+- **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 
@@ -28,7 +28,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-### Option 2: Full Mode (With SFCC credentials for log analysis)  
+### Option 2: Full Mode (With SFCC credentials for log and job analysis)  
 ```json
 {
   "mcpServers": {
@@ -56,7 +56,7 @@ Create a `dw.json` file with your SFCC credentials:
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
 | **Documentation-Only** | 15 tools | ❌ No |
-| **Full Mode** | 31 tools | ✅ Yes |
+| **Full Mode** | 36 tools | ✅ Yes |
 
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
@@ -68,7 +68,7 @@ Perfect for learning and development - no SFCC instance required:
 ### Full Mode  
 Complete development experience with live SFCC instance access:
 - All documentation-only features (15 tools)
-- Real-time log analysis (8 tools)
+- Real-time log analysis (13 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
 
@@ -168,7 +168,6 @@ We're continuously improving the SFCC Development MCP Server with exciting new f
 ### 🎯 Upcoming Enhancements
 
 - **🧠 Smarter Log Fetching** - Enhanced log analysis with intelligent filtering, pattern recognition, and contextual error correlation
-- **⚙️ Job Log Access** - Direct access to SFCC job execution logs for debugging scheduled processes and custom jobs
 - **🚀 Deployment Tools** - Integration with SFCC deployment processes and code version management
 
 ### 🤝 We Welcome Your Contributions!

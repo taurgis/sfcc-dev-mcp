@@ -199,10 +199,10 @@ Perfect for learning, reference, and development without requiring SFCC instance
 - SFRA documentation access (5 tools)
 - Cartridge generation (1 tool)
 
-### Full Mode (31 tools)
+### Full Mode (36 tools)
 Complete development experience with SFCC instance access:
 - All documentation-only features (15 tools)
-- Real-time log analysis (8 tools)
+- Real-time log analysis and job debugging (13 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
 

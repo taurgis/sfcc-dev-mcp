@@ -318,13 +318,13 @@ export const LOG_TOOLS = [
   },
   {
     name: 'get_log_file_contents',
-    description: 'Get the complete contents of a specific log file. Use this when you need to read the full content of a specific log file identified by the list_log_files tool. Essential for detailed analysis of specific log files, reading complete error traces, or when you need the full context of a log file rather than just recent entries.',
+    description: 'Get the complete contents of a specific log file. Use this when you need to read the full content of a specific log file identified by the list_log_files tool or job log files from get_latest_job_log_files. Essential for detailed analysis of specific log files, reading complete error traces, or when you need the full context of a log file rather than just recent entries.',
     inputSchema: {
       type: 'object',
       properties: {
         filename: {
           type: 'string',
-          description: 'The complete filename or path of the log file to read (e.g., "error-blade-20240820-000000.log")',
+          description: 'The complete filename or path of the log file to read. For standard logs, use just the filename (e.g., "error-blade-20240820-000000.log"). For job logs, use the full path as returned by get_latest_job_log_files (e.g., "jobs/JobName/Job-JobName-12345.log")',
         },
         maxBytes: {
           type: 'number',
@@ -338,6 +338,106 @@ export const LOG_TOOLS = [
         },
       },
       required: ['filename'],
+    },
+  },
+  {
+    name: 'get_latest_job_log_files',
+    description: 'Get the latest job log files from the SFCC jobs folder. Use this to discover recent job executions, identify available job logs, and understand which jobs have run recently. Job logs are stored in a deeper folder structure (/Logs/jobs/[job name ID]/Job-*.log) and contain all log levels (error, warn, info, debug) in single files. Essential for debugging custom job steps and monitoring job execution.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Number of job log files to return (default: 10)',
+          default: 10,
+        },
+      },
+    },
+  },
+  {
+    name: 'search_job_logs_by_name',
+    description: 'Search for job log files by job name. Use this when you want to find logs for a specific job to debug custom job steps or understand job execution patterns. Job names are typically the system ID or custom-configured names for jobs.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        jobName: {
+          type: 'string',
+          description: 'The job name to search for (partial matches supported)',
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of job log files to return (default: 10)',
+          default: 10,
+        },
+      },
+      required: ['jobName'],
+    },
+  },
+  {
+    name: 'get_job_log_entries',
+    description: 'Get job log entries for a specific log level or all levels from recent job executions. Unlike standard logs, job logs contain all log levels in one file, making this tool perfect for debugging custom job code. Use this to see what happened during job execution, track errors in job steps, or monitor job performance.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        level: {
+          type: 'string',
+          enum: ['error', 'warn', 'info', 'debug', 'all'],
+          description: 'Log level to retrieve (default: all). Use "all" to see all log levels from job executions.',
+          default: 'all',
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of job log entries to return (default: 10)',
+          default: 10,
+        },
+        jobName: {
+          type: 'string',
+          description: 'Optional job name to filter results to a specific job',
+        },
+      },
+    },
+  },
+  {
+    name: 'search_job_logs',
+    description: 'Search for specific patterns, error messages, or keywords within job logs. Use this when debugging specific job issues, looking for custom logging messages in your job steps, tracking job variables, or finding specific execution patterns. Essential for troubleshooting custom job code.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        pattern: {
+          type: 'string',
+          description: 'Search pattern or keyword to find in job logs',
+        },
+        level: {
+          type: 'string',
+          enum: ['error', 'warn', 'info', 'debug', 'all'],
+          description: 'Restrict search to specific log level (default: all)',
+          default: 'all',
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of matching entries to return (default: 20)',
+          default: 20,
+        },
+        jobName: {
+          type: 'string',
+          description: 'Optional job name to restrict search to a specific job',
+        },
+      },
+      required: ['pattern'],
+    },
+  },
+  {
+    name: 'get_job_execution_summary',
+    description: 'Get a comprehensive execution summary for a specific job including timing, status, error counts, and step information. Use this to understand job performance, identify bottlenecks, check execution status, or get an overview of what happened during job execution. Perfect for monitoring job health and debugging job step issues.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        jobName: {
+          type: 'string',
+          description: 'The job name to get execution summary for',
+        },
+      },
+      required: ['jobName'],
     },
   },
 ];

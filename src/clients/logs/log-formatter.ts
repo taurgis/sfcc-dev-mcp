@@ -4,7 +4,7 @@
 
 import { formatBytes } from '../../utils/utils.js';
 import { LOG_CONSTANTS, LOG_MESSAGES } from './log-constants.js';
-import type { LogSummary, LogFileInfo, LogLevel } from './log-types.js';
+import type { LogSummary, LogFileInfo, LogLevel, JobLogInfo } from './log-types.js';
 
 export class LogFormatter {
   /**
@@ -170,5 +170,89 @@ export class LogFormatter {
       return text;
     }
     return `${text.substring(0, maxLength - 3)}...`;
+  }
+
+  /**
+   * Format job log list
+   */
+  static formatJobLogList(jobLogs: JobLogInfo[]): string {
+    if (jobLogs.length === 0) {
+      return 'No job logs found.';
+    }
+
+    return `Found ${jobLogs.length} job logs:\n\n${jobLogs.map((jobLog: JobLogInfo) => {
+      const baseInfo = `🔧 Job: ${jobLog.jobName}\n   ID: ${jobLog.jobId}\n   File: ${jobLog.logFile.split('/').pop()}\n   Modified: ${jobLog.lastModified}`;
+      const sizeInfo = jobLog.size ? `\n   Size: ${formatBytes(jobLog.size)}` : '';
+      return baseInfo + sizeInfo;
+    }).join('\n\n')}`;
+  }
+
+  /**
+   * Format job log entries with job context
+   */
+  static formatJobLogEntries(
+    entries: string[],
+    level: LogLevel | 'all',
+    limit: number,
+    jobContext?: string,
+  ): string {
+    const levelDisplay = level === 'all' ? 'all levels' : level;
+    const contextText = jobContext ? ` from ${jobContext}` : '';
+
+    return `Latest ${limit} ${levelDisplay} messages${contextText}:\n\n${entries.join('\n\n---\n\n')}`;
+  }
+
+  /**
+   * Format job execution summary
+   */
+  static formatJobExecutionSummary(summary: {
+    startTime?: string;
+    endTime?: string;
+    status?: string;
+    duration?: string;
+    errorCount: number;
+    warningCount: number;
+    steps: string[];
+  }, jobName: string): string {
+    const sections = [
+      `Job Execution Summary: ${jobName}`,
+      '',
+      '⏱️ Timing:',
+      `- Start: ${summary.startTime ?? 'Unknown'}`,
+      `- End: ${summary.endTime ?? 'Unknown'}`,
+      `- Duration: ${summary.duration ?? 'Unknown'}`,
+      '',
+      '📊 Status:',
+      `- Status: ${summary.status ?? 'Unknown'}`,
+      `- Errors: ${summary.errorCount}`,
+      `- Warnings: ${summary.warningCount}`,
+    ];
+
+    if (summary.steps.length > 0) {
+      sections.push(
+        '',
+        '🔄 Steps:',
+        ...summary.steps.map(step => `- ${step}`),
+      );
+    }
+
+    return sections.join('\n');
+  }
+
+  /**
+   * Format job search results
+   */
+  static formatJobSearchResults(
+    matches: string[],
+    pattern: string,
+    jobContext?: string,
+  ): string {
+    if (matches.length === 0) {
+      const contextText = jobContext ? ` in ${jobContext} logs` : ' in job logs';
+      return `No matches found for "${pattern}"${contextText}`;
+    }
+
+    const contextText = jobContext ? ` in ${jobContext} logs` : ' in job logs';
+    return `Found ${matches.length} matches for "${pattern}"${contextText}:\n\n${matches.join('\n\n')}`;
   }
 }

@@ -224,7 +224,7 @@ All AI interfaces can access these tools based on configuration mode:
 - ✅ **Cartridge Generation** (1 tool) - Automated cartridge structure creation
 
 ### Full Mode Additional Tools (16 tools)
-- ✅ **Log Analysis** (8 tools) - Real-time error monitoring and pattern search
+- ✅ **Log Analysis & Job Debugging** (13 tools) - Real-time error monitoring, pattern search, and job log analysis
 - ✅ **System Object Definitions** (6 tools) - Custom attributes and site preferences
 
 ---

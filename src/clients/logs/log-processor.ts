@@ -5,7 +5,7 @@
 import { parseLogEntries, extractUniqueErrors, normalizeFilePath } from '../../utils/utils.js';
 import { Logger } from '../../utils/logger.js';
 import { LOG_CONSTANTS } from './log-constants.js';
-import type { LogEntry, LogLevel, LogFileMetadata, ProcessedLogEntry } from './log-types.js';
+import type { LogEntry, LogLevel, LogFileMetadata, ProcessedLogEntry, JobLogInfo } from './log-types.js';
 
 export class LogProcessor {
   private logger: Logger;
@@ -212,5 +212,177 @@ export class LogProcessor {
 
       return true;
     });
+  }
+
+  /**
+   * Process job log files - handles all log levels in one file
+   */
+  async processJobLogFiles(
+    jobLogs: JobLogInfo[],
+    level: LogLevel | 'all',
+    fileContents: Map<string, string>,
+  ): Promise<LogEntry[]> {
+    const allLogEntries: LogEntry[] = [];
+
+    for (let i = 0; i < jobLogs.length; i++) {
+      const jobLog = jobLogs[i];
+      const content = fileContents.get(jobLog.logFile);
+
+      if (!content) {
+        this.logger.warn(`No content found for job log file: ${jobLog.logFile}`);
+        continue;
+      }
+
+      this.logger.debug(`Processing job log file: ${jobLog.logFile} (job: ${jobLog.jobName})`);
+
+      try {
+        // For job logs, we need to parse entries based on the level or all levels
+        const logEntries = level === 'all'
+          ? this.parseAllLogLevelsFromContent(content)
+          : parseLogEntries(content, level.toUpperCase());
+
+        // Add entries with job context and priority
+        logEntries.forEach((entry, entryIndex) => {
+          allLogEntries.push({
+            entry: `[${jobLog.jobName}] ${entry}`,
+            filename: `Job: ${jobLog.jobName} (${jobLog.jobId})`,
+            order: i * LOG_CONSTANTS.FILE_ORDER_MULTIPLIER + entryIndex,
+          });
+        });
+      } catch (error) {
+        this.logger.error(`Error processing job log file ${jobLog.logFile}:`, error);
+      }
+    }
+
+    return allLogEntries;
+  }
+
+  /**
+   * Parse all log levels from job log content
+   */
+  private parseAllLogLevelsFromContent(content: string): string[] {
+    const lines = content.split('\n');
+    const logEntries: string[] = [];
+
+    for (const line of lines) {
+      if (line.trim() && this.isLogEntry(line)) {
+        logEntries.push(line.trim());
+      }
+    }
+
+    return logEntries;
+  }
+
+  /**
+   * Check if a line is a log entry (contains timestamp and level)
+   */
+  private isLogEntry(line: string): boolean {
+    // Look for timestamp pattern and log level in the line
+    const timestampPattern = /\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/;
+    const levelPattern = /\s(ERROR|WARN|INFO|DEBUG)\s/;
+
+    return timestampPattern.test(line) && levelPattern.test(line);
+  }
+
+  /**
+   * Filter job log entries by specific log level
+   */
+  filterJobLogEntriesByLevel(entries: string[], level: LogLevel): string[] {
+    const levelUpper = level.toUpperCase();
+    return entries.filter(entry => entry.includes(` ${levelUpper} `));
+  }
+
+  /**
+   * Extract job execution summary from job log content
+   */
+  extractJobExecutionSummary(content: string): {
+    startTime?: string;
+    endTime?: string;
+    status?: string;
+    duration?: string;
+    errorCount: number;
+    warningCount: number;
+    steps: string[];
+  } {
+    const lines = content.split('\n');
+    const summary = {
+      startTime: undefined as string | undefined,
+      endTime: undefined as string | undefined,
+      status: undefined as string | undefined,
+      duration: undefined as string | undefined,
+      errorCount: 0,
+      warningCount: 0,
+      steps: [] as string[],
+    };
+
+    const stepPattern = /Step\s+\d+:/i;
+
+    for (const line of lines) {
+      // Extract start time (first timestamp)
+      if (!summary.startTime) {
+        const timestampMatch = line.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
+        if (timestampMatch) {
+          summary.startTime = timestampMatch[1];
+        }
+      }
+
+      // Extract end time (last timestamp with completion indicators)
+      if (line.includes('completed') || line.includes('finished') || line.includes('ended')) {
+        const timestampMatch = line.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
+        if (timestampMatch) {
+          summary.endTime = timestampMatch[1];
+        }
+      }
+
+      // Extract status
+      if (line.includes('Job completed') || line.includes('Job finished')) {
+        summary.status = line.includes('successfully') ? 'SUCCESS' : 'COMPLETED';
+      } else if (line.includes('Job failed') || line.includes('ERROR')) {
+        summary.status = 'FAILED';
+      }
+
+      // Count errors and warnings
+      if (line.includes(' ERROR ')) {
+        summary.errorCount++;
+      }
+      if (line.includes(' WARN ')) {
+        summary.warningCount++;
+      }
+
+      // Extract step information
+      if (stepPattern.test(line)) {
+        const stepInfo = line.trim();
+        if (!summary.steps.includes(stepInfo)) {
+          summary.steps.push(stepInfo);
+        }
+      }
+    }
+
+    // Calculate duration if we have start and end times
+    if (summary.startTime && summary.endTime) {
+      const start = new Date(summary.startTime);
+      const end = new Date(summary.endTime);
+      const durationMs = end.getTime() - start.getTime();
+      summary.duration = this.formatDuration(durationMs);
+    }
+
+    return summary;
+  }
+
+  /**
+   * Format duration in milliseconds to human readable string
+   */
+  private formatDuration(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`;
+    } else {
+      return `${seconds}s`;
+    }
   }
 }

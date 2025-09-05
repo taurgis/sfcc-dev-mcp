@@ -73,6 +73,12 @@ Claude Desktop integrates MCP tools seamlessly into the conversation. When you s
 - `mcp_sfcc-dev_summarize_logs` - Get log overview
 - `mcp_sfcc-dev_search_logs` - Search logs by pattern
 - `mcp_sfcc-dev_list_log_files` - List available log files
+- `mcp_sfcc-dev_get_log_file_contents` - Read specific log files
+- `mcp_sfcc-dev_get_latest_job_log_files` - Get recent job log files
+- `mcp_sfcc-dev_search_job_logs_by_name` - Search job logs by name
+- `mcp_sfcc-dev_get_job_log_entries` - Get job log entries
+- `mcp_sfcc-dev_search_job_logs` - Search patterns in job logs
+- `mcp_sfcc-dev_get_job_execution_summary` - Get job execution summaries
 
 ## 🎯 Why Use the MCP Tools
 
@@ -179,6 +185,7 @@ Use these for understanding SFCC data models and custom attributes:
 ### 📊 Log Analysis Tools
 Use these for debugging and troubleshooting:
 
+**Standard Log Analysis:**
 - **`mcp_sfcc-dev_get_latest_error`** - Get recent error logs
 - **`mcp_sfcc-dev_get_latest_warn`** - Get recent warning logs
 - **`mcp_sfcc-dev_get_latest_info`** - Get recent info logs
@@ -187,6 +194,13 @@ Use these for debugging and troubleshooting:
 - **`mcp_sfcc-dev_search_logs`** - Search logs by pattern
 - **`mcp_sfcc-dev_list_log_files`** - List available log files
 - **`mcp_sfcc-dev_get_log_file_contents`** - Get contents of a specific log file (supports size limits and head/tail reading)
+
+**Job Log Analysis:**
+- **`mcp_sfcc-dev_get_latest_job_log_files`** - Get recent job log files for debugging custom job steps
+- **`mcp_sfcc-dev_search_job_logs_by_name`** - Search job logs by job name
+- **`mcp_sfcc-dev_get_job_log_entries`** - Get job log entries by level (error, warn, info, debug, all)
+- **`mcp_sfcc-dev_search_job_logs`** - Search for patterns within job logs
+- **`mcp_sfcc-dev_get_job_execution_summary`** - Get comprehensive job execution summary with timing and status
 
 ## 🚀 When to Use These Tools
 
@@ -298,10 +312,10 @@ If a tool isn't available, the MCP server will provide clear error messages abou
 5. Testing strategy and deployment guidance
 
 ### **Debugging Workflow:**
-1. Log analysis using multiple log level tools
-2. Pattern recognition across error messages
-3. System object validation for data integrity
-4. Root cause analysis with fix recommendations
-5. Prevention strategies for future issues
+1. **Standard Log Analysis**: Use multiple log level tools for application errors
+2. **Job Log Analysis**: Use job-specific tools for custom job debugging
+3. **Pattern Recognition**: Search across error messages and execution summaries
+4. **System Object Validation**: Check data integrity and configuration
+5. **Root Cause Analysis**: Provide fix recommendations with prevention strategies
 
 **Remember**: In Claude Desktop, you have the power of sophisticated conversation combined with real-time SFCC data. Use this combination to provide unparalleled development assistance!

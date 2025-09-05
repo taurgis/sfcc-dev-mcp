@@ -49,6 +49,21 @@ export interface LogFileFilter {
   level?: LogLevel;
   date?: string;
   includeCustom?: boolean;
+  includeJobLogs?: boolean;
+}
+
+export interface JobLogInfo {
+  jobName: string;
+  jobId: string;
+  logFile: string;
+  lastModified: string;
+  size?: number;
+}
+
+export interface JobLogFilter {
+  jobName?: string;
+  limit?: number;
+  sortByRecent?: boolean;
 }
 
 export interface WebDAVClientConfig {

@@ -74,7 +74,7 @@ Choose your preferred AI interface:
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
 - **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **📊 Log Analysis Tools** - Real-time error monitoring and debugging for SFCC instances
+- **📊 Log Analysis & Job Debugging Tools** - Real-time error monitoring, job log analysis, and debugging for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 

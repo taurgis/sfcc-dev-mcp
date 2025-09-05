@@ -10,7 +10,7 @@ import { LogFileDiscovery } from './log-file-discovery.js';
 import { LogProcessor } from './log-processor.js';
 import { LogAnalyzer } from './log-analyzer.js';
 import { LogFormatter } from './log-formatter.js';
-import { LOG_CONSTANTS, LOG_MESSAGES } from './log-constants.js';
+import { LOG_CONSTANTS, LOG_MESSAGES, JOB_LOG_CONSTANTS } from './log-constants.js';
 import type {
   LogLevel,
   LogSearchOptions,
@@ -345,5 +345,196 @@ ${content}`;
     ];
 
     return sections.join('\n');
+  }
+
+  /**
+   * Get latest job log files
+   */
+  async getLatestJobLogFiles(limit?: number): Promise<string> {
+    this.logger.methodEntry('getLatestJobLogFiles', { limit });
+
+    try {
+      const jobLogs = await this.fileDiscovery.getLatestJobLogFiles(limit);
+      const result = LogFormatter.formatJobLogList(jobLogs);
+      this.logger.methodExit('getLatestJobLogFiles', { count: jobLogs.length });
+      return result;
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('get_latest_job_log_files', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('getLatestJobLogFiles', { error: true });
+      return errorMessage;
+    }
+  }
+
+  /**
+   * Search job logs by job name
+   */
+  async searchJobLogsByName(jobName: string, limit?: number): Promise<string> {
+    this.logger.methodEntry('searchJobLogsByName', { jobName, limit });
+
+    try {
+      const jobLogs = await this.fileDiscovery.searchJobLogsByName(jobName, limit);
+      const result = LogFormatter.formatJobLogList(jobLogs);
+      this.logger.methodExit('searchJobLogsByName', { count: jobLogs.length });
+      return result;
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('search_job_logs_by_name', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('searchJobLogsByName', { error: true });
+      return errorMessage;
+    }
+  }
+
+  /**
+   * Get job log entries for a specific log level or all levels
+   */
+  async getJobLogEntries(
+    level: LogLevel | 'all' = 'all',
+    limit: number = JOB_LOG_CONSTANTS.DEFAULT_JOB_LOG_LIMIT,
+    jobName?: string,
+  ): Promise<string> {
+    this.logger.methodEntry('getJobLogEntries', { level, limit, jobName });
+
+    try {
+      // Get job logs based on filter
+      const jobLogs = jobName
+        ? await this.fileDiscovery.searchJobLogsByName(jobName, limit)
+        : await this.fileDiscovery.getLatestJobLogFiles(limit);
+
+      if (jobLogs.length === 0) {
+        const result = jobName
+          ? `No job logs found for job name: ${jobName}`
+          : 'No job logs found';
+        this.logger.methodExit('getJobLogEntries', { result: 'no_logs' });
+        return result;
+      }
+
+      // Read job log contents
+      const fileContents = await this.fileReader.readMultipleFiles(
+        jobLogs.map(job => job.logFile),
+        { maxBytes: LOG_CONSTANTS.DEFAULT_TAIL_BYTES },
+      );
+
+      // Process job log entries
+      const jobLogEntries = await this.processor.processJobLogFiles(jobLogs, level, fileContents);
+      const sortedEntries = this.processor.sortAndLimitEntries(jobLogEntries, limit);
+      const latestEntries = this.processor.extractFormattedEntries(sortedEntries);
+
+      // Format response
+      const jobContext = jobName ? `job: ${jobName}` : 'latest jobs';
+      const result = LogFormatter.formatJobLogEntries(latestEntries, level, limit, jobContext);
+
+      this.logger.methodExit('getJobLogEntries', {
+        entriesReturned: latestEntries.length,
+        jobLogsProcessed: jobLogs.length,
+      });
+
+      return result;
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('get_job_log_entries', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('getJobLogEntries', { error: true });
+      return errorMessage;
+    }
+  }
+
+  /**
+   * Search for patterns in job logs
+   */
+  async searchJobLogs(
+    pattern: string,
+    level?: LogLevel | 'all',
+    limit: number = LOG_CONSTANTS.DEFAULT_SEARCH_LIMIT,
+    jobName?: string,
+  ): Promise<string> {
+    this.logger.methodEntry('searchJobLogs', { pattern, level, limit, jobName });
+
+    try {
+      // Get job logs based on filter
+      const jobLogs = jobName
+        ? await this.fileDiscovery.searchJobLogsByName(jobName)
+        : await this.fileDiscovery.getLatestJobLogFiles();
+
+      if (jobLogs.length === 0) {
+        const result = jobName
+          ? `No job logs found for job name: ${jobName}`
+          : 'No job logs found';
+        this.logger.methodExit('searchJobLogs', { result: 'no_logs' });
+        return result;
+      }
+
+      // Read job log contents
+      const fileContents = await this.fileReader.readMultipleFiles(
+        jobLogs.map(job => job.logFile),
+        { maxBytes: LOG_CONSTANTS.DEFAULT_TAIL_BYTES },
+      );
+
+      // Search for patterns in job logs
+      const matches: string[] = [];
+      for (const jobLog of jobLogs) {
+        const content = fileContents.get(jobLog.logFile);
+        if (!content) {
+          continue;
+        }
+
+        const lines = content.split('\n');
+        for (const line of lines) {
+          if (line.toLowerCase().includes(pattern.toLowerCase()) && matches.length < limit) {
+            // Filter by level if specified
+            if (level && level !== 'all') {
+              const levelUpper = level.toUpperCase();
+              if (!line.includes(` ${levelUpper} `)) {
+                continue;
+              }
+            }
+            matches.push(`[${jobLog.jobName}] ${line.trim()}`);
+          }
+        }
+      }
+
+      const jobContext = jobName ? `job: ${jobName}` : 'job logs';
+      const result = LogFormatter.formatJobSearchResults(matches, pattern, jobContext);
+
+      this.logger.methodExit('searchJobLogs', { matchesFound: matches.length });
+      return result;
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('search_job_logs', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('searchJobLogs', { error: true });
+      return errorMessage;
+    }
+  }
+
+  /**
+   * Get job execution summary for a specific job
+   */
+  async getJobExecutionSummary(jobName: string): Promise<string> {
+    this.logger.methodEntry('getJobExecutionSummary', { jobName });
+
+    try {
+      const jobLogs = await this.fileDiscovery.searchJobLogsByName(jobName, 1);
+
+      if (jobLogs.length === 0) {
+        const result = `No job logs found for job name: ${jobName}`;
+        this.logger.methodExit('getJobExecutionSummary', { result: 'no_logs' });
+        return result;
+      }
+
+      const latestJobLog = jobLogs[0];
+      const content = await this.fileReader.getFileContentsTail(latestJobLog.logFile, {
+        maxBytes: LOG_CONSTANTS.DEFAULT_TAIL_BYTES,
+      });
+
+      const summary = this.processor.extractJobExecutionSummary(content);
+      const result = LogFormatter.formatJobExecutionSummary(summary, jobName);
+
+      this.logger.methodExit('getJobExecutionSummary', { jobLog: latestJobLog.logFile });
+      return result;
+    } catch (error) {
+      const errorMessage = LogFormatter.formatError('get_job_execution_summary', error);
+      this.logger.error(errorMessage);
+      this.logger.methodExit('getJobExecutionSummary', { error: true });
+      return errorMessage;
+    }
   }
 }

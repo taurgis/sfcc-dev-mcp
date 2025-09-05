@@ -25,6 +25,20 @@ export const LOG_FILE_PATTERNS = {
 
   /** Custom log file pattern (e.g., "customerror-", "customwarn-") */
   CUSTOM: (level: string) => `custom${level}-`,
+
+  /** Job log file pattern (e.g., "Job-") */
+  JOB: () => 'Job-',
+} as const;
+
+export const JOB_LOG_CONSTANTS = {
+  /** Jobs folder path */
+  JOBS_FOLDER: '/jobs/',
+
+  /** Default number of job logs to return */
+  DEFAULT_JOB_LOG_LIMIT: 10,
+
+  /** Job log file name pattern for matching */
+  JOB_LOG_PATTERN: /^Job-.+\.log$/,
 } as const;
 
 export const LOG_MESSAGES = {

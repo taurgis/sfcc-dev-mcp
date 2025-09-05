@@ -2,21 +2,21 @@
 title: Available Tools
 layout: page
 nav_order: 6
-description: Complete reference of all 30+ MCP tools including SFCC documentation, log analysis, cartridge generation, and system object management
+description: Complete reference of all 36 MCP tools including SFCC documentation, log analysis, cartridge generation, and system object management
 keywords: MCP tools, SFCC tools, log analysis tools, cartridge generation, SFRA documentation, system objects
 author: Thomas Theunen
 ---
 
 # 🛠️ Available Tools
 
-The SFCC Development MCP Server provides 30 specialized tools organized into logical categories based on functionality and required credentials.
+The SFCC Development MCP Server provides 36 specialized tools organized into logical categories based on functionality and required credentials.
 
 ## Tool Availability by Mode
 
 | Mode | Total Tools | Description |
 |------|-------------|-------------|
 | **Documentation-Only** | 15 tools | No SFCC credentials required |
-| **Full Mode** | 31 tools | Requires SFCC instance access |
+| **Full Mode** | 36 tools | Requires SFCC instance access |
 
 ---
 
@@ -273,7 +273,7 @@ generate_cartridge_structure({
 
 ---
 
-## 📊 Log Analysis Tools (8 tools)
+## 📊 Log Analysis Tools (13 tools)
 *Full Mode only - requires SFCC credentials*
 
 ### `get_latest_error`
@@ -356,6 +356,65 @@ get_log_file_contents({
 
 // Get daily log summary
 summarize_logs({ date: "20241218" })
+```
+
+### Job Log Analysis Tools
+
+### `get_latest_job_log_files`
+Get the latest job log files from the SFCC jobs folder for debugging custom job steps.
+
+**Parameters:**
+- `limit` (optional): Number of job log files to return (default: 10)
+
+### `search_job_logs_by_name`
+Search for job log files by job name to find logs for specific jobs.
+
+**Parameters:**
+- `jobName` (required): The job name to search for (partial matches supported)
+- `limit` (optional): Number of job log files to return (default: 10)
+
+### `get_job_log_entries`
+Get job log entries for specific log levels from recent job executions.
+
+**Parameters:**
+- `level` (optional): Log level to retrieve ('error', 'warn', 'info', 'debug', 'all', default: 'all')
+- `limit` (optional): Number of job log entries to return (default: 10)
+- `jobName` (optional): Optional job name to filter results to a specific job
+
+### `search_job_logs`
+Search for specific patterns, error messages, or keywords within job logs.
+
+**Parameters:**
+- `pattern` (required): Search pattern or keyword to find in job logs
+- `level` (optional): Restrict search to specific log level (default: 'all')
+- `limit` (optional): Number of matching entries to return (default: 20)
+- `jobName` (optional): Optional job name to restrict search to a specific job
+
+### `get_job_execution_summary`
+Get a comprehensive execution summary for a specific job including timing and status.
+
+**Parameters:**
+- `jobName` (required): The job name to get execution summary for
+
+**Example Usage:**
+```javascript
+// Get recent job log files
+get_latest_job_log_files({ limit: 5 })
+
+// Find logs for a specific job
+search_job_logs_by_name({ jobName: "ImportProducts" })
+
+// Get all job log entries with errors
+get_job_log_entries({ level: "error", limit: 20 })
+
+// Search for specific patterns in job logs
+search_job_logs({ 
+  pattern: "OutOfMemoryError", 
+  level: "error" 
+})
+
+// Get execution summary for a job
+get_job_execution_summary({ jobName: "ImportProducts" })
 ```
 
 ---
@@ -578,7 +637,7 @@ This workflow is particularly useful when:
 - `get_sfra_document` - Study SFRA architecture
 
 ### For Active Development  
-**Use Full Mode (31 tools):**
+**Use Full Mode (36 tools):**
 - All documentation tools for reference
 - `generate_cartridge_structure` - Start new features
 - `get_latest_error` - Debug issues quickly

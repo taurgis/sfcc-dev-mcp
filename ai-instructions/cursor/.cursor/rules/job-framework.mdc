@@ -337,3 +337,43 @@ Implementation verification:
 - Jobs missing from Administration > Operations > Jobs → Use code-switch fix
 - Job steps not executing → Check job registration in active code version
 - Intermittent job visibility → Multiple code versions active, use activation tool
+
+## 🔧 Job Debugging and Log Analysis
+
+**For Job Execution Issues:**
+1. **Get Job Log Files:**
+   ```
+   Use: mcp_sfcc-dev_get_latest_job_log_files
+   Purpose: Find recent job executions and available log files
+   ```
+
+2. **Search Job Logs by Name:**
+   ```
+   Use: mcp_sfcc-dev_search_job_logs_by_name with jobName: "YourJobName"
+   Purpose: Find specific job logs for targeted debugging
+   ```
+
+3. **Get Job Execution Summary:**
+   ```
+   Use: mcp_sfcc-dev_get_job_execution_summary with jobName: "YourJobName"
+   Purpose: Get comprehensive execution details, timing, and status
+   ```
+
+4. **Analyze Job Log Entries:**
+   ```
+   Use: mcp_sfcc-dev_get_job_log_entries with level: "error" (or "warn", "info", "debug", "all")
+   Purpose: Review job log entries by severity level
+   ```
+
+5. **Search Job Logs for Patterns:**
+   ```
+   Use: mcp_sfcc-dev_search_job_logs with pattern: "OutOfMemoryError" (or other error patterns)
+   Purpose: Find specific error patterns or custom logging messages in job logs
+   ```
+
+**Job Debugging Best Practices:**
+- Job logs contain all log levels (error, warn, info, debug) in single files
+- Use execution summaries to understand job performance and bottlenecks
+- Search for custom Logger statements added in job steps
+- Monitor job timing and memory usage through log analysis
+- Use pattern searches to track specific data processing flows

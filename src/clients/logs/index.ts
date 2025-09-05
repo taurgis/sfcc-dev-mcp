@@ -14,5 +14,5 @@ export { LogAnalyzer } from './log-analyzer.js';
 export { LogFormatter } from './log-formatter.js';
 
 // Constants and types
-export { LOG_CONSTANTS, LOG_FILE_PATTERNS, LOG_MESSAGES } from './log-constants.js';
+export { LOG_CONSTANTS, LOG_FILE_PATTERNS, LOG_MESSAGES, JOB_LOG_CONSTANTS } from './log-constants.js';
 export type * from './log-types.js';

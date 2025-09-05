@@ -189,15 +189,15 @@ sfcc-dev-mcp/
 - **OCAPISystemObjectsClient** (`system-objects-client.ts`): Provides system object definitions, attribute schemas, and custom object exploration
 
 ##### **Modular Log Analysis System** (`clients/logs/`)
-- **SFCCLogClient** (`log-client.ts`): Main orchestrator that composes specialized log modules for comprehensive log analysis
+- **SFCCLogClient** (`log-client.ts`): Main orchestrator that composes specialized log modules for comprehensive log analysis including job logs from deeper folder structures
 - **WebDAVClientManager** (`webdav-client-manager.ts`): WebDAV authentication and client setup with OAuth and basic auth support
 - **LogFileReader** (`log-file-reader.ts`): File reading with range request optimization (200KB tail reading) and comprehensive fallback mechanisms
-- **LogFileDiscovery** (`log-file-discovery.ts`): File listing, filtering by date/level, metadata operations, and chronological sorting
-- **LogProcessor** (`log-processor.ts`): Log parsing, entry extraction, data manipulation, and pattern processing
+- **LogFileDiscovery** (`log-file-discovery.ts`): File listing, filtering by date/level, metadata operations, chronological sorting, and job log discovery from `/Logs/jobs/[job name ID]/` folder structure
+- **LogProcessor** (`log-processor.ts`): Log parsing, entry extraction, data manipulation, pattern processing, and job log processing (handles all log levels in single files)
 - **LogAnalyzer** (`log-analyzer.ts`): Advanced analysis including pattern detection, health scoring, trend analysis, and recommendation generation
-- **LogFormatter** (`log-formatter.ts`): Output formatting, presentation logic, and user-friendly message templates
-- **LogConstants** (`log-constants.ts`): Centralized constants, configuration values, and message templates
-- **LogTypes** (`log-types.ts`): Comprehensive TypeScript interfaces for all log operations
+- **LogFormatter** (`log-formatter.ts`): Output formatting, presentation logic, user-friendly message templates, and job execution summaries
+- **LogConstants** (`log-constants.ts`): Centralized constants, configuration values, message templates, and job log patterns
+- **LogTypes** (`log-types.ts`): Comprehensive TypeScript interfaces for all log operations including job log types
 
 ##### **Service Clients** (`clients/`)
 - **DocsClient** (`docs-client.ts`): Processes SFCC documentation and provides search capabilities across all namespaces
@@ -247,10 +247,11 @@ sfcc-dev-mcp/
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-5. **Log Analysis Tools** (8 tools)
+5. **Log Analysis Tools** (13 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
+   - Job log analysis and debugging
 
 6. **System Object Tools** (6 tools)
    - Custom attribute discovery
@@ -271,7 +272,7 @@ sfcc-dev-mcp/
 
 #### **Full Mode**
 - Requires SFCC instance credentials
-- Complete access to logs and system objects
+- Complete access to logs, job logs, and system objects
 - Real-time debugging and monitoring capabilities
 
 ### 🎯 Development Guidelines
@@ -298,6 +299,30 @@ When working on this project:
 ### 📝 Documentation Maintenance Requirements
 
 **Critical**: When making any structural or functional changes to the codebase, you **MUST** update the relevant sections in **BOTH** `.github/copilot-instructions.md` and `README.md`:
+
+#### **Always Verify Counts with Command Line Tools:**
+
+Before updating any documentation with tool counts or quantitative information, **ALWAYS** verify the actual numbers using command line tools:
+
+```bash
+# Total tool count verification
+grep -c "name: '" src/core/tool-definitions.ts
+
+# Individual section counts
+awk '/export const SFCC_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const BEST_PRACTICES_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const SFRA_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const LOG_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const SYSTEM_OBJECT_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const CARTRIDGE_GENERATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const CODE_VERSION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+
+# Verify file structure changes
+find src -name "*.ts" -type f | wc -l  # Count TypeScript files
+find docs -name "*.md" -type f | wc -l  # Count documentation files
+```
+
+**Never assume or estimate counts** - always verify with actual command line verification before updating documentation.
 
 #### **Required Updates For:**
 - **File Renames/Moves**: Update project structure diagram and component descriptions in copilot-instructions.md; update any file references in README.md
@@ -365,7 +390,9 @@ When working on this project:
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
 - **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
+- **Job Log Analysis**: Use job log tools for debugging custom job steps - `get_latest_job_log_files`, `get_job_log_entries`, `search_job_logs`, `search_job_logs_by_name`, `get_job_execution_summary`
 - **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
+- **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
 
 ### 📁 Directory Organization Benefits
 
