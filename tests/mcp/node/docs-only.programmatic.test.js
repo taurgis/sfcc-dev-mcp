@@ -16,7 +16,9 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   });
 
   beforeEach(() => {
-    client.clearStderr();
+    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
+    client.clearStderr(); // Available method - prevents stderr buffer leaking
+    // TODO: Use client.clearAllBuffers() when available - comprehensive protection
   });
 
   test('should successfully connect to server', async () => {
@@ -322,6 +324,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     
     // Verify the response contains expected SFCC class information
     const responseText = result.content[0].text;
-    assert.ok(responseText.includes('dw.'), 'Should contain SFCC dw.* classes');
+    assert.ok(responseText.includes('dw_'), 'Should contain SFCC dw_* classes');
   });
 });

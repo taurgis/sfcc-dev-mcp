@@ -1,6 +1,10 @@
 # MCP Conductor - Programmatic Testing Guide for AI Agents
 
-**Target Audience**: AI coding assistants generating JavaScript/TypeScript programmatic test files for Model Context Protocol servers.
+**Target Audience**: AI coding assistants generating JavaScript/TypeScript programmatic t# Debugging and monitoring
+const stderr = client.getStderr();      // Get captured stderr
+client.clearStderr();                   // Clear stderr buffer (REQUIRED in beforeEach!)
+
+**⚠️ CRITICAL**: Always include `client.clearStderr()` in your `beforeEach()` hook to prevent stderr from one test affecting the next test. This is a common source of test flakiness. files for Model Context Protocol servers.
 
 ## Overview
 
@@ -59,7 +63,9 @@ describe('[SERVER_NAME] Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    client.clearStderr();
+    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
+    client.clearStderr(); // Available method - prevents stderr buffer leaking
+    // TODO: Use client.clearAllBuffers() when available - comprehensive protection
   });
 
   test('should list available tools', async () => {
@@ -73,6 +79,41 @@ describe('[SERVER_NAME] Programmatic Tests', () => {
     assert.ok(result.content, 'Should return content');
     assert.equal(result.isError, false, 'Should not be error');
   });
+});
+```
+
+## Quick Debugging with Query Command
+
+Before writing comprehensive programmatic tests, use the `query` command to rapidly test your server:
+
+```bash
+# List all available tools
+conductor query --config conductor.config.json
+
+# Test specific tool with arguments
+conductor query read_file '{"path": "test.txt"}' --config conductor.config.json
+
+# Get JSON output for inspection
+conductor query calculator '{"operation": "add", "a": 5, "b": 3}' --config conductor.config.json --json
+```
+
+**Benefits for programmatic testing workflow**:
+- **Rapid prototyping**: Verify server behavior before writing test code
+- **API exploration**: Discover tool signatures and response formats
+- **Debug assistance**: Inspect actual responses to design assertions
+- **Development speed**: Test changes instantly without rebuilding test suite
+
+**Integration with programmatic tests**:
+```javascript
+// Use query command findings to create targeted tests
+test('should handle file reading as discovered via query', async () => {
+  // Based on: conductor query read_file '{"path": "test.txt"}'
+  const result = await client.callTool('read_file', { path: 'test.txt' });
+  
+  // Query command showed this response structure:
+  assert.ok(result.content);
+  assert.equal(result.content[0].type, 'text');
+  assert.ok(result.content[0].text.includes('expected content'));
 });
 ```
 
@@ -130,6 +171,99 @@ const result = await client.callTool('tool_name', { invalid: 'param' });
 if (result.isError) {
   assert.ok(result.content[0].text.includes('error message'));
 }
+```
+
+## Critical: Preventing Test Interference
+
+### Buffer Leaking Prevention
+**The most common source of flaky programmatic tests is buffer leaking between tests.** When one test generates output (stderr, partial stdout messages) and doesn't clear it, subsequent tests may see the output from previous tests, causing unexpected failures.
+
+#### Always Include beforeEach Hook
+```javascript
+beforeEach(() => {
+  // REQUIRED: Clear stderr buffer to prevent stderr leaking between tests
+  client.clearStderr();
+  
+  // TODO: When available, use comprehensive buffer clearing
+  // client.clearAllBuffers(); // Future enhancement - clears all buffers
+});
+```
+
+#### Buffer Bleeding Sources
+- **Stderr buffer**: Error messages and debug output
+- **Stdout buffer**: Partial JSON messages from previous requests  
+- **Ready state**: Server readiness flag not reset
+- **Pending reads**: Lingering message handlers
+
+**Best Practice**: Use `client.clearStderr()` (currently available) to prevent stderr leaking between tests. A future enhancement `client.clearAllBuffers()` will provide comprehensive protection against all buffer types when available in mcp-conductor.
+
+#### Common Anti-Patterns to Avoid
+```javascript
+// ❌ WRONG - Missing beforeEach entirely
+describe('My Tests', () => {
+  let client;
+  
+  before(async () => {
+    client = await connect('./config.json');
+  });
+  
+  // Missing beforeEach - tests will leak buffers!
+  
+  test('first test', async () => {
+    const result = await client.callTool('tool', {});
+    // This test might generate stderr or leave stdout buffer data
+  });
+  
+  test('second test', async () => {
+    // This test might see output from first test!
+    assert.equal(client.getStderr(), ''); // Will fail if first test had stderr
+  });
+});
+
+// ✅ CORRECT - Include beforeEach with clearStderr
+describe('My Tests', () => {
+  let client;
+  
+  before(async () => {
+    client = await connect('./config.json');
+  });
+  
+  beforeEach(() => {
+    client.clearAllBuffers(); // Prevents all buffer leaking between tests
+  });
+  
+  test('first test', async () => {
+    const result = await client.callTool('tool', {});
+    // Any stderr is isolated to this test
+  });
+  
+  test('second test', async () => {
+    // Clean slate - no stderr from previous tests
+    assert.equal(client.getStderr(), ''); // Will pass
+  });
+});
+```
+
+#### Debugging Stderr Issues
+If you're experiencing flaky test failures related to unexpected stderr content:
+
+1. **Add clearStderr() to beforeEach** - Most common fix
+2. **Check test isolation** - Ensure each test starts with clean state  
+3. **Debug stderr content** - Log `client.getStderr()` to see what's leaking
+4. **Use afterEach cleanup** - Optional additional cleanup
+
+```javascript
+beforeEach(() => {
+  client.clearStderr();
+});
+
+afterEach(() => {
+  // Optional: Debug what stderr was generated
+  const stderr = client.getStderr();
+  if (stderr) {
+    console.log('Test generated stderr:', stderr);
+  }
+});
 ```
 
 ## Testing Patterns

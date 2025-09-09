@@ -2,13 +2,62 @@
 
 **Target Audience**: AI coding assistants generating declarative YAML test files for Model Context Protocol servers.
 
-## Overview
+## Over# ✅ CORRECT - Use [\s\S]* for multiline matching
+result:
+  content:
+    - text: "match:regex:[\s\S]*\(component[\s\S]*\(hook"  # Matches across newlines
+```
+
+### 🆕 7. Pattern Negation with `match:not:`
+
+**NEW**: Negate ANY pattern by prefixing with `not:`! Perfect for testing that values do NOT match specific criteria.
+
+```yaml
+# Basic negation patterns
+result:
+  tools: "match:not:arrayLength:0"              # Tools array should NOT be empty
+  name: "match:not:startsWith:invalid_"         # Name should NOT start with "invalid_"
+  text: "match:not:contains:error"              # Text should NOT contain "error"
+  data: "match:not:type:string"                 # Data should NOT be a string
+  message: "match:not:endsWith:failed"          # Message should NOT end with "failed"
+  pattern: "match:not:regex:^ERROR:"            # Should NOT match regex pattern
+
+# Works with field extraction
+result:
+  match:extractField: "tools.*.name"
+  value: "match:not:arrayContains:get_latest_error"  # Array should NOT contain this value
+
+# Works with array elements  
+result:
+  tools:
+    match:arrayElements:
+      name: "match:not:startsWith:invalid_"     # No tool name should start with "invalid_"
+      description: "match:not:contains:deprecated"  # No description should contain "deprecated"
+```
+
+**Supported Negation Patterns:**
+- `match:not:contains:text` - String should NOT contain text
+- `match:not:startsWith:prefix` - String should NOT start with prefix  
+- `match:not:endsWith:suffix` - String should NOT end with suffix
+- `match:not:type:string` - Should NOT be specified type
+- `match:not:arrayLength:N` - Array should NOT have N elements
+- `match:not:arrayContains:value` - Array should NOT contain value
+- `match:not:regex:pattern` - Should NOT match regex
+- `match:not:exists` - Field should NOT exist
+- `match:not:count:N` - Should NOT have N properties
+
+**Common Use Cases:**
+- ✅ **Error Prevention**: Ensure responses don't contain error messages
+- ✅ **Security Validation**: Verify sensitive data is not exposed  
+- ✅ **Tool Filtering**: Confirm deprecated/invalid tools are not present
+- ✅ **Quality Assurance**: Check that unwanted patterns are absent
+- ✅ **Regression Testing**: Ensure known problems don't reappearw
 
 **YAML Testing** provides declarative, human-readable test files for MCP servers with advanced pattern matching. Perfect for protocol compliance, basic tool testing, and maintainable test suites without requiring programming knowledge.
 
 ### 📚 Key Resources
 - **[YAML Testing Documentation](https://conductor.rhino-inquisitor.com/yaml-testing.html)** - Complete guide
-- **[Pattern Matching Reference](https://conductor.rhino-inquisitor.com/pattern-matching.html)** - All 11+ pattern types
+- **[Pattern Matching Reference](https://conductor.rhino-inquisitor.com/pattern-matching.html)** - All 12+ pattern types
 - **[Examples Directory](../../examples/)** - Real-world YAML test files
 
 ## Quick Setup
@@ -256,6 +305,47 @@ conductor "tests/*.yml" --config config.json --json
 
 # Quiet mode (exit codes only)
 conductor "tests/*.yml" --config config.json --quiet
+```
+
+### Interactive Tool Debugging with Query Command
+**New Feature**: Test individual tools directly without creating YAML files:
+
+```bash
+# List all available tools from your server
+conductor query --config conductor.config.json
+
+# Test a specific tool with no arguments
+conductor query [tool-name] --config conductor.config.json
+
+# Test a tool with JSON arguments
+conductor query [tool-name] '{"param": "value"}' --config conductor.config.json
+
+# Get JSON output for scripting
+conductor query [tool-name] '{"param": "value"}' --config conductor.config.json --json
+
+# Quiet mode for scripts
+conductor query [tool-name] --config conductor.config.json --quiet
+```
+
+**Query Command Benefits for AI Agents**:
+- **Rapid Development**: Test tools immediately during development
+- **Server Validation**: Verify server responses before writing comprehensive tests  
+- **Tool Discovery**: Explore available tools and their parameters
+- **Debugging**: Inspect exact responses and stderr output
+- **Integration**: Use in development workflows and CI pipelines
+
+**Example debugging workflow**:
+```bash
+# 1. Discover available tools
+conductor query --config config.json
+
+# 2. Test basic functionality  
+conductor query read_file '{"path": "test.txt"}' --config config.json
+
+# 3. Test error conditions
+conductor query read_file '{"path": "nonexistent.txt"}' --config config.json
+
+# 4. Create comprehensive YAML tests based on results
 ```
 
 ## 🚨 Critical YAML Anti-Patterns

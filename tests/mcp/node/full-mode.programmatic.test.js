@@ -17,7 +17,9 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
   });
 
   beforeEach(() => {
-    client.clearStderr();
+    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
+    client.clearStderr(); // Available method - prevents stderr buffer leaking
+    // TODO: Use client.clearAllBuffers() when available - comprehensive protection
   });
 
   test('should successfully connect to server with credentials', async () => {
