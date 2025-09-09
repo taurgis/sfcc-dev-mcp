@@ -26,8 +26,9 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 2. **Type Safety**: Leverage TypeScript's type system for robust, maintainable code
 3. **Error Handling**: Implement comprehensive error handling with meaningful messages
 4. **Modular Design**: Create loosely coupled, highly cohesive modules
-5. **Testing Coverage**: Write thorough unit and integration tests
+5. **Testing Coverage**: Write thorough unit and integration tests with MCP Conductor for validation
 6. **Local Security**: Focus on protecting developer credentials and preventing accidental network exposure
+7. **Conductor-First Development**: Use `npx conductor query` as the primary tool for testing, debugging, and validating MCP tools during development
 
 ---
 
@@ -395,7 +396,85 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
 - **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
 
-### 📁 Directory Organization Benefits
+### � MCP Server Testing and Debugging with Conductor
+
+The **MCP Conductor** (`npx conductor query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.
+
+#### **Basic Conductor Usage**
+
+```bash
+# Test a tool with the documentation-only configuration
+npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[json-arguments]'
+
+# Example: Search SFRA documentation
+npx conductor query --config ./conductor.config.docs-only.json search_sfra_documentation '{"query": "render"}'
+
+# Example: Generate cartridge structure
+npx conductor query --config ./conductor.config.docs-only.json generate_cartridge_structure '{"cartridgeName": "test_cartridge", "targetPath": "/tmp/test"}'
+```
+
+#### **Configuration Files**
+
+- **`conductor.config.docs-only.json`**: For testing documentation-only mode (no SFCC credentials required)
+- **`conductor.config.with-dw.json`**: For testing full mode with SFCC credentials (requires dw.json with valid sandbox details)
+
+#### **Common Conductor Commands**
+
+```bash
+# List all available tools
+npx conductor query --config ./conductor.config.docs-only.json --method tools/list
+
+# Get tool schema information
+npx conductor query --config ./conductor.config.docs-only.json --method tools/call --params '{"name": "get_sfcc_class_info", "arguments": {"className": "dw.catalog.Product"}}'
+
+# Test best practice guides
+npx conductor query --config ./conductor.config.docs-only.json get_best_practice_guide '{"guideName": "cartridge_creation"}'
+
+# Test SFCC class searches
+npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+```
+
+#### **Debugging Tool Responses**
+
+When developing or debugging tools, use conductor to inspect actual response formats:
+
+```bash
+# Capture full response structure for test validation
+npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[args]' | head -50
+
+# Test error handling
+npx conductor query --config ./conductor.config.docs-only.json [tool-name] '{"invalid": "parameters"}'
+
+# Verify JSON response structure
+npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[args]' | jq '.'
+```
+
+#### **Development Workflow Integration**
+
+1. **Tool Development**: After implementing a new tool, immediately test with conductor before writing unit tests
+2. **Response Validation**: Use conductor to capture actual response structures when writing test assertions
+3. **Error Testing**: Verify error handling behavior with invalid parameters through conductor
+4. **Configuration Testing**: Test both docs-only and full modes to ensure proper tool availability
+5. **Integration Testing**: Validate tool interactions and data flow using conductor before automated tests
+
+#### **Troubleshooting with Conductor**
+
+- **Tool Not Found**: Check configuration mode (docs-only vs full) and ensure tool is properly registered
+- **Invalid Arguments**: Use conductor to test parameter validation and see exact error messages
+- **Response Issues**: Compare conductor output with programmatic test expectations to identify format mismatches
+- **Performance Issues**: Use conductor timing information to identify slow tools
+- **Authentication Problems**: Test full-mode tools with conductor to validate OCAPI/WebDAV connections
+
+#### **Best Practices**
+
+- **Always test new tools** with conductor before writing automated tests
+- **Use conductor output** to write accurate test assertions rather than guessing response formats  
+- **Test both success and error cases** with conductor during development
+- **Verify tool availability** in different configuration modes using conductor
+- **Debug programmatic test failures** by comparing with conductor CLI results
+- **Test parameter validation** using conductor with various input combinations
+
+### �📁 Directory Organization Benefits
 
 The new organized structure provides:
 

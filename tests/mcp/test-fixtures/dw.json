@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "hostname": "dev01-sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "test-user@company.com",
+  "password": "test-password",
+  "client-id": "test-client-id",
+  "client-secret": "test-client-secret",
+  "code-version": "test-version",
+  "cartridgesPath": "./cartridges"
+}

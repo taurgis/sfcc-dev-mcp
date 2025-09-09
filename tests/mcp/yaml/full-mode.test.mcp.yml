@@ -1,0 +1,158 @@
+description: "SFCC Development MCP Server - Full Mode with Credentials Tests (Tool Presence Only)"
+tests:
+  - it: "should have exactly 36 tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-count"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-count"
+        result:
+          tools: "match:arrayLength:36"
+      stderr: "toBeEmpty"
+
+  - it: "should have documentation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-list-2"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-list-2"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have log analysis tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-logs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-logs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_latest_error"
+      stderr: "toBeEmpty"
+
+  - it: "should have system object tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-system"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-system"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+  - it: "should have code version tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-code"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-code"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_code_versions"
+      stderr: "toBeEmpty"
+
+  - it: "should have job log tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-jobs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-jobs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_job_log_entries"
+      stderr: "toBeEmpty"
+
+  - it: "should have cartridge generation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-cartridge"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-cartridge"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:generate_cartridge_structure"
+      stderr: "toBeEmpty"
+
+  # Verify that docs-only tools are NOT missing in full mode
+  - it: "should include all docs-only tools in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-includes-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-includes-docs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfra_documentation"
+      stderr: "toBeEmpty"
+
+  # Test specific tool categories present only in full mode
+  - it: "should have WebDAV-dependent tools (log analysis)"
+    request:
+      jsonrpc: "2.0"
+      id: "webdav-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "webdav-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:summarize_logs"
+      stderr: "toBeEmpty"
+
+  - it: "should have OCAPI-dependent tools (system objects)"
+    request:
+      jsonrpc: "2.0"
+      id: "ocapi-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ocapi-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_site_preferences"
+      stderr: "toBeEmpty"
+
+  # NOTE: We intentionally do NOT test tool execution in full mode because:
+  # 1. The test credentials are not real SFCC instances
+  # 2. Tools would fail with authentication/connection errors
+  # 3. This test suite is designed to verify tool PRESENCE, not functionality
+  # 4. Tool functionality testing should be done against real SFCC development instances

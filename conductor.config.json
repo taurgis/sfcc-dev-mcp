@@ -1,0 +1,9 @@
+{
+  "name": "sfcc-dev-mcp",
+  "command": "node",
+  "args": [
+    "dist/index.js"
+  ],
+  "cwd": "./",
+  "startupTimeout": 10000
+}

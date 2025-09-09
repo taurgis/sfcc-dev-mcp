@@ -1,0 +1,267 @@
+description: "SFCC Development MCP Server - Documentation-Only Mode Tests"
+tests:
+  - it: "should list available tools in documentation-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tools-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tools-list-1"
+        result:
+          tools: "match:type:array"
+      stderr: "toBeEmpty"
+
+  - it: "should have SFCC documentation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "tools-list-2"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tools-list-2"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have best practices tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "tools-list-3"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tools-list-3"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_best_practice_guide"
+      stderr: "toBeEmpty"
+
+  - it: "should have SFRA documentation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "tools-list-4"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tools-list-4"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfra_document"
+      stderr: "toBeEmpty"
+
+  - it: "should have cartridge generation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "tools-list-5"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tools-list-5"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:generate_cartridge_structure"
+      stderr: "toBeEmpty"
+
+  # Tools execution tests - verify that documentation tools work correctly
+
+  - it: "should execute get_sfcc_class_info successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-class-info-1"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-class-info-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should execute search_sfcc_classes successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-search-classes-1"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-search-classes-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should execute get_available_best_practice_guides successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-best-practices-1"
+      method: "tools/call"
+      params:
+        name: "get_available_best_practice_guides"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-best-practices-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:cartridge_creation"
+      stderr: "toBeEmpty"
+
+  - it: "should execute get_best_practice_guide successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-best-practice-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-best-practice-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:cartridge"
+      stderr: "toBeEmpty"
+
+  - it: "should execute get_available_sfra_documents successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-sfra-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-sfra-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:server"
+      stderr: "toBeEmpty"
+
+  - it: "should execute get_sfra_document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-sfra-doc-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-sfra-doc-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Server"
+      stderr: "toBeEmpty"
+
+  - it: "should execute search_sfra_documentation successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-sfra-search-1"
+      method: "tools/call"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "render"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-sfra-search-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"document\": \"render\""
+      stderr: "toBeEmpty"
+
+  - it: "should execute generate_cartridge_structure successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-cartridge-gen-1"
+      method: "tools/call"
+      params:
+        name: "generate_cartridge_structure"
+        arguments:
+          cartridgeName: "test_cartridge"
+          targetPath: "/tmp/test-cartridge-output"
+          fullProjectSetup: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-cartridge-gen-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"success\": true"
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid tool call gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-invalid-1"
+      method: "tools/call"
+      params:
+        name: "invalid_tool_name"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-invalid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Unknown tool"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing required parameters gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "call-missing-params-1"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "call-missing-params-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: true
+      stderr: "toBeEmpty"

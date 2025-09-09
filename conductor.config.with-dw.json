@@ -1,0 +1,14 @@
+{
+  "name": "sfcc-dev-mcp-with-credentials",
+  "command": "node",
+  "args": [
+    "dist/index.js",
+    "--dw-json",
+    "./tests/mcp/test-fixtures/dw.json"
+  ],
+  "cwd": "./",
+  "startupTimeout": 10000,
+  "env": {
+    "NODE_ENV": "test"
+  }
+}

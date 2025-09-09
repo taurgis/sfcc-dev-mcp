@@ -1,0 +1,12 @@
+{
+  "name": "sfcc-dev-mcp-docs-only",
+  "command": "node",
+  "args": [
+    "dist/index.js"
+  ],
+  "cwd": "./",
+  "startupTimeout": 10000,
+  "env": {
+    "NODE_ENV": "test"
+  }
+}
