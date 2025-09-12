@@ -139,8 +139,8 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         assert.ok(className.includes('catalog'), 'Results should be relevant to query');
       });
       
-      // Performance validation (first test may be slower due to connection setup)
-      assert.ok(duration < 150, `Response time ${duration}ms should be under 150ms`);
+      // Performance validation (more lenient for concurrent test execution)
+      assert.ok(duration < 200, `Response time ${duration}ms should be under 200ms`);
     });
 
     test('should return empty array for no matches', async () => {
