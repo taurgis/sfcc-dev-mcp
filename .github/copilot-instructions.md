@@ -29,6 +29,7 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 5. **Testing Coverage**: Write thorough unit and integration tests with MCP Conductor for validation
 6. **Local Security**: Focus on protecting developer credentials and preventing accidental network exposure
 7. **Conductor-First Development**: Use `npx conductor query` as the primary tool for testing, debugging, and validating MCP tools during development
+8. **Test Discovery Workflow**: ALWAYS use conductor query to discover actual tool response formats before writing any test assertions - never assume response structure
 
 ---
 
@@ -457,6 +458,68 @@ npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[arg
 4. **Configuration Testing**: Test both docs-only and full modes to ensure proper tool availability
 5. **Integration Testing**: Validate tool interactions and data flow using conductor before automated tests
 
+#### **Critical: Response Format Discovery Before Writing Tests**
+
+**ALWAYS use conductor query to understand actual response formats before writing YAML tests.** This prevents test failures due to incorrect assumptions about response structure.
+
+##### **Essential Pre-Test Discovery Process:**
+
+1. **Query the tool with sample arguments** to see actual response format:
+   ```bash
+   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+   ```
+
+2. **Test edge cases** (empty results, errors) to understand all response variations:
+   ```bash
+   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
+   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": ""}'
+   ```
+
+3. **Document the actual response structure** before writing test expectations:
+   - Is it a JSON object with metadata fields like `{classes: [], totalCount: 5, searchTerm: "query"}`?
+   - Or a simple JSON array like `["dw.catalog.Product", "dw.catalog.Catalog"]`?
+   - Does it return `[]` for no results or `{classes: [], totalCount: 0}`?
+
+4. **Use the correct validation patterns** based on actual responses:
+   ```yaml
+   # For JSON array responses
+   text: "match:regex:\\[[\\s\\S]*\\]"
+   
+   # For empty array responses  
+   text: "match:regex:^\\[\\s*\\]$"
+   
+   # For JSON object responses
+   text: "match:regex:\\{[\\s\\S]*\\}"
+   
+   # For specific content validation
+   text: "match:contains:dw.catalog.Product"
+   ```
+
+##### **Common Testing Mistakes to Avoid:**
+
+- **Assuming JSON structure without verification**: Don't expect `{classes: [], totalCount: 5}` if tool returns `["class1", "class2"]`
+- **Wrong empty result validation**: Using `match:exact:[]` instead of `match:regex:^\\[\\s*\\]$`
+- **Missing edge case testing**: Not testing empty queries, invalid parameters, or no-result scenarios
+- **Incorrect pattern syntax**: Using `contains:classes` instead of `match:contains:classes`
+
+##### **Response Format Discovery Examples:**
+
+```bash
+# Discover structure for class search
+npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+# Result: ["dw.catalog.Catalog", "dw.catalog.Product", ...] (simple array)
+
+# Discover empty result format  
+npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
+# Result: [] (empty array)
+
+# Discover error response format
+npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": ""}'
+# Result: {"content": [{"type": "text", "text": "Error: ..."}], "isError": true}
+```
+
+**Remember**: The time spent discovering actual response formats with conductor saves hours of debugging failed tests later. Always query first, then write tests based on reality, not assumptions.
+
 #### **Troubleshooting with Conductor**
 
 - **Tool Not Found**: Check configuration mode (docs-only vs full) and ensure tool is properly registered
@@ -467,12 +530,16 @@ npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[arg
 
 #### **Best Practices**
 
+- **CRITICAL: Always discover response formats first** - Use conductor query to understand actual response structure before writing any tests
 - **Always test new tools** with conductor before writing automated tests
 - **Use conductor output** to write accurate test assertions rather than guessing response formats  
 - **Test both success and error cases** with conductor during development
 - **Verify tool availability** in different configuration modes using conductor
 - **Debug programmatic test failures** by comparing with conductor CLI results
 - **Test parameter validation** using conductor with various input combinations
+- **Document actual response formats** in test file comments for future reference
+- **Test edge cases comprehensively** - empty results, invalid inputs, missing parameters
+- **Use correct YAML pattern syntax** - always prefix with `match:` for validation patterns
 
 #### **Comprehensive Testing Documentation**
 

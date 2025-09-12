@@ -1,0 +1,1109 @@
+# ==================================================================================
+# SFCC MCP Server - search_sfcc_classes Tool YAML Tests
+# Comprehensive testing for SFCC class search functionality
+# Tests both successful responses and error handling scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
+# conductor "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
+# conductor query search_sfcc_classes '{"query": "catalog"}' --config "conductor.config.docs-only.json"
+# conductor query search_sfcc_classes '{"query": "product"}' --config "conductor.config.docs-only.json"
+# ==================================================================================
+description: "SFCC MCP Server search_sfcc_classes tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list search_sfcc_classes tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfcc_classes"
+      stderr: "toBeEmpty"
+
+  - it: "should have search_sfcc_classes in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:search_sfcc_classes"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description-quality"
+        result:
+          tools: "match:arrayContains:name:search_sfcc_classes"
+      stderr: "toBeEmpty"
+
+  - it: "should have proper inputSchema structure for search_sfcc_classes"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL EXECUTION TESTS - COMMON SEARCH TERMS
+# ==================================================================================
+
+  - it: "should execute with catalog search term"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-catalog-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-catalog-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should return JSON array structure for product search"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-json"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-json"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array structure
+      stderr: "toBeEmpty"
+
+  - it: "should find customer-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-customer-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-customer-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:customer"
+      stderr: "toBeEmpty"
+
+  - it: "should find order-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:order"
+      stderr: "toBeEmpty"
+
+  - it: "should find system-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-system-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "system"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-system-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:system"
+      stderr: "toBeEmpty"
+
+  - it: "should find web-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-web-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "web"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-web-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:web"
+      stderr: "toBeEmpty"
+
+  - it: "should find util-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-util-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "util"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-util-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:util"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SEARCH RESULT STRUCTURE VALIDATION
+# ==================================================================================
+
+  - it: "should return JSON array in results"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-array-structure"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-array-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should return class names in array format"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-class-names"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-class-names"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Product"
+      stderr: "toBeEmpty"
+
+  - it: "should include multiple matching classes"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-multiple-classes"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-multiple-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should format class names with quotes"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-quoted-names"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-quoted-names"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"dw\\.catalog\\.Product\""
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CASE SENSITIVITY AND SEARCH VARIATIONS
+# ==================================================================================
+
+  - it: "should handle uppercase search terms"
+    request:
+      jsonrpc: "2.0"
+      id: "search-uppercase"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "CATALOG"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-uppercase"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle mixed case search terms"
+    request:
+      jsonrpc: "2.0"
+      id: "search-mixedcase"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-mixedcase"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle partial class names"
+    request:
+      jsonrpc: "2.0"
+      id: "search-partial"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "cat"  # Should find catalog classes
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-partial"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle single character searches"
+    request:
+      jsonrpc: "2.0"
+      id: "search-single-char"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "c"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-single-char"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SPECIFIC SFCC DOMAIN SEARCHES
+# ==================================================================================
+
+  - it: "should find dw.catalog namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-catalog"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-catalog"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should find dw.customer namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-customer"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-customer"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.customer"
+      stderr: "toBeEmpty"
+
+  - it: "should find dw.order namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-order"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-order"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.order"
+      stderr: "toBeEmpty"
+
+  - it: "should find dw.system namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-system"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "system"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-system"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.system"
+      stderr: "toBeEmpty"
+
+  - it: "should find dw.web namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-web"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "web"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-web"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.web"
+      stderr: "toBeEmpty"
+
+  - it: "should find dw.util namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "domain-util"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "util"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "domain-util"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.util"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# FUNCTIONAL SEARCH TESTS
+# ==================================================================================
+
+  - it: "should find inventory-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "func-inventory"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "inventory"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "func-inventory"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductInventoryList"
+      stderr: "toBeEmpty"
+
+  - it: "should find price-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "func-price"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "price"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "func-price"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PriceBook"
+      stderr: "toBeEmpty"
+
+  - it: "should find basket-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "func-basket"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "basket"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "func-basket"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Basket"
+      stderr: "toBeEmpty"
+
+  - it: "should find payment-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "func-payment"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "payment"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "func-payment"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Payment"
+      stderr: "toBeEmpty"
+
+  - it: "should find shipping-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "func-shipping"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "shipping"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "func-shipping"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Shipping"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+
+  - it: "should handle empty query gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-query"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing query parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-query"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:query"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle non-existent terms gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "search-nonexistent"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-nonexistent"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+      stderr: "toBeEmpty"
+
+  - it: "should handle special characters in query"
+    request:
+      jsonrpc: "2.0"
+      id: "search-special-chars"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "!@#$%"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-special-chars"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long query strings"
+    request:
+      jsonrpc: "2.0"
+      id: "search-long-query"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "verylongquerystringthatdoesnotmatchanythingbutshouldbetreatedgracefully"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-long-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# RESPONSE FORMAT VALIDATION
+# ==================================================================================
+
+  - it: "should return consistent MCP content structure"
+    request:
+      jsonrpc: "2.0"
+      id: "format-content-structure"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-content-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should return single content item for successful calls"
+    request:
+      jsonrpc: "2.0"
+      id: "format-single-content"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-single-content"
+        result:
+          content: "match:arrayLength:1"
+      stderr: "toBeEmpty"
+
+  - it: "should not set isError flag for successful responses"
+    request:
+      jsonrpc: "2.0"
+      id: "format-no-error-flag"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-no-error-flag"
+        result:
+          content: "match:type:array"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASES AND SEARCH BEHAVIOR
+# ==================================================================================
+
+  - it: "should handle numeric query terms"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-numeric-query"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "123"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-numeric-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle whitespace in query"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-whitespace"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "  catalog  "
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-whitespace"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle common abbreviations"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-abbreviations"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "mgr"  # Should find manager classes
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-abbreviations"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle dots in search terms"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-dots"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "dw.catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-dots"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE AND CONSISTENCY VALIDATION
+# ==================================================================================
+
+  - it: "should respond consistently for repeated searches"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-consistent-1"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-consistent-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should respond consistently for repeated searches (second time)"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-consistent-2"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-consistent-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE TIMING TESTS
+# ==================================================================================
+
+  - it: "should return search results within acceptable time"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-basic-timing"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-basic-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "100ms"  # Search should be fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle complex searches efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-complex-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-complex-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "100ms"  # Even complex searches should be under 100ms
+      stderr: "toBeEmpty"
+
+  - it: "should handle partial searches quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-partial-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "cat"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-partial-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "100ms"  # Partial searches should be fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle no-result searches efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-no-results"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-no-results"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+      performance:
+        maxResponseTime: "50ms"  # No results should be very fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle error cases quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-error-timing"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-error-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "50ms"  # Error handling should be very fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle cached results quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-cached-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "catalog"  # Same as first test - should be cached
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-cached-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "50ms"  # Cached responses should be extremely fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle single character searches within timeout"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-single-char-timing"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "c"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-single-char-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "100ms"  # Single char searches might return many results
+      stderr: "toBeEmpty"
+
+  - it: "should handle long queries efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-long-query-timing"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "verylongquerystringthatdoesnotmatchanythingbutshouldbetreatedgracefully"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-long-query-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+      performance:
+        maxResponseTime: "50ms"  # Long queries with no results should be fast
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SEARCH QUALITY AND RELEVANCE TESTS
+# ==================================================================================
+
+  - it: "should prioritize exact matches for common terms"
+    request:
+      jsonrpc: "2.0"
+      id: "quality-exact-match"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "quality-exact-match"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Product"
+      stderr: "toBeEmpty"
+
+  - it: "should find classes by functionality"
+    request:
+      jsonrpc: "2.0"
+      id: "quality-functionality"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "inventory"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "quality-functionality"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductInventoryList"
+      stderr: "toBeEmpty"
+
+  - it: "should include relevant namespace classes"
+    request:
+      jsonrpc: "2.0"
+      id: "quality-namespace"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_classes"
+        arguments:
+          query: "system"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "quality-namespace"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:dw\\.system\\."
+      stderr: "toBeEmpty"
