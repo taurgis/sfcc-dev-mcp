@@ -1,0 +1,740 @@
+/**
+ * Programmatic tests for list_sfcc_classes tool
+ * 
+ * These tests provide advanced verification capabilities beyond YAML pattern matching,
+ * including performance monitoring, dynamic validation, comprehensive content analysis,
+ * and advanced error categorization for the SFCC class listing functionality.
+ * 
+ * Response format discovered via conductor query:
+ * - Success: { content: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
+ * - Always successful: No isError field or error conditions 
+ * - Ignores extra parameters: Gracefully handles unexpected parameters
+ * - Comprehensive: Returns 500+ classes across all SFCC namespaces
+ */
+
+import { test, describe, before, after, beforeEach } from 'node:test';
+import { strict as assert } from 'node:assert';
+import { connect } from 'mcp-conductor';
+
+/**
+ * Performance monitoring utility class for comprehensive metrics collection
+ */
+class PerformanceMonitor {
+  constructor() {
+    this.metrics = new Map();
+  }
+
+  async measureTool(client, toolName, params) {
+    const startTime = process.hrtime.bigint();
+    const result = await client.callTool(toolName, params);
+    const endTime = process.hrtime.bigint();
+    
+    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
+    
+    if (!this.metrics.has(toolName)) {
+      this.metrics.set(toolName, []);
+    }
+    this.metrics.get(toolName).push(duration);
+    
+    return { result, duration };
+  }
+
+  getStats(toolName) {
+    const measurements = this.metrics.get(toolName) || [];
+    if (measurements.length === 0) return null;
+    
+    return {
+      count: measurements.length,
+      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
+      min: Math.min(...measurements),
+      max: Math.max(...measurements),
+      p95: this.percentile(measurements, 0.95),
+      variationRatio: measurements.length > 1 ? Math.max(...measurements) / Math.min(...measurements) : 1
+    };
+  }
+
+  getSummary() {
+    const summary = {};
+    for (const [toolName] of this.metrics) {
+      summary[toolName] = this.getStats(toolName);
+    }
+    return summary;
+  }
+
+  percentile(arr, p) {
+    const sorted = [...arr].sort((a, b) => a - b);
+    const index = Math.ceil(sorted.length * p) - 1;
+    return sorted[index];
+  }
+}
+
+/**
+ * Content analysis utility for SFCC class validation
+ */
+class ContentAnalyzer {
+  constructor() {
+    this.expectedNamespaces = [
+      'TopLevel',
+      'best-practices',
+      'dw_campaign',
+      'dw_catalog', 
+      'dw_content',
+      'dw_crypto',
+      'dw_customer',
+      'dw_extensions',
+      'dw_io',
+      'dw_job',
+      'dw_net',
+      'dw_object',
+      'dw_order',
+      'dw_rpc',
+      'dw_suggest',
+      'dw_svc',
+      'dw_system',
+      'dw_util',
+      'dw_value',
+      'dw_web',
+      'sfra'
+    ];
+
+    this.criticalClasses = [
+      'dw_catalog.Product',
+      'dw_catalog.Category',
+      'dw_order.Order',
+      'dw_order.Basket',
+      'dw_customer.Customer',
+      'dw_system.Site',
+      'dw_system.SitePreferences',
+      'dw_util.ArrayList',
+      'dw_web.URL',
+      'sfra.server',
+      'sfra.request',
+      'sfra.response'
+    ];
+
+    this.bestPracticeGuides = [
+      'best-practices.cartridge_creation',
+      'best-practices.sfra_controllers',
+      'best-practices.security',
+      'best-practices.performance'
+    ];
+  }
+
+  analyzeClassList(classArray) {
+    const analysis = {
+      totalClasses: classArray.length,
+      namespacesCovered: new Set(),
+      missingNamespaces: [],
+      missingCriticalClasses: [],
+      foundCriticalClasses: [],
+      foundBestPractices: [],
+      duplicates: [],
+      invalidFormats: [],
+      classsByNamespace: {}
+    };
+
+    // Initialize namespace counters
+    this.expectedNamespaces.forEach(ns => {
+      analysis.classsByNamespace[ns] = [];
+    });
+
+    // Analyze each class
+    const seenClasses = new Set();
+    classArray.forEach(className => {
+      // Check for duplicates
+      if (seenClasses.has(className)) {
+        analysis.duplicates.push(className);
+        return;
+      }
+      seenClasses.add(className);
+
+      // Validate format (should have at least one dot or be TopLevel.*)
+      if (!className.includes('.') && !className.startsWith('TopLevel.')) {
+        analysis.invalidFormats.push(className);
+      }
+
+      // Categorize by namespace
+      const namespace = className.split('.')[0];
+      analysis.namespacesCovered.add(namespace);
+      
+      if (analysis.classsByNamespace[namespace]) {
+        analysis.classsByNamespace[namespace].push(className);
+      } else {
+        // Unexpected namespace
+        if (!analysis.classsByNamespace.other) {
+          analysis.classsByNamespace.other = [];
+        }
+        analysis.classsByNamespace.other.push(className);
+      }
+
+      // Check critical classes
+      if (this.criticalClasses.includes(className)) {
+        analysis.foundCriticalClasses.push(className);
+      }
+
+      // Check best practice guides
+      if (this.bestPracticeGuides.includes(className)) {
+        analysis.foundBestPractices.push(className);
+      }
+    });
+
+    // Find missing namespaces
+    analysis.missingNamespaces = this.expectedNamespaces.filter(
+      ns => !analysis.namespacesCovered.has(ns)
+    );
+
+    // Find missing critical classes
+    analysis.missingCriticalClasses = this.criticalClasses.filter(
+      cls => !analysis.foundCriticalClasses.includes(cls)
+    );
+
+    return analysis;
+  }
+
+  validateCompleteness(analysis) {
+    const issues = [];
+
+    if (analysis.totalClasses < 400) {
+      issues.push(`Class count too low: ${analysis.totalClasses} (expected 400+)`);
+    }
+
+    if (analysis.missingNamespaces.length > 0) {
+      issues.push(`Missing namespaces: ${analysis.missingNamespaces.join(', ')}`);
+    }
+
+    if (analysis.missingCriticalClasses.length > 0) {
+      issues.push(`Missing critical classes: ${analysis.missingCriticalClasses.join(', ')}`);
+    }
+
+    if (analysis.duplicates.length > 0) {
+      issues.push(`Duplicate classes found: ${analysis.duplicates.length}`);
+    }
+
+    if (analysis.invalidFormats.length > 0) {
+      issues.push(`Invalid formats found: ${analysis.invalidFormats.length}`);
+    }
+
+    return issues;
+  }
+}
+
+describe('list_sfcc_classes Programmatic Tests', () => {
+  let client;
+  const performanceMonitor = new PerformanceMonitor();
+  const contentAnalyzer = new ContentAnalyzer();
+
+  before(async () => {
+    client = await connect('./conductor.config.docs-only.json');
+  });
+
+  after(async () => {
+    if (client?.connected) {
+      await client.disconnect();
+    }
+    
+    // Log performance summary
+    console.log('\n📊 Performance Summary:');
+    console.log(performanceMonitor.getSummary());
+  });
+
+  beforeEach(() => {
+    // CRITICAL: Clear stderr buffer to prevent test interference
+    client.clearStderr();
+  });
+
+  describe('Protocol Compliance', () => {
+    test('should be properly connected to MCP server', async () => {
+      assert.ok(client.connected, 'Client should be connected');
+    });
+
+    test('should have list_sfcc_classes tool available', async () => {
+      const tools = await client.listTools();
+      const listTool = tools.find(tool => tool.name === 'list_sfcc_classes');
+      
+      assert.ok(listTool, 'list_sfcc_classes tool should be available');
+      assert.equal(listTool.name, 'list_sfcc_classes');
+      assert.ok(listTool.description, 'Tool should have description');
+      assert.ok(listTool.inputSchema, 'Tool should have input schema');
+    });
+
+    test('should have correct tool input schema', async () => {
+      const tools = await client.listTools();
+      const listTool = tools.find(tool => tool.name === 'list_sfcc_classes');
+      
+      assert.equal(listTool.inputSchema.type, 'object');
+      // list_sfcc_classes takes no required parameters
+      assert.ok(!listTool.inputSchema.required || listTool.inputSchema.required.length === 0);
+    });
+  });
+
+  describe('Basic Functionality', () => {
+    test('should execute successfully with empty parameters', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      
+      assertValidMCPResponse(result);
+      assert.equal(result.isError || false, false, 'Should not return error');
+      assert.equal(result.content.length, 1, 'Should return single content item');
+      assert.equal(result.content[0].type, 'text', 'Content type should be text');
+    });
+
+    test('should return valid JSON array in response', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      
+      assertValidMCPResponse(result);
+      const responseText = result.content[0].text;
+      
+      // Should be valid JSON
+      let classArray;
+      assert.doesNotThrow(() => {
+        classArray = JSON.parse(responseText);
+      }, 'Response should be valid JSON');
+      
+      assert.ok(Array.isArray(classArray), 'Response should be JSON array');
+      assert.ok(classArray.length > 0, 'Class array should not be empty');
+    });
+
+    test('should ignore additional parameters gracefully', async () => {
+      const result = await client.callTool('list_sfcc_classes', {
+        unexpectedParam: 'should be ignored',
+        anotherParam: 123,
+        objectParam: { nested: 'value' }
+      });
+      
+      assertValidMCPResponse(result);
+      assert.equal(result.isError || false, false, 'Should handle extra params gracefully');
+      
+      // Result should be identical to empty params call
+      const baselineResult = await client.callTool('list_sfcc_classes', {});
+      assert.equal(result.content[0].text, baselineResult.content[0].text, 
+        'Result should be identical regardless of extra params');
+    });
+  });
+
+  describe('Content Quality and Completeness', () => {
+    test('should return comprehensive SFCC class coverage', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      // Validate completeness
+      const issues = contentAnalyzer.validateCompleteness(analysis);
+      assert.equal(issues.length, 0, `Content issues found: ${issues.join('; ')}`);
+      
+      // Verify substantial class count
+      assert.ok(analysis.totalClasses >= 400, 
+        `Should have substantial class count (got ${analysis.totalClasses})`);
+    });
+
+    test('should include all expected SFCC namespaces', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      contentAnalyzer.expectedNamespaces.forEach(namespace => {
+        assert.ok(analysis.namespacesCovered.has(namespace), 
+          `Missing expected namespace: ${namespace}`);
+        assert.ok(analysis.classsByNamespace[namespace].length > 0,
+          `Namespace ${namespace} should have classes`);
+      });
+    });
+
+    test('should include critical SFCC classes for development', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      contentAnalyzer.criticalClasses.forEach(criticalClass => {
+        assert.ok(classArray.includes(criticalClass), 
+          `Missing critical class: ${criticalClass}`);
+      });
+      
+      assert.ok(analysis.foundCriticalClasses.length >= contentAnalyzer.criticalClasses.length * 0.9,
+        'Should include at least 90% of critical classes');
+    });
+
+    test('should include best practice guides', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      contentAnalyzer.bestPracticeGuides.forEach(guide => {
+        assert.ok(classArray.includes(guide), 
+          `Missing best practice guide: ${guide}`);
+      });
+    });
+
+    test('should have proper class naming format', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      assert.equal(analysis.invalidFormats.length, 0, 
+        `Invalid class formats found: ${analysis.invalidFormats.join(', ')}`);
+      
+      assert.equal(analysis.duplicates.length, 0,
+        `Duplicate classes found: ${analysis.duplicates.join(', ')}`);
+    });
+  });
+
+  describe('Advanced Content Analysis', () => {
+    test('should provide balanced namespace distribution', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      // Core namespaces should have substantial class counts
+      const coreNamespaces = ['dw_catalog', 'dw_order', 'dw_customer', 'dw_system'];
+      coreNamespaces.forEach(namespace => {
+        const classCount = analysis.classsByNamespace[namespace].length;
+        assert.ok(classCount >= 5, 
+          `Core namespace ${namespace} should have at least 5 classes (got ${classCount})`);
+      });
+      
+      // SFRA should have good coverage
+      const sfraCount = analysis.classsByNamespace['sfra'].length;
+      assert.ok(sfraCount >= 20, 
+        `SFRA namespace should have substantial coverage (got ${sfraCount})`);
+    });
+
+    test('should include developer-friendly discovery content', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      // Should include educational namespaces for new developers
+      const educationalClasses = [
+        'TopLevel.Array', 
+        'TopLevel.Object',
+        'best-practices.cartridge_creation',
+        'sfra.server'
+      ];
+      
+      educationalClasses.forEach(educationalClass => {
+        assert.ok(classArray.includes(educationalClass), 
+          `Missing educational class: ${educationalClass}`);
+      });
+    });
+
+    test('should support API exploration workflows', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      // Should include classes that developers commonly search for
+      const commonSearchTargets = [
+        'dw_catalog.ProductMgr',
+        'dw_order.BasketMgr', 
+        'dw_customer.CustomerMgr',
+        'dw_system.SitePreferences',
+        'dw_web.URLUtils'
+      ];
+      
+      commonSearchTargets.forEach(searchTarget => {
+        assert.ok(classArray.includes(searchTarget), 
+          `Missing common search target: ${searchTarget}`);
+      });
+    });
+
+    test('should provide comprehensive extension coverage', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      // Should include extension classes for integrations
+      const extensionClasses = classArray.filter(cls => cls.startsWith('dw_extensions.'));
+      assert.ok(extensionClasses.length >= 10, 
+        `Should include substantial extension classes (got ${extensionClasses.length})`);
+      
+      // Should cover major payment integrations
+      const paymentClasses = classArray.filter(cls => 
+        cls.includes('payments') || cls.includes('PayPal') || cls.includes('ApplePay'));
+      assert.ok(paymentClasses.length >= 5,
+        `Should include payment integration classes (got ${paymentClasses.length})`);
+    });
+  });
+
+  describe('Performance and Efficiency', () => {
+    test('should respond quickly for metadata operations', async () => {
+      const { result, duration } = await performanceMonitor.measureTool(
+        client, 'list_sfcc_classes', {}
+      );
+      
+      assertValidMCPResponse(result);
+      // CI-friendly timeout - metadata operations should be fast but allow for CI variability
+      assert.ok(duration < 1000, 
+        `Response time should be under 1000ms for metadata operation (got ${duration}ms)`);
+    });
+
+    test('should handle multiple concurrent requests efficiently', async () => {
+      const concurrentRequests = 5;
+      const promises = Array.from({ length: concurrentRequests }, () => 
+        performanceMonitor.measureTool(client, 'list_sfcc_classes', {})
+      );
+      
+      const results = await Promise.all(promises);
+      
+      // All requests should succeed
+      results.forEach((result, index) => {
+        assertValidMCPResponse(result.result);
+        assert.ok(result.duration < 2000, 
+          `Concurrent request ${index} should complete quickly (got ${result.duration}ms)`);
+      });
+      
+      // Results should be consistent
+      const firstResponse = results[0].result.content[0].text;
+      results.forEach((result, index) => {
+        assert.equal(result.result.content[0].text, firstResponse,
+          `Concurrent request ${index} should return identical results`);
+      });
+    });
+
+    test('should maintain consistent performance across calls', async () => {
+      const testRuns = 3;
+      const measurements = [];
+      
+      for (let i = 0; i < testRuns; i++) {
+        const { result, duration } = await performanceMonitor.measureTool(
+          client, 'list_sfcc_classes', {}
+        );
+        assertValidMCPResponse(result);
+        measurements.push(duration);
+      }
+      
+      const stats = performanceMonitor.getStats('list_sfcc_classes');
+      
+      // CI-friendly performance variation - allow for substantial variance in CI environments
+      assert.ok(stats.variationRatio < 50, 
+        `Performance should be relatively consistent (variation ratio: ${stats.variationRatio})`);
+      
+      assert.ok(stats.avg < 800, 
+        `Average response time should be reasonable (got ${stats.avg}ms)`);
+    });
+  });
+
+  describe('Response Structure Validation', () => {
+    test('should maintain consistent response structure', async () => {
+      const result1 = await client.callTool('list_sfcc_classes', {});
+      const result2 = await client.callTool('list_sfcc_classes', {});
+      
+      // Structure should be identical
+      assert.equal(result1.content.length, result2.content.length);
+      assert.equal(result1.content[0].type, result2.content[0].type);
+      assert.equal(result1.content[0].text, result2.content[0].text);
+      
+      // Content should be deterministic
+      const classes1 = JSON.parse(result1.content[0].text);
+      const classes2 = JSON.parse(result2.content[0].text);
+      assert.deepEqual(classes1, classes2, 'Class lists should be identical between calls');
+    });
+
+    test('should return properly formatted JSON with valid structure', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const responseText = result.content[0].text;
+      
+      // Should be properly formatted JSON
+      assert.ok(responseText.startsWith('['), 'Should start with array bracket');
+      assert.ok(responseText.endsWith(']'), 'Should end with array bracket');
+      
+      // Parse and validate structure
+      const classArray = JSON.parse(responseText);
+      assert.ok(Array.isArray(classArray), 'Should be array');
+      
+      // Each item should be a string
+      classArray.forEach((item, index) => {
+        assert.equal(typeof item, 'string', `Item ${index} should be string`);
+        assert.ok(item.length > 0, `Item ${index} should not be empty`);
+      });
+    });
+
+    test('should provide useful content for AI agents', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      // Should include classes that AI agents commonly need
+      const aiUsefulClasses = [
+        'dw_system.Logger',        // For logging
+        'dw_util.StringUtils',     // For text processing  
+        'dw_web.URLUtils',         // For URL generation
+        'dw_system.Site',          // For site context
+        'sfra.server',             // For SFRA controllers
+        'best-practices.security'   // For security guidance
+      ];
+      
+      aiUsefulClasses.forEach(usefulClass => {
+        assert.ok(classArray.includes(usefulClass), 
+          `Should include AI-useful class: ${usefulClass}`);
+      });
+    });
+  });
+
+  describe('Educational and Discovery Value', () => {
+    test('should serve as comprehensive SFCC reference', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      const analysis = contentAnalyzer.analyzeClassList(classArray);
+      
+      // Should cover all major SFCC functional areas
+      const functionalAreas = {
+        'commerce': ['dw_catalog', 'dw_order'],
+        'customer': ['dw_customer'],
+        'system': ['dw_system'],
+        'web': ['dw_web'],
+        'utilities': ['dw_util'],
+        'integrations': ['dw_svc', 'dw_extensions'],
+        'storefront': ['sfra']
+      };
+      
+      Object.entries(functionalAreas).forEach(([area, namespaces]) => {
+        namespaces.forEach(namespace => {
+          const classCount = analysis.classsByNamespace[namespace].length;
+          assert.ok(classCount > 0, 
+            `Functional area '${area}' should have classes in namespace '${namespace}'`);
+        });
+      });
+    });
+
+    test('should support progressive learning for developers', async () => {
+      const result = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(result.content[0].text);
+      
+      // Should include beginner-friendly classes
+      const beginnerClasses = classArray.filter(cls => 
+        cls.startsWith('TopLevel.') || cls.startsWith('best-practices.'));
+      assert.ok(beginnerClasses.length >= 15, 
+        `Should include beginner-friendly classes (got ${beginnerClasses.length})`);
+      
+      // Should include advanced integration classes
+      const advancedClasses = classArray.filter(cls => 
+        cls.includes('Hook') || cls.includes('Extension') || cls.includes('Service'));
+      assert.ok(advancedClasses.length >= 20,
+        `Should include advanced integration classes (got ${advancedClasses.length})`);
+    });
+  });
+
+  describe('Integration and Cross-Tool Validation', () => {
+    test('should provide classes that work with search_sfcc_classes tool', async () => {
+      const listResult = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(listResult.content[0].text);
+      
+      // Pick a few classes to test with search tool
+      const testClasses = ['dw_catalog.Product', 'dw_system.Site', 'sfra.server'];
+      
+      for (const testClass of testClasses) {
+        assert.ok(classArray.includes(testClass), 
+          `List should include searchable class: ${testClass}`);
+        
+        // Test that the class is discoverable via search
+        const namespace = testClass.split('.')[0].replace('_', '');
+        const searchResult = await client.callTool('search_sfcc_classes', { 
+          query: namespace 
+        });
+        
+        assertValidMCPResponse(searchResult);
+        if (!searchResult.isError) {
+          const searchedClasses = JSON.parse(searchResult.content[0].text);
+          assert.ok(Array.isArray(searchedClasses), 
+            `Search should return array for ${namespace}`);
+        }
+      }
+    });
+
+    test('should include classes that have detailed documentation available', async () => {
+      const listResult = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(listResult.content[0].text);
+      
+      // Test a few well-documented classes
+      const documentedClasses = ['dw_catalog.Product', 'dw_system.Site', 'dw_order.Basket'];
+      
+      for (const docClass of documentedClasses) {
+        assert.ok(classArray.includes(docClass), 
+          `List should include documented class: ${docClass}`);
+        
+        // Test that class info is available
+        const infoResult = await client.callTool('get_sfcc_class_info', { 
+          className: docClass 
+        });
+        
+        assertValidMCPResponse(infoResult);
+        if (!infoResult.isError) {
+          const infoText = infoResult.content[0].text;
+          // Parse the JSON response to check for class information
+          let classInfo;
+          assert.doesNotThrow(() => {
+            classInfo = JSON.parse(infoText);
+          }, `Class info should be valid JSON for ${docClass}`);
+          
+          // Check that the response contains class information
+          assert.ok(classInfo.className || classInfo.packageName, 
+            `Class info should contain class information for ${docClass}`);
+          
+          // For dw_catalog.Product, verify it contains "Product" and "dw.catalog"
+          if (docClass === 'dw_catalog.Product') {
+            assert.ok(classInfo.className === 'Product', 
+              'Product class info should contain className "Product"');
+            assert.ok(classInfo.packageName === 'dw.catalog', 
+              'Product class info should contain packageName "dw.catalog"');
+          }
+        }
+      }
+    });
+
+    test('should maintain consistency with available tools ecosystem', async () => {
+      const listResult = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(listResult.content[0].text);
+      
+      // Should include classes that support the broader SFCC toolchain
+      const toolchainClasses = [
+        'dw_catalog.Product',         // For product tool integration
+        'dw_system.SitePreferences',  // For site preference tools
+        'dw_order.Order',             // For order management tools
+        'best-practices.security',    // For best practice tools
+        'sfra.server'                 // For SFRA tools
+      ];
+      
+      toolchainClasses.forEach(toolClass => {
+        assert.ok(classArray.includes(toolClass), 
+          `Should include toolchain-supporting class: ${toolClass}`);
+      });
+    });
+
+    test('should enable effective AI-assisted development workflows', async () => {
+      const listResult = await client.callTool('list_sfcc_classes', {});
+      const classArray = JSON.parse(listResult.content[0].text);
+      
+      // Should include classes that AI agents commonly recommend
+      const aiWorkflowClasses = [
+        'dw_system.Logger',           // For debugging workflows
+        'dw_util.StringUtils',        // For data manipulation
+        'dw_web.URLUtils',           // For URL generation
+        'dw_catalog.ProductMgr',     // For product operations
+        'dw_order.BasketMgr',        // For cart operations
+        'dw_customer.CustomerMgr',   // For customer operations
+        'sfra.request',              // For request handling
+        'sfra.response'              // For response handling
+      ];
+      
+      aiWorkflowClasses.forEach(workflowClass => {
+        assert.ok(classArray.includes(workflowClass), 
+          `Should include AI workflow class: ${workflowClass}`);
+      });
+      
+      // Should provide good coverage for common AI development tasks
+      const taskCoverage = {
+        'data_access': classArray.filter(cls => cls.includes('Mgr')).length,
+        'web_operations': classArray.filter(cls => cls.startsWith('dw_web.')).length,
+        'system_integration': classArray.filter(cls => cls.startsWith('dw_system.')).length,
+        'best_practices': classArray.filter(cls => cls.startsWith('best-practices.')).length
+      };
+      
+      Object.entries(taskCoverage).forEach(([task, count]) => {
+        assert.ok(count >= 3, 
+          `Should have good coverage for ${task} (got ${count} classes)`);
+      });
+    });
+  });
+});
+
+/**
+ * Helper function to validate basic MCP response structure
+ */
+function assertValidMCPResponse(result) {
+  assert.ok(result.content, 'Response should have content');
+  assert.ok(Array.isArray(result.content), 'Content should be array');
+  assert.equal(typeof (result.isError || false), 'boolean', 'isError should be boolean when present');
+}

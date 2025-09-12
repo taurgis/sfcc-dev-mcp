@@ -1,0 +1,490 @@
+# ==================================================================================
+# SFCC MCP Server - list_sfcc_classes Tool YAML Tests
+# Comprehensive testing for SFCC class listing functionality
+# Tests both successful responses and performance validation
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
+# conductor "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
+# conductor query list_sfcc_classes '{}' --config "conductor.config.docs-only.json"
+# ==================================================================================
+description: "SFCC MCP Server list_sfcc_classes tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list list_sfcc_classes tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:list_sfcc_classes"
+      stderr: "toBeEmpty"
+
+  - it: "should have list_sfcc_classes in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:list_sfcc_classes"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL EXECUTION TESTS - NO PARAMETERS NEEDED
+# ==================================================================================
+
+  - it: "should execute with no parameters (empty object)"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-no-params"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-no-params"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should return comprehensive class list structure"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-structure-validation"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-structure-validation"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:TopLevel"
+      stderr: "toBeEmpty"
+
+  - it: "should include core SFCC classes in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-core-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-core-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should include system classes in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-system-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-system-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_system"
+      stderr: "toBeEmpty"
+
+  - it: "should include order classes in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_order"
+      stderr: "toBeEmpty"
+
+  - it: "should include customer classes in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-customer-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-customer-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_customer"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# RESPONSE CONTENT VALIDATION
+# ==================================================================================
+
+  - it: "should return substantial class list (not empty)"
+    request:
+      jsonrpc: "2.0"
+      id: "content-substantial"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-substantial"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_catalog.Product"  # Should contain specific class
+      stderr: "toBeEmpty"
+
+  - it: "should contain structured class information"
+    request:
+      jsonrpc: "2.0"
+      id: "content-structured"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-structured"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:dw_[a-zA-Z]+"  # Should contain dw_* patterns
+      stderr: "toBeEmpty"
+
+  - it: "should include class hierarchy information"
+    request:
+      jsonrpc: "2.0"
+      id: "content-hierarchy"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-hierarchy"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:sfra"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE VALIDATION
+# ==================================================================================
+
+  - it: "should complete class listing within reasonable time (metadata operation)"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-metadata-fast"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-metadata-fast"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      performance:
+        maxResponseTime: "1000ms"  # Should be fast for metadata
+      stderr: "toBeEmpty"
+
+  - it: "should handle class listing efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-efficient"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-efficient"
+        result:
+          match:partial:
+            content: "match:type:array"
+      performance:
+        maxResponseTime: "2000ms"  # Generous for comprehensive listing
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT QUALITY VALIDATION
+# ==================================================================================
+
+  - it: "should include comprehensive namespace coverage"
+    request:
+      jsonrpc: "2.0"
+      id: "namespace-coverage"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "namespace-coverage"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_web"
+      stderr: "toBeEmpty"
+
+  - it: "should include utility classes"
+    request:
+      jsonrpc: "2.0"
+      id: "utility-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "utility-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_util"
+      stderr: "toBeEmpty"
+
+  - it: "should include IO classes"
+    request:
+      jsonrpc: "2.0"
+      id: "io-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "io-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_io"
+      stderr: "toBeEmpty"
+
+  - it: "should include service classes"
+    request:
+      jsonrpc: "2.0"
+      id: "service-classes"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "service-classes"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_svc"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING & EDGE CASES
+# ==================================================================================
+
+  - it: "should handle call with empty arguments gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-args"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-args"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty arguments object consistently"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-args-consistent"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-args-consistent"
+        result:
+          content:
+            - type: "text"
+              text: "match:not:contains:error"
+      stderr: "toBeEmpty"
+
+  - it: "should ignore additional parameters gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "extra-params"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments:
+          unexpectedParam: "should be ignored"
+          anotherParam: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "extra-params"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# COMPREHENSIVE CONTENT VALIDATION
+# ==================================================================================
+
+  - it: "should provide educational content for new developers"
+    request:
+      jsonrpc: "2.0"
+      id: "educational-content"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "educational-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_"
+      stderr: "toBeEmpty"
+
+  - it: "should include discovery-friendly information"
+    request:
+      jsonrpc: "2.0"
+      id: "discovery-friendly"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "discovery-friendly"
+        result:
+          content:
+            - type: "text"
+              text: "match:not:contains:undefined"
+      stderr: "toBeEmpty"
+
+  - it: "should be useful for SFCC API exploration"
+    request:
+      jsonrpc: "2.0"
+      id: "api-exploration"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "api-exploration"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_system.Site"  # Should contain specific class
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# FINAL INTEGRATION VALIDATION
+# ==================================================================================
+
+  - it: "should provide consistent response structure across calls"
+    request:
+      jsonrpc: "2.0"
+      id: "consistency-check"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistency-check"
+        result:
+          match:partial:
+            content: "match:type:array"
+      stderr: "toBeEmpty"
+
+  - it: "should serve as good starting point for SFCC development"
+    request:
+      jsonrpc: "2.0"
+      id: "development-starting-point"
+      method: "tools/call"
+      params:
+        name: "list_sfcc_classes"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "development-starting-point"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:TopLevel"
+      stderr: "toBeEmpty"
