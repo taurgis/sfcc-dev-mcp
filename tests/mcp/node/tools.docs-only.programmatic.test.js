@@ -321,7 +321,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     
     // Verify the response contains expected SFCC class information
     const responseText = result.content[0].text;
-    assert.ok(responseText.includes('dw_'), 'Should contain SFCC dw_* classes');
+    assert.ok(responseText.includes('dw.'), 'Should contain SFCC dw.* classes');
   });
 
   // ==================================================================================

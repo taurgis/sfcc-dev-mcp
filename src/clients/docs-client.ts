@@ -223,7 +223,10 @@ export class SFCCDocumentationClient {
    */
   async getAvailableClasses(): Promise<string[]> {
     await this.initialize();
-    return Array.from(this.classCache.keys()).sort();
+    return Array.from(this.classCache.keys())
+      .sort()
+      // Return the official . notation for class names (e.g., dw.content.ContentMgr)
+      .map(className => className.replace(/_/g, '.'));
   }
 
   /**

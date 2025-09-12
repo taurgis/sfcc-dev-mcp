@@ -98,7 +98,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_catalog"
+              text: "match:contains:dw.catalog"
       stderr: "toBeEmpty"
 
   - it: "should include system classes in response"
@@ -116,7 +116,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_system"
+              text: "match:contains:dw.system"
       stderr: "toBeEmpty"
 
   - it: "should include order classes in response"
@@ -134,7 +134,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_order"
+              text: "match:contains:dw.order"
       stderr: "toBeEmpty"
 
   - it: "should include customer classes in response"
@@ -152,7 +152,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_customer"
+              text: "match:contains:dw.customer"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -174,7 +174,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_catalog.Product"  # Should contain specific class
+              text: "match:contains:dw.catalog.Product"  # Should contain specific class
       stderr: "toBeEmpty"
 
   - it: "should contain structured class information"
@@ -192,7 +192,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:dw_[a-zA-Z]+"  # Should contain dw_* patterns
+              text: "match:regex:dw\\.[a-zA-Z]+"  # Should contain dw.* patterns
       stderr: "toBeEmpty"
 
   - it: "should include SFCC namespace classes"
@@ -210,7 +210,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_catalog"
+              text: "match:contains:dw.catalog"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -275,7 +275,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_web"
+              text: "match:contains:dw.web"
       stderr: "toBeEmpty"
 
   - it: "should include utility classes"
@@ -293,7 +293,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_util"
+              text: "match:contains:dw.util"
       stderr: "toBeEmpty"
 
   - it: "should include IO classes"
@@ -311,7 +311,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_io"
+              text: "match:contains:dw.io"
       stderr: "toBeEmpty"
 
   - it: "should include service classes"
@@ -329,7 +329,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_svc"
+              text: "match:contains:dw.svc"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -411,7 +411,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_"
+              text: "match:contains:dw."
       stderr: "toBeEmpty"
 
   - it: "should include discovery-friendly information"
@@ -447,7 +447,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:dw_system.Site"  # Should contain specific class
+              text: "match:contains:dw.system.Site"  # Should contain specific class
       stderr: "toBeEmpty"
 
 # ==================================================================================
