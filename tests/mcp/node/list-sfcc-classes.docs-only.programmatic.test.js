@@ -6,7 +6,19 @@
  * and advanced error categorization for the SFCC class listing functionality.
  * 
  * Response format discovered via conductor query:
- * - Success: { content: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
+ * - Succ      // Core SFCC namespaces should have good coverage
+      const coreNamespaces = ['dw_catalog', 'dw_customer', 'dw_order', 'dw_system'];
+      coreNamespaces.forEach(namespace => {
+        const classCount = analysis.classsByNamespace[namespace].length;
+        assert.ok(classCount >= 5, 
+          `Core namespace ${namespace} should have at least 5 classes (got ${classCount})`);
+      });
+      
+      // TopLevel namespace should have good coverage for utility classes
+      const topLevelCount = analysis.classsByNamespace['TopLevel'].length;
+      assert.ok(topLevelCount >= 10, 
+        `TopLevel namespace should have substantial coverage (got ${topLevelCount})`);
+    });t: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
  * - Always successful: No isError field or error conditions 
  * - Ignores extra parameters: Gracefully handles unexpected parameters
  * - Comprehensive: Returns 500+ classes across all SFCC namespaces
@@ -73,9 +85,10 @@ class PerformanceMonitor {
  */
 class ContentAnalyzer {
   constructor() {
+    // SFCC tools should only return actual SFCC classes (dw_* and TopLevel)
+    // best-practices and sfra content belong to their respective specialized tools
     this.expectedNamespaces = [
       'TopLevel',
-      'best-practices',
       'dw_campaign',
       'dw_catalog', 
       'dw_content',
@@ -93,10 +106,10 @@ class ContentAnalyzer {
       'dw_system',
       'dw_util',
       'dw_value',
-      'dw_web',
-      'sfra'
+      'dw_web'
     ];
 
+    // Only include actual SFCC classes, not SFRA or best-practice content
     this.criticalClasses = [
       'dw_catalog.Product',
       'dw_catalog.Category',
@@ -106,18 +119,11 @@ class ContentAnalyzer {
       'dw_system.Site',
       'dw_system.SitePreferences',
       'dw_util.ArrayList',
-      'dw_web.URL',
-      'sfra.server',
-      'sfra.request',
-      'sfra.response'
+      'dw_web.URL'
     ];
 
-    this.bestPracticeGuides = [
-      'best-practices.cartridge_creation',
-      'best-practices.sfra_controllers',
-      'best-practices.security',
-      'best-practices.performance'
-    ];
+    // Best practice guides are handled by dedicated best-practice tools, not SFCC tools
+    this.bestPracticeGuides = [];
   }
 
   analyzeClassList(classArray) {
@@ -194,8 +200,8 @@ class ContentAnalyzer {
   validateCompleteness(analysis) {
     const issues = [];
 
-    if (analysis.totalClasses < 400) {
-      issues.push(`Class count too low: ${analysis.totalClasses} (expected 400+)`);
+    if (analysis.totalClasses < 350) {
+      issues.push(`Class count too low: ${analysis.totalClasses} (expected 350+)`);
     }
 
     if (analysis.missingNamespaces.length > 0) {
@@ -389,22 +395,22 @@ describe('list_sfcc_classes Programmatic Tests', () => {
           `Core namespace ${namespace} should have at least 5 classes (got ${classCount})`);
       });
       
-      // SFRA should have good coverage
-      const sfraCount = analysis.classsByNamespace['sfra'].length;
-      assert.ok(sfraCount >= 20, 
-        `SFRA namespace should have substantial coverage (got ${sfraCount})`);
+      // TopLevel namespace should have good coverage for utility classes
+      const topLevelCount = analysis.classsByNamespace['TopLevel'].length;
+      assert.ok(topLevelCount >= 10, 
+        `TopLevel namespace should have substantial coverage (got ${topLevelCount})`);
     });
 
     test('should include developer-friendly discovery content', async () => {
       const result = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(result.content[0].text);
       
-      // Should include educational namespaces for new developers
+      // Should include educational namespaces for new developers (SFCC classes only)
       const educationalClasses = [
         'TopLevel.Array', 
         'TopLevel.Object',
-        'best-practices.cartridge_creation',
-        'sfra.server'
+        'dw_catalog.Product',
+        'dw_system.Site'
       ];
       
       educationalClasses.forEach(educationalClass => {
@@ -546,14 +552,14 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const result = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(result.content[0].text);
       
-      // Should include classes that AI agents commonly need
+      // Should include SFCC classes that AI agents commonly need
       const aiUsefulClasses = [
         'dw_system.Logger',        // For logging
         'dw_util.StringUtils',     // For text processing  
         'dw_web.URLUtils',         // For URL generation
         'dw_system.Site',          // For site context
-        'sfra.server',             // For SFRA controllers
-        'best-practices.security'   // For security guidance
+        'dw_catalog.Product',      // For product operations
+        'dw_order.Basket'          // For basket operations
       ];
       
       aiUsefulClasses.forEach(usefulClass => {
@@ -569,7 +575,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const classArray = JSON.parse(result.content[0].text);
       const analysis = contentAnalyzer.analyzeClassList(classArray);
       
-      // Should cover all major SFCC functional areas
+      // Should cover all major SFCC functional areas (SFCC classes only)
       const functionalAreas = {
         'commerce': ['dw_catalog', 'dw_order'],
         'customer': ['dw_customer'],
@@ -577,7 +583,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
         'web': ['dw_web'],
         'utilities': ['dw_util'],
         'integrations': ['dw_svc', 'dw_extensions'],
-        'storefront': ['sfra']
+        'foundations': ['TopLevel']
       };
       
       Object.entries(functionalAreas).forEach(([area, namespaces]) => {
@@ -593,11 +599,11 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const result = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(result.content[0].text);
       
-      // Should include beginner-friendly classes
+      // Should include beginner-friendly TopLevel classes
       const beginnerClasses = classArray.filter(cls => 
-        cls.startsWith('TopLevel.') || cls.startsWith('best-practices.'));
-      assert.ok(beginnerClasses.length >= 15, 
-        `Should include beginner-friendly classes (got ${beginnerClasses.length})`);
+        cls.startsWith('TopLevel.'));
+      assert.ok(beginnerClasses.length >= 10, 
+        `Should include beginner-friendly TopLevel classes (got ${beginnerClasses.length})`);
       
       // Should include advanced integration classes
       const advancedClasses = classArray.filter(cls => 
@@ -612,8 +618,8 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const listResult = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(listResult.content[0].text);
       
-      // Pick a few classes to test with search tool
-      const testClasses = ['dw_catalog.Product', 'dw_system.Site', 'sfra.server'];
+      // Pick a few SFCC classes to test with search tool
+      const testClasses = ['dw_catalog.Product', 'dw_system.Site', 'dw_customer.Customer'];
       
       for (const testClass of testClasses) {
         assert.ok(classArray.includes(testClass), 
@@ -678,13 +684,13 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const listResult = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(listResult.content[0].text);
       
-      // Should include classes that support the broader SFCC toolchain
+      // Should include SFCC classes that support the SFCC toolchain
       const toolchainClasses = [
         'dw_catalog.Product',         // For product tool integration
         'dw_system.SitePreferences',  // For site preference tools
         'dw_order.Order',             // For order management tools
-        'best-practices.security',    // For best practice tools
-        'sfra.server'                 // For SFRA tools
+        'dw_util.ArrayList',          // For collection operations
+        'dw_web.URLUtils'             // For URL generation tools
       ];
       
       toolchainClasses.forEach(toolClass => {
@@ -697,7 +703,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const listResult = await client.callTool('list_sfcc_classes', {});
       const classArray = JSON.parse(listResult.content[0].text);
       
-      // Should include classes that AI agents commonly recommend
+      // Should include SFCC classes that AI agents commonly recommend
       const aiWorkflowClasses = [
         'dw_system.Logger',           // For debugging workflows
         'dw_util.StringUtils',        // For data manipulation
@@ -705,8 +711,8 @@ describe('list_sfcc_classes Programmatic Tests', () => {
         'dw_catalog.ProductMgr',     // For product operations
         'dw_order.BasketMgr',        // For cart operations
         'dw_customer.CustomerMgr',   // For customer operations
-        'sfra.request',              // For request handling
-        'sfra.response'              // For response handling
+        'dw_system.Site',            // For site context
+        'dw_order.Order'             // For order handling
       ];
       
       aiWorkflowClasses.forEach(workflowClass => {
@@ -714,12 +720,12 @@ describe('list_sfcc_classes Programmatic Tests', () => {
           `Should include AI workflow class: ${workflowClass}`);
       });
       
-      // Should provide good coverage for common AI development tasks
+      // Should provide good coverage for common AI development tasks (SFCC classes only)
       const taskCoverage = {
         'data_access': classArray.filter(cls => cls.includes('Mgr')).length,
         'web_operations': classArray.filter(cls => cls.startsWith('dw_web.')).length,
         'system_integration': classArray.filter(cls => cls.startsWith('dw_system.')).length,
-        'best_practices': classArray.filter(cls => cls.startsWith('best-practices.')).length
+        'utilities': classArray.filter(cls => cls.startsWith('dw_util.')).length
       };
       
       Object.entries(taskCoverage).forEach(([task, count]) => {

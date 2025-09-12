@@ -195,7 +195,7 @@ tests:
               text: "match:regex:dw_[a-zA-Z]+"  # Should contain dw_* patterns
       stderr: "toBeEmpty"
 
-  - it: "should include class hierarchy information"
+  - it: "should include SFCC namespace classes"
     request:
       jsonrpc: "2.0"
       id: "content-hierarchy"
@@ -210,7 +210,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:sfra"
+              text: "match:contains:dw_catalog"
       stderr: "toBeEmpty"
 
 # ==================================================================================

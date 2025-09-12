@@ -86,7 +86,38 @@ export class SFCCDocumentationClient {
   }
 
   /**
+   * Check if a directory name represents an SFCC-specific directory
+   * SFCC directories include dw_ prefixed namespaces and TopLevel
+   * Excludes best-practices and sfra directories
+   */
+  private isSFCCDirectory(directoryName: string): boolean {
+    // Include dw_ prefixed directories (SFCC namespaces)
+    if (directoryName.startsWith('dw_')) {
+      return true;
+    }
+
+    // Include TopLevel directory (contains core JavaScript classes)
+    if (directoryName === 'TopLevel') {
+      return true;
+    }
+
+    // Exclude best-practices directory (handled by best practices tools)
+    if (directoryName === 'best-practices') {
+      return false;
+    }
+
+    // Exclude sfra directory (handled by SFRA tools)
+    if (directoryName === 'sfra') {
+      return false;
+    }
+
+    // Exclude any other non-SFCC directories
+    return false;
+  }
+
+  /**
    * Scan the docs directory and index all SFCC classes
+   * Only scans SFCC-specific directories, excluding best-practices and sfra
    */
   private async scanDocumentation(): Promise<void> {
     const packages = await fs.readdir(this.docsPath, { withFileTypes: true });
@@ -95,6 +126,12 @@ export class SFCCDocumentationClient {
       if (!packageDir.isDirectory()) {continue;}
 
       const packageName = packageDir.name;
+
+      // Only scan SFCC-specific directories (dw_ prefixed and TopLevel)
+      // Exclude best-practices and sfra directories which are handled by other tools
+      if (!this.isSFCCDirectory(packageName)) {
+        continue;
+      }
       const packagePath = path.join(this.docsPath, packageName);
 
       try {
