@@ -474,6 +474,32 @@ npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[arg
 - **Debug programmatic test failures** by comparing with conductor CLI results
 - **Test parameter validation** using conductor with various input combinations
 
+#### **Comprehensive Testing Documentation**
+
+For comprehensive MCP testing guidance, including advanced YAML-based testing patterns and declarative test suites, refer to the **AGENTS.md** file at `tests/mcp/yaml/AGENTS.md`. This guide provides:
+
+- **30+ Advanced Pattern Matching**: String patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation
+- **Declarative YAML Testing**: Human-readable test files with sophisticated validation patterns
+- **Interactive Tool Testing**: Quick commands for testing tools interactively with the conductor CLI
+- **Debugging Workflows**: Step-by-step approaches for troubleshooting test failures and server issues
+- **Real-World Examples**: Complete test suites for filesystem servers, multi-tool servers, and API testing scenarios
+- **Performance Testing**: Patterns for validating response times and system performance
+- **Error Handling Validation**: Comprehensive approaches to testing error scenarios and edge cases
+
+**Quick Interactive Testing Commands:**
+```bash
+# List all available tools
+conductor query --config ./conductor.config.docs-only.json
+
+# Test specific tool with arguments
+conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-only.json
+
+# Debug with verbose output
+conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-only.json --verbose
+```
+
+**For AI Agents**: The AGENTS.md file is specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. It provides patterns and examples that can be directly applied to validate this SFCC Dev MCP server's functionality.
+
 ### �📁 Directory Organization Benefits
 
 The new organized structure provides:
