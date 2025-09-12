@@ -476,7 +476,10 @@ npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[arg
 
 #### **Comprehensive Testing Documentation**
 
-For comprehensive MCP testing guidance, including advanced YAML-based testing patterns and declarative test suites, refer to the **AGENTS.md** file at `tests/mcp/yaml/AGENTS.md`. This guide provides:
+For comprehensive MCP testing guidance, refer to the specialized AGENTS.md files in the testing directories:
+
+##### **YAML-Based Declarative Testing** (`tests/mcp/yaml/AGENTS.md`)
+The primary testing approach using human-readable YAML files with advanced pattern matching:
 
 - **30+ Advanced Pattern Matching**: String patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation
 - **Declarative YAML Testing**: Human-readable test files with sophisticated validation patterns
@@ -485,6 +488,17 @@ For comprehensive MCP testing guidance, including advanced YAML-based testing pa
 - **Real-World Examples**: Complete test suites for filesystem servers, multi-tool servers, and API testing scenarios
 - **Performance Testing**: Patterns for validating response times and system performance
 - **Error Handling Validation**: Comprehensive approaches to testing error scenarios and edge cases
+
+##### **Programmatic JavaScript/TypeScript Testing** (`tests/mcp/node/AGENTS.md`)
+For complex testing scenarios requiring programmatic logic and integration with existing test suites:
+
+- **JavaScript/TypeScript API**: Full programmatic access to MCP server testing capabilities
+- **Advanced Workflows**: Multi-step testing, state management, and dynamic validation logic
+- **Framework Integration**: Jest, Mocha, and Node.js test runner integration patterns
+- **Performance Monitoring**: Built-in metrics collection and performance analysis
+- **Buffer Management**: Critical guidance on preventing test interference with proper `clearStderr()` usage
+- **Error Recovery Testing**: Comprehensive error handling and resilience validation
+- **TypeScript Support**: Full type safety for enterprise testing environments
 
 **Quick Interactive Testing Commands:**
 ```bash
@@ -498,7 +512,7 @@ conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-
 conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-only.json --verbose
 ```
 
-**For AI Agents**: The AGENTS.md file is specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. It provides patterns and examples that can be directly applied to validate this SFCC Dev MCP server's functionality.
+**For AI Agents**: Both AGENTS.md files are specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. Choose YAML-based testing for declarative scenarios or programmatic testing for complex logic requirements. Both approaches can be directly applied to validate this SFCC Dev MCP server's functionality.
 
 ### �📁 Directory Organization Benefits
 
