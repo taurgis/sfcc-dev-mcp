@@ -29,9 +29,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     const tools = await client.listTools();
     assert.ok(Array.isArray(tools), 'Tools should be an array');
     assert.ok(tools.length > 0, 'Should have at least one tool');
-    
-    // Log available tools for debugging
-    console.log('Documentation-only mode tools:', tools.length);
   });
 
   test('should have all expected documentation tools', async () => {
@@ -325,5 +322,253 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     // Verify the response contains expected SFCC class information
     const responseText = result.content[0].text;
     assert.ok(responseText.includes('dw_'), 'Should contain SFCC dw_* classes');
+  });
+
+  // ==================================================================================
+  // COMPREHENSIVE TOOL SET VALIDATION TESTS (Focus on High-Level Tool Validation)
+  // ==================================================================================
+
+  test('should have exactly the expected tool set for docs-only mode', async () => {
+    const tools = await client.listTools();
+    assert.equal(tools.length, 15, 'Should have exactly 15 tools in docs-only mode');
+
+    const expectedTools = {
+      // SFCC Documentation Tools (5)
+      'get_sfcc_class_info': true,
+      'get_sfcc_class_documentation': true,
+      'list_sfcc_classes': true,
+      'search_sfcc_classes': true,
+      'search_sfcc_methods': true,
+      
+      // Best Practices Tools (4)
+      'get_available_best_practice_guides': true,
+      'get_best_practice_guide': true,
+      'search_best_practices': true,
+      'get_hook_reference': true,
+      
+      // SFRA Documentation Tools (5)
+      'get_available_sfra_documents': true,
+      'get_sfra_document': true,
+      'get_sfra_categories': true,
+      'get_sfra_documents_by_category': true,
+      'search_sfra_documentation': true,
+      
+      // Cartridge Generation Tools (1)
+      'generate_cartridge_structure': true
+    };
+
+    // Verify all expected tools are present
+    const toolNames = tools.map(tool => tool.name);
+    for (const expectedTool of Object.keys(expectedTools)) {
+      assert.ok(toolNames.includes(expectedTool), 
+        `Expected tool '${expectedTool}' should be available in docs-only mode`);
+    }
+
+    // Verify no unexpected tools are present
+    for (const actualTool of toolNames) {
+      assert.ok(expectedTools[actualTool], 
+        `Unexpected tool '${actualTool}' found in docs-only mode`);
+    }
+  });
+
+  test('should validate tool schemas have proper structure', async () => {
+    const tools = await client.listTools();
+    
+    for (const tool of tools) {
+      // Basic schema validation
+      assert.ok(tool.name, `Tool should have a name: ${JSON.stringify(tool)}`);
+      assert.ok(tool.description, `Tool '${tool.name}' should have a description`);
+      assert.ok(tool.inputSchema, `Tool '${tool.name}' should have an inputSchema`);
+      assert.equal(tool.inputSchema.type, 'object', `Tool '${tool.name}' inputSchema should be object type`);
+      
+      // Validate description provides usage guidance (flexible patterns)
+      const description = tool.description.toLowerCase();
+      const hasUsageGuidance = description.includes('use this when') || 
+                               description.includes('use this to') ||
+                               description.includes('use this for') ||
+                               description.includes('get a list') ||
+                               description.includes('get all') ||
+                               description.includes('retrieve') ||
+                               description.includes('search') ||
+                               description.includes('generate') ||
+                               description.length > 50; // Substantial description
+      assert.ok(hasUsageGuidance, 
+        `Tool '${tool.name}' should provide meaningful description or usage guidance. Got: "${tool.description}"`);
+
+      // Validate properties structure if present
+      if (tool.inputSchema.properties) {
+        assert.ok(typeof tool.inputSchema.properties === 'object',
+          `Tool '${tool.name}' properties should be an object`);
+      }
+
+      // Validate required array if present
+      if (tool.inputSchema.required) {
+        assert.ok(Array.isArray(tool.inputSchema.required),
+          `Tool '${tool.name}' required should be an array`);
+      }
+    }
+  });
+
+  test('should validate tool categorization and organization', async () => {
+    const tools = await client.listTools();
+    const toolsByCategory = {
+      sfcc_docs: [],
+      best_practices: [],
+      sfra_docs: [],
+      cartridge_gen: []
+    };
+
+    // Categorize tools based on naming patterns
+    for (const tool of tools) {
+      if (tool.name.includes('sfcc_class') || tool.name.includes('sfcc_method') || tool.name === 'list_sfcc_classes') {
+        toolsByCategory.sfcc_docs.push(tool.name);
+      } else if (tool.name.includes('best_practice') || tool.name.includes('hook_reference')) {
+        toolsByCategory.best_practices.push(tool.name);
+      } else if (tool.name.includes('sfra')) {
+        toolsByCategory.sfra_docs.push(tool.name);
+      } else if (tool.name.includes('cartridge')) {
+        toolsByCategory.cartridge_gen.push(tool.name);
+      }
+    }
+
+    // Validate expected counts per category
+    assert.equal(toolsByCategory.sfcc_docs.length, 5, 
+      `Should have 5 SFCC documentation tools, got: ${toolsByCategory.sfcc_docs.join(', ')}`);
+    assert.equal(toolsByCategory.best_practices.length, 4, 
+      `Should have 4 best practices tools, got: ${toolsByCategory.best_practices.join(', ')}`);
+    assert.equal(toolsByCategory.sfra_docs.length, 5, 
+      `Should have 5 SFRA documentation tools, got: ${toolsByCategory.sfra_docs.join(', ')}`);
+    assert.equal(toolsByCategory.cartridge_gen.length, 1, 
+      `Should have 1 cartridge generation tool, got: ${toolsByCategory.cartridge_gen.join(', ')}`);
+  });
+
+  test('should validate tool parameter schemas for consistency', async () => {
+    const tools = await client.listTools();
+    
+    // Group tools by common parameter patterns
+    const toolsWithQuery = tools.filter(tool => 
+      tool.inputSchema.properties?.query || tool.inputSchema.properties?.searchQuery);
+    const toolsWithClassName = tools.filter(tool => 
+      tool.inputSchema.properties?.className);
+
+    // Validate search/query tools have consistent schema patterns
+    for (const tool of toolsWithQuery) {
+      const queryProp = tool.inputSchema.properties?.query || tool.inputSchema.properties?.searchQuery;
+      assert.equal(queryProp.type, 'string', 
+        `Tool '${tool.name}' query parameter should be string type`);
+      assert.ok(queryProp.description, 
+        `Tool '${tool.name}' query parameter should have description`);
+    }
+
+    // Validate className tools have consistent patterns
+    for (const tool of toolsWithClassName) {
+      const classNameProp = tool.inputSchema.properties.className;
+      assert.equal(classNameProp.type, 'string', 
+        `Tool '${tool.name}' className parameter should be string type`);
+      assert.ok(classNameProp.description.includes('class'), 
+        `Tool '${tool.name}' className description should mention 'class'`);
+    }
+  });
+
+  test('should validate tools exclude unsupported functionality in docs-only mode', async () => {
+    const tools = await client.listTools();
+    const toolNames = tools.map(tool => tool.name);
+    
+    // Tools that should NOT be available in docs-only mode
+    const excludedTools = [
+      // Log analysis tools (require WebDAV)
+      'get_latest_error', 'get_latest_warn', 'get_latest_info', 'get_latest_debug',
+      'search_logs', 'list_log_files', 'get_log_file_contents', 'summarize_logs',
+      
+      // Job log tools (require WebDAV)
+      'get_latest_job_log_files', 'get_job_log_entries', 'search_job_logs', 
+      'search_job_logs_by_name', 'get_job_execution_summary',
+      
+      // System object tools (require OCAPI)
+      'get_system_object_definitions', 'get_system_object_definition',
+      'search_system_object_attribute_definitions', 'search_system_object_attribute_groups',
+      'search_site_preferences', 'search_custom_object_attribute_definitions',
+      
+      // Code version tools (require OCAPI)
+      'get_code_versions', 'activate_code_version'
+    ];
+
+    for (const excludedTool of excludedTools) {
+      assert.ok(!toolNames.includes(excludedTool), 
+        `Tool '${excludedTool}' should NOT be available in docs-only mode`);
+    }
+  });
+
+  test('should validate MCP response format compliance across all tools', async () => {
+    // Test a representative sample from each category
+    const testTools = [
+      { name: 'get_sfcc_class_info', params: { className: 'Catalog' } },
+      { name: 'get_available_best_practice_guides', params: {} },
+      { name: 'get_available_sfra_documents', params: {} },
+      { name: 'list_sfcc_classes', params: {} }
+    ];
+
+    for (const toolTest of testTools) {
+      const result = await client.callTool(toolTest.name, toolTest.params);
+      
+      // Validate MCP response structure
+      assert.ok(typeof result === 'object', `${toolTest.name} should return object`);
+      assert.ok('content' in result, `${toolTest.name} should have content property`);
+      assert.ok(Array.isArray(result.content), `${toolTest.name} content should be array`);
+      assert.ok(result.content.length > 0, `${toolTest.name} should have content items`);
+      
+      // Validate content structure
+      const firstContent = result.content[0];
+      assert.ok('text' in firstContent, `${toolTest.name} should have text in content`);
+      assert.ok('type' in firstContent, `${toolTest.name} should have type in content`);
+      assert.equal(firstContent.type, 'text', `${toolTest.name} should have text type`);
+      
+      // Validate response is meaningful
+      assert.ok(typeof firstContent.text === 'string', 
+        `${toolTest.name} text should be string`);
+      assert.ok(firstContent.text.length > 0, 
+        `${toolTest.name} should return non-empty text`);
+    }
+  });
+
+  test('should validate tool performance meets reasonable expectations', async () => {
+    const performanceTests = [
+      { tool: 'get_available_best_practice_guides', params: {}, maxTime: 2000, description: 'Fast metadata lookup' },
+      { tool: 'get_available_sfra_documents', params: {}, maxTime: 3000, description: 'Document discovery' },
+      { tool: 'search_sfcc_classes', params: { query: 'catalog' }, maxTime: 4000, description: 'Class search' },
+      { tool: 'get_sfcc_class_info', params: { className: 'Product' }, maxTime: 3000, description: 'Class info lookup' }
+    ];
+
+    for (const perfTest of performanceTests) {
+      const startTime = Date.now();
+      const result = await client.callTool(perfTest.tool, perfTest.params);
+      const duration = Date.now() - startTime;
+      
+      assert.ok(!result.isError, `${perfTest.tool} should not error`);
+      assert.ok(duration < perfTest.maxTime, 
+        `${perfTest.tool} (${perfTest.description}) should respond within ${perfTest.maxTime}ms (took ${duration}ms)`);
+    }
+  });
+
+  test('should validate error handling consistency across tool categories', async () => {
+    const errorTests = [
+      // Invalid parameters
+      { tool: 'get_sfcc_class_info', params: { className: 'NonExistentClass12345' }, expectGraceful: true },
+      { tool: 'search_sfcc_classes', params: { query: '' }, expectGraceful: true },
+      { tool: 'get_best_practice_guide', params: { guideName: 'nonexistent_guide' }, expectGraceful: true },
+      { tool: 'get_sfra_document', params: { documentName: 'nonexistent_doc' }, expectGraceful: true }
+    ];
+
+    for (const errorTest of errorTests) {
+      const result = await client.callTool(errorTest.tool, errorTest.params);
+      
+      // Should return meaningful response, not crash
+      assert.ok(result.content, `${errorTest.tool} should handle invalid input gracefully`);
+      assert.ok(result.content[0].text, `${errorTest.tool} should return meaningful error message`);
+      assert.ok(typeof result.content[0].text === 'string', 
+        `${errorTest.tool} error response should be string`);
+      assert.ok(result.content[0].text.length > 0, 
+        `${errorTest.tool} should return non-empty error response`);
+    }
   });
 });

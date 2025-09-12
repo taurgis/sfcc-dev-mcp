@@ -1,4 +1,19 @@
-description: "SFCC Development MCP Server - Full Mode with Credentials Tests (Tool Presence Only)"
+# ==================================================================================
+# SFCC MCP Server - Full Mode Comprehensive Validation Tests
+# Validates full server mode with WebDAV/OCAPI credentials for complete functionality
+# Focuses on tool metadata validation (NOT tool execution due to test credentials)
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query --config "conductor.config.with-dw.json"  # List all tools
+# conductor query get_latest_error '{"limit": 5}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+description: "SFCC MCP Server - Full Mode comprehensive metadata validation and tool presence verification"
+
+# ==================================================================================
+# TOOL COUNT & AVAILABILITY VALIDATION
+# ==================================================================================
 tests:
   - it: "should have exactly 36 tools available in full mode"
     request:
@@ -13,6 +28,117 @@ tests:
         result:
           tools: "match:arrayLength:36"
       stderr: "toBeEmpty"
+
+  - it: "should have significantly more tools than docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-vs-docs-count"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-vs-docs-count"
+        result:
+          tools: "match:arrayLength:36"  # More than docs-only 15 tools
+      stderr: "toBeEmpty"
+
+  - it: "should have proper tool structure with required fields"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tool-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tool-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+                inputSchema: "match:type:object"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TOOL METADATA QUALITY VALIDATION
+  # ==================================================================================
+
+  - it: "should have tool names following snake_case convention"
+    request:
+      jsonrpc: "2.0"
+      id: "full-naming-convention"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-naming-convention"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:regex:^[a-z][a-z0-9_]*$"
+      stderr: "toBeEmpty"
+
+  - it: "should have meaningful tool descriptions"
+    request:
+      jsonrpc: "2.0"
+      id: "full-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-description-quality"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                description: "match:regex:.{20,}"  # At least 20 characters
+      stderr: "toBeEmpty"
+
+  - it: "should have non-empty tool descriptions"
+    request:
+      jsonrpc: "2.0"
+      id: "full-description-nonempty"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-description-nonempty"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                description: "match:not:regex:^\\s*$"  # Not empty or whitespace-only
+      stderr: "toBeEmpty"
+
+  - it: "should have proper inputSchema structure"
+    request:
+      jsonrpc: "2.0"
+      id: "full-schema-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-schema-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TOOL CATEGORY VALIDATION - Documentation Tools (from docs-only mode)
+  # ==================================================================================
 
   - it: "should have documentation tools available"
     request:
@@ -29,64 +155,19 @@ tests:
           value: "match:arrayContains:get_sfcc_class_info"
       stderr: "toBeEmpty"
 
-  - it: "should have log analysis tools available in full mode"
+  - it: "should include all docs-only tools in full mode"
     request:
       jsonrpc: "2.0"
-      id: "full-tools-logs"
+      id: "full-includes-docs"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "full-tools-logs"
+        id: "full-includes-docs"
         result:
           match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_latest_error"
-      stderr: "toBeEmpty"
-
-  - it: "should have system object tools available in full mode"
-    request:
-      jsonrpc: "2.0"
-      id: "full-tools-system"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "full-tools-system"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_system_object_definitions"
-      stderr: "toBeEmpty"
-
-  - it: "should have code version tools available in full mode"
-    request:
-      jsonrpc: "2.0"
-      id: "full-tools-code"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "full-tools-code"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_code_versions"
-      stderr: "toBeEmpty"
-
-  - it: "should have job log tools available in full mode"
-    request:
-      jsonrpc: "2.0"
-      id: "full-tools-jobs"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "full-tools-jobs"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_job_log_entries"
+          value: "match:arrayContains:search_sfra_documentation"
       stderr: "toBeEmpty"
 
   - it: "should have cartridge generation tools available"
@@ -104,23 +185,25 @@ tests:
           value: "match:arrayContains:generate_cartridge_structure"
       stderr: "toBeEmpty"
 
-  # Verify that docs-only tools are NOT missing in full mode
-  - it: "should include all docs-only tools in full mode"
+  # ==================================================================================
+  # FULL-MODE SPECIFIC TOOLS - WebDAV Dependent (Log Analysis)
+  # ==================================================================================
+
+  - it: "should have log analysis tools available in full mode"
     request:
       jsonrpc: "2.0"
-      id: "full-includes-docs"
+      id: "full-tools-logs"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "full-includes-docs"
+        id: "full-tools-logs"
         result:
           match:extractField: "tools.*.name"
-          value: "match:arrayContains:search_sfra_documentation"
+          value: "match:arrayContains:get_latest_error"
       stderr: "toBeEmpty"
 
-  # Test specific tool categories present only in full mode
   - it: "should have WebDAV-dependent tools (log analysis)"
     request:
       jsonrpc: "2.0"
@@ -136,6 +219,55 @@ tests:
           value: "match:arrayContains:summarize_logs"
       stderr: "toBeEmpty"
 
+  - it: "should have job log tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-jobs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-jobs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_job_log_entries"
+      stderr: "toBeEmpty"
+
+  - it: "should have log search and analysis capabilities"
+    request:
+      jsonrpc: "2.0"
+      id: "log-search-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "log-search-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_logs"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # FULL-MODE SPECIFIC TOOLS - OCAPI Dependent (System Objects & Site Preferences)
+  # ==================================================================================
+
+  - it: "should have system object tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-system"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-system"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
   - it: "should have OCAPI-dependent tools (system objects)"
     request:
       jsonrpc: "2.0"
@@ -149,6 +281,94 @@ tests:
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:search_site_preferences"
+      stderr: "toBeEmpty"
+
+  - it: "should have site preferences search capabilities"
+    request:
+      jsonrpc: "2.0"
+      id: "site-prefs-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "site-prefs-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_system_object_attribute_groups"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # FULL-MODE SPECIFIC TOOLS - Code Version Management
+  # ==================================================================================
+
+  - it: "should have code version tools available in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "full-tools-code"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-tools-code"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_code_versions"
+      stderr: "toBeEmpty"
+
+  - it: "should have code version activation capabilities"
+    request:
+      jsonrpc: "2.0"
+      id: "code-activation-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "code-activation-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # COMPREHENSIVE TOOL VALIDATION - Combined Patterns
+  # ==================================================================================
+
+  - it: "should validate all tools have consistent metadata structure"
+    request:
+      jsonrpc: "2.0"
+      id: "full-comprehensive-validation"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "full-comprehensive-validation"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:regex:^[a-z][a-z0-9_]*$"  # snake_case names
+                description: "match:regex:.{10,}"       # min 10 chars
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+      stderr: "toBeEmpty"
+
+  - it: "should have tools categorized by functionality"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-categorization"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-categorization"
+        result:
+          tools: "match:not:arrayLength:0"  # Not empty
       stderr: "toBeEmpty"
 
   # NOTE: We intentionally do NOT test tool execution in full mode because:

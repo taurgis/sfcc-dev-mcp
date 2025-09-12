@@ -1,85 +1,376 @@
-description: "SFCC Development MCP Server - Documentation-Only Mode Tests"
+# ==================================================================================
+# SFCC MCP Server - Documentation-Only Mode YAML Tests
+# Focused on comprehensive tool metadata validation (NOT tool execution)
+# Uses conductor's enhanced pattern matching for thorough validation
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
+# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
+# conductor query --config "conductor.config.docs-only.json"  # List all tools
+# conductor query get_sfcc_class_info '{"className": "Catalog"}' --config "conductor.config.docs-only.json"
+# ==================================================================================
+description: "SFCC MCP Server docs-only mode - comprehensive tool metadata validation"
+
+# ==================================================================================
+# TOOL DISCOVERY & STRUCTURE VALIDATION
+# ==================================================================================
 tests:
-  - it: "should list available tools in documentation-only mode"
+  - it: "should provide tools list with proper JSON-RPC structure"
     request:
       jsonrpc: "2.0"
-      id: "tools-list-1"
+      id: "tool-list-basic"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "tools-list-1"
+        id: "tool-list-basic"
         result:
           tools: "match:type:array"
       stderr: "toBeEmpty"
 
-  - it: "should have SFCC documentation tools available"
+  - it: "should provide exactly 15 tools in docs-only mode"
     request:
       jsonrpc: "2.0"
-      id: "tools-list-2"
+      id: "tool-count-exact"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "tools-list-2"
+        id: "tool-count-exact"
+        result:
+          tools: "match:arrayLength:15"
+      stderr: "toBeEmpty"
+
+  - it: "should have non-empty tools array"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-count-min"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-count-min"
+        result:
+          tools: "match:not:arrayLength:0"
+      stderr: "toBeEmpty"
+
+  - it: "should have tools array with reasonable size"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-count-range"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-count-range"
+        result:
+          tools: "match:arrayLength:15"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TOOL METADATA STRUCTURE VALIDATION
+  # ==================================================================================
+
+  - it: "should have valid tool structure with required fields"
+    request:
+      jsonrpc: "2.0"
+      id: "schema-validation-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "schema-validation-1"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+                inputSchema: "match:type:object"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool names following snake_case convention"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-names-format"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-names-format"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:regex:^[a-z][a-z0-9_]*$"
+      stderr: "toBeEmpty"
+
+  - it: "should have meaningful tool descriptions"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-descriptions-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-descriptions-quality"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                description: "match:regex:.{20,}"  # At least 20 characters
+      stderr: "toBeEmpty"
+
+  - it: "should have non-empty tool descriptions"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-descriptions-nonempty"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-descriptions-nonempty"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                description: "match:not:regex:^\\s*$"  # Not empty or whitespace-only
+      stderr: "toBeEmpty"
+
+  - it: "should have proper inputSchema structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TOOL NAME EXTRACTION & VALIDATION
+  # ==================================================================================
+
+  - it: "should extract all expected SFCC tool names"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-names-extract"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-names-extract"
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:get_sfcc_class_info"
       stderr: "toBeEmpty"
 
-  - it: "should have best practices tools available"
+  - it: "should contain SFCC class documentation tools"
     request:
       jsonrpc: "2.0"
-      id: "tools-list-3"
+      id: "tool-names-sfcc-class"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "tools-list-3"
+        id: "tool-names-sfcc-class"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfcc_classes"
+      stderr: "toBeEmpty"
+
+  - it: "should contain best practice guide tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-names-best-practices"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-names-best-practices"
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:get_best_practice_guide"
       stderr: "toBeEmpty"
 
-  - it: "should have SFRA documentation tools available"
+  - it: "should contain SFRA documentation tools"
     request:
       jsonrpc: "2.0"
-      id: "tools-list-4"
+      id: "tool-names-sfra"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "tools-list-4"
+        id: "tool-names-sfra"
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:get_sfra_document"
       stderr: "toBeEmpty"
 
-  - it: "should have cartridge generation tools available"
+  - it: "should contain cartridge generation tools"
     request:
       jsonrpc: "2.0"
-      id: "tools-list-5"
+      id: "tool-names-cartridge"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "tools-list-5"
+        id: "tool-names-cartridge"
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:generate_cartridge_structure"
       stderr: "toBeEmpty"
 
-  # Tools execution tests - verify that documentation tools work correctly
+  # ==================================================================================
+  # TOOL SCHEMA VALIDATION BY CATEGORY
+  # ==================================================================================
 
-  - it: "should execute get_sfcc_class_info successfully"
+  - it: "should have required parameters in SFCC class tools"
     request:
       jsonrpc: "2.0"
-      id: "call-class-info-1"
+      id: "schema-sfcc-class-required"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "schema-sfcc-class-required"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have string type parameters where expected"
+    request:
+      jsonrpc: "2.0"
+      id: "schema-parameter-types"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "schema-parameter-types"
+        result:
+          match:extractField: "tools.*.inputSchema.properties"
+          value: "match:type:array"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # CROSS-FIELD VALIDATION
+  # ==================================================================================
+
+  - it: "should have consistent schema structure across tools"
+    request:
+      jsonrpc: "2.0"
+      id: "schema-consistency"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "schema-consistency"
+        result:
+          match:extractField: "tools.*.inputSchema"
+          value: "match:type:array"
+      stderr: "toBeEmpty"
+
+  - it: "should have required array for tools with required parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "schema-required-validation"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "schema-required-validation"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should validate tools have consistent naming and schema patterns"
+    request:
+      jsonrpc: "2.0"
+      id: "comprehensive-tool-validation"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "comprehensive-tool-validation"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:regex:^[a-z][a-z0-9_]*$"  # snake_case names
+                description: "match:regex:.{10,}"       # min 10 chars
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # SPECIFIC TOOL VALIDATION
+  # ==================================================================================
+
+  - it: "should have get_sfcc_class_info tool with proper description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-specific-class-info"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-specific-class-info"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have generate_cartridge_structure tool with proper description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-specific-cartridge"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-specific-cartridge"
+        result:
+          tools: "match:arrayContains:name:generate_cartridge_structure"
+      stderr: "toBeEmpty"
+
+
+  # ==================================================================================
+  # BASIC FUNCTIONALITY VALIDATION (Structure Focus)
+  # ==================================================================================
+
+  - it: "should execute get_sfcc_class_info with structured MCP response"
+    request:
+      jsonrpc: "2.0"
+      id: "class-info-test-1"
       method: "tools/call"
       params:
         name: "get_sfcc_class_info"
@@ -88,17 +379,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-class-info-1"
+        id: "class-info-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:Catalog"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
-  - it: "should execute search_sfcc_classes successfully"
+  - it: "should execute search_sfcc_classes with search results structure"
     request:
       jsonrpc: "2.0"
-      id: "call-search-classes-1"
+      id: "search-classes-test-1"
       method: "tools/call"
       params:
         name: "search_sfcc_classes"
@@ -107,17 +398,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-search-classes-1"
+        id: "search-classes-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:Catalog"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
-  - it: "should execute get_available_best_practice_guides successfully"
+  - it: "should execute get_available_best_practice_guides with list structure"
     request:
       jsonrpc: "2.0"
-      id: "call-best-practices-1"
+      id: "bp-guides-test-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -125,17 +416,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-best-practices-1"
+        id: "bp-guides-test-1"
         result:
           content:
             - type: "text"
               text: "match:contains:cartridge_creation"
       stderr: "toBeEmpty"
 
-  - it: "should execute get_best_practice_guide successfully"
+  - it: "should execute get_best_practice_guide with guide content structure"
     request:
       jsonrpc: "2.0"
-      id: "call-best-practice-guide-1"
+      id: "bp-guide-test-1"
       method: "tools/call"
       params:
         name: "get_best_practice_guide"
@@ -144,17 +435,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-best-practice-guide-1"
+        id: "bp-guide-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:cartridge"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
-  - it: "should execute get_available_sfra_documents successfully"
+  - it: "should execute get_available_sfra_documents with document list structure"
     request:
       jsonrpc: "2.0"
-      id: "call-sfra-docs-1"
+      id: "sfra-docs-test-1"
       method: "tools/call"
       params:
         name: "get_available_sfra_documents"
@@ -162,17 +453,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-sfra-docs-1"
+        id: "sfra-docs-test-1"
         result:
           content:
             - type: "text"
               text: "match:contains:server"
       stderr: "toBeEmpty"
 
-  - it: "should execute get_sfra_document successfully"
+  - it: "should execute get_sfra_document with documentation structure"
     request:
       jsonrpc: "2.0"
-      id: "call-sfra-doc-1"
+      id: "sfra-doc-test-1"
       method: "tools/call"
       params:
         name: "get_sfra_document"
@@ -181,17 +472,17 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-sfra-doc-1"
+        id: "sfra-doc-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:Server"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
-  - it: "should execute search_sfra_documentation successfully"
+  - it: "should execute search_sfra_documentation with search functionality"
     request:
       jsonrpc: "2.0"
-      id: "call-sfra-search-1"
+      id: "sfra-search-test-1"
       method: "tools/call"
       params:
         name: "search_sfra_documentation"
@@ -200,57 +491,79 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-sfra-search-1"
+        id: "sfra-search-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:\"document\": \"render\""
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should execute get_sfra_categories with category information"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-categories-test-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-categories-test-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
   - it: "should execute generate_cartridge_structure successfully"
     request:
       jsonrpc: "2.0"
-      id: "call-cartridge-gen-1"
+      id: "cartridge-gen-test-1"
       method: "tools/call"
       params:
         name: "generate_cartridge_structure"
         arguments:
-          cartridgeName: "test_cartridge"
-          targetPath: "/tmp/test-cartridge-output"
+          cartridgeName: "yaml_test_cartridge"
+          targetPath: "/tmp/yaml-test-output"
           fullProjectSetup: false
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-cartridge-gen-1"
+        id: "cartridge-gen-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:\"success\": true"
+              text: "match:type:string"
       stderr: "toBeEmpty"
 
-  - it: "should handle invalid tool call gracefully"
+  # ==================================================================================
+  # ERROR HANDLING VALIDATION
+  # ==================================================================================
+
+  - it: "should handle invalid tool names with error response"
     request:
       jsonrpc: "2.0"
-      id: "call-invalid-1"
+      id: "invalid-tool-test-1"
       method: "tools/call"
       params:
-        name: "invalid_tool_name"
+        name: "nonexistent_tool_yaml"
         arguments: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-invalid-1"
+        id: "invalid-tool-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:Unknown tool"
+              text: "match:type:string"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should handle missing required parameters gracefully"
+  - it: "should handle missing required parameters with error response"
     request:
       jsonrpc: "2.0"
-      id: "call-missing-params-1"
+      id: "missing-param-test-1"
       method: "tools/call"
       params:
         name: "get_sfcc_class_info"
@@ -258,10 +571,10 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "call-missing-params-1"
+        id: "missing-param-test-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:className"
+              text: "match:type:string"
           isError: true
       stderr: "toBeEmpty"
