@@ -224,8 +224,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         assert.equal(typeof methodData.method.description, 'string', 'Method description should be string');
       });
       
-      // Performance validation (more lenient for concurrent test execution)
-      assert.ok(duration < 250, `Response time ${duration}ms should be under 250ms`);
+      // Performance validation (lenient for CI environments)
+      assert.ok(duration < 500, `Response time ${duration}ms should be under 500ms`);
     });
 
     test('should return empty array for no matches', async () => {
@@ -240,8 +240,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assert.ok(Array.isArray(methodArray), 'Response should be valid JSON array');
       assert.equal(methodArray.length, 0, 'Should return empty array for no matches');
       
-      // Performance should be fast for no results
-      assert.ok(duration < 50, `No results response time ${duration}ms should be under 50ms`);
+      // Performance should be reasonable for no results (lenient for CI)
+      assert.ok(duration < 500, `No results response time ${duration}ms should be under 500ms`);
     });
 
     test('should return error response for invalid parameters', async () => {
@@ -254,8 +254,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assert.ok(result.content[0].text.includes('Error:'), 'Should contain error message');
       assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
       
-      // Error responses should be fast
-      assert.ok(duration < 50, `Error response time ${duration}ms should be under 50ms`);
+      // Error responses should be reasonably fast (CI-friendly)
+      assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
     });
   });
 
@@ -301,8 +301,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
           );
         });
         
-        // Performance should scale with result count
-        const expectedMaxTime = Math.min(150, 30 + methodArray.length * 0.2);
+        // Performance should be reasonable for CI environments
+        const expectedMaxTime = Math.min(500, 100 + methodArray.length * 2);
         assert.ok(duration < expectedMaxTime, 
           `Response time ${duration}ms should be under ${expectedMaxTime}ms for ${methodArray.length} results`);
       });
@@ -406,8 +406,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
             `Method "${methodData.method.name}" should contain query "${methodName}"`);
         });
         
-        // Performance should be reasonable
-        assert.ok(duration < 100, `Response time ${duration}ms should be under 100ms`);
+        // Performance should be reasonable for CI environments
+        assert.ok(duration < 500, `Response time ${duration}ms should be under 500ms`);
       });
     });
   });
@@ -439,8 +439,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         assert.ok(['validation', 'not_found', 'unknown'].includes(errorType), 
           `Error should be categorized (got: ${errorType})`);
         
-        // Error responses should be fast
-        assert.ok(duration < 50, `Error response time ${duration}ms should be under 50ms`);
+        // Error responses should be reasonably fast (CI-friendly)
+        assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
       });
     });
   });

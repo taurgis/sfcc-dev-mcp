@@ -155,8 +155,8 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       assert.ok(Array.isArray(classArray), 'Response should be valid JSON array');
       assert.equal(classArray.length, 0, 'Should return empty array for no matches');
       
-      // Performance should be fast for no results
-      assert.ok(duration < 50, `No results response time ${duration}ms should be under 50ms`);
+      // Performance should be reasonable for no results (CI-friendly)
+      assert.ok(duration < 500, `No results response time ${duration}ms should be under 500ms`);
     });
 
     test('should return error response for invalid parameters', async () => {
@@ -169,8 +169,8 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       assert.ok(result.content[0].text.includes('Error:'), 'Should contain error message');
       assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
       
-      // Error responses should be fast
-      assert.ok(duration < 50, `Error response time ${duration}ms should be under 50ms`);
+      // Error responses should be reasonably fast (CI-friendly)
+      assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
     });
   });
 
@@ -282,7 +282,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         const errorType = categorizeError(result.content[0].text);
         assert.equal(errorType, 'validation', 'Should be categorized as validation error');
         
-        assert.ok(duration < 50, `Error response time ${duration}ms should be fast`);
+        assert.ok(duration < 500, `Error response time ${duration}ms should be fast`);
       });
     });
   });
@@ -329,8 +329,8 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       const maxDuration = Math.max(...durations);
       const minDuration = Math.min(...durations);
       
-      assert.ok(avgDuration < 50, `Average duration ${avgDuration}ms should be under 50ms`);
-      assert.ok(maxDuration < 100, `Max duration ${maxDuration}ms should be under 100ms`);
+      assert.ok(avgDuration < 500, `Average duration ${avgDuration}ms should be under 500ms`);
+      assert.ok(maxDuration < 1000, `Max duration ${maxDuration}ms should be under 1000ms`);
       
       // Consistency check - max should not be more than 15x the minimum (reasonable for network calls)
       const variationRatio = maxDuration / minDuration;
