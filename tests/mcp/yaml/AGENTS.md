@@ -370,7 +370,7 @@ conductor "tests/**/*.test.mcp.yml" --config "config.json"
 # Debug modes
 conductor "tests/*.yml" --config "config.json" --verbose   # Test hierarchy
 conductor "tests/*.yml" --config "config.json" --debug     # MCP communication
-conductor "tests/*.yml" --config "config.json" --timing    # Performance
+conductor "tests/*.yml" --config "config.json" --timing    # Performance metrics
 conductor "tests/*.yml" --config "config.json" --json      # JSON output
 conductor "tests/*.yml" --config "config.json" --quiet     # Minimal output
 
@@ -384,6 +384,10 @@ conductor "tests/*.yml" --config "config.json" --max-errors 5    # Limit error o
 # Interactive tool testing
 conductor query --config "config.json"                           # List tools
 conductor query tool_name '{"param": "value"}' --config "config.json"  # Test tool
+
+# Performance testing and analysis
+conductor "tests/*.yml" --config "config.json" --timing          # Show response times
+conductor "tests/*.yml" --config "config.json" --debug --timing  # Full performance debug
 
 # Combined debugging options
 conductor "tests/*.yml" --config "config.json" --verbose --debug --timing
@@ -405,6 +409,7 @@ conductor init                                                    # Create sampl
 - **Negation**: Exclude patterns (`match:not:*`)
 - **Partial**: Subset validation (`match:partial`)
 - **🔥 Combined arrayElements + partial**: Validate specific fields across ALL array elements while ignoring others - extremely powerful for flexible schema validation!
+- **⚡ Performance Testing**: Response time validation (`performance.maxResponseTime`) - validate SLA compliance
 
 ## Advanced Pattern Combinations
 
@@ -589,7 +594,7 @@ expect:
 
 ### Performance Testing Patterns
 ```yaml
-# Test response time validation
+# Test response time validation with timing assertions
 - it: "should respond within reasonable time"
   request:
     jsonrpc: "2.0"
@@ -603,9 +608,227 @@ expect:
       jsonrpc: "2.0"
       id: "perf-1"
       result:
-        duration: "match:lessThan:5000"  # Less than 5 seconds
+        match:partial:
+          status: "completed"
+          data: "match:type:object"
+    performance:
+      maxResponseTime: "2000ms"          # 🔥 Built-in timing assertion
+    stderr: "toBeEmpty"
         # Use --timing CLI flag to see actual execution times
 ```
+
+## 🚀 Performance Testing with Timing Assertions
+
+MCP Conductor provides built-in performance testing capabilities to validate response times and ensure SLA compliance.
+
+### Basic Performance Structure
+```yaml
+- it: "should meet performance requirements"
+  request:
+    jsonrpc: "2.0"
+    id: "perf-test"
+    method: "tools/list"
+    params: {}
+  expect:
+    response:
+      jsonrpc: "2.0"
+      id: "perf-test"
+      result:
+        tools: "match:type:array"
+    performance:
+      maxResponseTime: "500ms"  # Must respond within 500ms
+    stderr: "toBeEmpty"
+```
+
+### Performance Patterns by Operation Type
+
+#### Tool Listing Performance (Metadata - Should be Fast)
+```yaml
+- it: "should list tools quickly"
+  request:
+    jsonrpc: "2.0"
+    id: "list-perf-1"
+    method: "tools/list"
+    params: {}
+  expect:
+    response:
+      result:
+        tools: "match:arrayLength:3"
+    performance:
+      maxResponseTime: "300ms"  # Very fast for metadata operations
+    stderr: "toBeEmpty"
+```
+
+#### Simple File Operations
+```yaml
+- it: "should read small file quickly"
+  request:
+    jsonrpc: "2.0"
+    id: "file-perf-1"
+    method: "tools/call"
+    params:
+      name: "read_file"
+      arguments:
+        path: "./data/small.txt"
+  expect:
+    response:
+      result:
+        content:
+          - type: "text"
+            text: "match:contains:expected"
+        isError: false
+    performance:
+      maxResponseTime: "1000ms"  # Standard file operations
+    stderr: "toBeEmpty"
+```
+
+#### Complex Operations
+```yaml
+- it: "should handle complex processing efficiently"
+  request:
+    jsonrpc: "2.0"
+    id: "complex-perf-1"
+    method: "tools/call"
+    params:
+      name: "search_database"
+      arguments:
+        query: "complex search"
+        limit: 100
+  expect:
+    response:
+      result:
+        match:partial:
+          results: "match:type:array"
+          count: "match:type:number"
+    performance:
+      maxResponseTime: "2000ms"  # More time for complex operations
+    stderr: "toBeEmpty"
+```
+
+#### Error Handling Performance (Should be Fast)
+```yaml
+- it: "should handle errors quickly"
+  request:
+    jsonrpc: "2.0"
+    id: "error-perf-1"
+    method: "tools/call"
+    params:
+      name: "read_file"
+      arguments:
+        path: "./nonexistent.txt"
+  expect:
+    response:
+      result:
+        content:
+          - type: "text"
+            text: "match:contains:not found"
+        isError: true
+    performance:
+      maxResponseTime: "800ms"  # Errors should be faster than successful ops
+    stderr: "toBeEmpty"
+```
+
+### Timing Formats (Multiple Supported)
+
+| Format | Description | Use Case |
+|--------|-------------|----------|
+| `"100ms"` | Very strict | Critical performance paths |
+| `"500ms"` | Fast operations | Tool listing, metadata |
+| `"1000ms"` | Standard operations | File I/O, simple processing |
+| `"2000ms"` | Complex operations | Search, computation, API calls |
+| `"5000ms"` | Heavy operations | Database queries, large files |
+| `1500` | Numeric (ms) | Alternative format |
+| `"2.5s"` | Decimal seconds | Long operations |
+
+### SLA Validation Examples
+```yaml
+description: "SLA validation for production MCP server"
+tests:
+  # 95th percentile requirement: Tool listing under 200ms
+  - it: "should meet tool listing SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "sla-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        result:
+          tools: "match:type:array"
+      performance:
+        maxResponseTime: "200ms"  # Strict SLA requirement
+      stderr: "toBeEmpty"
+
+  # 99th percentile requirement: Tool execution under 2 seconds
+  - it: "should meet tool execution SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "sla-exec-1"
+      method: "tools/call"
+      params:
+        name: "get_user_profile"
+        arguments:
+          user_id: "test-user-123"
+    expect:
+      response:
+        result:
+          match:partial:
+            user: "match:type:object"
+            profile: "match:type:object"
+      performance:
+        maxResponseTime: "2000ms"  # SLA compliance
+      stderr: "toBeEmpty"
+```
+
+### Performance + Pattern Matching (Powerful Combination)
+```yaml
+- it: "should search with good performance and validate structure"
+  request:
+    jsonrpc: "2.0"
+    id: "complex-perf-1"
+    method: "tools/call"
+    params:
+      name: "search_tools"
+      arguments:
+        category: "documentation"
+  expect:
+    response:
+      result:
+        # Full pattern validation
+        tools:
+          match:arrayElements:
+            match:partial:
+              name: "match:regex:^[a-z][a-z0-9_]*$"
+              description: "match:regex:.{10,}"
+        count: "match:type:number"
+        # Field extraction validation
+        match:extractField: "tools.*.name"
+        value: "match:arrayContains:search_docs"
+    performance:
+      maxResponseTime: "1500ms"  # Performance requirement
+    stderr: "toBeEmpty"
+```
+
+### Debugging Performance Issues
+```bash
+# See actual timing for each test
+conductor "tests/*.yml" --config "config.json" --timing
+
+# Combined debugging for performance analysis
+conductor "tests/*.yml" --config "config.json" --debug --timing --verbose
+
+# Focus only on performance-related errors
+conductor "tests/*.yml" --config "config.json" --errors-only --timing
+```
+
+### Performance Best Practices
+- **Tool Listing**: 200-500ms (metadata operations should be fast)
+- **Simple File Ops**: 1000ms (reading small files, basic I/O)
+- **Complex Operations**: 2000ms (search, computation, API calls)
+- **Error Responses**: Often faster than successful operations (800ms)
+- **Heavy Operations**: 5000ms (database queries, large file processing)
+
+**Always use `--timing` flag** to see actual response times and adjust expectations based on your environment.
 
 ## Debugging and Troubleshooting
 
