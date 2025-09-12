@@ -396,6 +396,7 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Job Log Analysis**: Use job log tools for debugging custom job steps - `get_latest_job_log_files`, `get_job_log_entries`, `search_job_logs`, `search_job_logs_by_name`, `get_job_execution_summary`
 - **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
 - **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
+- **CI-Friendly Performance Testing**: When writing performance tests, use lenient timeouts (500ms+) and variation ratios (50x+) to account for GitHub Actions CI environment variability. Prioritize functional validation over strict timing requirements to prevent flaky failures due to infrastructure differences.
 
 ### � MCP Server Testing and Debugging with Conductor
 
@@ -540,6 +541,32 @@ npx conductor query --config ./conductor.config.docs-only.json search_sfcc_class
 - **Document actual response formats** in test file comments for future reference
 - **Test edge cases comprehensively** - empty results, invalid inputs, missing parameters
 - **Use correct YAML pattern syntax** - always prefix with `match:` for validation patterns
+
+#### **CI-Friendly Performance Testing Guidelines**
+
+When writing performance-related tests, especially for GitHub Actions CI environments, follow these critical guidelines:
+
+- **Use Lenient Timeouts**: Set timeout thresholds of **500ms or higher** instead of strict values (50ms-250ms). CI environments are slower and less predictable than local development machines.
+- **Account for Environment Variability**: CI runners experience resource contention, cold starts, network latency, and I/O scheduling delays that can significantly impact timing.
+- **Performance Variation Ratios**: For tests comparing min/max performance, use ratios of **50x or higher** instead of strict ratios (15x). CI environments can have extreme variations due to:
+  - Resource sharing with other processes
+  - JIT compilation and garbage collection delays  
+  - Network and file system variability
+  - Container initialization overhead
+- **Scaling Calculations**: When calculating expected performance based on result count, use generous base times (100ms+) and scaling factors (2ms+ per item) rather than tight calculations.
+- **Focus on Functional Validation**: Prioritize correctness over strict performance requirements. Performance tests should catch major regressions, not minor timing variations.
+- **Example CI-Friendly Assertions**:
+  ```javascript
+  // ❌ Too strict for CI
+  assert.ok(duration < 50, `Response time should be under 50ms`);
+  assert.ok(variationRatio < 15, `Performance variation should be under 15x`);
+  
+  // ✅ CI-friendly
+  assert.ok(duration < 500, `Response time should be under 500ms`);
+  assert.ok(variationRatio < 50, `Performance variation should be under 50x`);
+  ```
+
+**Remember**: The goal is reliable CI builds that catch real issues without flaky failures due to infrastructure timing differences.
 
 #### **Comprehensive Testing Documentation**
 
