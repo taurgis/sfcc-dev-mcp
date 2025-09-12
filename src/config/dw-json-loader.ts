@@ -43,9 +43,17 @@ function validateSecurePath(filePath: string): string {
   }
 
   // Prevent access to system directories (additional security layer)
-  const dangerousPaths = ['/etc/', '/proc/', '/sys/', '/dev/', '/root/', '/home/'];
+  // Allow CI workspace paths like /home/runner/work/ but block sensitive system paths
+  const dangerousPaths = ['/etc/', '/proc/', '/sys/', '/dev/', '/root/'];
   const lowerPath = resolvedPath.toLowerCase();
+
+  // Check for dangerous system paths
   if (dangerousPaths.some(dangerous => lowerPath.includes(dangerous))) {
+    throw new Error('Access to system directories not allowed');
+  }
+
+  // Block /home/ but allow CI workspace paths (/home/runner/work/)
+  if (lowerPath.includes('/home/') && !lowerPath.includes('/home/runner/work/')) {
     throw new Error('Access to system directories not allowed');
   }
 
