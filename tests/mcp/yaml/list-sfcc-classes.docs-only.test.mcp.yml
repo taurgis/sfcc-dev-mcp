@@ -260,8 +260,7 @@ tests:
         jsonrpc: "2.0"
         id: "perf-efficient"
         result:
-          match:partial:
-            content: "match:type:array"
+          content: "match:type:array"
           isError: false
       performance:
         maxResponseTime: "2000ms"  # Generous for comprehensive listing
@@ -488,8 +487,7 @@ tests:
         jsonrpc: "2.0"
         id: "consistency-check"
         result:
-          match:partial:
-            content: "match:type:array"
+          content: "match:type:array"
           isError: false
       stderr: "toBeEmpty"
 

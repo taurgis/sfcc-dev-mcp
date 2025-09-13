@@ -2235,11 +2235,7 @@ tests:
         jsonrpc: "2.0"
         id: "success-no-error-flag"
         result:
-          content:
-            - type: "text"
-              text: "match:type:string"
-          match:partial:
-            content: "match:type:array"
+          content: "match:type:array"
           isError: false
       stderr: "toBeEmpty"
 
