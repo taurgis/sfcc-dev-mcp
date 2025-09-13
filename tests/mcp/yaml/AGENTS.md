@@ -876,6 +876,69 @@ email: "match:regex:[a-zA-Z]+"  # Start simple
 email: "match:regex:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"  # Full pattern
 ```
 
+### Regex Escaping & YAML Parse Failures
+**Symptoms:** `unknown escape sequence` or `bad indentation of a mapping entry` during conductor run.
+**Common Causes:**
+- Unescaped backslashes in `match:regex:` patterns.
+- Mixing quotes and unescaped `"` inside double-quoted YAML strings.
+- Overly complex grouped repetitions like `(\"filename\"...){5,}` causing readability + escape errors.
+
+**Safe Regex Template:**
+```yaml
+text: "match:regex:(?:pattern)[\\s\\S]*?(?:another)"
+```
+**Key Tips:**
+- Use `\s\S` instead of `.` when spanning multiple lines.
+- Keep repetition simple; if counting occurrences becomes hard, split into two tests (presence + broad repetition).
+
+### 3. Counting Occurrences in Large JSON Embedded as Text
+When the tool returns a single large JSON array string inside a `content[0].text` field:
+- You cannot parse JSON directly via patterns—treat it as text.
+- Use a minimal structural regex for presence, and a separate regex for repetition.
+
+**Example (At least 3 product models):**
+```yaml
+text: "match:regex:(?:product-)[\\s\\S]*(?:product-)[\\s\\S]*(?:product-)"
+```
+**Example (5+ filenames):**
+```yaml
+text: "match:regex:(?:\\"filename\\"[\\s\\S]*?\\.md){5,}"
+```
+
+### 4. Layering match:arrayElements with match:partial
+**Correct Structure:**
+```yaml
+content:
+  match:arrayElements:
+    match:partial:
+      type: "text"
+      text: "match:contains:querystring"
+```
+**Incorrect:** Placing `text:` at wrong indentation level under `content:` directly.
+
+### 5. Progressive Regex Strategy
+1. Start with a trivial presence regex: `match:regex:querystring`.
+2. Expand to multi-token ordering: `match:regex:[\\s\\S]*querystring[\\s\\S]*server`.
+3. Only then add complex repetitions if needed.
+
+### 6. Avoid Over-Fitting
+Do NOT anchor entire gigantic JSON arrays unless strictly required. Prefer token presence + repetition rather than full structural exactness.
+
+### 7. Performance Tightening Safely
+- Begin with a generous threshold (e.g. `800ms`).
+- Add a second stricter test (e.g. `600ms`) only after confirming stability locally.
+- Avoid thresholds <300ms for docs or search operations in CI without strong evidence.
+
+### 8. Negative Path Testing for Transport vs Tool Logic
+To test JSON-RPC method failure (transport layer): use an invalid `method` like `tools/call_WRONG`.
+To test tool argument validation: keep `method: tools/call` but pass malformed `arguments`.
+
+### 9. When To Split Tests
+Split into separate tests if you need to validate:
+- Field extraction + structural regex.
+- Performance + functional correctness.
+- Repetition counting + semantic token presence.
+
 #### Array Pattern Issues
 ```yaml
 # ❌ Duplicate YAML keys (overwrites previous)

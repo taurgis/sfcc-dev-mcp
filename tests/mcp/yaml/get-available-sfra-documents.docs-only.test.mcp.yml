@@ -1,0 +1,340 @@
+description: "Docs-only: get_available_sfra_documents tool tests"
+config: ./conductor.config.docs-only.json
+
+# We first list tools to ensure the tool exists in docs-only mode, then call it.
+tests:
+  - it: "should have get_available_sfra_documents in tools list"
+    request:
+      jsonrpc: "2.0"
+      id: "list-sfra-docs-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-sfra-docs-1"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_available_sfra_documents"
+
+  - it: "should return an array JSON string of sfra documents in text content"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-1"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:\\[[\\s\\S]*querystring[\\s\\S]*server[\\s\\S]*cart[\\s\\S]*stores[\\s\\S]*\\]" # array JSON includes expected doc names
+      stderr: toBeEmpty
+
+  - it: "should include core category documents (querystring, server, request, response, render)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-2"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-2"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:querystring"
+      stderr: toBeEmpty
+
+  - it: "should contain product and store model documents (product-full, product-tile, store, stores)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-3"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-3"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:product-full"
+      stderr: toBeEmpty
+
+  - it: "should not return error when called without arguments (empty object)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-4"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-4"
+        result:
+          match:partial:
+            isError: false
+            content: "match:type:array"
+      stderr: toBeEmpty
+
+  - it: "should include pricing documents (price-default, price-range, price-tiered)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-5"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-5"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:price-default"
+      stderr: toBeEmpty
+
+  - it: "should tolerate extraneous empty arguments object (idempotent behavior)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-6"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-6"
+        result:
+          match:partial:
+            isError: false
+      stderr: toBeEmpty
+
+  - it: "should respond within acceptable performance threshold"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-7"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-7"
+        result:
+          match:partial:
+            isError: false
+      performance:
+        maxResponseTime: "800ms" # docs listing should be fast but allow CI variance
+      stderr: toBeEmpty
+
+  - it: "should include multiple distinct categories (core, order, product, pricing, store)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-8"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-8"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(core|order|product|pricing|store)"
+      stderr: toBeEmpty
+
+  - it: "should expose at least 15 documents (count via regex on JSON array)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-9"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-9"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(\\{[\\s\\S]*?name\\s*?:[\\s\\S]*?\\}){15,}" # at least 15 object blocks inside JSON array string
+      stderr: toBeEmpty
+
+  - it: "should return JSON-RPC method not found error for invalid method name"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-error-1"
+      method: "tools/call_WRONG" # invalid base method to trigger JSON-RPC error
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-error-1"
+        error:
+          code: "match:type:number"
+          message: "match:contains:Method"
+
+  - it: "should include required keys in each document object at least once (name,title,category,filename)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-1"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-1"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:.*\"name\":.*\"title\":.*\"category\":.*\"filename\":.*" # keys appear in JSON string
+      stderr: toBeEmpty
+
+  - it: "should list multiple product model documents (at least 3 occurrences of 'product-')"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-2"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-2"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                # Use a broad regex ensuring at least three product- tokens appear anywhere
+                text: "match:regex:(?:product-)[\\s\\S]*(?:product-)[\\s\\S]*(?:product-)"
+      stderr: toBeEmpty
+
+  - it: "should have filenames ending with .md for multiple entries"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-4"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-4"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:\"filename\"\\s*:\\s*\"[a-z0-9\\-]+\\.md\""
+      stderr: toBeEmpty
+
+  - it: "should contain at least five .md filename occurrences (broad check)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-4b"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-4b"
+        result:
+          match:partial:
+            isError: false
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(?:\"filename\"[\\s\\S]*?\\.md){5,}"
+      stderr: toBeEmpty
+
+  - it: "should respond faster than previous performance spec (tighten to 600ms)"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-5"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-5"
+        result:
+          match:partial:
+            isError: false
+      performance:
+        maxResponseTime: "600ms"
+      stderr: toBeEmpty
+
+  - it: "should ignore unknown extraneous parameter without failing"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-docs-ext-6"
+      method: "tools/call"
+      params:
+        name: "get_available_sfra_documents"
+        arguments:
+          bogus: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-docs-ext-6"
+        result:
+          match:partial:
+            isError: false
+      stderr: toBeEmpty
