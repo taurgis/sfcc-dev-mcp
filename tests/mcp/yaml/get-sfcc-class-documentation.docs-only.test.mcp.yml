@@ -1,0 +1,2318 @@
+# ==================================================================================
+# SFCC MCP Server - get_sfcc_class_documentation Tool YAML Tests
+# Comprehensive testing for SFCC class documentation retrieval functionality
+# Tests both successful responses and error handling scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
+# conductor "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
+# conductor query get_sfcc_class_documentation '{"className": "dw.catalog.Product"}' --config "conductor.config.docs-only.json"
+# conductor query get_sfcc_class_documentation '{"className": "dw.order.Order"}' --config "conductor.config.docs-only.json"
+# ==================================================================================
+description: "SFCC MCP Server get_sfcc_class_documentation tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_sfcc_class_documentation tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfcc_class_documentation"
+      stderr: "toBeEmpty"
+
+  - it: "should have get_sfcc_class_documentation in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_documentation"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description-quality"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:regex:.{20,}"  # At least 20 characters
+      stderr: "toBeEmpty"
+
+  - it: "should have proper inputSchema structure for get_sfcc_class_documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL EXECUTION TESTS - CORE CLASSES
+# ==================================================================================
+
+  - it: "should execute with dw.catalog.Product class"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-basic"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-basic"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Package: dw.catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should return complete documentation for dw.catalog.Product"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-complete"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-complete"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Product"
+      stderr: "toBeEmpty"
+
+  - it: "should include inheritance hierarchy in Product documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-inheritance"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-inheritance"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Inheritance Hierarchy"
+      stderr: "toBeEmpty"
+
+  - it: "should include properties section in Product documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-properties"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-properties"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Properties"
+      stderr: "toBeEmpty"
+
+  - it: "should include method summary in Product documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-methods"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Method Summary"
+      stderr: "toBeEmpty"
+
+  - it: "should include method details in Product documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-method-details"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-method-details"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Method Details"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CLASS NAME VARIATIONS TESTING
+# ==================================================================================
+
+  - it: "should work with fully qualified class names"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-fqn"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-fqn"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Product"
+      stderr: "toBeEmpty"
+
+  - it: "should work with dw.order.Order class"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Package: dw.order"
+      stderr: "toBeEmpty"
+
+  - it: "should work with dw.system.Site class"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-site-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Site"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-site-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Site"
+      stderr: "toBeEmpty"
+
+  - it: "should work with dw.customer.Customer class"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-customer-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-customer-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.customer.Customer"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CORE SFCC CLASSES VALIDATION - TOP 15 MOST IMPORTANT CLASSES
+# ==================================================================================
+
+  - it: "should return documentation for dw.catalog.Catalog class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-catalog"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-catalog"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.Category class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-category"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Category"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-category"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Package: dw.catalog"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.Basket class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-basket"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Basket"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-basket"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Basket"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.ProductLineItem class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-lineitem"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.ProductLineItem"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-lineitem"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductLineItem"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.CustomerMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-customermgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.CustomerMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-customermgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomerMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Session class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-session"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Session"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-session"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Session"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Request class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-request"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Request"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-request"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Package: dw.system"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Response class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-response"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Response"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-response"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Response"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.URLUtils class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-urlutils"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.URLUtils"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-urlutils"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:URLUtils"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.ProductMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-productmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.ProductMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-productmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.OrderMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-ordermgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.OrderMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-ordermgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class OrderMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.BasketMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-basketmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.BasketMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-basketmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:BasketMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.ArrayList class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-arraylist"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.ArrayList"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-arraylist"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ArrayList"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.HashMap class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-hashmap"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.HashMap"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-hashmap"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class HashMap"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.value.Money class"
+    request:
+      jsonrpc: "2.0"
+      id: "core-money"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.value.Money"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-money"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Package: dw.value"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EXTENDED SFCC CLASSES VALIDATION - 30 ADDITIONAL IMPORTANT CLASSES
+# ==================================================================================
+
+  - it: "should return documentation for dw.content.ContentMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-contentmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.content.ContentMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-contentmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ContentMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.content.Content class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-content"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.content.Content"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Content"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.ProductSearchModel class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-productsearch"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.ProductSearchModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-productsearch"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductSearchModel"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.SearchModel class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-searchmodel"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.SearchModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-searchmodel"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SearchModel"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.PriceBook class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-pricebook"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.PriceBook"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-pricebook"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PriceBook"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.Variant class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-variant"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Variant"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-variant"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Variant"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.PaymentInstrument class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-paymentinstrument"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.PaymentInstrument"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-paymentinstrument"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PaymentInstrument"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.Shipment class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-shipment"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Shipment"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-shipment"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Shipment"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.ShippingMethod class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-shippingmethod"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.ShippingMethod"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-shippingmethod"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ShippingMethod"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.CustomerGroup class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-customergroup"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.CustomerGroup"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-customergroup"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomerGroup"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.Profile class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-profile"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.Profile"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-profile"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Profile"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Logger class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-logger"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Logger"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-logger"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Logger"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Transaction class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-transaction"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Transaction"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-transaction"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Transaction"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.Cookie class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-cookie"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.Cookie"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-cookie"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Cookie"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.Resource class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-resource"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.Resource"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-resource"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Resource"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.Form class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-form"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.Form"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-form"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Form"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.Collection class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-collection"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.Collection"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-collection"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Collection"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.Iterator class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-iterator"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.Iterator"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-iterator"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Iterator"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.Calendar class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-calendar"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.Calendar"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-calendar"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Calendar"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.value.Quantity class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-quantity"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.value.Quantity"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-quantity"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Quantity"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.net.HTTPClient class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-httpclient"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.net.HTTPClient"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-httpclient"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:HTTPClient"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.net.Mail class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-mail"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.net.Mail"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-mail"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Mail"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.io.File class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-file"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.io.File"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-file"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class File"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.io.Reader class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-reader"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.io.Reader"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-reader"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Reader"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.svc.ServiceRegistry class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-serviceregistry"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.svc.ServiceRegistry"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-serviceregistry"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ServiceRegistry"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.svc.HTTPService class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-httpservice"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.svc.HTTPService"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-httpservice"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:HTTPService"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.campaign.Campaign class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-campaign"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.campaign.Campaign"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-campaign"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Campaign"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.campaign.Promotion class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-promotion"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.campaign.Promotion"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-promotion"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Promotion"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.object.CustomObject class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-customobject"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.object.CustomObject"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-customobject"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomObject"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.object.CustomObjectMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "ext-customobjectmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.object.CustomObjectMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ext-customobjectmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomObjectMgr"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ADVANCED SFCC CLASSES VALIDATION - 30 MORE SPECIALIZED CLASSES
+# ==================================================================================
+
+  - it: "should return documentation for dw.catalog.CatalogMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-catalogmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.CatalogMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-catalogmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CatalogMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.ProductOption class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-productoption"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.ProductOption"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-productoption"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductOption"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.ProductOptionModel class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-productoptionmodel"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.ProductOptionModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-productoptionmodel"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductOptionModel"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.Recommendation class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-recommendation"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Recommendation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-recommendation"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Recommendation"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.catalog.ProductAttributeModel class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-productattributemodel"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.ProductAttributeModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-productattributemodel"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductAttributeModel"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.LineItem class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-lineitem"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.LineItem"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-lineitem"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class LineItem"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.OrderAddress class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-orderaddress"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.OrderAddress"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-orderaddress"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OrderAddress"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.PaymentMethod class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-paymentmethod"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.PaymentMethod"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-paymentmethod"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PaymentMethod"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.PaymentMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-paymentmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.PaymentMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-paymentmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PaymentMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.order.ShippingMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-shippingmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.ShippingMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-shippingmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ShippingMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.AddressBook class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-addressbook"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.AddressBook"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-addressbook"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:AddressBook"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.CustomerAddress class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-customeraddress"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.CustomerAddress"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-customeraddress"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomerAddress"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.CustomerPaymentInstrument class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-custpaymentinstrument"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.CustomerPaymentInstrument"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-custpaymentinstrument"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomerPaymentInstrument"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.customer.Wallet class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-wallet"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.Wallet"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-wallet"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Wallet"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Pipeline class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-pipeline"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Pipeline"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-pipeline"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Pipeline"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.HookMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-hookmgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.HookMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-hookmgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:HookMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.CacheMgr class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-cachemgr"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.CacheMgr"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-cachemgr"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CacheMgr"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.Forms class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-forms"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.Forms"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-forms"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Forms"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.PageMetaData class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-pagemetadata"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.PageMetaData"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-pagemetadata"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PageMetaData"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.web.PagingModel class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-pagingmodel"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.web.PagingModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-pagingmodel"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:PagingModel"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.StringUtils class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-stringutils"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.StringUtils"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-stringutils"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:StringUtils"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.Map class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-map"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.Map"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-map"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Map"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.Locale class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-locale"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.Locale"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-locale"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Locale"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.util.List class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-list"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.util.List"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-list"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class List"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.value.EnumValue class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-enumvalue"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.value.EnumValue"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-enumvalue"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:EnumValue"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.net.FTPClient class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-ftpclient"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.net.FTPClient"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-ftpclient"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:FTPClient"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.net.SFTPClient class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-sftpclient"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.net.SFTPClient"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-sftpclient"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SFTPClient"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.io.CSVStreamWriter class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-csvstreamwriter"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.io.CSVStreamWriter"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-csvstreamwriter"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CSVStreamWriter"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.io.XMLStreamWriter class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-xmlstreamwriter"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.io.XMLStreamWriter"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-xmlstreamwriter"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:XMLStreamWriter"
+      stderr: "toBeEmpty"
+
+  - it: "should return documentation for dw.system.Status class"
+    request:
+      jsonrpc: "2.0"
+      id: "adv-status"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.system.Status"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "adv-status"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:# Class Status"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# DOCUMENTATION CONTENT VALIDATION
+# ==================================================================================
+
+  - it: "should include class description in Order documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-description"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-description"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Description"
+      stderr: "toBeEmpty"
+
+  - it: "should include constants in Order documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-constants"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-constants"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Constants"
+      stderr: "toBeEmpty"
+
+  - it: "should include constructor summary in Order documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-order-constructors"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-order-constructors"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Constructor Summary"
+      stderr: "toBeEmpty"
+
+  - it: "should include method signatures in documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-method-signatures"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-method-signatures"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:**Signature:**"
+      stderr: "toBeEmpty"
+
+  - it: "should include property types in documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-property-types"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-property-types"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:**Type:**"
+      stderr: "toBeEmpty"
+
+  - it: "should include return valid markdown format"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-markdown-format"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-markdown-format"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*#{1,6}[\\s\\S]*"  # Contains markdown headers
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+
+  - it: "should handle invalid class names gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "NonExistentClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid class with specific error message"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-specific"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "InvalidClassName"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-specific"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:not found"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty class name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing className parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-param"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle null className gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-null-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-null-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle numeric className gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-numeric-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-numeric-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASE TESTING
+# ==================================================================================
+
+  - it: "should handle whitespace-only className"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-whitespace"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "   "
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-whitespace"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle class names with special characters"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-special-chars"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product@#$"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-special-chars"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long invalid class names"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-long-invalid"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.very.long.nonexistent.package.that.does.not.exist.anywhere.InvalidClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-long-invalid"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# COMPREHENSIVE CONTENT VALIDATION
+# ==================================================================================
+
+  - it: "should return substantial documentation content for Product class"
+    request:
+      jsonrpc: "2.0"
+      id: "content-substantial"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-substantial"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]{5000,}"  # At least 5000 characters
+      stderr: "toBeEmpty"
+
+  - it: "should include multiple sections in complete documentation"
+    request:
+      jsonrpc: "2.0"
+      id: "content-multiple-sections"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-multiple-sections"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:## Properties"
+      stderr: "toBeEmpty"
+
+  - it: "should include detailed method information"
+    request:
+      jsonrpc: "2.0"
+      id: "content-method-info"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-method-info"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:**Parameters:**"
+      stderr: "toBeEmpty"
+
+  - it: "should include return value information"
+    request:
+      jsonrpc: "2.0"
+      id: "content-return-info"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-return-info"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:**Returns:**"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE AND CONSISTENCY VALIDATION
+# ==================================================================================
+
+  - it: "should have consistent response structure across different classes"
+    request:
+      jsonrpc: "2.0"
+      id: "consistency-structure"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistency-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should not include isError field for successful responses"
+    request:
+      jsonrpc: "2.0"
+      id: "success-no-error-flag"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "success-no-error-flag"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          match:partial:
+            content: "match:type:array"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE TIMING TESTS - CI-FRIENDLY
+# ==================================================================================
+
+  - it: "should respond within reasonable time for Product class lookup"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-product-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-product-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Product"
+      performance:
+        maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
+      stderr: "toBeEmpty"
+
+  - it: "should respond within reasonable time for Order class lookup"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-order-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.order.Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-order-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.order.Order"
+      performance:
+        maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
+      stderr: "toBeEmpty"
+
+  - it: "should respond within reasonable time for Customer class lookup"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-customer-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.customer.Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-customer-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.customer.Customer"
+      performance:
+        maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
+      stderr: "toBeEmpty"
+
+  - it: "should handle error cases quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-error-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "NonExistentClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-error-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "300ms"  # Error handling should be faster
+      stderr: "toBeEmpty"
+
+  - it: "should handle validation errors very quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-validation-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-validation-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:non-empty string"
+          isError: true
+      performance:
+        maxResponseTime: "200ms"  # Validation errors should be very fast
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# RESPONSE FORMAT VALIDATION
+# ==================================================================================
+
+  - it: "should return proper content array structure"
+    request:
+      jsonrpc: "2.0"
+      id: "format-content-array"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-content-array"
+        result:
+          content: "match:arrayLength:1"
+      stderr: "toBeEmpty"
+
+  - it: "should return content with proper type field"
+    request:
+      jsonrpc: "2.0"
+      id: "format-content-type"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-content-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should maintain consistent error response format"
+    request:
+      jsonrpc: "2.0"
+      id: "format-error-consistent"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_documentation"
+        arguments:
+          className: "InvalidClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-error-consistent"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: true
+      stderr: "toBeEmpty"
