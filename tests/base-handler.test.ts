@@ -312,7 +312,7 @@ describe('BaseToolHandler', () => {
       const response = handler.testCreateResponse(data);
 
       expect(response.content[0].text).toBe(JSON.stringify(data, null, 2));
-      expect(response.isError).toBeUndefined();
+      expect(response.isError).toBe(false);
     });
 
     it('should create non-stringified response when requested', () => {
@@ -320,14 +320,14 @@ describe('BaseToolHandler', () => {
       const response = handler.testCreateResponse(data, false);
 
       expect(response.content[0].text).toBe(data);
-      expect(response.isError).toBeUndefined();
+      expect(response.isError).toBe(false);
     });
 
     it('should handle null data', () => {
       const response = handler.testCreateResponse(null);
 
       expect(response.content[0].text).toBe('null');
-      expect(response.isError).toBeUndefined();
+      expect(response.isError).toBe(false);
     });
 
     it('should handle primitive values', () => {

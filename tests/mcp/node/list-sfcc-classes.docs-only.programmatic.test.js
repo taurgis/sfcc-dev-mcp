@@ -285,7 +285,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const result = await client.callTool('list_sfcc_classes', {});
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not return error');
+      assert.equal(result.isError, false, 'Should not return error');
       assert.equal(result.content.length, 1, 'Should return single content item');
       assert.equal(result.content[0].type, 'text', 'Content type should be text');
     });
@@ -314,7 +314,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       });
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should handle extra params gracefully');
+      assert.equal(result.isError, false, 'Should handle extra params gracefully');
       
       // Result should be identical to empty params call
       const baselineResult = await client.callTool('list_sfcc_classes', {});
@@ -749,5 +749,5 @@ describe('list_sfcc_classes Programmatic Tests', () => {
 function assertValidMCPResponse(result) {
   assert.ok(result.content, 'Response should have content');
   assert.ok(Array.isArray(result.content), 'Content should be array');
-  assert.equal(typeof (result.isError || false), 'boolean', 'isError should be boolean when present');
+  assert.equal(typeof result.isError, 'boolean', 'isError should be boolean and always present');
 }

@@ -3,7 +3,7 @@
  * 
  * These tests provide advanced verification capabilities beyond YAML pattern matching,
  * including performance monitoring, dynamic validation, error categorization        assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not error for valid string');and
+        assert.equal(result.isError, false, 'Should not error for valid string');and
  * comprehensive response structure analysis.
  * 
  * Response format discovered via conductor query:
@@ -116,7 +116,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       
       // Validate MCP response structure
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not be an error response');
+      assert.equal(result.isError, false, 'Should not be an error response');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be text type');
       
@@ -149,7 +149,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       );
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not be an error response');
+      assert.equal(result.isError, false, 'Should not be an error response');
       
       const classArray = parseClassArray(result.content[0].text);
       assert.ok(Array.isArray(classArray), 'Response should be valid JSON array');
@@ -192,7 +192,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         );
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not be an error');
+        assert.equal(result.isError, false, 'Should not be an error');
         
         const classArray = parseClassArray(result.content[0].text);
         assert.ok(classArray.length >= expectedMin, 
@@ -231,7 +231,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         );
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not be an error for valid string');
+        assert.equal(result.isError, false, 'Should not be an error for valid string');
         
         const classArray = parseClassArray(result.content[0].text);
         assert.ok(Array.isArray(classArray), 'Should return valid array');
@@ -302,7 +302,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       // Validate all results
       results.forEach((result, index) => {
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, `Request ${index} should succeed`);
+        assert.equal(result.isError, false, `Request ${index} should succeed`);
         
         const classArray = parseClassArray(result.content[0].text);
         assert.ok(classArray.length > 0, `Query "${queries[index]}" should return results`);
@@ -353,7 +353,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         const result = await client.callTool('search_sfcc_classes', { query: testCase.query });
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false);
+        assert.equal(result.isError, false);
         
         const classArray = parseClassArray(result.content[0].text);
         
@@ -370,7 +370,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       const result = await client.callTool('search_sfcc_classes', { query: 'zzznothingfound' });
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not error for non-matching query');
+      assert.equal(result.isError, false, 'Should not error for non-matching query');
       
       const classArray = parseClassArray(result.content[0].text);
       assert.equal(classArray.length, 0, 'Should return empty array for no matches');
@@ -438,10 +438,9 @@ function assertValidMCPResponse(result) {
   assert.equal(result.content[0].type, 'text', 'First content item should be text type');
   assert.equal(typeof result.content[0].text, 'string', 'Text content should be a string');
   
-  // isError property only exists on error responses, is undefined on success
-  if ('isError' in result) {
-    assert.equal(typeof result.isError, 'boolean', 'isError should be a boolean when present');
-  }
+  // isError property should always be present and boolean
+  assert.ok(Object.prototype.hasOwnProperty.call(result, 'isError'), 'isError property should always be present');
+  assert.equal(typeof result.isError, 'boolean', 'isError should be a boolean');
 }
 
 /**

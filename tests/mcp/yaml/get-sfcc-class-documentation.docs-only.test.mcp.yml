@@ -103,6 +103,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Package: dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return complete documentation for dw.catalog.Product"
@@ -122,6 +123,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Product"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include inheritance hierarchy in Product documentation"
@@ -141,6 +143,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Inheritance Hierarchy"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include properties section in Product documentation"
@@ -160,6 +163,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Properties"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include method summary in Product documentation"
@@ -179,6 +183,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Method Summary"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include method details in Product documentation"
@@ -198,6 +203,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Method Details"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -221,6 +227,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Product"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with dw.order.Order class"
@@ -240,6 +247,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Package: dw.order"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with dw.system.Site class"
@@ -259,6 +267,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Site"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with dw.customer.Customer class"
@@ -278,6 +287,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.customer.Customer"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -301,6 +311,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.Category class"
@@ -320,6 +331,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Package: dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.Basket class"
@@ -339,6 +351,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Basket"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.ProductLineItem class"
@@ -358,6 +371,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductLineItem"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.CustomerMgr class"
@@ -377,6 +391,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomerMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Session class"
@@ -396,6 +411,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Session"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Request class"
@@ -415,6 +431,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Package: dw.system"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Response class"
@@ -434,6 +451,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Response"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.URLUtils class"
@@ -453,6 +471,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:URLUtils"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.ProductMgr class"
@@ -472,6 +491,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.OrderMgr class"
@@ -491,6 +511,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class OrderMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.BasketMgr class"
@@ -510,6 +531,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:BasketMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.ArrayList class"
@@ -529,6 +551,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ArrayList"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.HashMap class"
@@ -548,6 +571,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class HashMap"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.value.Money class"
@@ -567,6 +591,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Package: dw.value"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -590,6 +615,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ContentMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.content.Content class"
@@ -609,6 +635,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Content"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.ProductSearchModel class"
@@ -628,6 +655,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductSearchModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.SearchModel class"
@@ -647,6 +675,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:SearchModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.PriceBook class"
@@ -666,6 +695,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PriceBook"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.Variant class"
@@ -685,6 +715,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Variant"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.PaymentInstrument class"
@@ -704,6 +735,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PaymentInstrument"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.Shipment class"
@@ -723,6 +755,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Shipment"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.ShippingMethod class"
@@ -742,6 +775,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ShippingMethod"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.CustomerGroup class"
@@ -761,6 +795,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomerGroup"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.Profile class"
@@ -780,6 +815,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Profile"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Logger class"
@@ -799,6 +835,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Logger"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Transaction class"
@@ -818,6 +855,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Transaction"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.Cookie class"
@@ -837,6 +875,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Cookie"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.Resource class"
@@ -856,6 +895,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Resource"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.Form class"
@@ -875,6 +915,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Form"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.Collection class"
@@ -894,6 +935,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Collection"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.Iterator class"
@@ -913,6 +955,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Iterator"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.Calendar class"
@@ -932,6 +975,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Calendar"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.value.Quantity class"
@@ -951,6 +995,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Quantity"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.net.HTTPClient class"
@@ -970,6 +1015,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:HTTPClient"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.net.Mail class"
@@ -989,6 +1035,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Mail"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.io.File class"
@@ -1008,6 +1055,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class File"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.io.Reader class"
@@ -1027,6 +1075,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Reader"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.svc.ServiceRegistry class"
@@ -1046,6 +1095,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ServiceRegistry"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.svc.HTTPService class"
@@ -1065,6 +1115,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:HTTPService"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.campaign.Campaign class"
@@ -1084,6 +1135,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Campaign"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.campaign.Promotion class"
@@ -1103,6 +1155,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Promotion"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.object.CustomObject class"
@@ -1122,6 +1175,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomObject"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.object.CustomObjectMgr class"
@@ -1141,6 +1195,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomObjectMgr"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -1164,6 +1219,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CatalogMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.ProductOption class"
@@ -1183,6 +1239,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductOption"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.ProductOptionModel class"
@@ -1202,6 +1259,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductOptionModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.Recommendation class"
@@ -1221,6 +1279,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Recommendation"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.catalog.ProductAttributeModel class"
@@ -1240,6 +1299,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductAttributeModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.LineItem class"
@@ -1259,6 +1319,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class LineItem"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.OrderAddress class"
@@ -1278,6 +1339,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:OrderAddress"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.PaymentMethod class"
@@ -1297,6 +1359,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PaymentMethod"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.PaymentMgr class"
@@ -1316,6 +1379,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PaymentMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.order.ShippingMgr class"
@@ -1335,6 +1399,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ShippingMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.AddressBook class"
@@ -1354,6 +1419,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:AddressBook"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.CustomerAddress class"
@@ -1373,6 +1439,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomerAddress"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.CustomerPaymentInstrument class"
@@ -1392,6 +1459,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CustomerPaymentInstrument"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.customer.Wallet class"
@@ -1411,6 +1479,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Wallet"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Pipeline class"
@@ -1430,6 +1499,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Pipeline"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.HookMgr class"
@@ -1449,6 +1519,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:HookMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.CacheMgr class"
@@ -1468,6 +1539,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CacheMgr"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.Forms class"
@@ -1487,6 +1559,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Forms"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.PageMetaData class"
@@ -1506,6 +1579,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PageMetaData"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.web.PagingModel class"
@@ -1525,6 +1599,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PagingModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.StringUtils class"
@@ -1544,6 +1619,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:StringUtils"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.Map class"
@@ -1563,6 +1639,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Map"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.Locale class"
@@ -1582,6 +1659,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Locale"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.util.List class"
@@ -1601,6 +1679,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class List"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.value.EnumValue class"
@@ -1620,6 +1699,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:EnumValue"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.net.FTPClient class"
@@ -1639,6 +1719,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:FTPClient"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.net.SFTPClient class"
@@ -1658,6 +1739,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:SFTPClient"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.io.CSVStreamWriter class"
@@ -1677,6 +1759,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:CSVStreamWriter"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.io.XMLStreamWriter class"
@@ -1696,6 +1779,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:XMLStreamWriter"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return documentation for dw.system.Status class"
@@ -1715,6 +1799,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:# Class Status"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -1738,6 +1823,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Description"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include constants in Order documentation"
@@ -1757,6 +1843,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Constants"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include constructor summary in Order documentation"
@@ -1776,6 +1863,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Constructor Summary"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include method signatures in documentation"
@@ -1795,6 +1883,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:**Signature:**"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include property types in documentation"
@@ -1814,6 +1903,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:**Type:**"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include return valid markdown format"
@@ -1833,6 +1923,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:[\\s\\S]*#{1,6}[\\s\\S]*"  # Contains markdown headers
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -2043,6 +2134,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:[\\s\\S]{5000,}"  # At least 5000 characters
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include multiple sections in complete documentation"
@@ -2062,6 +2154,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:## Properties"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include detailed method information"
@@ -2081,6 +2174,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:**Parameters:**"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include return value information"
@@ -2100,6 +2194,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:**Returns:**"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -2123,6 +2218,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should not include isError field for successful responses"
@@ -2144,6 +2240,7 @@ tests:
               text: "match:type:string"
           match:partial:
             content: "match:type:array"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -2167,6 +2264,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Product"
+          isError: false
       performance:
         maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
       stderr: "toBeEmpty"
@@ -2188,6 +2286,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.order.Order"
+          isError: false
       performance:
         maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
       stderr: "toBeEmpty"
@@ -2209,6 +2308,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.customer.Customer"
+          isError: false
       performance:
         maxResponseTime: "500ms"  # CI-friendly timeout for documentation lookup
       stderr: "toBeEmpty"
@@ -2276,6 +2376,7 @@ tests:
         id: "format-content-array"
         result:
           content: "match:arrayLength:1"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return content with proper type field"
@@ -2295,6 +2396,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should maintain consistent error response format"

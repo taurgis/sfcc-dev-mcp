@@ -63,6 +63,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return comprehensive class list structure"
@@ -81,6 +82,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:TopLevel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include core SFCC classes in response"
@@ -99,6 +101,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include system classes in response"
@@ -117,6 +120,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.system"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include order classes in response"
@@ -135,6 +139,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.order"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include customer classes in response"
@@ -153,6 +158,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.customer"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -175,6 +181,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Product"  # Should contain specific class
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should contain structured class information"
@@ -193,6 +200,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:dw\\.[a-zA-Z]+"  # Should contain dw.* patterns
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include SFCC namespace classes"
@@ -211,6 +219,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -233,6 +242,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       performance:
         maxResponseTime: "1000ms"  # Should be fast for metadata
       stderr: "toBeEmpty"
@@ -252,6 +262,7 @@ tests:
         result:
           match:partial:
             content: "match:type:array"
+          isError: false
       performance:
         maxResponseTime: "2000ms"  # Generous for comprehensive listing
       stderr: "toBeEmpty"
@@ -276,6 +287,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.web"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include utility classes"
@@ -294,6 +306,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.util"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include IO classes"
@@ -312,6 +325,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.io"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include service classes"
@@ -330,6 +344,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.svc"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -352,6 +367,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle empty arguments object consistently"
@@ -370,6 +386,7 @@ tests:
           content:
             - type: "text"
               text: "match:not:contains:error"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should ignore additional parameters gracefully"
@@ -390,6 +407,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -412,6 +430,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw."
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include discovery-friendly information"
@@ -430,6 +449,7 @@ tests:
           content:
             - type: "text"
               text: "match:not:contains:undefined"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should be useful for SFCC API exploration"
@@ -448,6 +468,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.system.Site"  # Should contain specific class
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -469,6 +490,7 @@ tests:
         result:
           match:partial:
             content: "match:type:array"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should serve as good starting point for SFCC development"
@@ -487,4 +509,5 @@ tests:
           content:
             - type: "text"
               text: "match:contains:TopLevel"
+          isError: false
       stderr: "toBeEmpty"

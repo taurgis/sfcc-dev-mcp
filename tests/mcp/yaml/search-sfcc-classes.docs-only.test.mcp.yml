@@ -100,6 +100,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return JSON array structure for product search"
@@ -119,6 +120,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array structure
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find customer-related classes"
@@ -138,6 +140,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:customer"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find order-related classes"
@@ -157,6 +160,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:order"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find system-related classes"
@@ -176,6 +180,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:system"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find web-related classes"
@@ -195,6 +200,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:web"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find util-related classes"
@@ -214,6 +220,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:util"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -237,6 +244,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return class names in array format"
@@ -256,6 +264,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Product"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include multiple matching classes"
@@ -275,6 +284,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should format class names with quotes"
@@ -294,6 +304,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\"dw\\.catalog\\.Product\""
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -317,6 +328,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle mixed case search terms"
@@ -336,6 +348,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle partial class names"
@@ -355,6 +368,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle single character searches"
@@ -374,6 +388,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -397,6 +412,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find dw.customer namespace classes"
@@ -416,6 +432,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.customer"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find dw.order namespace classes"
@@ -435,6 +452,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.order"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find dw.system namespace classes"
@@ -454,6 +472,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.system"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find dw.web namespace classes"
@@ -473,6 +492,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.web"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find dw.util namespace classes"
@@ -492,6 +512,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.util"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -515,6 +536,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductInventoryList"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find price-related classes"
@@ -534,6 +556,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:PriceBook"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find basket-related classes"
@@ -553,6 +576,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Basket"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find payment-related classes"
@@ -572,6 +596,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Payment"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find shipping-related classes"
@@ -591,6 +616,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Shipping"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -653,6 +679,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle special characters in query"
@@ -672,6 +699,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle very long query strings"
@@ -691,6 +719,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -716,6 +745,7 @@ tests:
               match:partial:
                 type: "text"
                 text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return single content item for successful calls"
@@ -733,6 +763,7 @@ tests:
         id: "format-single-content"
         result:
           content: "match:arrayLength:1"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should not set isError flag for successful responses"
@@ -750,6 +781,7 @@ tests:
         id: "format-no-error-flag"
         result:
           content: "match:type:array"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -773,6 +805,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle whitespace in query"
@@ -792,6 +825,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle common abbreviations"
@@ -811,6 +845,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle dots in search terms"
@@ -830,6 +865,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -853,6 +889,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should respond consistently for repeated searches (second time)"
@@ -872,6 +909,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -895,6 +933,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Search should be fast
       stderr: "toBeEmpty"
@@ -916,6 +955,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Even complex searches should be under 100ms
       stderr: "toBeEmpty"
@@ -937,6 +977,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Partial searches should be fast
       stderr: "toBeEmpty"
@@ -958,6 +999,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"
+          isError: false
       performance:
         maxResponseTime: "50ms"  # No results should be very fast
       stderr: "toBeEmpty"
@@ -1001,6 +1043,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "50ms"  # Cached responses should be extremely fast
       stderr: "toBeEmpty"
@@ -1022,6 +1065,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Single char searches might return many results
       stderr: "toBeEmpty"
@@ -1043,6 +1087,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"
+          isError: false
       performance:
         maxResponseTime: "50ms"  # Long queries with no results should be fast
       stderr: "toBeEmpty"
@@ -1068,6 +1113,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog.Product"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find classes by functionality"
@@ -1087,6 +1133,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductInventoryList"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include relevant namespace classes"
@@ -1106,4 +1153,5 @@ tests:
           content:
             - type: "text"
               text: "match:regex:dw\\.system\\."
+          isError: false
       stderr: "toBeEmpty"

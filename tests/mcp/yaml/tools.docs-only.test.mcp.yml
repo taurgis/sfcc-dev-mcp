@@ -384,6 +384,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute search_sfcc_classes with search results structure"
@@ -403,6 +404,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute get_available_best_practice_guides with list structure"
@@ -421,6 +423,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:cartridge_creation"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute get_best_practice_guide with guide content structure"
@@ -440,6 +443,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute get_available_sfra_documents with document list structure"
@@ -458,6 +462,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:server"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute get_sfra_document with documentation structure"
@@ -477,6 +482,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute search_sfra_documentation with search functionality"
@@ -496,6 +502,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute get_sfra_categories with category information"
@@ -514,6 +521,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should execute generate_cartridge_structure successfully"
@@ -535,6 +543,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   # ==================================================================================

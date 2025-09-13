@@ -198,7 +198,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       
       // Validate MCP response structure
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not be an error response');
+      assert.equal(result.isError, false, 'Should not be an error response');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be text type');
       
@@ -234,7 +234,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       );
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError || false, false, 'Should not be an error response');
+      assert.equal(result.isError, false, 'Should not be an error response');
       
       const methodArray = parseMethodArray(result.content[0].text);
       assert.ok(Array.isArray(methodArray), 'Response should be valid JSON array');
@@ -276,7 +276,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         );
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not be an error');
+        assert.equal(result.isError, false, 'Should not be an error');
         
         const methodArray = parseMethodArray(result.content[0].text);
         assert.ok(methodArray.length >= expectedMin, 
@@ -386,7 +386,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         );
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not be an error for valid string');
+        assert.equal(result.isError, false, 'Should not be an error for valid string');
         
         const methodArray = parseMethodArray(result.content[0].text);
         assert.ok(Array.isArray(methodArray), 'Should return valid array');
@@ -457,7 +457,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       // All results should be successful
       results.forEach(result => {
         assertValidMCPResponse(result);
-        assert.equal(result.isError || false, false, 'Should not be error');
+        assert.equal(result.isError, false, 'Should not be error');
       });
       
       // Parse arrays for comparison
@@ -517,10 +517,9 @@ function assertValidMCPResponse(result) {
   assert.equal(result.content[0].type, 'text', 'First content item should be text type');
   assert.equal(typeof result.content[0].text, 'string', 'Text content should be a string');
   
-  // isError property only exists on error responses, is undefined on success
-  if ('isError' in result) {
-    assert.equal(typeof result.isError, 'boolean', 'isError should be a boolean when present');
-  }
+  // isError property should always be present and boolean
+  assert.ok(Object.prototype.hasOwnProperty.call(result, 'isError'), 'isError property should always be present');
+  assert.equal(typeof result.isError, 'boolean', 'isError should be a boolean');
 }
 
 /**

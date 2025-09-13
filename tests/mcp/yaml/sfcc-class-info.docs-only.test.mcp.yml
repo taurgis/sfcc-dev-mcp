@@ -100,6 +100,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return JSON structure for dw.catalog.Product"
@@ -119,6 +120,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\{[\\s\\S]*\\}"  # Valid JSON structure
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include required class information in JSON response"
@@ -138,6 +140,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include packageName in response"
@@ -157,6 +160,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:packageName"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include description in response"
@@ -176,6 +180,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:description"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include methods in response"
@@ -195,6 +200,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:methods"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include properties in response"
@@ -214,6 +220,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:properties"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should have inheritance chain information"
@@ -233,6 +240,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:inheritance"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -256,6 +264,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductVariationModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with short class names"
@@ -275,6 +284,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with TopLevel classes"
@@ -294,6 +304,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Number"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -318,6 +329,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should work with expand parameter set to true"
@@ -338,6 +350,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -361,6 +374,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw.catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return methods array for classes with methods"
@@ -380,6 +394,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\"methods\"\\s*:\\s*\\["
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return properties array for classes with properties"
@@ -399,6 +414,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\"properties\"\\s*:\\s*\\["
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include method signatures"
@@ -418,6 +434,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:signature"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -526,6 +543,7 @@ tests:
               match:partial:
                 type: "text"
                 text: "match:type:string"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return single content item for successful calls"
@@ -543,6 +561,7 @@ tests:
         id: "format-single-content"
         result:
           content: "match:arrayLength:1"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should not set isError flag for successful responses"
@@ -560,6 +579,7 @@ tests:
         id: "format-no-error-flag"
         result:
           content: "match:type:array"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -583,6 +603,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\"methods\"[\\s\\S]*getID[\\s\\S]*getName"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle classes with variation models"
@@ -602,6 +623,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductVariationModel"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle inventory-related classes"
@@ -621,6 +643,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:ProductInventoryList"
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -644,6 +667,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should respond consistently for repeated calls (second time)"
@@ -663,6 +687,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Catalog"
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle case sensitivity properly"
@@ -706,6 +731,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Catalog"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Documentation lookup should be very fast
       stderr: "toBeEmpty"
@@ -728,6 +754,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Product"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Even expanded info should be under 100ms
       stderr: "toBeEmpty"
@@ -750,6 +777,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Site"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Large classes should still be under 100ms
       stderr: "toBeEmpty"
@@ -771,6 +799,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Customer"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Standard class lookup should be under 100ms
       stderr: "toBeEmpty"
@@ -793,6 +822,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Order"
+          isError: false
       performance:
         maxResponseTime: "100ms"  # Basic order class lookup should be under 100ms
       stderr: "toBeEmpty"
@@ -880,6 +910,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:Catalog"
+          isError: false
       performance:
         maxResponseTime: "50ms"  # Cached responses should be extremely fast
       stderr: "toBeEmpty"

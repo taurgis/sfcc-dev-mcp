@@ -95,6 +95,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array structure
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find multiple get methods with proper structure"
@@ -114,6 +115,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:className"  # Should contain className field
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find get methods with method objects containing name and signature"
@@ -133,6 +135,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:signature"  # Should contain signature information
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should successfully search for 'create' methods"
@@ -152,6 +155,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should find create methods containing relevant class information"
@@ -171,6 +175,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:dw_"  # Should contain SFCC class references
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should successfully search for 'toString' method"
@@ -190,6 +195,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should successfully search for 'getValue' method"
@@ -209,6 +215,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:getValue"  # Should contain the searched method name
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle case-sensitive method search"
@@ -228,6 +235,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Should still return valid array (might be empty)
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -251,6 +259,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"  # Empty JSON array
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return empty array for very specific method name"
@@ -270,6 +279,7 @@ tests:
           content:
             - type: "text"
               text: "[]"  # Exact empty array
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return empty array for special characters in method name"
@@ -289,6 +299,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"  # Empty array for invalid method names
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -455,6 +466,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
       performance:
         maxResponseTime: "3000ms"  # Allow more time for comprehensive search
       stderr: "toBeEmpty"
@@ -476,6 +488,7 @@ tests:
           content:
             - type: "text"
               text: "[]"  # Exact empty array
+          isError: false
       performance:
         maxResponseTime: "1000ms"  # Empty searches should be faster
       stderr: "toBeEmpty"
@@ -523,6 +536,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle very long method name search"
@@ -542,6 +556,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:^\\[\\s*\\]$"  # Likely empty array for very long names
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle method names with numbers"
@@ -561,6 +576,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid response
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should handle method names with underscores"
@@ -580,6 +596,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:\\[[\\s\\S]*\\]"  # Valid response
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -603,6 +620,7 @@ tests:
           content:
             - type: "text"
               text: "match:contains:description"  # Should include method descriptions
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should include both className and method information"
@@ -622,6 +640,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:[\\s\\S]*className[\\s\\S]*method[\\s\\S]*"  # Contains both className and method
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should maintain consistent response format across different searches"
@@ -641,6 +660,7 @@ tests:
           content:
             - type: "text"
               text: "match:type:string"  # Always returns string content
+          isError: false
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -679,6 +699,7 @@ tests:
           content:
             - type: "text"
               text: "match:regex:[\\s\\S]*dw_[a-z]+\\.[A-Z][\\s\\S]*"  # Contains SFCC class patterns like dw_catalog.Product
+          isError: false
       stderr: "toBeEmpty"
 
   - it: "should return methods from multiple SFCC namespaces"
@@ -698,4 +719,5 @@ tests:
           content:
             - type: "text"
               text: "match:regex:[\\s\\S]*dw_[a-z]+[\\s\\S]*"  # Should find methods in various dw_ namespaces
+          isError: false
       stderr: "toBeEmpty"

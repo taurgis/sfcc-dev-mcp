@@ -26,7 +26,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       assert.ok(result.content, 'Should have content');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
@@ -45,7 +45,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.system.Site'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       assert.ok(result.content, 'Should have content');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
@@ -60,7 +60,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.order.Order'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       assert.ok(result.content, 'Should have content');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
@@ -75,7 +75,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       assert.ok(result.content, 'Should have content');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
@@ -91,7 +91,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       const documentation = result.content[0].text;
 
       // Check for main structural elements
@@ -124,7 +124,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       const documentation = result.content[0].text;
 
       // Check markdown formatting
@@ -140,7 +140,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       const documentation = result.content[0].text;
 
       // Product class has deprecated methods, should include deprecation info
@@ -232,7 +232,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       const duration = Date.now() - startTime;
 
       assert.ok(duration < 5000, `Response time ${duration}ms should be under 5000ms`);
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
     });
 
     test('should respond within reasonable time for non-existent classes', async () => {
@@ -261,7 +261,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       const results = await Promise.all(promises);
 
       results.forEach((result, index) => {
-        assert.equal(result.isError, undefined, `Request ${index} should not have isError property on success`);
+        assert.equal(result.isError, false, `Request ${index} should not have isError property on success`);
         assert.ok(result.content, `Request ${index} should have content`);
         assert.equal(result.content[0].type, 'text', `Request ${index} should have text content`);
         assert.ok(result.content[0].text.includes(classNames[index].split('.').pop()), 
@@ -281,7 +281,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
       // Either success (isError undefined) or proper error (isError true)
-      assert.ok(result.isError === undefined || result.isError === true, 'Should have proper isError flag');
+      assert.ok(result.isError === false || result.isError === true, 'Should have proper isError flag');
     });
 
     test('should handle very long class names', async () => {
@@ -314,7 +314,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         assert.equal(result.content.length, 1, `Should have exactly one content item for ${className}`);
         assert.equal(result.content[0].type, 'text', `Content should be of type text for ${className}`);
         // Either success (isError undefined) or error (isError true)
-        assert.ok(result.isError === undefined || result.isError === true, 
+        assert.ok(result.isError === false || result.isError === true, 
           `Should have proper isError flag for ${className}`);
       }
     });
@@ -334,7 +334,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
           className
         });
 
-        assert.equal(result.isError, undefined, `Should not have isError property on success for ${className}`);
+        assert.equal(result.isError, false, `Should not have isError property on success for ${className}`);
         
         const documentation = result.content[0].text;
         assert.ok(documentation.length > 1000, `Documentation for ${className} should be comprehensive`);
@@ -349,7 +349,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       
       const documentation = result.content[0].text;
       assert.ok(documentation.includes('**Signature:**'), 'Should include method signatures');
@@ -363,7 +363,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
         className: 'dw.catalog.Product'
       });
 
-      assert.equal(result.isError, undefined, 'Should not have isError property on success');
+      assert.equal(result.isError, false, 'Should have isError: false on success');
       
       const documentation = result.content[0].text;
       assert.ok(documentation.includes('## Inheritance Hierarchy'), 'Should include inheritance hierarchy');
@@ -386,7 +386,7 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content type should be text');
       assert.ok(typeof result.content[0].text === 'string', 'Content text should be string');
-      assert.equal(result.isError, undefined, 'isError should be undefined for success');
+      assert.equal(result.isError, false, 'isError should be false for success');
     });
 
     test('should always return consistent response structure for errors', async () => {
@@ -404,14 +404,14 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.equal(result.isError, true, 'isError should be true for errors');
     });
 
-    test('should not include isError property when successful', async () => {
+    test('should include isError: false property when successful', async () => {
       const result = await client.callTool('get_sfcc_class_documentation', {
         className: 'dw.catalog.Product'
       });
 
-      // According to the user's note, isError is only returned on errors
-      assert.equal(result.isError, undefined, 'isError should be undefined for successful operations');
-      assert.ok(!Object.prototype.hasOwnProperty.call(result, 'isError'), 'Should not have isError property for successful operations');
+      // isError should now always be included for consistency
+      assert.equal(result.isError, false, 'isError should be false for successful operations');
+      assert.ok(Object.prototype.hasOwnProperty.call(result, 'isError'), 'Should have isError property for all responses');
     });
   });
 });

@@ -213,6 +213,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       content: [
         { type: 'text', text: stringify ? JSON.stringify(data, null, 2) : data },
       ],
+      isError: false,
     };
   }
 
