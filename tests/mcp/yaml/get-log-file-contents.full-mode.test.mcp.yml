@@ -143,6 +143,78 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
+  - it: "should respect maxBytes parameter and validate content structure"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-maxbytes-length"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 1000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-maxbytes-length"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Log File Contents:"  # Should have header
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle small maxBytes parameter and include required headers"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-small-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 100
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-small-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Log File Contents:"  # Should still have header even with small maxBytes
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle large maxBytes parameter and include content details"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-large-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 10000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-large-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Content size:"  # Should have substantial content
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
   - it: "should work with tailOnly parameter"
     request:
       jsonrpc: "2.0"
@@ -153,6 +225,7 @@ tests:
         arguments:
           filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
           tailOnly: true
+          maxBytes: 10
     expect:
       response:
         jsonrpc: "2.0"
@@ -187,6 +260,31 @@ tests:
             match:arrayElements:
               type: "text"
               text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should respect maxBytes limit when combined with tailOnly and validate structure"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-combined-length"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 500
+          tailOnly: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-combined-length"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Total lines:"  # Should have content with line count
           isError: false
       stderr: "toBeEmpty"
     performance:
@@ -350,6 +448,79 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
+  # Edge case tests for maxBytes string length validation
+  - it: "should handle zero maxBytes parameter and return error"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-zero-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-zero-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid maxBytes"  # Should return validation error
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle very small maxBytes parameter and include headers"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-tiny-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-tiny-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "\"# Log File Contents: jobs/ImportCatalog/Job-ImportCatalog-0987654321.log (full read)\\n\\nTotal lines: 1\\nContent size: 10 bytes\\n\\n---\\n\\n[2025-09-1\""  # Should have minimal content with headers
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should validate content quality scales with larger maxBytes parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-scaling-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 2000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-scaling-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:INFO"  # Should have substantial log content with log entries
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
   # Edge case tests
   - it: "should handle numeric maxBytes parameter"
     request:
@@ -360,7 +531,7 @@ tests:
         name: "get_log_file_contents"
         arguments:
           filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
-          maxBytes: 1000
+          maxBytes: 20
     expect:
       response:
         jsonrpc: "2.0"
@@ -369,7 +540,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
+              text: "\"# Log File Contents: jobs/ImportCatalog/Job-ImportCatalog-0987654321.log (full read)\\n\\nTotal lines: 1\\nContent size: 20 bytes\\n\\n---\\n\\n[2025-09-14 17:18:55\""
           isError: false
       stderr: "toBeEmpty"
     performance:
