@@ -97,7 +97,7 @@ function validateDwJsonContent(dwConfig: DwJsonConfig): void {
 
   // Additional validation for hostname format (trim whitespace first)
   const trimmedHostname = dwConfig.hostname.trim();
-  if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+$/)) {
+  if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
     throw new Error('Invalid hostname format in configuration');
   }
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "hostname": "dev01-sandbox.us01.dx.commercecloud.salesforce.com",
+  "hostname": "localhost:3000",
   "username": "test-user@company.com",
   "password": "test-password",
   "client-id": "test-client-id",

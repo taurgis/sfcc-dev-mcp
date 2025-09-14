@@ -101,6 +101,16 @@ describe('ConfigurationFactory', () => {
       }).toThrow('When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided');
     });
 
+    it('should validate configuration and throw error for invalid hostname format', () => {
+      expect(() => {
+        ConfigurationFactory.create({
+          hostname: 'invalid@hostname!',
+          username: 'testuser',
+          password: 'testpass',
+        });
+      }).toThrow('Invalid hostname format in configuration');
+    });
+
     it('should validate configuration and allow hostname with basic auth', () => {
       const config = ConfigurationFactory.create({
         hostname: 'test-instance.demandware.net',
@@ -119,6 +129,28 @@ describe('ConfigurationFactory', () => {
         clientSecret: 'test-client-secret',
       });
       expect(config.hostname).toBe('test-instance.demandware.net');
+      expect(config.clientId).toBe('test-client-id');
+      expect(config.clientSecret).toBe('test-client-secret');
+    });
+
+    it('should validate configuration and allow localhost with port', () => {
+      const config = ConfigurationFactory.create({
+        hostname: 'localhost:3000',
+        username: 'testuser',
+        password: 'testpass',
+      });
+      expect(config.hostname).toBe('localhost:3000');
+      expect(config.username).toBe('testuser');
+      expect(config.password).toBe('testpass');
+    });
+
+    it('should validate configuration and allow hostname with custom port', () => {
+      const config = ConfigurationFactory.create({
+        hostname: 'test-instance.demandware.net:8080',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+      });
+      expect(config.hostname).toBe('test-instance.demandware.net:8080');
       expect(config.clientId).toBe('test-client-id');
       expect(config.clientSecret).toBe('test-client-secret');
     });

@@ -1,0 +1,507 @@
+# ==================================================================================
+# SFCC MCP Server - get_sfra_documents_by_category Tool YAML Tests (full-mode mode)
+# Tests SFRA document category filtering functionality with comprehensive validation
+# 
+# Tool: get_sfra_documents_by_category
+# Purpose: Get SFRA documents filtered by category (core, product, order, customer, pricing, store, other)
+# Parameters: category (required) - Category to filter by
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/get-sfra-documents-by-category.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/get-sfra-documents-by-category.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query get_sfra_documents_by_category '{"category": "core"}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+description: "SFCC MCP Server - get_sfra_documents_by_category tool comprehensive tests"
+
+# ==================================================================================
+# SUCCESSFUL OPERATIONS - VALID CATEGORIES
+# ==================================================================================
+tests:
+  - it: "should retrieve core SFRA documents with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "core-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[\\s*\\{[\\s\\S]*\\}\\s*\\]"  # Valid JSON array structure
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return valid JSON array for core category"
+    request:
+      jsonrpc: "2.0"
+      id: "core-json-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-json-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:server"  # Core category should contain server document
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include required document fields for core category"
+    request:
+      jsonrpc: "2.0"
+      id: "core-fields-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-fields-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*name[\\s\\S]*title[\\s\\S]*description[\\s\\S]*type[\\s\\S]*category[\\s\\S]*filename"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should contain expected core documents"
+    request:
+      jsonrpc: "2.0"
+      id: "core-content-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "core-content-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*querystring[\\s\\S]*render[\\s\\S]*request[\\s\\S]*response[\\s\\S]*server"  # Core SFRA classes in alphabetical order
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve product SFRA documents with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "product-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[\\s*\\{[\\s\\S]*\\}\\s*\\]"  # Valid JSON array structure
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should contain product model documents"
+    request:
+      jsonrpc: "2.0"
+      id: "product-content-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-content-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*product-full[\\s\\S]*product-tile"  # Product models
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve order category documents"
+    request:
+      jsonrpc: "2.0"
+      id: "order-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "order-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array (may be empty)
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve customer category documents"
+    request:
+      jsonrpc: "2.0"
+      id: "customer-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customer-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve pricing category documents"
+    request:
+      jsonrpc: "2.0"
+      id: "pricing-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "pricing"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pricing-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve store category documents"
+    request:
+      jsonrpc: "2.0"
+      id: "store-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "store"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "store-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve other category documents"
+    request:
+      jsonrpc: "2.0"
+      id: "other-docs-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "other"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "other-docs-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASES - INVALID/EMPTY CATEGORIES
+# ==================================================================================
+
+  - it: "should handle invalid category gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-category-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "invalid_category_xyz"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Empty array for invalid category
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty category gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-category-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING - MISSING PARAMETERS
+# ==================================================================================
+
+  - it: "should require category parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-category-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:category must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle null category parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "null-category-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "null-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# DATA VALIDATION - CONTENT STRUCTURE
+# ==================================================================================
+
+  - it: "should return documents with valid category field in core"
+    request:
+      jsonrpc: "2.0"
+      id: "category-field-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-field-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*category[\\s\\S]*:[\\s\\S]*core"  # Category field should match request
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return documents with type field in product category"
+    request:
+      jsonrpc: "2.0"
+      id: "type-field-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "type-field-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*type[\\s\\S]*:[\\s\\S]*(model|class|module)"  # Valid type values
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return documents with filename field"
+    request:
+      jsonrpc: "2.0"
+      id: "filename-field-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filename-field-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*filename[\\s\\S]*:[\\s\\S]*\\.md"  # Markdown filename
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE VALIDATION
+# ==================================================================================
+
+  - it: "should respond quickly for core category lookup"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-core-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-core-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "300ms"  # Fast metadata operation
+      stderr: "toBeEmpty"
+
+  - it: "should respond quickly for product category lookup"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-product-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-product-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "300ms"  # Fast metadata operation
+      stderr: "toBeEmpty"
+
+  - it: "should handle error cases quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-error-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-error-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "200ms"  # Error handling should be very fast
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CASE SENSITIVITY TESTING
+# ==================================================================================
+
+  - it: "should handle uppercase category names"
+    request:
+      jsonrpc: "2.0"
+      id: "case-upper-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "CORE"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "case-upper-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Expect empty array for case mismatch
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle mixed case category names"
+    request:
+      jsonrpc: "2.0"
+      id: "case-mixed-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_documents_by_category"
+        arguments:
+          category: "Core"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "case-mixed-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Expect empty array for case mismatch
+          isError: false
+      stderr: "toBeEmpty"

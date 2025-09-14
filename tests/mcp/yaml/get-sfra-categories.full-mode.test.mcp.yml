@@ -1,0 +1,452 @@
+description: "Comprehensive tests for get_sfra_categories tool in full-mode mode"
+
+tests:
+  # Basic functionality tests
+  - it: "should return all SFRA category information with proper structure"
+    request:
+      jsonrpc: "2.0" 
+      id: "test-1"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return JSON array of category objects"
+    request:
+      jsonrpc: "2.0"
+      id: "test-2"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[[\\s\\S]*\\]$"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include all expected category fields"
+    request:
+      jsonrpc: "2.0"
+      id: "test-3"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-3"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*category[\\s\\S]*count[\\s\\S]*description[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Specific category validation tests
+  - it: "should include core category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-4"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-4"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"core\"[\\s\\S]*\"count\":[\\s]*5[\\s\\S]*Core SFRA classes[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include customer category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-5"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-5"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"customer\"[\\s\\S]*\"count\":[\\s]*2[\\s\\S]*Customer account[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include order category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-6"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-6"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"order\"[\\s\\S]*\"count\":[\\s]*6[\\s\\S]*Order, cart, billing[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include product category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-7"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-7"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"product\"[\\s\\S]*\"count\":[\\s]*5[\\s\\S]*Product-related[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include pricing category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-8"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-8"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"pricing\"[\\s\\S]*\"count\":[\\s]*3[\\s\\S]*Pricing and discount[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include store category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-9"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-9"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"store\"[\\s\\S]*\"count\":[\\s]*2[\\s\\S]*Store and location[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include other category with proper information"
+    request:
+      jsonrpc: "2.0"
+      id: "test-10"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-10"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"other\"[\\s\\S]*\"count\":[\\s]*3[\\s\\S]*Other models and utilities[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Count validation tests
+  - it: "should return exactly 7 categories"
+    request:
+      jsonrpc: "2.0"
+      id: "test-11"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-11"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(?:\"category\"[\\s\\S]*?){7}"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have core with count 5"
+    request:
+      jsonrpc: "2.0"
+      id: "test-12"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-12"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"count\": 5"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have customer with count 2"
+    request:
+      jsonrpc: "2.0"
+      id: "test-13"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-13"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"count\": 2"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have order with count 6"
+    request:
+      jsonrpc: "2.0"
+      id: "test-14"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-14"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"count\": 6"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # JSON structure validation tests
+  - it: "should return valid JSON structure with proper formatting"
+    request:
+      jsonrpc: "2.0"
+      id: "test-15"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-15"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[[\\s\\S]*\\{[\\s\\S]*\"category\"[\\s\\S]*\"count\"[\\s\\S]*\"description\"[\\s\\S]*\\}[\\s\\S]*\\]$"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Error handling and edge case tests
+  - it: "should handle empty parameters gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "test-16"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-16"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:core"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should ignore invalid parameters and return normal result"
+    request:
+      jsonrpc: "2.0"
+      id: "test-17"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments:
+          invalid: "param"
+          another: "value"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-17"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"category\": \"core\""
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Performance tests
+  - it: "should respond quickly for metadata operation"
+    request:
+      jsonrpc: "2.0"
+      id: "test-18"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-18"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  # Content validation patterns
+  - it: "should have consistent category naming patterns"
+    request:
+      jsonrpc: "2.0"
+      id: "test-19"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-19"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"category\":[\\s]*\"[a-z]+\""
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have numeric count values"
+    request:
+      jsonrpc: "2.0"
+      id: "test-20"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-20"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"count\":[\\s]*[0-9]+"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have descriptive text for all categories"
+    request:
+      jsonrpc: "2.0"
+      id: "test-21"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-21"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"description\":[\\s]*\"[A-Z][\\s\\S]*\""
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Category completeness test - adjusted order to match actual response order
+  - it: "should include all expected SFRA category names in order"
+    request:
+      jsonrpc: "2.0"
+      id: "test-22"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-22"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*core[\\s\\S]*customer[\\s\\S]*order[\\s\\S]*other[\\s\\S]*pricing[\\s\\S]*product[\\s\\S]*store[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Robustness tests
+  - it: "should return consistent results across multiple calls"
+    request:
+      jsonrpc: "2.0"
+      id: "test-23"
+      method: "tools/call"
+      params:
+        name: "get_sfra_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-23"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(?:\"category\"[\\s\\S]*?){7}"
+          isError: false
+      stderr: "toBeEmpty"

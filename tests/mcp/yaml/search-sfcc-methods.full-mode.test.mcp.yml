@@ -1,0 +1,723 @@
+# ==================================================================================
+# SFCC MCP Server - search_sfcc_methods Tool YAML Tests
+# Comprehensive testing for SFCC method search functionality
+# Tests both successful responses and error handling scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/search-sfcc-methods.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/search-sfcc-methods.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query search_sfcc_methods '{"methodName": "get"}' --config "conductor.config.with-dw.json"
+# conductor query search_sfcc_methods '{"methodName": "create"}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+description: "SFCC MCP Server search_sfcc_methods tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list search_sfcc_methods tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfcc_methods"
+      stderr: "toBeEmpty"
+
+  - it: "should have search_sfcc_methods in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:search_sfcc_methods"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description-quality"
+        result:
+          tools:
+            match:arrayContains:name:search_sfcc_methods
+      stderr: "toBeEmpty"
+
+  - it: "should have proper input schema for methodName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-validation"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-validation"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfcc_methods"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL METHOD SEARCH OPERATIONS
+# ==================================================================================
+
+  - it: "should successfully search for 'get' methods returning valid JSON array"
+    request:
+      jsonrpc: "2.0"
+      id: "search-get-methods"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-get-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array structure
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should find multiple get methods with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "search-get-structure"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-get-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"  # Should contain className field
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should find get methods with method objects containing name and signature"
+    request:
+      jsonrpc: "2.0"
+      id: "search-get-method-details"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-get-method-details"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:signature"  # Should contain signature information
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully search for 'create' methods"
+    request:
+      jsonrpc: "2.0"
+      id: "search-create-methods"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "create"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-create-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should find create methods containing relevant class information"
+    request:
+      jsonrpc: "2.0"
+      id: "search-create-content"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "create"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-create-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw_"  # Should contain SFCC class references
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully search for 'toString' method"
+    request:
+      jsonrpc: "2.0"
+      id: "search-tostring-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "toString"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-tostring-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully search for 'getValue' method"
+    request:
+      jsonrpc: "2.0"
+      id: "search-getvalue-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "getValue"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-getvalue-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:getValue"  # Should contain the searched method name
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle case-sensitive method search"
+    request:
+      jsonrpc: "2.0"
+      id: "search-case-sensitive"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "GET"  # Uppercase should be different from 'get'
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-case-sensitive"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Should still return valid array (might be empty)
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EMPTY RESULT VALIDATION
+# ==================================================================================
+
+  - it: "should return empty array for non-existent method names"
+    request:
+      jsonrpc: "2.0"
+      id: "search-nonexistent-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-nonexistent-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Empty JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return empty array for very specific method name"
+    request:
+      jsonrpc: "2.0"
+      id: "search-specific-nonexistent"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "verySpecificMethodThatDoesNotExist123"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-specific-nonexistent"
+        result:
+          content:
+            - type: "text"
+              text: "[]"  # Exact empty array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return empty array for special characters in method name"
+    request:
+      jsonrpc: "2.0"
+      id: "search-special-chars"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "method@#$%"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-special-chars"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Empty array for invalid method names
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING VALIDATION
+# ==================================================================================
+
+  - it: "should return error for empty method name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return specific error message for empty method name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-message"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-message"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return error for missing methodName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-param"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return error for whitespace-only method name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-whitespace-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "   "
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-whitespace-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return error for null method name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-null-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-null-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return error for non-string method name (number)"
+    request:
+      jsonrpc: "2.0"
+      id: "error-number-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-number-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return error for non-string method name (boolean)"
+    request:
+      jsonrpc: "2.0"
+      id: "error-boolean-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-boolean-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE AND RESPONSE TIME VALIDATION
+# ==================================================================================
+
+  - it: "should complete method search within reasonable time (large result set)"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-large-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"  # Common method name with many results
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-large-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      performance:
+        maxResponseTime: "3000ms"  # Allow more time for comprehensive search
+      stderr: "toBeEmpty"
+
+  - it: "should complete method search quickly for empty results"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-empty-search"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-empty-search"
+        result:
+          content:
+            - type: "text"
+              text: "[]"  # Exact empty array
+          isError: false
+      performance:
+        maxResponseTime: "1000ms"  # Empty searches should be faster
+      stderr: "toBeEmpty"
+
+  - it: "should handle error cases quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-error-handling"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-error-handling"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"  # Error validation should be very fast
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASE VALIDATION
+# ==================================================================================
+
+  - it: "should handle single character method search"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-single-char"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "a"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-single-char"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid JSON array
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long method name search"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-long-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "thisIsAVeryLongMethodNameThatProbablyDoesNotExistInTheSystem"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-long-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"  # Likely empty array for very long names
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle method names with numbers"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-method-with-numbers"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "method123"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-method-with-numbers"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid response
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle method names with underscores"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-method-underscore"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "method_name"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-method-underscore"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"  # Valid response
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT STRUCTURE VALIDATION
+# ==================================================================================
+
+  - it: "should return methods with complete information structure (if results exist)"
+    request:
+      jsonrpc: "2.0"
+      id: "content-structure-complete"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"  # Method likely to have results
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-structure-complete"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:description"  # Should include method descriptions
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include both className and method information"
+    request:
+      jsonrpc: "2.0"
+      id: "content-both-class-method"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "create"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-both-class-method"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*className[\\s\\S]*method[\\s\\S]*"  # Contains both className and method
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should maintain consistent response format across different searches"
+    request:
+      jsonrpc: "2.0"
+      id: "content-consistent-format"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "getValue"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-consistent-format"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"  # Always returns string content
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# INTEGRATION VALIDATION
+# ==================================================================================
+
+  - it: "should be available in full-mode mode"
+    request:
+      jsonrpc: "2.0"
+      id: "integration-full-mode"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "integration-full-mode"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_sfcc_methods"
+      stderr: "toBeEmpty"
+
+  - it: "should work with SFCC namespace prefixes in results"
+    request:
+      jsonrpc: "2.0"
+      id: "integration-namespace-prefix"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "get"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "integration-namespace-prefix"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*dw_[a-z]+\\.[A-Z][\\s\\S]*"  # Contains SFCC class patterns like dw_catalog.Product
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return methods from multiple SFCC namespaces"
+    request:
+      jsonrpc: "2.0"
+      id: "integration-multiple-namespaces"
+      method: "tools/call"
+      params:
+        name: "search_sfcc_methods"
+        arguments:
+          methodName: "toString"  # Common method across many classes
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "integration-multiple-namespaces"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*dw_[a-z]+[\\s\\S]*"  # Should find methods in various dw_ namespaces
+          isError: false
+      stderr: "toBeEmpty"

@@ -1,0 +1,422 @@
+description: "Test get_best_practice_guide tool in full-mode mode"
+tests:
+  # Test successful guide retrieval with cartridge_creation guide
+  - it: "should return cartridge creation guide with complete structure"
+    request:
+      jsonrpc: "2.0"
+      id: "cartridge-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "cartridge-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Instructions for Creating a Salesforce B2C Commerce"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test that the response contains proper JSON structure
+  - it: "should return valid JSON with title, description, sections, and content"
+    request:
+      jsonrpc: "2.0"
+      id: "cartridge-structure-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "cartridge-structure-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\{[\\s\\S]*\"title\"[\\s\\S]*\"description\"[\\s\\S]*\"sections\"[\\s\\S]*\"content\"[\\s\\S]*\\}"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test security guide retrieval
+  - it: "should return security best practices guide"
+    request:
+      jsonrpc: "2.0"
+      id: "security-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "security"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "security-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Secure Coding Best Practices"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test performance guide
+  - it: "should return performance optimization guide"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "performance"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:performance"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test SFRA controllers guide
+  - it: "should return SFRA controllers guide"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-controllers-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "sfra_controllers"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-controllers-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SFRA"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test SFRA models guide
+  - it: "should return SFRA models guide"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-models-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "sfra_models"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-models-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SFRA"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test OCAPI hooks guide
+  - it: "should return OCAPI hooks guide"
+    request:
+      jsonrpc: "2.0"
+      id: "ocapi-hooks-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "ocapi_hooks"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "ocapi-hooks-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test SCAPI hooks guide
+  - it: "should return SCAPI hooks guide"
+    request:
+      jsonrpc: "2.0"
+      id: "scapi-hooks-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "scapi_hooks"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "scapi-hooks-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SCAPI"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test SCAPI custom endpoint guide
+  - it: "should return SCAPI custom endpoint guide"
+    request:
+      jsonrpc: "2.0"
+      id: "scapi-endpoint-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "scapi_custom_endpoint"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "scapi-endpoint-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SCAPI"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test ISML templates guide
+  - it: "should return ISML templates guide"
+    request:
+      jsonrpc: "2.0"
+      id: "isml-templates-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "isml_templates"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "isml-templates-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ISML"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test job framework guide
+  - it: "should return job framework guide"
+    request:
+      jsonrpc: "2.0"
+      id: "job-framework-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "job_framework"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-framework-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:job"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test LocalServiceRegistry guide
+  - it: "should return LocalServiceRegistry guide"
+    request:
+      jsonrpc: "2.0"
+      id: "localservice-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "localserviceregistry"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "localservice-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:LocalServiceRegistry"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test response time performance
+  - it: "should respond within reasonable time for guide retrieval"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # Test invalid guide name handling
+  - it: "should handle invalid guide name gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "nonexistent_guide"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "null"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test empty guide name handling
+  - it: "should handle empty guide name"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-guide-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-guide-1"
+        result:
+          content:
+            - type: "text"
+              text: "Error: guideName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # Test that guide contains essential structural elements
+  - it: "should contain essential sections in cartridge creation guide"
+    request:
+      jsonrpc: "2.0"
+      id: "structure-test-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "structure-test-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Core Principles"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test security guide contains security-specific content
+  - it: "should contain security-specific content in security guide"
+    request:
+      jsonrpc: "2.0"
+      id: "security-content-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "security"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "security-content-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*(CSRF|XSS|authentication|authorization)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test that guide content is substantial (not just placeholder)
+  - it: "should return substantial content for cartridge creation guide"
+    request:
+      jsonrpc: "2.0"
+      id: "content-length-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-length-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:.{1000,}"  # At least 1000 characters
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test that guide contains code examples for practical guides
+  - it: "should contain code examples in cartridge creation guide"
+    request:
+      jsonrpc: "2.0"
+      id: "code-examples-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "cartridge_creation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "code-examples-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*(```|javascript|module\\.exports)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Test missing required parameter handling
+  - it: "should handle missing guideName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-param-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-param-1"
+        result:
+          content:
+            - type: "text"
+              text: "Error: guideName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"

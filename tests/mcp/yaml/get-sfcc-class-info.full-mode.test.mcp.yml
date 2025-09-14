@@ -1,0 +1,916 @@
+# ==================================================================================
+# SFCC MCP Server - get_sfcc_class_info Tool YAML Tests
+# Comprehensive testing for SFCC class information retrieval functionality
+# Tests both successful responses and error handling scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/sfcc-class-info.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/sfcc-class-info.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query get_sfcc_class_info '{"className": "dw.catalog.Product"}' --config "conductor.config.with-dw.json"
+# conductor query get_sfcc_class_info '{"className": "dw.catalog.Product", "expand": true}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+description: "SFCC MCP Server get_sfcc_class_info tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_sfcc_class_info tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have get_sfcc_class_info in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description-quality"
+        result:
+          tools: "match:arrayContains:name:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have proper inputSchema structure for get_sfcc_class_info"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-structure"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-structure"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                inputSchema:
+                  type: "object"
+                  properties: "match:type:object"
+
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL EXECUTION TESTS - BASIC CLASSES
+# ==================================================================================
+
+  - it: "should execute with basic dw.catalog.Catalog class"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-catalog-basic"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-catalog-basic"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return JSON structure for dw.catalog.Product"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-product-json"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-product-json"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\{[\\s\\S]*\\}"  # Valid JSON structure
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include required class information in JSON response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-catalog-fields"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-catalog-fields"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include packageName in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-packagename"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-packagename"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:packageName"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include description in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-description"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-description"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:description"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include methods in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-methods"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:methods"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include properties in response"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-properties"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-properties"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:properties"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should have inheritance chain information"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-inheritance"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-inheritance"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:inheritance"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CLASS NAME VARIATIONS TESTING
+# ==================================================================================
+
+  - it: "should work with fully qualified class names"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-fqn"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.ProductVariationModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-fqn"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductVariationModel"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should work with short class names"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-short-name"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-short-name"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should work with TopLevel classes"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-toplevel"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "Number"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-toplevel"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Number"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EXPAND PARAMETER TESTING
+# ==================================================================================
+
+  - it: "should work with expand parameter set to false"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-expand-false"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          expand: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-expand-false"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should work with expand parameter set to true"
+    request:
+      jsonrpc: "2.0"
+      id: "exec-expand-true"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          expand: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "exec-expand-true"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SPECIFIC CLASS INFORMATION VALIDATION
+# ==================================================================================
+
+  - it: "should return proper package name for dw.catalog classes"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-package-catalog"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-package-catalog"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return methods array for classes with methods"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-methods-array"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-methods-array"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"methods\"\\s*:\\s*\\["
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return properties array for classes with properties"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-properties-array"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-properties-array"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"properties\"\\s*:\\s*\\["
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include method signatures"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-method-signatures"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-method-signatures"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:signature"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+
+  - it: "should handle invalid class names gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "NonExistentClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty class name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing className parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-param"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:className"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle malformed class names"
+    request:
+      jsonrpc: "2.0"
+      id: "error-malformed-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "..invalid..class..name.."
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-malformed-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# RESPONSE FORMAT VALIDATION
+# ==================================================================================
+
+  - it: "should return consistent MCP content structure"
+    request:
+      jsonrpc: "2.0"
+      id: "format-content-structure"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-content-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return single content item for successful calls"
+    request:
+      jsonrpc: "2.0"
+      id: "format-single-content"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-single-content"
+        result:
+          content: "match:arrayLength:1"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should not set isError flag for successful responses"
+    request:
+      jsonrpc: "2.0"
+      id: "format-no-error-flag"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "format-no-error-flag"
+        result:
+          content: "match:type:array"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASES AND COMPLEX SCENARIOS
+# ==================================================================================
+
+  - it: "should handle classes with many methods (like Product)"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-many-methods"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-many-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\"methods\"[\\s\\S]*getID[\\s\\S]*getName"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle classes with variation models"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-variation-model"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.ProductVariationModel"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-variation-model"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductVariationModel"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle inventory-related classes"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-inventory-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.ProductInventoryList"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-inventory-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ProductInventoryList"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE AND CONSISTENCY VALIDATION
+# ==================================================================================
+
+  - it: "should respond consistently for repeated calls"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-consistent-1"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-consistent-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should respond consistently for repeated calls (second time)"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-consistent-2"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-consistent-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle case sensitivity properly"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-case-sensitivity"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.product"  # lowercase 'product'
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-case-sensitivity"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE TIMING TESTS
+# ==================================================================================
+
+  - it: "should return basic class info within acceptable time"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-basic-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-basic-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+          isError: false
+      performance:
+        maxResponseTime: "100ms"  # Documentation lookup should be very fast
+      stderr: "toBeEmpty"
+
+  - it: "should return complex class info with expand within timeout"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-expand-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          expand: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-expand-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Product"
+          isError: false
+      performance:
+        maxResponseTime: "100ms"  # Even expanded info should be under 100ms
+      stderr: "toBeEmpty"
+
+  - it: "should handle large class documentation efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-large-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.system.Site"
+          expand: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-large-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Site"
+          isError: false
+      performance:
+        maxResponseTime: "100ms"  # Large classes should still be under 100ms
+      stderr: "toBeEmpty"
+
+  - it: "should handle simple customer classes quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-customer-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.customer.Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-customer-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Customer"
+          isError: false
+      performance:
+        maxResponseTime: "100ms"  # Standard class lookup should be under 100ms
+      stderr: "toBeEmpty"
+
+  - it: "should handle order classes within timeout"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-order-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.order.Order"
+          expand: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-order-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Order"
+          isError: false
+      performance:
+        maxResponseTime: "100ms"  # Basic order class lookup should be under 100ms
+      stderr: "toBeEmpty"
+
+  - it: "should handle non-existent class error within timeout"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-error-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.nonexistent.FakeClass"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-error-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "50ms"  # Error handling should be very fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty class name error quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-empty-error-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-empty-error-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "50ms"  # Validation errors should be extremely fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle malformed class name error efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-malformed-error-timing"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "..invalid..class..name.."
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-malformed-error-timing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "50ms"  # Invalid input should fail extremely fast
+      stderr: "toBeEmpty"
+
+  - it: "should handle cached responses quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-cached-response"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"  # Same as first test - should be cached
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-cached-response"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Catalog"
+          isError: false
+      performance:
+        maxResponseTime: "50ms"  # Cached responses should be extremely fast
+      stderr: "toBeEmpty"

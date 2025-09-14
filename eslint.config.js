@@ -129,6 +129,7 @@ export default tseslint.config(
       'docs-site/**',
       '*.config.js',
       'jest.config.js',
+      'tests/servers/**',
     ],
   },
 );

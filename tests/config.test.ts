@@ -18,7 +18,15 @@ describe('dw-json-loader.ts and configuration-factory.ts', () => {
   afterAll(() => {
     // Clean up test files
     try {
-      const testFiles = ['valid-dw.json', 'invalid-json.json', 'incomplete-dw.json', 'oauth-dw.json'];
+      const testFiles = [
+        'valid-dw.json',
+        'invalid-json.json',
+        'incomplete-dw.json',
+        'oauth-dw.json',
+        'invalid-hostname-dw.json',
+        'localhost-port-dw.json',
+        'custom-port-dw.json',
+      ];
       testFiles.forEach(file => {
         const filePath = join(testDir, file);
         if (existsSync(filePath)) {
@@ -128,6 +136,38 @@ describe('dw-json-loader.ts and configuration-factory.ts', () => {
       expect(() => {
         loadSecureDwJson(testFile);
       }).toThrow('Invalid hostname format in configuration');
+    });
+
+    it('should load dw.json file with hostname containing port', () => {
+      const dwJsonWithPort: DwJsonConfig = {
+        hostname: 'localhost:3000',
+        username: 'testuser',
+        password: 'testpass',
+      };
+
+      const testFile = join(testDir, 'localhost-port-dw.json');
+      writeFileSync(testFile, JSON.stringify(dwJsonWithPort, null, 2));
+
+      const dwConfig = loadSecureDwJson(testFile);
+      expect(dwConfig.hostname).toBe('localhost:3000');
+      expect(dwConfig.username).toBe('testuser');
+      expect(dwConfig.password).toBe('testpass');
+    });
+
+    it('should load dw.json file with custom hostname and port', () => {
+      const dwJsonWithCustomPort: DwJsonConfig = {
+        hostname: 'test-instance.demandware.net:8080',
+        username: 'testuser',
+        password: 'testpass',
+      };
+
+      const testFile = join(testDir, 'custom-port-dw.json');
+      writeFileSync(testFile, JSON.stringify(dwJsonWithCustomPort, null, 2));
+
+      const dwConfig = loadSecureDwJson(testFile);
+      expect(dwConfig.hostname).toBe('test-instance.demandware.net:8080');
+      expect(dwConfig.username).toBe('testuser');
+      expect(dwConfig.password).toBe('testpass');
     });
   });
 

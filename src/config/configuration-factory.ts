@@ -133,7 +133,7 @@ export class ConfigurationFactory {
     // Additional hostname validation if provided
     if (hasHostname) {
       const trimmedHostname = config.hostname!.trim();
-      if (!trimmedHostname.match(/^[a-zA-Z0-9.-]+$/)) {
+      if (!trimmedHostname.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
         throw new Error('Invalid hostname format in configuration');
       }
     }
