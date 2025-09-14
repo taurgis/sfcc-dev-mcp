@@ -1,0 +1,494 @@
+---
+description: "Test get_latest_error tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should retrieve latest error messages with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "error-default"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should limit error messages when limit parameter is provided"
+    request:
+      jsonrpc: "2.0"
+      id: "error-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 3 error messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should retrieve error messages for specific date"
+    request:
+      jsonrpc: "2.0"
+      id: "error-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          date: "20250914"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 2 error messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Content validation tests
+  - it: "should include log file name in response"
+    request:
+      jsonrpc: "2.0"
+      id: "error-filename"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-filename"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:error-blade-[\\d]{8}-[\\d]{6}\\.log"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include ERROR level log entries"
+    request:
+      jsonrpc: "2.0"
+      id: "error-level"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-level"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:ERROR"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include timestamps in GMT format"
+    request:
+      jsonrpc: "2.0"
+      id: "error-timestamp"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-timestamp"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3} GMT"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should separate multiple error entries with separators"
+    request:
+      jsonrpc: "2.0"
+      id: "error-separators"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-separators"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:---"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Common SFCC error patterns validation
+  - it: "should contain realistic SFCC error scenarios"
+    request:
+      jsonrpc: "2.0"
+      id: "error-patterns"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-patterns"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(?:PipelineCallServlet|SystemJobThread)"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include SFCC Sites and thread information"
+    request:
+      jsonrpc: "2.0"
+      id: "error-sites"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-sites"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Sites-"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Parameter handling tests
+  - it: "should handle string limit parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-string-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: "5"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-string-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 5 error messages"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle large limit values"
+    request:
+      jsonrpc: "2.0"
+      id: "error-large-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 50
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-large-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 50 error messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should handle zero limit parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "error-zero-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-zero-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit '0' for get_latest_error"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # Date format validation
+  - it: "should handle valid YYYYMMDD date format"
+    request:
+      jsonrpc: "2.0"
+      id: "error-valid-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          date: "20240101"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-valid-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle future dates gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-future-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          date: "20251231"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-future-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Performance tests
+  - it: "should respond quickly for small limits"
+    request:
+      jsonrpc: "2.0"
+      id: "error-perf-small"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-perf-small"
+        result:
+          content: "match:type:array"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should maintain performance with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "error-perf-default"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-perf-default"
+        result:
+          content: "match:type:array"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  # Edge cases and robustness
+  - it: "should handle both date and limit parameters together"
+    request:
+      jsonrpc: "2.0"
+      id: "error-both-params"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          date: "20250914"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-both-params"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 2 error messages"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return consistent structure regardless of parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "error-structure"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-structure"
+        result:
+          match:partial:
+            content: "match:type:array"
+            isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+
+  # Comprehensive content validation
+  - it: "should include comprehensive error information with multiple patterns"
+    request:
+      jsonrpc: "2.0"
+      id: "error-comprehensive"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-comprehensive"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*(?:Custom cartridge error|Product import failed|Customer profile creation failed|Payment authorization failed|AWS S3 Configuration Issue)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Additional edge cases
+  - it: "should handle negative limit parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "error-negative-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: -5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-negative-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle extremely large limit parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-huge-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          limit: 9999
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-huge-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid date format gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+        arguments:
+          date: "2024-01-01"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-date"
+        result:
+          content: "match:type:array"
+          isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing arguments object gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-no-args"
+      method: "tools/call"
+      params:
+        name: "get_latest_error"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-no-args"
+        result:
+          content: "match:type:array"
+          isError: false
+      stderr: "toBeEmpty"
