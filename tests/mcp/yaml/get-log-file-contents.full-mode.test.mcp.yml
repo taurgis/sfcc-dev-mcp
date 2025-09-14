@@ -1,0 +1,400 @@
+---
+description: "Test get_log_file_contents tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should get contents of a specific log file"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-basic"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-basic"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Content structure validation tests
+  - it: "should include file header information in response"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-header"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-header"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Log File Contents:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include total lines count in response"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-lines"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-lines"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Total lines:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include content size in response"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-size"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-size"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Content size:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include log entries with timestamps"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-timestamps"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-timestamps"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} GMT\\]"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Parameter validation tests
+  - it: "should work with maxBytes parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 500
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should work with tailOnly parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-tailonly"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          tailOnly: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-tailonly"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should work with both maxBytes and tailOnly parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-combined"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 1000
+          tailOnly: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-combined"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Error handling tests
+  - it: "should handle non-existent file gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-notfound"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "nonexistent-file.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-notfound"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Failed to get_log_file_contents"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle missing filename parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-missing-filename"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-missing-filename"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should handle empty filename parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-empty-filename"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-empty-filename"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  # Performance validation tests
+  - it: "should meet performance requirements for small files"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-performance"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-performance"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  - it: "should meet performance requirements with maxBytes limit"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-performance-limited"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 500
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-performance-limited"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # Content type and format validation
+  - it: "should return proper content structure"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-structure"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-structure"
+        result:
+          content: "match:type:array"
+          isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should have exactly one content element"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-single-element"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-single-element"
+        result:
+          content: "match:arrayLength:1"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Edge case tests
+  - it: "should handle numeric maxBytes parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-numeric-maxbytes"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          maxBytes: 1000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-numeric-maxbytes"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle boolean tailOnly parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "get-contents-boolean-tailonly"
+      method: "tools/call"
+      params:
+        name: "get_log_file_contents"
+        arguments:
+          filename: "jobs/ImportCatalog/Job-ImportCatalog-0987654321.log"
+          tailOnly: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-contents-boolean-tailonly"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
