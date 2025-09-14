@@ -35,7 +35,8 @@ class MockLogGenerator {
     }
 
     formatLogTimestamp(date) {
-        return date.toISOString().replace('T', ' ').replace('Z', '');
+        // Format like real SFCC logs: [2023-08-09T10:30:00.123 GMT]
+        return date.toISOString().replace('Z', ' GMT');
     }
 
     ensureDirectoryExists(dirPath) {
@@ -47,11 +48,11 @@ class MockLogGenerator {
 
     generateErrorLogs() {
         const errorContent = [
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.basket.BasketMgr (BasketMgr.java:234) - Error processing basket: Invalid product ID 'ABC123'`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.order.OrderMgr (OrderMgr.java:567) - Payment authorization failed for order ORDER-000001234`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [blade] [ProcessorThread-3] com.demandware.beehive.core.internal.customer.CustomerMgr (CustomerMgr.java:123) - Customer profile creation failed: Email already exists`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.catalog.CatalogMgr (CatalogMgr.java:445) - Product import failed: Invalid category assignment`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [blade] [ProcessorThread-4] dw.system.Logger - Custom cartridge error: Unable to connect to external service`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.basket.BasketMgr (BasketMgr.java:234) - Error processing basket: Invalid product ID 'ABC123'`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.order.OrderMgr (OrderMgr.java:567) - Payment authorization failed for order ORDER-000001234`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [blade] [ProcessorThread-3] com.demandware.beehive.core.internal.customer.CustomerMgr (CustomerMgr.java:123) - Customer profile creation failed: Email already exists`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.catalog.CatalogMgr (CatalogMgr.java:445) - Product import failed: Invalid category assignment`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [blade] [ProcessorThread-4] dw.system.Logger - Custom cartridge error: Unable to connect to external service`,
         ].join('\n') + '\n';
 
         const errorFile = path.join(this.logsDir, `error-blade-${this.dateString}-${this.timeString}.log`);
@@ -61,11 +62,11 @@ class MockLogGenerator {
 
     generateWarnLogs() {
         const warnContent = [
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.cache.CacheMgr (CacheMgr.java:156) - Cache hit ratio below threshold: 65%`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.pipeline.PipelineMgr (PipelineMgr.java:234) - Deprecated pipeline used: CheckoutShippingServices`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [blade] [ProcessorThread-3] dw.system.Logger - Memory usage above 80%: Current usage 85%`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.job.JobMgr (JobMgr.java:89) - Long running job detected: ImportCatalog has been running for 45 minutes`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [blade] [ProcessorThread-2] dw.system.Logger - API rate limit approaching: 450/500 requests in current window`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.cache.CacheMgr (CacheMgr.java:156) - Cache hit ratio below threshold: 65%`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.pipeline.PipelineMgr (PipelineMgr.java:234) - Deprecated pipeline used: CheckoutShippingServices`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [blade] [ProcessorThread-3] dw.system.Logger - Memory usage above 80%: Current usage 85%`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.job.JobMgr (JobMgr.java:89) - Long running job detected: ImportCatalog has been running for 45 minutes`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [blade] [ProcessorThread-2] dw.system.Logger - API rate limit approaching: 450/500 requests in current window`,
         ].join('\n') + '\n';
 
         const warnFile = path.join(this.logsDir, `warn-blade-${this.dateString}-${this.timeString}.log`);
@@ -75,11 +76,11 @@ class MockLogGenerator {
 
     generateInfoLogs() {
         const infoContent = [
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.order.OrderMgr (OrderMgr.java:123) - Order created successfully: ORDER-000001234`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.customer.CustomerMgr (CustomerMgr.java:245) - Customer registration completed: customer.id=123456789`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [blade] [ProcessorThread-3] com.demandware.beehive.core.internal.job.JobMgr (JobMgr.java:67) - Job started: ProcessOrders`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.catalog.CatalogMgr (CatalogMgr.java:334) - Product indexed successfully: SKU ABC-123-XYZ`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [blade] [ProcessorThread-4] dw.system.Logger - Cache refreshed: ProductCache (2,450 items)`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.order.OrderMgr (OrderMgr.java:123) - Order created successfully: ORDER-000001234`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [blade] [ProcessorThread-2] com.demandware.beehive.core.internal.customer.CustomerMgr (CustomerMgr.java:245) - Customer registration completed: customer.id=123456789`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [blade] [ProcessorThread-3] com.demandware.beehive.core.internal.job.JobMgr (JobMgr.java:67) - Job started: ProcessOrders`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [blade] [ProcessorThread-1] com.demandware.beehive.core.internal.catalog.CatalogMgr (CatalogMgr.java:334) - Product indexed successfully: SKU ABC-123-XYZ`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [blade] [ProcessorThread-4] dw.system.Logger - Cache refreshed: ProductCache (2,450 items)`,
         ].join('\n') + '\n';
 
         const infoFile = path.join(this.logsDir, `info-blade-${this.dateString}-${this.timeString}.log`);
@@ -89,11 +90,11 @@ class MockLogGenerator {
 
     generateDebugLogs() {
         const debugContent = [
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [blade] [ProcessorThread-1] dw.system.Logger - Session created: session.id=ABC123DEF456, customer.id=guest`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [blade] [ProcessorThread-2] dw.system.Logger - Pipeline execution: Cart-AddProduct -> Product.ID=12345, Quantity=2`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [blade] [ProcessorThread-3] dw.system.Logger - Template rendered: checkout/billing.isml (45ms)`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [blade] [ProcessorThread-1] dw.system.Logger - Database query executed: SELECT * FROM product WHERE id=? (12ms)`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [blade] [ProcessorThread-4] dw.system.Logger - HTTP request: GET /s/SiteGenesis/home -> Response: 200 (234ms)`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [blade] [ProcessorThread-1] dw.system.Logger - Session created: session.id=ABC123DEF456, customer.id=guest`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [blade] [ProcessorThread-2] dw.system.Logger - Pipeline execution: Cart-AddProduct -> Product.ID=12345, Quantity=2`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [blade] [ProcessorThread-3] dw.system.Logger - Template rendered: checkout/billing.isml (45ms)`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [blade] [ProcessorThread-1] dw.system.Logger - Database query executed: SELECT * FROM product WHERE id=? (12ms)`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [blade] [ProcessorThread-4] dw.system.Logger - HTTP request: GET /s/SiteGenesis/home -> Response: 200 (234ms)`,
         ].join('\n') + '\n';
 
         const debugFile = path.join(this.logsDir, `debug-blade-${this.dateString}-${this.timeString}.log`);
