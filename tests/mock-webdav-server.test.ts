@@ -62,7 +62,7 @@ describe('Mock WebDAV Server Integration', () => {
     });
 
     expect(response.status).toBe(207); // Multi-Status (WebDAV response)
-    
+
     const responseText = await response.text();
     expect(responseText).toContain('error-blade-');
     expect(responseText).toContain('warn-blade-');
@@ -98,7 +98,7 @@ describe('Mock WebDAV Server Integration', () => {
     });
 
     const listingXml = await listResponse.text();
-    
+
     // Extract error log filename from the XML response
     const errorLogMatch = listingXml.match(/error-blade-[^<]+\.log/);
     if (!errorLogMatch) {
@@ -134,7 +134,7 @@ describe('Mock WebDAV Server Integration', () => {
     });
 
     expect(response.status).toBe(207); // Multi-Status (WebDAV response)
-    
+
     const responseText = await response.text();
     expect(responseText).toContain('ProcessOrders');
     expect(responseText).toContain('ImportCatalog');
@@ -148,9 +148,9 @@ describe('Mock WebDAV Server Integration', () => {
 
     const jobLogUrl = `${serverManager.getLogsUrl()}jobs/ProcessOrders/Job-ProcessOrders-12345.log`;
     const response = await fetch(jobLogUrl);
-    
+
     expect(response.status).toBe(200);
-    
+
     const logContent = await response.text();
     expect(logContent).toContain('Job ProcessOrders started');
     expect(logContent).toContain('[INFO]');
@@ -177,13 +177,13 @@ describe('Mock WebDAV Server Utility Function', () => {
         expect(serverUrl).toContain('http://localhost:');
         expect(logsUrl).toContain('/on/demandware.servlet/webdav/Sites/Logs/');
         expect(directLogsUrl).toContain('/Logs/');
-        
+
         // Test the SFCC WebDAV path
         const response = await fetch(logsUrl, {
           method: 'PROPFIND',
           headers: { 'Depth': '1' },
         });
-        
+
         return response.status;
       },
       { port: 3003 },

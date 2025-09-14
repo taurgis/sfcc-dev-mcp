@@ -19,7 +19,13 @@ export class WebDAVClientManager {
    * Setup and configure WebDAV client with authentication
    */
   setupClient(config: WebDAVClientConfig): WebDAVClient {
-    const webdavUrl = `https://${config.hostname}/on/demandware.servlet/webdav/Sites/Logs/`;
+    let protocol = 'https';
+
+    if (config.hostname.startsWith('localhost') || config.hostname.startsWith('127.0.0.1')) {
+      protocol = 'http';
+    }
+
+    const webdavUrl = `${protocol}://${config.hostname}/on/demandware.servlet/webdav/Sites/Logs/`;
     this.logger.debug('Setting up WebDAV client:', { hostname: config.hostname, url: webdavUrl });
 
     const authConfig = this.buildAuthConfig(config);
