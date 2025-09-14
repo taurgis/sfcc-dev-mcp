@@ -163,9 +163,12 @@ export class SFRAClient {
    * Get lightweight metadata for a document without loading full content
    */
   private async getSFRADocumentMetadata(documentName: string): Promise<SFRADocument | null> {
+    // Normalize document name for consistent caching and lookup
+    const normalizedDocumentName = documentName.toLowerCase();
+
     // Check if we already have this document cached
-    if (this.documentsCache.has(documentName)) {
-      return this.documentsCache.get(documentName)!;
+    if (this.documentsCache.has(normalizedDocumentName)) {
+      return this.documentsCache.get(normalizedDocumentName)!;
     }
 
     try {
@@ -173,7 +176,7 @@ export class SFRAClient {
       const stats = await fs.stat(filePath);
 
       // Check if we have a cached version that's still valid
-      const cacheKey = `sfra:metadata:${documentName}`;
+      const cacheKey = `sfra:metadata:${normalizedDocumentName}`;
       const cached = this.cache.getFileContent(cacheKey);
       if (cached) {
         const cachedData = JSON.parse(cached);
@@ -188,13 +191,13 @@ export class SFRAClient {
 
       // Extract title
       const titleLine = lines.find(line => line.startsWith('#'));
-      const title = titleLine?.replace(/^#+\s*/, '').trim() ?? this.formatDocumentName(documentName);
+      const title = titleLine?.replace(/^#+\s*/, '').trim() ?? this.formatDocumentName(normalizedDocumentName);
 
       // Determine type based on title and content
       const type = this.determineDocumentType(title, content);
 
-      // Determine category
-      const category = (CATEGORY_MAPPINGS[documentName] || 'other') as SFRADocument['category'];
+      // Determine category - use normalized name for consistent mapping
+      const category = (CATEGORY_MAPPINGS[normalizedDocumentName] || 'other') as SFRADocument['category'];
 
       // Extract description (first substantial paragraph after title)
       const description = this.extractDescription(lines, title);
@@ -212,7 +215,7 @@ export class SFRAClient {
         content, // Keep full content for now, optimize later if needed
         type,
         category,
-        filename: `${documentName}.md`,
+        filename: `${normalizedDocumentName}.md`,
         lastModified: stats.mtime,
         ...(type === 'class' || type === 'model' ? {
           properties: this.extractProperties(lines),
@@ -220,13 +223,13 @@ export class SFRAClient {
         } : {}),
       };
 
-      // Cache the metadata
+      // Cache the metadata using normalized name
       this.cache.setFileContent(cacheKey, JSON.stringify(document));
-      this.documentsCache.set(documentName, document);
+      this.documentsCache.set(normalizedDocumentName, document);
 
       return document;
     } catch (error) {
-      this.logger.error(`Error loading SFRA document metadata ${documentName}:`, error);
+      this.logger.error(`Error loading SFRA document metadata ${normalizedDocumentName}:`, error);
       return null;
     }
   }
@@ -235,6 +238,9 @@ export class SFRAClient {
    * Get a specific SFRA document with full content
    */
   async getSFRADocument(documentName: string): Promise<SFRADocument | null> {
+    // Normalize document name for consistent lookup
+    const normalizedDocumentName = documentName.toLowerCase();
+
     // First try to get from metadata cache
     const metadata = await this.getSFRADocumentMetadata(documentName);
     if (!metadata) {
@@ -256,11 +262,11 @@ export class SFRAClient {
         content,
       };
 
-      // Update cache
-      this.documentsCache.set(documentName, fullDocument);
+      // Update cache using normalized name
+      this.documentsCache.set(normalizedDocumentName, fullDocument);
       return fullDocument;
     } catch (error) {
-      this.logger.error(`Error loading full SFRA document ${documentName}:`, error);
+      this.logger.error(`Error loading full SFRA document ${normalizedDocumentName}:`, error);
       return metadata; // Return metadata even if content loading failed
     }
   }
@@ -423,7 +429,9 @@ export class SFRAClient {
       throw new Error('Invalid document name: contains invalid characters');
     }
 
-    const filePath = path.join(this.docsPath, `${documentName}.md`);
+    // Normalize document name to lowercase for case-insensitive lookup
+    const normalizedDocumentName = documentName.toLowerCase();
+    const filePath = path.join(this.docsPath, `${normalizedDocumentName}.md`);
     const resolvedPath = path.resolve(filePath);
     const resolvedDocsPath = path.resolve(this.docsPath);
 
