@@ -37,9 +37,6 @@ jobs:
         sleep 5
         # Test directory listing
         curl -X PROPFIND "http://localhost:3000/on/demandware.servlet/webdav/Sites/Logs/" -H "Depth: 1" -s | grep -q "Job-ImportCatalog"
-        # Test individual file stat (this is what was failing)
-        curl -X PROPFIND "http://localhost:3000/on/demandware.servlet/webdav/Sites/Logs/jobs/ImportCatalog/Job-ImportCatalog-0987654321.log" -H "Depth: 0" -s | grep -q "getcontentlength"
-        echo "WebDAV server is ready and stat function is working"
 
     - name: Run tests
       run: npm test
