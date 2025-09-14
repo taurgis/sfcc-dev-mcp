@@ -1,0 +1,530 @@
+---
+description: "Test get_latest_warn tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should retrieve latest warn messages with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-default"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should limit warn messages when limit parameter is provided"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 3 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should retrieve warn messages for specific date"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          date: "20250914"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 2 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Content validation tests
+  - it: "should include log file name in response"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-filename"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-filename"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:warn-blade-[\\d]{8}-[\\d]{6}\\.log"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include WARN level log entries"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-level"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-level"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:WARN"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include timestamps in GMT format"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-timestamp"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-timestamp"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3} GMT"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should separate multiple warn entries with separators"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-separators"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-separators"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:---"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Common SFCC warning patterns validation
+  - it: "should contain realistic SFCC warning scenarios"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-patterns"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-patterns"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(?:PipelineCallServlet|SystemJobThread)"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include SFCC Sites and thread information"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-sites"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-sites"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Sites-"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Specific warning content validation
+  - it: "should include typical warning scenarios like inventory low"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-inventory"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-inventory"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:(?:inventory low|content asset.*offline|deprecated)"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include content asset warnings"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-content-asset"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-content-asset"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Content asset"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Parameter handling tests
+  - it: "should handle string limit parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-string-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: "5"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-string-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 5 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle large limit values"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-large-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 50
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-large-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 50 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should handle zero limit parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-zero-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-zero-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid limit '0'"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle negative limit parameter with error response"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-negative-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: -5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-negative-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid limit '-5'"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid date format gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-invalid-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          date: "invalid-date"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-invalid-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No warn log files found"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle future date gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-future-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          date: "20251225"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-future-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Edge cases and boundary tests
+  - it: "should handle maximum reasonable limit"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-max-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 1000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-max-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 1000 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "5000ms"
+
+  - it: "should handle old date parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-old-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          date: "20200101"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-old-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Performance tests
+  - it: "should respond quickly for small limit requests"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-performance-small"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-performance-small"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle concurrent requests efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-concurrent"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-concurrent"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Latest 10 warn messages"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2500ms"
+
+  # Content structure validation
+  - it: "should maintain consistent log entry structure"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-structure"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:\\[warn-blade-[\\d]{8}-[\\d]{6}\\.log\\]"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include thread IDs and request contexts"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-thread-context"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-thread-context"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:WARN PipelineCallServlet\\|[\\d]+\\|"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include custom tracking IDs"
+    request:
+      jsonrpc: "2.0"
+      id: "warn-tracking-ids"
+      method: "tools/call"
+      params:
+        name: "get_latest_warn"
+        arguments:
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "warn-tracking-ids"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:custom \\[\\]"
+          isError: false
+      stderr: "toBeEmpty"
