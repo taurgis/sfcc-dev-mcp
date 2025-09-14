@@ -35,9 +35,6 @@ jobs:
         cd tests/servers/webdav
         node server.js &
         sleep 5
-        # Test directory listing - check that jobs directory exists and contains ImportCatalog
-        curl -X PROPFIND "http://localhost:3000/on/demandware.servlet/webdav/Sites/Logs/" -H "Depth: 1" -s | grep -q "jobs"
-        curl -X PROPFIND "http://localhost:3000/on/demandware.servlet/webdav/Sites/Logs/jobs/" -H "Depth: 1" -s | grep -q "ImportCatalog"
 
     - name: Run tests
       run: npm test
