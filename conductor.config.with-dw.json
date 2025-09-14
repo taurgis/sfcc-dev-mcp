@@ -4,7 +4,8 @@
   "args": [
     "dist/index.js",
     "--dw-json",
-    "./tests/mcp/test-fixtures/dw.json"
+    "./tests/mcp/test-fixtures/dw.json",
+    "--debug"
   ],
   "cwd": "./",
   "startupTimeout": 10000,

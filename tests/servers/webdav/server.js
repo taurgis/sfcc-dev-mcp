@@ -150,6 +150,33 @@ class SFCCMockWebDAVServer {
             }
 
             const stats = fs.statSync(fsPath);
+            
+            // Handle PROPFIND for individual files (used by webdav client's stat() method)
+            if (stats.isFile()) {
+                const xml = `<?xml version="1.0" encoding="utf-8"?>
+<D:multistatus xmlns:D="DAV:">
+    <D:response>
+        <D:href>${urlPath}</D:href>
+        <D:propstat>
+            <D:prop>
+                <D:displayname>${path.basename(fsPath)}</D:displayname>
+                <D:getcontentlength>${stats.size}</D:getcontentlength>
+                <D:getlastmodified>${stats.mtime.toUTCString()}</D:getlastmodified>
+                <D:resourcetype></D:resourcetype>
+                <D:getcontenttype>text/plain</D:getcontenttype>
+            </D:prop>
+            <D:status>HTTP/1.1 200 OK</D:status>
+        </D:propstat>
+    </D:response>
+</D:multistatus>`;
+
+                res.statusCode = 207; // Multi-Status
+                res.setHeader('Content-Type', 'application/xml');
+                res.end(xml);
+                return;
+            }
+
+            // Handle PROPFIND for directories (existing logic)
             if (!stats.isDirectory()) {
                 res.statusCode = 404;
                 res.end('Not Found');
