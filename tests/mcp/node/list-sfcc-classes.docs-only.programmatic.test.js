@@ -195,9 +195,6 @@ describe('list_sfcc_classes Programmatic Tests', () => {
     if (client?.connected) {
       await client.disconnect();
     }
-    
-    // Log performance summary
-    console.log('\n📊 Performance Summary:');
   });
 
   beforeEach(() => {

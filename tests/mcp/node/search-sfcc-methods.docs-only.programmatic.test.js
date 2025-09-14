@@ -113,9 +113,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
     if (client?.connected) {
       await client.disconnect();
     }
-    
-    // Log performance summary
-    console.log('\n📊 Performance Summary:');
   });
 
   beforeEach(() => {
@@ -305,7 +302,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assert.ok(categoryCounts.static >= 0, 'Static method count should be non-negative');
       assert.ok(categoryCounts.parameterless > 5, 'Should find parameterless methods');
       
-      console.log('📈 Method categorization analysis:', categoryCounts);
+      assert.ok(Object.keys(categoryCounts).length > 0, 'Should have categorized methods');
     });
   });
 

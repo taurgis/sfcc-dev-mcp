@@ -79,8 +79,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
             `${name} document should contain "${content}"`
           );
         });
-
-        console.log(`✓ ${name} document: ${documentData.content.length} chars`);
       });
     });
 
@@ -114,8 +112,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         // Validate content is substantial
         assert.ok(documentData.content.length > 1000, `${name} should have substantial content`);
       });
-
-      console.log(`✓ Validated consistent structure across ${results.length} core documents`);
+      assert.ok(results.length > 0, 'Should have processed core documents');
     });
   });
 
@@ -161,9 +158,8 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         return groups;
       }, {});
 
-      console.log('📋 Model Documents by Category:');
+      // Validate category distribution
       Object.entries(categoryGroups).forEach(([category, docs]) => {
-        console.log(`  ${category}: ${docs.join(', ')}`);
         assert.ok(docs.length > 0, `Category ${category} should have documents`);
       });
     });
@@ -236,7 +232,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         .filter(({ success }) => success);
 
       assert.ok(serverVariants.length > 1, 'Multiple case variations should work for server');
-      console.log(`✓ Case insensitive: ${serverVariants.length} variations work for 'server'`);
+      assert.ok(serverVariants.length > 0, 'Should handle case insensitive variations');
     });
 
     test('should validate input parameters thoroughly', async () => {
@@ -258,8 +254,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         assert.equal(result.isError, true, `${description} should result in error`);
         assert.ok(result.content[0].text.toLowerCase().includes(expectedError.toLowerCase()),
           `${description} should mention "${expectedError}"`);
-        
-        console.log(`✓ ${description}: properly rejected`);
         
       }
     });
@@ -296,8 +290,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
           );
           assert.ok(hasSection, `${doc} should have "${requiredSection}" section`);
         });
-
-        console.log(`✓ ${doc}: ${documentData.sections.length} sections, ${documentData.content.length} chars`);
         
       }
     });
@@ -368,8 +360,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
             `${from} document should reference ${mention}`);
         }
       });
-
-      console.log('✓ Cross-reference consistency validated');
     });
   });
 
@@ -399,8 +389,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         }
         
       }
-
-      console.log('✓ Error recovery validated - tool remains functional after errors');
     });
 
     test('should maintain consistent behavior under stress', async () => {
@@ -434,8 +422,8 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         
       assert.ok(successCount > 0, 'Should have some successful requests');
       assert.ok(errorCount > 0, 'Should have some failed requests');
-      
-      console.log(`✓ Stress test: ${successCount} successes, ${errorCount} errors out of ${stressTests.length} requests`);
+      assert.ok(successCount > 0, 'Should have successful requests');
+      assert.ok(errorCount >= 0, 'Should handle errors gracefully');
     });
   });
 
@@ -453,7 +441,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
         assert.equal(result.isError, false, `${doc} should load successfully`);
         
         const documentData = parseDocumentJSON(result.content[0].text);
-        console.log(`${doc}: ${(documentData.content.length / 1024).toFixed(1)}KB content`);
+        assert.ok(documentData.content.length > 0, `${doc} should have content`);
         
       }
 
@@ -463,8 +451,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       // Memory increase should be reasonable (allowing for some overhead)
       assert.ok(memoryIncrease < 50, 
         `Memory increase should be reasonable: ${memoryIncrease.toFixed(1)}MB`);
-
-      console.log(`✓ Memory usage: +${memoryIncrease.toFixed(1)}MB for ${largeDocs.length} large documents`);
     });
   });
 });

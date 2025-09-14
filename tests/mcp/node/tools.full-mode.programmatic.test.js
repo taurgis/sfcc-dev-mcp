@@ -31,9 +31,6 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
     
     assert.ok(Array.isArray(tools), 'Tools should be an array');
     assert.ok(tools.length > 15, 'Should have more tools than documentation-only mode');
-    
-    // Log available tools for debugging
-    console.log('Full mode tools count:', tools.length);
   });
 
   test('should have all documentation tools available', async () => {

@@ -598,7 +598,6 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
           assert.ok(searchAnalysis.relevanceScoring.avgRelevanceScore >= 0, 
             `Results for ${term} should have valid relevance score (score: ${searchAnalysis.relevanceScoring.avgRelevanceScore})`);
           // Some technical terms may not always be present in general searches
-          console.log(`Search "${term}": ${resultsArray.length} results, relevance: ${searchAnalysis.relevanceScoring.avgRelevanceScore.toFixed(2)}, technical: ${searchAnalysis.contentQuality.technicalAccuracy.toFixed(2)}`);
         }
       }
     });
@@ -619,13 +618,11 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
       // Cross-guide analysis
       if (analysis.crossGuideAnalysis.interconnections.length > 0) {
         assert.ok(analysis.crossGuideAnalysis.mostConnectedTopic, 'Should identify connected topics');
-        console.log(`Most connected topic: ${analysis.crossGuideAnalysis.mostConnectedTopic.topic}`);
       }
       
       // Comprehensiveness assessment
       if (analysis.comprehensiveness.patternRecognized) {
         assert.ok(analysis.comprehensiveness.guideCoverage >= 0, 'Guide coverage should be measurable');
-        console.log(`Comprehensiveness score: ${analysis.comprehensiveness.comprehensivenessScore?.toFixed(2)}`);
       }
     });
   });
@@ -648,7 +645,6 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
         
         // Pattern recognition validation - more flexible matching
         const hasExpectedPattern = queryAnalysis.patterns[expectedPattern];
-        console.log(`Technical query "${query}": expected=${expectedPattern}, patterns=${JSON.stringify(queryAnalysis.patterns)}, hasPattern=${hasExpectedPattern}`);
         
         // Allow for pattern flexibility - if expected pattern isn't found, check if any technical pattern is found
         const hasTechnicalPattern = Object.keys(queryAnalysis.patterns).some(p => queryAnalysis.patterns[p] && 
@@ -660,11 +656,10 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
         // Result quality for technical queries - more lenient validation
         if (resultsArray.length > 0) {
           // Technical queries may or may not return technical content depending on the search algorithm
-          const hasTechnicalContent = searchAnalysis.contentQuality?.hasTechnicalTerms;
-          console.log(`Technical query "${query}": technical terms detected: ${hasTechnicalContent}, relevance: ${searchAnalysis.relevanceScoring.avgRelevanceScore.toFixed(2)}`);
+          assert.ok(searchAnalysis.relevanceScoring.avgRelevanceScore >= 0, 
+            `Technical query "${query}" should have valid relevance score`);
         }
         
-        console.log(`Technical query "${query}": ${queryAnalysis.complexity.category} complexity, ${resultsArray.length} results`);
       }
     });
 
@@ -678,12 +673,13 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
         assert.ok(queryAnalysis.expectedResultTypes.length >= 0, 'Should predict result types');
         
         if (queryAnalysis.suggestions.length > 0) {
-          console.log(`Suggestions for "${query}": ${queryAnalysis.suggestions.join(', ')}`);
+          assert.ok(queryAnalysis.suggestions.every(s => typeof s === 'string'), 'Suggestions should be strings');
         }
         
         if (queryAnalysis.expectedResultTypes.length > 0) {
           const topPrediction = queryAnalysis.expectedResultTypes[0];
-          console.log(`Top prediction for "${query}": ${topPrediction.type} (${(topPrediction.confidence * 100).toFixed(1)}% confidence)`);
+          assert.ok(topPrediction.type, 'Top prediction should have type');
+          assert.ok(topPrediction.confidence >= 0, 'Top prediction should have valid confidence');
         }
       }
     });
@@ -706,14 +702,16 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
         // Analyze connection strength
         const strongConnections = interconnections.filter(conn => conn.connectionStrength >= 3);
         if (strongConnections.length > 0) {
-          console.log(`Strong connections found: ${strongConnections.map(conn => `${conn.topic} (${conn.guides.join(', ')})`).join('; ')}`);
+          assert.ok(strongConnections.every(conn => conn.topic && conn.guides.length > 0), 
+            'Strong connections should have valid structure');
         }
         
         // Guide connectivity analysis
         const connectivity = analysis.crossGuideAnalysis.guideConnectivity;
         if (connectivity.length > 0) {
           const mostConnected = connectivity[0];
-          console.log(`Most connected guide: ${mostConnected.guide} (connectivity: ${mostConnected.connectivity})`);
+          assert.ok(mostConnected.guide && mostConnected.connectivity >= 0, 
+            'Most connected guide should have valid structure');
         }
       }
     });
@@ -735,15 +733,14 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
           
           // Analyze coverage
           if (comp.missingGuides.length > 0) {
-            console.log(`Pattern "${pattern}" missing guides: ${comp.missingGuides.join(', ')}`);
+            assert.ok(comp.missingGuides.every(g => typeof g === 'string'), 'Missing guides should be strings');
           }
           
           if (comp.unexpectedGuides.length > 0) {
-            console.log(`Pattern "${pattern}" unexpected guides: ${comp.unexpectedGuides.join(', ')}`);
+            assert.ok(comp.unexpectedGuides.every(g => typeof g === 'string'), 'Unexpected guides should be strings');
           }
           
           assert.ok(comp.guideCoverage >= 0, 'Guide coverage should be calculable');
-          console.log(`Pattern "${pattern}" comprehensiveness: ${(comp.comprehensivenessScore * 100).toFixed(1)}%`);
         }
       }
     });
@@ -816,7 +813,8 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
           assert.ok(['poor', 'fair', 'good', 'excellent'].includes(effectiveness),
             'Search quality should be categorized');
           
-          console.log(`Query "${query}": ${effectiveness} quality, ${analysis.searchEffectiveness.precision.toFixed(2)} precision`);
+          assert.ok(analysis.searchEffectiveness.precision >= 0 && analysis.searchEffectiveness.precision <= 1,
+            'Search precision should be between 0 and 1');
         }
       }
     });
