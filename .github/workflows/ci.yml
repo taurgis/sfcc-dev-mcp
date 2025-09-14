@@ -40,8 +40,8 @@ jobs:
         echo $! > webdav_server.pid
         # Wait for server to start up
         sleep 3
-        # Verify server is running
-        curl -f http://localhost:3000/Logs/ || (echo "WebDAV server failed to start" && exit 1)
+        # Verify server is running with WebDAV PROPFIND request
+        curl -X PROPFIND -H "Depth: 1" http://localhost:3000/Logs/ || (echo "WebDAV server failed to start" && exit 1)
 
     - name: Run tests
       run: npm test
