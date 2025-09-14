@@ -113,7 +113,7 @@ describe('Mock WebDAV Server Integration', () => {
     expect(logResponse.status).toBe(200);
 
     const logContent = await logResponse.text();
-    expect(logContent).toContain('[ERROR]');
+    expect(logContent).toContain('ERROR');
     expect(logContent).toContain('blade');
     expect(logContent).toContain('ProcessorThread');
   });
@@ -153,10 +153,10 @@ describe('Mock WebDAV Server Integration', () => {
 
     const logContent = await response.text();
     expect(logContent).toContain('Job ProcessOrders started');
-    expect(logContent).toContain('[INFO]');
-    expect(logContent).toContain('[DEBUG]');
-    expect(logContent).toContain('[WARN]');
-    expect(logContent).toContain('[ERROR]');
+    expect(logContent).toContain('INFO');
+    expect(logContent).toContain('DEBUG');
+    expect(logContent).toContain('WARN');
+    expect(logContent).toContain('ERROR');
     expect(logContent).toContain('Processing 150 orders');
   });
 });

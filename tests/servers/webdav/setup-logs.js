@@ -112,15 +112,15 @@ class MockLogGenerator {
 
         // ProcessOrders job log
         const processOrdersContent = [
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [JobManager] Job ProcessOrders started`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ProcessOrders] Processing 150 orders`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [ProcessOrders] Processing order ORDER-000001234`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [ProcessOrders] Updating order status to 'confirmed'`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ProcessOrders] Order ORDER-000001234 processed successfully`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [ProcessOrders] Order ORDER-000001235 has invalid shipping address`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [ProcessOrders] Failed to process order ORDER-000001236: Payment declined`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ProcessOrders] Processed 148/150 orders, 2 failures`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [JobManager] Job ProcessOrders completed in 12.5 minutes`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [JobManager] Job ProcessOrders started`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ProcessOrders] Processing 150 orders`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [ProcessOrders] Processing order ORDER-000001234`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [ProcessOrders] Updating order status to 'confirmed'`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ProcessOrders] Order ORDER-000001234 processed successfully`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [ProcessOrders] Order ORDER-000001235 has invalid shipping address`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [ProcessOrders] Failed to process order ORDER-000001236: Payment declined`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ProcessOrders] Processed 148/150 orders, 2 failures`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [JobManager] Job ProcessOrders completed in 12.5 minutes`,
         ].join('\n') + '\n';
 
         const processOrdersFile = path.join(processOrdersDir, 'Job-ProcessOrders-12345.log');
@@ -129,17 +129,17 @@ class MockLogGenerator {
 
         // ImportCatalog job log
         const importCatalogContent = [
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [JobManager] Job ImportCatalog started`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ImportCatalog] Importing catalog from /IMPEX/catalog.xml`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [ImportCatalog] Reading catalog file: 2,450 products found`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ImportCatalog] Validating product data`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [ImportCatalog] Processing product: ABC-123-XYZ`,
-            `[${this.formatLogTimestamp(new Date())}] [DEBUG] [ImportCatalog] Creating product variants: 3 variants found`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ImportCatalog] Product ABC-123-XYZ imported successfully`,
-            `[${this.formatLogTimestamp(new Date())}] [WARN] [ImportCatalog] Product DEF-456-ABC has missing images`,
-            `[${this.formatLogTimestamp(new Date())}] [ERROR] [ImportCatalog] Product GHI-789-DEF has invalid category reference`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [ImportCatalog] Imported 2,447/2,450 products, 3 failures`,
-            `[${this.formatLogTimestamp(new Date())}] [INFO] [JobManager] Job ImportCatalog completed in 35.2 minutes`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [JobManager] Job ImportCatalog started`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ImportCatalog] Importing catalog from /IMPEX/catalog.xml`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [ImportCatalog] Reading catalog file: 2,450 products found`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ImportCatalog] Validating product data`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [ImportCatalog] Processing product: ABC-123-XYZ`,
+            `[${this.formatLogTimestamp(new Date())}] DEBUG [ImportCatalog] Creating product variants: 3 variants found`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ImportCatalog] Product ABC-123-XYZ imported successfully`,
+            `[${this.formatLogTimestamp(new Date())}] WARN [ImportCatalog] Product DEF-456-ABC has missing images`,
+            `[${this.formatLogTimestamp(new Date())}] ERROR [ImportCatalog] Product GHI-789-DEF has invalid category reference`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [ImportCatalog] Imported 2,447/2,450 products, 3 failures`,
+            `[${this.formatLogTimestamp(new Date())}] INFO [JobManager] Job ImportCatalog completed in 35.2 minutes`,
         ].join('\n') + '\n';
 
         const importCatalogFile = path.join(importCatalogDir, 'Job-ImportCatalog-67890.log');
