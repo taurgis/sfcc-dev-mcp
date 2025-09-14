@@ -234,7 +234,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
+              text: "\"# Log File Contents: jobs/ImportCatalog/Job-ImportCatalog-0987654321.log (tail read)\\n\\nTotal lines: 1\\nContent size: 10 bytes\\n\\n---\\n\\ntus [OK].\\n\""
           isError: false
       stderr: "toBeEmpty"
     performance:
