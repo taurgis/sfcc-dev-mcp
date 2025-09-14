@@ -233,9 +233,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   });
 
   test('should validate cartridge generation response structure', async () => {
-    // Clear any previous test state
-    client.clearAllBuffers();
-    
     const result = await client.callTool('generate_cartridge_structure', { 
       cartridgeName: 'advanced_test_cartridge',
       targetPath: '/tmp/advanced-test-output',
@@ -275,9 +272,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
 
   test('should validate best practice guide content structure', async () => {
     const guideName = 'cartridge_creation'; // Test just one to keep test focused
-    
-    // Clear state
-    client.clearAllBuffers();
     
     const result = await client.callTool('get_best_practice_guide', { guideName });
     assert.ok(result.content, `Should return content for ${guideName} guide`);

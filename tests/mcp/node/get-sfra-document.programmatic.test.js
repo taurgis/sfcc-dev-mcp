@@ -87,9 +87,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       
       // Process documents sequentially to avoid message stream interference
       for (let i = 0; i < coreDocuments.length; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const { name } = coreDocuments[i];
         const result = await client.callTool('get_sfra_document', { documentName: name });
         const documentData = parseDocumentJSON(result.content[0].text);
@@ -130,9 +127,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       
       // Process documents sequentially to avoid message stream interference
       for (let i = 0; i < modelDocuments.length; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const { name, category, keywords } = modelDocuments[i];
         const result = await client.callTool('get_sfra_document', { documentName: name });
         assert.equal(result.isError, false, `${name} should load successfully`);
@@ -172,9 +166,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       assert.ok(hyphenatedDocs.length > 0, 'Should have hyphenated document names to test');
 
       for (const docName of hyphenatedDocs) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: docName });
         assert.equal(result.isError, false, `Hyphenated document ${docName} should work`);
         
@@ -205,9 +196,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       
       // Process case variations sequentially to avoid message stream interference
       for (let i = 0; i < caseTestCases.length; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const { input, expected, description } = caseTestCases[i];
         const result = await client.callTool('get_sfra_document', { documentName: input });
         const success = !result.isError;
@@ -246,9 +234,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       ];
 
       for (const { args, expectedError, description } of invalidInputs) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', args);
         
         assert.equal(result.isError, true, `${description} should result in error`);
@@ -269,9 +254,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       ];
 
       for (const { doc, minSections, minContentLength, requiredSections } of qualityChecks) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: doc });
         const documentData = parseDocumentJSON(result.content[0].text);
 
@@ -298,9 +280,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       const docsWithExamples = ['server', 'request', 'response'];
 
       for (const doc of docsWithExamples) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: doc });
         const documentData = parseDocumentJSON(result.content[0].text);
 
@@ -338,9 +317,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
 
       // Load all documents
       for (const doc of docs) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: doc });
         const documentData = parseDocumentJSON(result.content[0].text);
         documentContents[doc] = documentData.content.toLowerCase();
@@ -375,9 +351,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       ];
 
       for (const { name, expectError } of errorScenarios) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: name });
         
         if (expectError) {
@@ -405,9 +378,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       let errorCount = 0;
 
       for (const docName of stressTests) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: docName });
         
         if (result.isError) {
@@ -434,9 +404,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
       const memoryBefore = process.memoryUsage();
 
       for (const doc of largeDocs) {
-        // Clear buffers before each request to prevent interference  
-        client.clearAllBuffers();
-        
         const result = await client.callTool('get_sfra_document', { documentName: doc });
         assert.equal(result.isError, false, `${doc} should load successfully`);
         

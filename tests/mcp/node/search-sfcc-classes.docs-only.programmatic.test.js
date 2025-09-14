@@ -255,9 +255,6 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       const results = [];
       
       for (let i = 0; i < 3; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
         const result = await client.callTool('search_sfcc_classes', { query: 'catalog' });
         results.push(result);
         
