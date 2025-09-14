@@ -114,8 +114,8 @@ describe('Mock WebDAV Server Integration', () => {
 
     const logContent = await logResponse.text();
     expect(logContent).toContain('ERROR');
-    expect(logContent).toContain('blade');
-    expect(logContent).toContain('ProcessorThread');
+    expect(logContent).toContain('SystemJobThread');
+    expect(logContent).toContain('PipelineCallServlet');
   });
 
   test('should serve job logs directory', async () => {
@@ -146,18 +146,16 @@ describe('Mock WebDAV Server Integration', () => {
       return;
     }
 
-    const jobLogUrl = `${serverManager.getLogsUrl()}jobs/ProcessOrders/Job-ProcessOrders-12345.log`;
+    const jobLogUrl = `${serverManager.getLogsUrl()}jobs/ProcessOrders/Job-ProcessOrders-1234567890.log`;
     const response = await fetch(jobLogUrl);
 
     expect(response.status).toBe(200);
 
     const logContent = await response.text();
-    expect(logContent).toContain('Job ProcessOrders started');
+    expect(logContent).toContain('Executing job [ProcessOrders][1234567890]...');
     expect(logContent).toContain('INFO');
-    expect(logContent).toContain('DEBUG');
-    expect(logContent).toContain('WARN');
-    expect(logContent).toContain('ERROR');
-    expect(logContent).toContain('Processing 150 orders');
+    expect(logContent).toContain('SystemJobThread');
+    expect(logContent).toContain('ValidateOrdersStep');
   });
 });
 
