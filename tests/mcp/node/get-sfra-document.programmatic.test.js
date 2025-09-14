@@ -583,28 +583,30 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
 
 class PerformanceMonitor {
   constructor() {
-    this.measurements = new Map();
+    // Use plain object instead of Map to avoid serialization issues
+    this.measurements = {};
   }
 
   async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
+    const startTime = Date.now(); // Use Date.now() instead of process.hrtime.bigint()
     const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
+    const endTime = Date.now();
     
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
+    const duration = endTime - startTime; // Already in ms
     
-    const key = `${toolName}_${JSON.stringify(params)}`;
-    if (!this.measurements.has(key)) {
-      this.measurements.set(key, []);
+    // Use simple string key instead of JSON.stringify which can be complex
+    const key = `${toolName}_${params?.documentName || 'default'}`;
+    if (!this.measurements[key]) {
+      this.measurements[key] = [];
     }
-    this.measurements.get(key).push(duration);
+    this.measurements[key].push(duration);
     
     return { result, duration };
   }
 
   getStats(toolName, params = null) {
-    const key = params ? `${toolName}_${JSON.stringify(params)}` : toolName;
-    const measurements = this.measurements.get(key) || [];
+    const key = params ? `${toolName}_${params.documentName || 'default'}` : toolName;
+    const measurements = this.measurements[key] || [];
     
     if (measurements.length === 0) return { count: 0 };
     
@@ -617,7 +619,8 @@ class PerformanceMonitor {
   }
 
   printSummary() {
-    const allMeasurements = Array.from(this.measurements.values()).flat();
+    // Convert to simple arrays to avoid Map serialization
+    const allMeasurements = Object.values(this.measurements).flat();
     if (allMeasurements.length === 0) {
       console.log('  No performance measurements recorded');
       return;
