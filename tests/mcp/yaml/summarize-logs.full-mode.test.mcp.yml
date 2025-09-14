@@ -1,0 +1,340 @@
+---
+description: "Test summarize_logs tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should retrieve comprehensive log summary with default parameters (today)"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-default"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Log Summary for \\d{8}:[\\s\\S]*📊 Counts:[\\s\\S]*Errors:[\\s\\S]*Warnings:[\\s\\S]*Info:[\\s\\S]*Debug:[\\s\\S]*📁 Log Files[\\s\\S]*🔥 Key Issues:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should include error counts in summary"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-error-counts"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-error-counts"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Errors:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should include warning counts in summary"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-warning-counts"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-warning-counts"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Warnings:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should include info counts in summary"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-info-counts"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-info-counts"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Info:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should include debug counts in summary"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-debug-counts"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-debug-counts"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Debug:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should list log files in summary"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-log-files"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-log-files"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:📁 Log Files"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should include key issues assessment"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-key-issues"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-key-issues"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:🔥 Key Issues:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  # Date parameter tests
+  - it: "should accept specific date parameter in YYYYMMDD format"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-specific-date"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments:
+          date: "20250914"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-specific-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Log Summary for 20250914:|No log files found for date 20250914"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should handle date with no available logs gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-no-logs"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments:
+          date: "20220101"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-no-logs"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No log files found for date"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Edge cases and error handling
+  - it: "should handle invalid date format gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-invalid-date"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments:
+          date: "not-a-date"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-invalid-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No log files found for date"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle future date gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-future-date"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments:
+          date: "20301231"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-future-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No log files found for date"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Comprehensive structure validation
+  - it: "should return structured text content in standard MCP format"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-structure"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should validate that response content is array with single text element"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-content-array"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-content-array"
+        result:
+          content: "match:arrayLength:1"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  # Performance validation for system health assessment
+  - it: "should complete log summary analysis within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-performance"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-performance"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2500ms"  # Stricter for critical health monitoring
+
+  # Date format validation
+  - it: "should display date in YYYYMMDD format in summary header"
+    request:
+      jsonrpc: "2.0"
+      id: "summarize-date-format"
+      method: "tools/call"
+      params:
+        name: "summarize_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "summarize-date-format"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Log Summary for \\d{8}:|No log files found"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
