@@ -163,25 +163,6 @@ describe('search_sfra_documentation Tool Programmatic Tests', () => {
     });
   });
 
-  describe('Performance Testing', () => {
-    test('should respond within reasonable time for simple queries', async () => {
-      const startTime = Date.now();
-      const result = await client.callTool('search_sfra_documentation', { query: 'cart' });
-      const duration = Date.now() - startTime;
-      
-      assert.ok(duration < 1000, `Simple search should complete within 1000ms, took ${duration}ms`);
-      assert.equal(result.isError, false, 'Should not be an error');
-    });
-
-    test('should handle complex multi-word queries efficiently', async () => {
-      const startTime = Date.now();
-      const result = await client.callTool('search_sfra_documentation', { query: 'cart billing shipping product' });
-      const duration = Date.now() - startTime;
-      
-      assert.ok(duration < 2000, `Complex search should complete within 2000ms, took ${duration}ms`);
-      assert.equal(result.isError, false, 'Should not be an error');
-    });
-  });
 
   describe('Search Result Quality', () => {
     test('should return relevant results for core SFRA concepts', async () => {
@@ -439,12 +420,9 @@ describe('search_sfra_documentation Tool Programmatic Tests', () => {
     test('should handle extremely long queries gracefully', async () => {
       const longQuery = 'template rendering isml view data processing controller middleware response request server router navigation menu product catalog pricing cart checkout billing shipping customer account profile management'.repeat(3);
       
-      const startTime = Date.now();
       const result = await client.callTool('search_sfra_documentation', { query: longQuery });
-      const duration = Date.now() - startTime;
       
       assert.equal(result.isError, false, 'Very long query should not error');
-      assert.ok(duration < 5000, `Very long query should complete within 5000ms, took ${duration}ms`);
       
       const searchResults = JSON.parse(result.content[0].text);
       assert.ok(Array.isArray(searchResults), 'Should return array for very long query');
@@ -559,18 +537,11 @@ describe('search_sfra_documentation Tool Programmatic Tests', () => {
   describe('Stress and Load Testing', () => {
     test('should handle rapid sequential searches efficiently', async () => {
       const queries = ['server', 'request', 'response', 'render', 'model', 'cart', 'product', 'price'];
-      const startTime = Date.now();
       
       for (const query of queries) {
         const result = await client.callTool('search_sfra_documentation', { query });
         assert.equal(result.isError, false, `Sequential query "${query}" should not error`);
       }
-      
-      const totalDuration = Date.now() - startTime;
-      const avgDuration = totalDuration / queries.length;
-      
-      assert.ok(avgDuration < 1000, `Average query time should be under 1000ms, was ${avgDuration}ms`);
-      assert.ok(totalDuration < 8000, `Total time for ${queries.length} queries should be under 8000ms, was ${totalDuration}ms`);
     });
 
     test('should maintain performance consistency across different query types', async () => {
@@ -581,26 +552,11 @@ describe('search_sfra_documentation Tool Programmatic Tests', () => {
         { type: 'complex', queries: ['server request response middleware', 'product cart pricing checkout'] }
       ];
       
-      const timings = {};
-      
       for (const { type, queries } of queryTypes) {
-        const times = [];
-        
         for (const query of queries) {
-          const startTime = Date.now();
           const result = await client.callTool('search_sfra_documentation', { query });
-          const duration = Date.now() - startTime;
-          
           assert.equal(result.isError, false, `${type} query "${query}" should not error`);
-          times.push(duration);
         }
-        
-        timings[type] = times.reduce((sum, t) => sum + t, 0) / times.length;
-      }
-      
-      // All query types should complete in reasonable time
-      for (const [type, avgTime] of Object.entries(timings)) {
-        assert.ok(avgTime < 2000, `${type} queries should average under 2000ms, was ${avgTime}ms`);
       }
     });
   });

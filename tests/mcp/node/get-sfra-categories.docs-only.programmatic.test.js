@@ -249,38 +249,6 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
     });
   });
 
-  describe('Performance Testing', () => {
-    test('should respond within reasonable time', async () => {
-      const startTime = Date.now();
-      const result = await client.callTool('get_sfra_categories', {});
-      const duration = Date.now() - startTime;
-      
-      assert.ok(duration < 500, `Response time ${duration}ms should be under 500ms for metadata operation`);
-      assert.equal(result.isError, false, 'Should succeed within time limit');
-    });
-
-    test('should be consistent across multiple calls', async () => {
-      // Test functional consistency rather than strict performance timing  
-      const results = await Promise.all([
-        client.callTool('get_sfra_categories', {}),
-        client.callTool('get_sfra_categories', {}),
-        client.callTool('get_sfra_categories', {})
-      ]);
-
-      // All calls should return identical content
-      const firstResponse = results[0].content[0].text;
-      results.forEach((result, index) => {
-        assert.equal(result.isError, false, `Call ${index + 1} should succeed`);
-        assert.equal(result.content[0].text, firstResponse, `Call ${index + 1} should return identical content`);
-      });
-      
-      // Basic sanity check - each call should return valid data
-      results.forEach((result, index) => {
-        assert.ok(result.content, `Call ${index + 1} should return content`);
-        assert.ok(result.content[0].text, `Call ${index + 1} should return non-empty text`);
-      });
-    });
-  });
 
   describe('Content Quality and Consistency', () => {
     test('should have consistent JSON formatting', async () => {

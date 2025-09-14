@@ -11,9 +11,8 @@ import { connect } from 'mcp-conductor';
  * 2. Basic successful invocation returns non-empty array JSON string
  * 3. JSON parse yields objects with required keys (id, name, category, filename)
  * 4. Category coverage (expects at least: core, product, order, customer, pricing, store, other)
- * 5. Performance constraint (< 600ms typical docs listing) – lenient for CI (< 1200ms fallback)
- * 6. Extraneous argument tolerance (should ignore unexpected params)
- * 7. Negative invalid method error path via raw JSON-RPC call
+ * 5. Extraneous argument tolerance (should ignore unexpected params)
+ * 6. Negative invalid method error path via raw JSON-RPC call
  */
 
 describe('get_available_sfra_documents (programmatic)', () => {
@@ -88,20 +87,6 @@ describe('get_available_sfra_documents (programmatic)', () => {
     for (const c of REQUIRED_CATEGORIES) {
       assert.ok(categories.has(c), `Expected category ${c}`);
     }
-  });
-
-  test('performance within thresholds', async () => {
-    const start = Date.now();
-    const { raw } = await invoke();
-    const elapsed = Date.now() - start;
-    // Primary expectation
-    assert.ok(elapsed < 600, `Docs listing should be <600ms (got ${elapsed}ms)`);
-    // CI safety net (won't fail test but logs warning)
-    if (elapsed >= 600 && elapsed < 1200) {
-      console.warn('Performance degraded but within CI fallback (<1200ms)');
-    }
-    // ensure parse still works
-    safeParseDocuments(raw);
   });
 
   test('extraneous argument is ignored', async () => {

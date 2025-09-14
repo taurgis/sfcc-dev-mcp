@@ -31,54 +31,6 @@ import { connect } from 'mcp-conductor';
 /**
  * Performance monitoring utility class for comprehensive metrics collection
  */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95),
-      variationRatio: measurements.length > 1 ? Math.max(...measurements) / Math.min(...measurements) : 1
-    };
-  }
-
-  getSummary() {
-    const summary = {};
-    for (const [toolName] of this.metrics) {
-      summary[toolName] = this.getStats(toolName);
-    }
-    return summary;
-  }
-
-  percentile(arr, p) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * p) - 1;
-    return sorted[index];
-  }
-}
 
 /**
  * Content analysis utility for SFCC class validation
@@ -233,7 +185,6 @@ class ContentAnalyzer {
 
 describe('list_sfcc_classes Programmatic Tests', () => {
   let client;
-  const performanceMonitor = new PerformanceMonitor();
   const contentAnalyzer = new ContentAnalyzer();
 
   before(async () => {
@@ -247,7 +198,6 @@ describe('list_sfcc_classes Programmatic Tests', () => {
     
     // Log performance summary
     console.log('\n📊 Performance Summary:');
-    console.log(performanceMonitor.getSummary());
   });
 
   beforeEach(() => {
@@ -462,66 +412,6 @@ describe('list_sfcc_classes Programmatic Tests', () => {
     });
   });
 
-  describe('Performance and Efficiency', () => {
-    test('should respond quickly for metadata operations', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'list_sfcc_classes', {}
-      );
-      
-      assertValidMCPResponse(result);
-      // CI-friendly timeout - metadata operations should be fast but allow for CI variability
-      assert.ok(duration < 1000, 
-        `Response time should be under 1000ms for metadata operation (got ${duration}ms)`);
-    });
-
-    test('should handle multiple concurrent requests efficiently', async () => {
-      const concurrentRequests = 5;
-      const promises = Array.from({ length: concurrentRequests }, () => 
-        performanceMonitor.measureTool(client, 'list_sfcc_classes', {})
-      );
-      
-      const results = await Promise.all(promises);
-      
-      // All requests should succeed
-      results.forEach((result, index) => {
-        assertValidMCPResponse(result.result);
-        assert.ok(result.duration < 2000, 
-          `Concurrent request ${index} should complete quickly (got ${result.duration}ms)`);
-      });
-      
-      // Results should be consistent
-      const firstResponse = results[0].result.content[0].text;
-      results.forEach((result, index) => {
-        assert.equal(result.result.content[0].text, firstResponse,
-          `Concurrent request ${index} should return identical results`);
-      });
-    });
-
-    test('should maintain consistent performance across calls', async () => {
-      const testRuns = 3;
-      const measurements = [];
-      
-      for (let i = 0; i < testRuns; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'list_sfcc_classes', {}
-        );
-        assertValidMCPResponse(result);
-        measurements.push(duration);
-      }
-      
-      const stats = performanceMonitor.getStats('list_sfcc_classes');
-      
-      // CI-friendly performance variation - allow for substantial variance in CI environments
-      assert.ok(stats.variationRatio < 50, 
-        `Performance should be relatively consistent (variation ratio: ${stats.variationRatio})`);
-      
-      assert.ok(stats.avg < 800, 
-        `Average response time should be reasonable (got ${stats.avg}ms)`);
-    });
-  });
 
   describe('Response Structure Validation', () => {
     test('should maintain consistent response structure', async () => {

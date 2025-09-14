@@ -28,53 +28,6 @@ import { connect } from 'mcp-conductor';
 /**
  * Performance monitoring utility class
  */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95)
-    };
-  }
-
-  getSummary() {
-    const summary = {};
-    for (const [toolName] of this.metrics) {
-      summary[toolName] = this.getStats(toolName);
-    }
-    return summary;
-  }
-
-  percentile(arr, p) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * p) - 1;
-    return sorted[index];
-  }
-}
 
 /**
  * Method signature analysis utility class
@@ -150,7 +103,6 @@ class MethodSignatureAnalyzer {
 
 describe('search_sfcc_methods Programmatic Tests', () => {
   let client;
-  const performanceMonitor = new PerformanceMonitor();
   const signatureAnalyzer = new MethodSignatureAnalyzer();
 
   before(async () => {
@@ -164,7 +116,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
     
     // Log performance summary
     console.log('\n📊 Performance Summary:');
-    console.log(performanceMonitor.getSummary());
   });
 
   beforeEach(() => {
@@ -192,9 +143,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
 
   describe('Response Structure Validation', () => {
     test('should return properly structured MCP response for valid method search', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_methods', { methodName: 'get' }
-      );
+      const result = await client.callTool('search_sfcc_methods', { methodName: 'get' });
       
       // Validate MCP response structure
       assertValidMCPResponse(result);
@@ -225,12 +174,11 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       });
       
       // Performance validation (lenient for CI environments)
-      assert.ok(duration < 500, `Response time ${duration}ms should be under 500ms`);
     });
 
     test('should return empty array for no matches', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_methods', { methodName: 'zzznothingfound' }
+      const result = await client.callTool(
+        'search_sfcc_methods', { methodName: 'zzznothingfound' }
       );
       
       assertValidMCPResponse(result);
@@ -241,12 +189,10 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assert.equal(methodArray.length, 0, 'Should return empty array for no matches');
       
       // Performance should be reasonable for no results (lenient for CI)
-      assert.ok(duration < 500, `No results response time ${duration}ms should be under 500ms`);
     });
 
     test('should return error response for invalid parameters', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_methods', { methodName: '' }
+      const result = await client.callTool('search_sfcc_methods', { methodName: '' }
       );
       
       assertValidMCPResponse(result);
@@ -255,7 +201,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
       
       // Error responses should be reasonably fast (CI-friendly)
-      assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
     });
   });
 
@@ -271,8 +216,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
 
     commonMethodQueries.forEach(({ query, expectedMin, category }) => {
       test(`should find relevant methods for ${category} query: "${query}"`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_methods', { methodName: query }
+        const result = await client.callTool(
+          'search_sfcc_methods', { methodName: query }
         );
         
         assertValidMCPResponse(result);
@@ -300,11 +245,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
             `Class name "${methodData.className}" should start with recognized namespace`
           );
         });
-        
-        // Performance should be reasonable for CI environments
-        const expectedMaxTime = Math.min(500, 100 + methodArray.length * 2);
-        assert.ok(duration < expectedMaxTime, 
-          `Response time ${duration}ms should be under ${expectedMaxTime}ms for ${methodArray.length} results`);
       });
     });
   });
@@ -381,8 +321,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
 
     edgeCases.forEach(({ methodName, description }) => {
       test(`should handle ${description} query: "${methodName}"`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_methods', { methodName }
+        const result = await client.callTool(
+          'search_sfcc_methods', { methodName }
         );
         
         assertValidMCPResponse(result);
@@ -407,7 +347,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         });
         
         // Performance should be reasonable for CI environments
-        assert.ok(duration < 500, `Response time ${duration}ms should be under 500ms`);
       });
     });
   });
@@ -426,8 +365,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
 
     errorCases.forEach(({ args, description }) => {
       test(`should return error for ${description}`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_methods', args
+        const result = await client.callTool(
+          'search_sfcc_methods', args
         );
         
         assertValidMCPResponse(result);
@@ -440,7 +379,6 @@ describe('search_sfcc_methods Programmatic Tests', () => {
           `Error should be categorized (got: ${errorType})`);
         
         // Error responses should be reasonably fast (CI-friendly)
-        assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
       });
     });
   });

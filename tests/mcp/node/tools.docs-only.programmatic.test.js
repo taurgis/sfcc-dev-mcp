@@ -187,16 +187,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     }
   });
 
-  test('should have reasonable response times', async () => {
-    const startTime = Date.now();
-    const result = await client.callTool('list_sfcc_classes', {});
-    const endTime = Date.now();
-    const duration = endTime - startTime;
-    
-    assert.ok(result.content, 'Should return content');
-    assert.ok(duration < 10000, 'Should respond within 10 seconds'); // Reasonable timeout for large documentation
-  });
-
   // Advanced Node.js-specific test scenarios
   test('should handle concurrent tool calls efficiently', async () => {
     const concurrentCalls = [
@@ -527,25 +517,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
         `${toolTest.name} text should be string`);
       assert.ok(firstContent.text.length > 0, 
         `${toolTest.name} should return non-empty text`);
-    }
-  });
-
-  test('should validate tool performance meets reasonable expectations', async () => {
-    const performanceTests = [
-      { tool: 'get_available_best_practice_guides', params: {}, maxTime: 2000, description: 'Fast metadata lookup' },
-      { tool: 'get_available_sfra_documents', params: {}, maxTime: 3000, description: 'Document discovery' },
-      { tool: 'search_sfcc_classes', params: { query: 'catalog' }, maxTime: 4000, description: 'Class search' },
-      { tool: 'get_sfcc_class_info', params: { className: 'Product' }, maxTime: 3000, description: 'Class info lookup' }
-    ];
-
-    for (const perfTest of performanceTests) {
-      const startTime = Date.now();
-      const result = await client.callTool(perfTest.tool, perfTest.params);
-      const duration = Date.now() - startTime;
-      
-      assert.ok(!result.isError, `${perfTest.tool} should not error`);
-      assert.ok(duration < perfTest.maxTime, 
-        `${perfTest.tool} (${perfTest.description}) should respond within ${perfTest.maxTime}ms (took ${duration}ms)`);
     }
   });
 

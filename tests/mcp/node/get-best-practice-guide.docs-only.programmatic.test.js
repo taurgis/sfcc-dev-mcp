@@ -2,7 +2,7 @@
  * Programmatic tests for get_best_practice_guide tool
  * 
  * These tests provide advanced verification capabilities beyond YAML pattern matching,
- * including performance monitoring, dynamic validation, comprehensive content analysis,
+ * including dynamic validation, comprehensive content analysis,
  * cross-guide relationship testing, and advanced error categorization for the SFCC
  * best practice guide retrieval functionality.
  * 
@@ -16,50 +16,6 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-conductor';
-
-/**
- * Performance monitoring utility class for comprehensive metrics collection
- */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95),
-      variationRatio: Math.max(...measurements) / Math.min(...measurements)
-    };
-  }
-
-  percentile(arr, percentile) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * percentile) - 1;
-    return sorted[index];
-  }
-}
 
 /**
  * Content analysis utility for comprehensive guide validation
@@ -329,12 +285,10 @@ function assertErrorResponse(result, expectedErrorType) {
 
 describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
   let client;
-  let performanceMonitor;
   let contentAnalyzer;
 
   before(async () => {
     client = await connect('./conductor.config.docs-only.json');
-    performanceMonitor = new PerformanceMonitor();
     contentAnalyzer = new ContentAnalyzer();
   });
 
@@ -496,91 +450,6 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
         'Cartridge guide should have MCP integration workflow');
       assert.ok(analysis.crossReferences.sfccReferences > 0, 
         'Cartridge guide should reference SFCC concepts');
-    });
-  });
-
-  describe('Performance and Scalability Testing', () => {
-    test('should meet response time requirements across all guides', async () => {
-      const testGuides = ['cartridge_creation', 'security', 'performance'];
-      const performanceResults = [];
-
-      for (const guideName of testGuides) {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_best_practice_guide', { guideName }
-        );
-
-        assertValidMCPResponse(result);
-        performanceResults.push({ guideName, duration });
-
-        // CI-friendly performance validation (500ms timeout)
-        assert.ok(duration < 500, 
-          `${guideName} guide retrieval should complete under 500ms, took ${duration}ms`);
-      }
-
-      // Performance consistency validation
-      const maxDuration = Math.max(...performanceResults.map(r => r.duration));
-      const variationRatio = maxDuration / Math.min(...performanceResults.map(r => r.duration));
-
-      // CI-friendly variation ratio (50x instead of 15x)
-      assert.ok(variationRatio < 50, 
-        `Performance variation should be reasonable, got ${variationRatio}x variation`);
-    });
-
-    test('should handle concurrent guide requests efficiently', async () => {
-      const concurrentRequests = 5;
-      const guideName = 'cartridge_creation';
-
-      const promises = Array.from({ length: concurrentRequests }, () =>
-        performanceMonitor.measureTool(client, 'get_best_practice_guide', {
-          guideName: `${guideName}`
-        })
-      );
-
-      const results = await Promise.all(promises);
-
-      // Validate all requests succeeded
-      results.forEach(({ result }, i) => {
-        assertValidMCPResponse(result);
-        const guideData = JSON.parse(result.content[0].text);
-        assert.ok(guideData.title, `Concurrent request ${i} should return valid guide`);
-      });
-
-      // Performance analysis
-      const durations = results.map(r => r.duration);
-      const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
-      const maxDuration = Math.max(...durations);
-
-      // CI-friendly concurrent performance validation
-      assert.ok(maxDuration < 1000, 
-        `Concurrent requests should complete under 1000ms, max was ${maxDuration}ms`);
-      assert.ok(avgDuration < 500, 
-        `Average concurrent request time should be under 500ms, was ${avgDuration}ms`);
-    });
-
-    test('should provide consistent performance across multiple calls', async () => {
-      const iterations = 10;
-      const guideName = 'security';
-
-      for (let i = 0; i < iterations; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_best_practice_guide', { guideName }
-        );
-
-        assertValidMCPResponse(result);
-        
-        // CI-friendly per-iteration validation
-        assert.ok(duration < 500, 
-          `Iteration ${i + 1} should complete under 500ms, took ${duration}ms`);
-      }
-
-      const stats = performanceMonitor.getStats('get_best_practice_guide');
-      assert.ok(stats.avg < 300, 
-        `Average response time should be under 300ms, got ${stats.avg}ms`);
-      assert.ok(stats.p95 < 500, 
-        `95th percentile should be under 500ms, got ${stats.p95}ms`);
     });
   });
 

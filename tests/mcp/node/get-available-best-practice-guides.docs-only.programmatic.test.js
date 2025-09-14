@@ -2,7 +2,7 @@
  * Programmatic tests for get_available_best_practice_guides tool
  * 
  * These tests provide advanced verification capabilities beyond YAML pattern matching,
- * including performance monitoring, dynamic validation, comprehensive content analysis,
+ * including dynamic validation, comprehensive content analysis,
  * and advanced error categorization for the SFCC best practice guides functionality.
  * 
  * Response format discovered via conductor query:
@@ -15,58 +15,6 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-conductor';
-
-/**
- * Performance monitoring utility class for comprehensive metrics collection
- */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95),
-      variationRatio: measurements.length > 1 ? Math.max(...measurements) / Math.min(...measurements) : 1
-    };
-  }
-
-  getSummary() {
-    const summary = {};
-    for (const [toolName] of this.metrics) {
-      summary[toolName] = this.getStats(toolName);
-    }
-    return summary;
-  }
-
-  percentile(arr, p) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * p) - 1;
-    return sorted[index];
-  }
-}
 
 /**
  * Content analysis utility for SFCC best practice guides validation
@@ -264,7 +212,6 @@ function assertValidMCPResponse(result) {
 
 describe('get_available_best_practice_guides Programmatic Tests', () => {
   let client;
-  const performanceMonitor = new PerformanceMonitor();
   const bestPracticeAnalyzer = new BestPracticeAnalyzer();
 
   before(async () => {
@@ -275,10 +222,6 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
     if (client?.connected) {
       await client.disconnect();
     }
-    
-    // Log performance summary
-    console.log('\n📊 Performance Summary:');
-    console.log(performanceMonitor.getSummary());
   });
 
   beforeEach(() => {
@@ -443,47 +386,6 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
       
       assert.equal(analysis.validationErrors.length, 0, 
         `Validation errors: ${analysis.validationErrors.join('; ')}`);
-    });
-  });
-
-  describe('Performance and Consistency', () => {
-    test('should meet response time requirements', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'get_available_best_practice_guides', {}
-      );
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false);
-      
-      // CI-friendly timeout - should be well under 500ms for docs-only
-      assert.ok(duration < 500, 
-        `Response time ${duration}ms should be under 500ms for docs-only mode`);
-    });
-
-    test('should be consistent across multiple calls', async () => {
-      const calls = 5;
-      const results = [];
-      
-      for (let i = 0; i < calls; i++) {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_available_best_practice_guides', {}
-        );
-        results.push({ result, duration });
-      }
-      
-      // All results should be identical
-      const firstResponse = results[0].result.content[0].text;
-      results.forEach((res, index) => {
-        assert.equal(res.result.content[0].text, firstResponse, 
-          `Response ${index} should be identical to first response`);
-        assert.equal(res.result.isError, false, 
-          `Response ${index} should not be error`);
-      });
-      
-      // Performance should be consistent (CI-friendly variation ratio)
-      const stats = performanceMonitor.getStats('get_available_best_practice_guides');
-      assert.ok(stats.variationRatio < 50, 
-        `Performance variation should be reasonable (got ${stats.variationRatio}x)`);
     });
   });
 

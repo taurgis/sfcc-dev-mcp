@@ -8,12 +8,29 @@ client.clearStderr();                   // Clear stderr buffer (REQUIRED in befo
 
 ## Overview
 
-**Programmatic Testing** provides JavaScript/TypeScript API for complex MCP server testing, perfect for integration with existing test suites, dynamic validation logic, multi-step workflows, and advanced testing scenarios.
+**Programmatic Testing** provides JavaScript/TypeScript API for complex MCP server testing scenarios that require dynamic validation logic, multi-step workflows, and integration with existing test suites. **For basic functional testing, the YAML-based testing approach (see `../yaml/AGENTS.md`) is more than sufficient and recommended.**
+
+### When to Use Programmatic vs YAML Testing
+
+**Use YAML Testing for:**
+- ✅ Basic functional validation (tool discovery, parameter validation, response structure)
+- ✅ Standard error handling scenarios
+- ✅ Simple input/output verification
+- ✅ CI/CD pipeline testing (more reliable across environments)
+- ✅ Quick test development and maintenance
+
+**Use Programmatic Testing for:**
+- Complex business logic validation requiring code execution
+- Multi-step workflows with state management
+- Dynamic test case generation based on server configuration
+- Integration with existing JavaScript/TypeScript test suites
+- Advanced error recovery and resilience testing
 
 ### 📚 Key Resources
 - **[Programmatic Testing Documentation](https://conductor.rhino-inquisitor.com/programmatic-testing.html)** - Complete guide
 - **[API Reference](https://conductor.rhino-inquisitor.com/api-reference.html)** - All methods and properties
 - **[Examples Directory](../../examples/)** - Real-world programmatic test files
+- **[YAML Testing Guide](../yaml/AGENTS.md)** - Recommended for basic testing scenarios
 
 ## Quick Setup
 
@@ -455,21 +472,10 @@ for (const tool of tools) {
 }
 ```
 
-### 5. Performance and Sequential Testing
+### 5. Sequential Request Testing
 ```javascript
-describe('Performance Testing', () => {
-  test('should meet response time requirements', async () => {
-    const startTime = Date.now();
-    const result = await client.callTool('quick_lookup', { 
-      term: 'test query' 
-    });
-    const duration = Date.now() - startTime;
-    
-    assert.ok(duration < 2000, `Response time ${duration}ms should be under 2000ms`);
-    assert.equal(result.isError, false);
-  });
-
-  test('should handle sequential requests', async () => {
+describe('Sequential Request Testing', () => {
+  test('should handle sequential requests correctly', async () => {
     const results = [];
     
     // Execute requests sequentially to avoid buffer/message handler conflicts
@@ -497,6 +503,22 @@ describe('Performance Testing', () => {
   });
 });
 ```
+
+### ⚠️ Performance Testing Not Recommended
+
+**Performance testing is not recommended in programmatic tests** due to CI environment variability. CI environments have:
+- Highly variable resource allocation and sharing
+- Unpredictable I/O performance and network latency  
+- JIT compilation delays and garbage collection interference
+- Container and process initialization overhead
+
+**Use dedicated performance testing tools instead:**
+- Load testing frameworks (Artillery, k6, Apache JMeter)
+- APM tools (New Relic, DataDog, AppDynamics)
+- Custom monitoring with controlled environments
+- Synthetic monitoring services
+
+**If you must include timing validation**, use extremely lenient thresholds (5+ seconds) and focus on detecting major regressions rather than precise performance requirements.
 
 ### 6. Dynamic Validation Logic
 ```javascript
@@ -820,36 +842,41 @@ function categorizeError(errorText) {
 }
 ```
 
-### 4. Performance Monitoring
+### 4. Built-in Functional Monitoring
 ```javascript
-// Built-in performance monitoring
-class PerformanceMonitor {
+// Focus on functional correctness rather than timing
+class FunctionalMonitor {
   constructor() {
-    this.metrics = new Map();
+    this.results = new Map();
   }
 
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
+  async validateTool(client, toolName, params) {
     const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
     
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
+    const validation = {
+      success: !result.isError,
+      hasContent: result.content && result.content.length > 0,
+      contentType: result.content?.[0]?.type,
+      timestamp: new Date().toISOString()
+    };
     
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
+    if (!this.results.has(toolName)) {
+      this.results.set(toolName, []);
     }
-    this.metrics.get(toolName).push(duration);
+    this.results.get(toolName).push(validation);
     
-    return { result, duration };
+    return { result, validation };
   }
 
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
+  getReliabilityStats(toolName) {
+    const validations = this.results.get(toolName) || [];
+    const successful = validations.filter(v => v.success).length;
+    
     return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements)
+      totalCalls: validations.length,
+      successRate: successful / validations.length,
+      failureRate: (validations.length - successful) / validations.length,
+      lastValidation: validations[validations.length - 1]?.timestamp
     };
   }
 }

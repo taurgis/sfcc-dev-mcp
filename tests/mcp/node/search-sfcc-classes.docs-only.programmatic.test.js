@@ -2,12 +2,11 @@
  * Programmatic tests for search_sfcc_classes tool
  * 
  * These tests provide advanced verification capabilities beyond YAML pattern matching,
- * including performance monitoring, dynamic validation, error categorization        assertValidMCPResponse(result);
-        assert.equal(result.isError, false, 'Should not error for valid string');and
+ * including dynamic validation, error categorization and
  * comprehensive response structure analysis.
  * 
  * Response format discovered via conductor query:
- * - Success: { content: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
+ * - Success: { content: [{ type: "text", text: "["class1", "class2", ...]" }] }
  * - Empty: { content: [{ type: "text", text: "[]" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
  */
@@ -16,60 +15,8 @@ import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-conductor';
 
-/**
- * Performance monitoring utility class
- */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95)
-    };
-  }
-
-  getSummary() {
-    const summary = {};
-    for (const [toolName] of this.metrics) {
-      summary[toolName] = this.getStats(toolName);
-    }
-    return summary;
-  }
-
-  percentile(arr, p) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * p) - 1;
-    return sorted[index];
-  }
-}
-
 describe('search_sfcc_classes Programmatic Tests', () => {
   let client;
-  const performanceMonitor = new PerformanceMonitor();
 
   before(async () => {
     client = await connect('./conductor.config.docs-only.json');
@@ -79,10 +26,6 @@ describe('search_sfcc_classes Programmatic Tests', () => {
     if (client?.connected) {
       await client.disconnect();
     }
-    
-    // Log performance summary
-    console.log('\n📊 Performance Summary:');
-    console.log(performanceMonitor.getSummary());
   });
 
   beforeEach(() => {
@@ -110,9 +53,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
 
   describe('Response Structure Validation', () => {
     test('should return properly structured MCP response for valid query', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_classes', { query: 'catalog' }
-      );
+      const result = await client.callTool('search_sfcc_classes', { query: 'catalog' });
       
       // Validate MCP response structure
       assertValidMCPResponse(result);
@@ -138,15 +79,10 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         );
         assert.ok(className.includes('catalog'), 'Results should be relevant to query');
       });
-      
-      // Performance validation (more lenient for concurrent test execution)
-      assert.ok(duration < 800, `Response time ${duration}ms should be under 800ms`);
     });
 
     test('should return empty array for no matches', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_classes', { query: 'zzznothingfound' }
-      );
+      const result = await client.callTool('search_sfcc_classes', { query: 'zzznothingfound' });
       
       assertValidMCPResponse(result);
       assert.equal(result.isError, false, 'Should not be an error response');
@@ -154,23 +90,15 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       const classArray = parseClassArray(result.content[0].text);
       assert.ok(Array.isArray(classArray), 'Response should be valid JSON array');
       assert.equal(classArray.length, 0, 'Should return empty array for no matches');
-      
-      // Performance should be reasonable for no results (CI-friendly)
-      assert.ok(duration < 500, `No results response time ${duration}ms should be under 500ms`);
     });
 
     test('should return error response for invalid parameters', async () => {
-      const { result, duration } = await performanceMonitor.measureTool(
-        client, 'search_sfcc_classes', { query: '' }
-      );
+      const result = await client.callTool('search_sfcc_classes', { query: '' });
       
       assertValidMCPResponse(result);
       assert.equal(result.isError, true, 'Should be an error response');
       assert.ok(result.content[0].text.includes('Error:'), 'Should contain error message');
       assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
-      
-      // Error responses should be reasonably fast (CI-friendly)
-      assert.ok(duration < 500, `Error response time ${duration}ms should be under 500ms`);
     });
   });
 
@@ -187,9 +115,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
 
     testQueries.forEach(({ query, expectedMin, category }) => {
       test(`should find relevant classes for ${category} query: "${query}"`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_classes', { query }
-        );
+        const result = await client.callTool('search_sfcc_classes', { query });
         
         assertValidMCPResponse(result);
         assert.equal(result.isError, false, 'Should not be an error');
@@ -205,11 +131,6 @@ describe('search_sfcc_classes Programmatic Tests', () => {
           assert.ok(lowerClassName.includes(lowerQuery), 
             `Class "${className}" should contain query term "${query}"`);
         });
-        
-        // Performance should scale with result count
-        const expectedMaxTime = Math.min(100, 20 + classArray.length * 0.5);
-        assert.ok(duration < expectedMaxTime, 
-          `Response time ${duration}ms should be under ${expectedMaxTime}ms for ${classArray.length} results`);
       });
     });
   });
@@ -226,9 +147,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
 
     edgeCases.forEach(({ query, description }) => {
       test(`should handle ${description} query: "${query}"`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_classes', { query }
-        );
+        const result = await client.callTool('search_sfcc_classes', { query });
         
         assertValidMCPResponse(result);
         assert.equal(result.isError, false, 'Should not be an error for valid string');
@@ -248,8 +167,6 @@ describe('search_sfcc_classes Programmatic Tests', () => {
             `Class name "${className}" should start with dw., TopLevel., best-practices., or sfra.`
           );
         });
-        
-        assert.ok(duration < 100, `Edge case response time ${duration}ms should be reasonable`);
       });
     });
   });
@@ -266,9 +183,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
 
     errorCases.forEach(({ params, expectedError, description }) => {
       test(`should validate ${description}`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_classes', params
-        );
+        const result = await client.callTool('search_sfcc_classes', params);
         
         assertValidMCPResponse(result);
         assert.equal(result.isError, true, 'Should be an error response');
@@ -281,72 +196,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         // Error categorization
         const errorType = categorizeError(result.content[0].text);
         assert.equal(errorType, 'validation', 'Should be categorized as validation error');
-        
-        assert.ok(duration < 500, `Error response time ${duration}ms should be fast`);
       });
-    });
-  });
-
-  describe('Performance and Load Testing', () => {
-    test('should handle concurrent requests efficiently', async () => {
-      const queries = ['catalog', 'product', 'customer', 'order', 'system'];
-      const startTime = Date.now();
-      
-      const results = [];
-      
-      // Process queries sequentially to avoid message stream interference
-      for (let i = 0; i < queries.length; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const result = await client.callTool('search_sfcc_classes', { query: queries[i] });
-        results.push(result);
-        
-      }
-      
-      const totalTime = Date.now() - startTime;
-      
-      // Validate all results
-      results.forEach((result, index) => {
-        assertValidMCPResponse(result);
-        assert.equal(result.isError, false, `Request ${index} should succeed`);
-        
-        const classArray = parseClassArray(result.content[0].text);
-        assert.ok(classArray.length > 0, `Query "${queries[index]}" should return results`);
-      });
-      
-      // Performance validation - adjusted for sequential execution
-      assert.ok(totalTime < 5000, `Sequential requests should complete under 5000ms, took ${totalTime}ms`);
-      const avgTime = totalTime / queries.length;
-      assert.ok(avgTime < 1000, `Average response time ${avgTime}ms should be under 1000ms`);
-    });
-
-    test('should maintain consistent performance across multiple calls', async () => {
-      const iterations = 10;
-      const durations = [];
-      
-      for (let i = 0; i < iterations; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const { duration } = await performanceMonitor.measureTool(
-          client, 'search_sfcc_classes', { query: 'catalog' }
-        );
-        durations.push(duration);
-        
-      }
-      
-      const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
-      const maxDuration = Math.max(...durations);
-      const minDuration = Math.min(...durations);
-      
-      assert.ok(avgDuration < 500, `Average duration ${avgDuration}ms should be under 500ms`);
-      assert.ok(maxDuration < 1000, `Max duration ${maxDuration}ms should be under 1000ms`);
-      
-      // Consistency check - max should not be more than 50x the minimum (lenient for CI environments)
-      const variationRatio = maxDuration / minDuration;
-      assert.ok(variationRatio < 50, 
-        `Performance variation ratio ${variationRatio} should be under 50 (min: ${minDuration}ms, max: ${maxDuration}ms)`);
     });
   });
 

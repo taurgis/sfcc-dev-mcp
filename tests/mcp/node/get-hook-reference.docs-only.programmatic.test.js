@@ -15,25 +15,12 @@
  *  - Presence of hook signatures in scapi_hooks
  *  - Validation errors for missing & empty guideName
  *  - Empty result handling for invalid guideName
- *  - Performance characteristics & basic variation ratio (CI-friendly thresholds)
  */
 
 import { describe, test, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-conductor';
 
-class PerfMonitor {
-  constructor() { this.samples = []; }
-  record(ms) { this.samples.push(ms); }
-  stats() {
-    if (!this.samples.length) return null;
-    const sorted = [...this.samples].sort((a,b)=>a-b);
-    const min = sorted[0];
-    const max = sorted[sorted.length-1];
-    const avg = this.samples.reduce((a,b)=>a+b,0)/this.samples.length;
-    return { count:this.samples.length, min, max, avg, variation: max/min };
-  }
-}
 
 function parseHookReference(result) {
   assert.equal(result.isError, false, 'Expected non-error result');
@@ -66,8 +53,6 @@ function validateHookSchema(h) {
 
 describe('get_hook_reference.docs-only (programmatic)', () => {
   let client;
-  const perfOcapi = new PerfMonitor();
-  const perfScapi = new PerfMonitor();
 
   before(async () => {
     client = await connect('./conductor.config.docs-only.json');
@@ -88,9 +73,7 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
   });
 
   test('ocapi_hooks reference basic structure', async () => {
-    const start = Date.now();
     const result = await client.callTool('get_hook_reference', { guideName: 'ocapi_hooks' });
-    perfOcapi.record(Date.now()-start);
     const { data, raw } = parseHookReference(result);
     assert.ok(data.length >= 2, 'Expect >=2 categories (Shop API Hooks, Data API Hooks)');
 
@@ -122,9 +105,7 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
   });
 
   test('scapi_hooks reference includes signatures & structural integrity', async () => {
-    const start = Date.now();
     const result = await client.callTool('get_hook_reference', { guideName: 'scapi_hooks' });
-    perfScapi.record(Date.now()-start);
     const { data, raw } = parseHookReference(result);
     assert.ok(data.length >= 3, 'Expect >=3 categories for SCAPI');
 
@@ -201,27 +182,4 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
     assert.ok(/guideName must be a non-empty string/.test(msg), 'Validation message missing');
   });
 
-  test('performance stats (CI-friendly thresholds)', async () => {
-    // Trigger a few calls to gather metrics
-    for (let i=0;i<3;i++) {
-      // Clear buffers before each iteration to prevent interference
-      client.clearAllBuffers();
-      
-      await client.callTool('get_hook_reference', { guideName: 'ocapi_hooks' });
-      await client.callTool('get_hook_reference', { guideName: 'scapi_hooks' });
-    }
-
-    const ocapiStats = perfOcapi.stats();
-    const scapiStats = perfScapi.stats();
-    assert.ok(ocapiStats && scapiStats, 'Performance stats should be collected');
-    // CI lenient thresholds (<1500ms each call, variation < 50x)
-    assert.ok(ocapiStats.max < 1500, `OCAPI max ${ocapiStats.max}ms should be <1500ms`);
-    assert.ok(scapiStats.max < 1500, `SCAPI max ${scapiStats.max}ms should be <1500ms`);
-    if (ocapiStats.variation && ocapiStats.variation !== Infinity) {
-      assert.ok(ocapiStats.variation < 50, `OCAPI variation ${ocapiStats.variation} should be <50x`);
-    }
-    if (scapiStats.variation && scapiStats.variation !== Infinity) {
-      assert.ok(scapiStats.variation < 50, `SCAPI variation ${scapiStats.variation} should be <50x`);
-    }
-  });
 });

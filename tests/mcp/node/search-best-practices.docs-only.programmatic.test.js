@@ -2,64 +2,21 @@
  * Programmatic tests for search_best_practices tool
  * 
  * These tests provide advanced verification capabilities beyond YAML pattern matching,
- * including performance monitoring, dynamic validation, comprehensive content analysis,
- * cross-guide search testing, advanced error categorization, search relevance scoring,
- * and intelligent query analysis for the SFCC best practice search functionality.
+ * including dynamic validation, comprehensive content analysis,
+ * search quality metrics, cross-guide relationship analysis, pattern recognition,
+ * and comprehensive error categorization for the SFCC best practices search functionality.
  * 
  * Response format discovered via conductor query:
- * - Success: { content: [{ type: "text", text: "[{\"guide\":\"...\",\"title\":\"...\",\"matches\":[{\"section\":\"...\",\"content\":\"...\"}]}]" }], isError: false }
- * - Error: { content: [{ type: "text", text: "Error: query must be a non-empty string" }], isError: true }
- * - Empty results: { content: [{ type: "text", text: "[]" }], isError: false }
- * - JSON structure: Array of guides with guide name, title, and matches (section + content)
+ * - Success: { content: [{ type: "text", text: "[{"name":"guide_name","title":"Guide Title","matches":[...]}]" }], isError: false }
+ * - Empty: { content: [{ type: "text", text: "[]" }], isError: false }
+ * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
+ * - Search results include guide metadata, match relevance, and content excerpts
  */
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-conductor';
 
-/**
- * Performance monitoring utility class for comprehensive metrics collection
- */
-class PerformanceMonitor {
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = process.hrtime.bigint();
-    const result = await client.callTool(toolName, params);
-    const endTime = process.hrtime.bigint();
-    
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
-    
-    if (!this.metrics.has(toolName)) {
-      this.metrics.set(toolName, []);
-    }
-    this.metrics.get(toolName).push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName) {
-    const measurements = this.metrics.get(toolName) || [];
-    if (measurements.length === 0) return null;
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements),
-      p95: this.percentile(measurements, 0.95),
-      variationRatio: Math.max(...measurements) / Math.min(...measurements)
-    };
-  }
-
-  percentile(arr, percentile) {
-    const sorted = [...arr].sort((a, b) => a - b);
-    const index = Math.ceil(sorted.length * percentile) - 1;
-    return sorted[index];
-  }
-}
 
 /**
  * Search results analyzer for comprehensive search quality assessment
@@ -603,13 +560,11 @@ function assertErrorResponse(result, expectedErrorType) {
 
 describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
   let client;
-  let performanceMonitor;
   let searchAnalyzer;
   let queryAnalyzer;
 
   before(async () => {
     client = await connect('./conductor.config.docs-only.json');
-    performanceMonitor = new PerformanceMonitor();
     searchAnalyzer = new SearchResultsAnalyzer();
     queryAnalyzer = new QueryAnalyzer();
   });
@@ -630,14 +585,13 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
       const searchTerms = ['validation', 'security', 'performance', 'controller', 'middleware'];
       
       for (const term of searchTerms) {
-        const { result, duration } = await performanceMonitor.measureTool(client, 'search_best_practices', { query: term });
+        const result = await client.callTool('search_best_practices', { query: term });
         
         const resultsArray = assertSearchResults(result);
         const searchAnalysis = searchAnalyzer.analyzeResults(term, resultsArray);
         
         // Basic validation
         assert.ok(resultsArray.length > 0, `Should find results for ${term}`);
-        assert.ok(duration < 3000, `Search for ${term} should complete within 3 seconds, took ${duration}ms`);
         
         // More lenient analysis - allow for varied content quality
         if (resultsArray.length > 0) {
@@ -651,7 +605,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
 
     test('should demonstrate search result quality with detailed metrics', async () => {
       const testQuery = 'validation';
-      const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query: testQuery });
+      const result = await client.callTool('search_best_practices', { query: testQuery });
       
       const resultsArray = assertSearchResults(result);
       const analysis = searchAnalyzer.analyzeResults(testQuery, resultsArray);
@@ -687,7 +641,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
 
       for (const { query, expectedPattern } of technicalQueries) {
         const queryAnalysis = queryAnalyzer.analyzeQuery(query);
-        const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query });
+        const result = await client.callTool('search_best_practices', { query });
         
         const resultsArray = assertSearchResults(result);
         const searchAnalysis = searchAnalyzer.analyzeResults(query, resultsArray);
@@ -735,61 +689,10 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
     });
   });
 
-  describe('Performance and Scalability Analysis', () => {
-    test('should maintain consistent performance across different query types', async () => {
-      const performanceTestQueries = [
-        { query: 'a', category: 'single_char' },
-        { query: 'validation', category: 'single_word' },
-        { query: 'security authentication', category: 'multi_word' },
-        { query: 'SFRA controller middleware patterns', category: 'complex' }
-      ];
-
-      const performanceResults = [];
-
-      for (const { query, category } of performanceTestQueries) {
-        const { result, duration } = await performanceMonitor.measureTool(client, 'search_best_practices', { query });
-        
-        assertSearchResults(result);
-        performanceResults.push({ query, category, duration });
-        
-        // Performance thresholds
-        assert.ok(duration < 3000, `Query "${query}" should complete within 3s, took ${duration}ms`);
-      }
-
-      // Analyze performance patterns
-      const avgDuration = performanceResults.reduce((sum, r) => sum + r.duration, 0) / performanceResults.length;
-      const maxDuration = Math.max(...performanceResults.map(r => r.duration));
-      const minDuration = Math.min(...performanceResults.map(r => r.duration));
-      
-      assert.ok(maxDuration / minDuration < 300, 'Performance variation should be reasonable (CI-friendly threshold)');
-      console.log(`Performance analysis: avg=${avgDuration.toFixed(1)}ms, min=${minDuration}ms, max=${maxDuration}ms, variation=${(maxDuration/minDuration).toFixed(1)}x`);
-    });
-
-    test('should handle concurrent searches efficiently', async () => {
-      const concurrentQueries = ['validation', 'security', 'performance', 'controller', 'middleware'];
-      const startTime = Date.now();
-      
-      const promises = concurrentQueries.map(query => 
-        performanceMonitor.measureTool(client, 'search_best_practices', { query }));
-      
-      const results = await Promise.all(promises);
-      const totalDuration = Date.now() - startTime;
-      
-      // Validate all results
-      results.forEach(({ result, duration }, index) => {
-        assertSearchResults(result);
-        assert.ok(duration < 5000, `Concurrent query ${index} should complete within 5s`);
-      });
-      
-      // Concurrent performance should be reasonable
-      assert.ok(totalDuration < 10000, 'All concurrent queries should complete within 10s');
-      console.log(`Concurrent search performance: ${results.length} queries in ${totalDuration}ms`);
-    });
-  });
 
   describe('Cross-Guide Relationship Analysis', () => {
     test('should identify relationships between different guides', async () => {
-      const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query: 'validation' });
+      const result = await client.callTool('search_best_practices', { query: 'validation' });
       
       const resultsArray = assertSearchResults(result);
       const analysis = searchAnalyzer.analyzeResults('validation', resultsArray);
@@ -819,7 +722,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
       const knownPatterns = ['validation', 'security', 'performance'];
       
       for (const pattern of knownPatterns) {
-        const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query: pattern });
+        const result = await client.callTool('search_best_practices', { query: pattern });
         
         const resultsArray = assertSearchResults(result);
         const analysis = searchAnalyzer.analyzeResults(pattern, resultsArray);
@@ -855,7 +758,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
       ];
 
       for (const { query, expectedError, description } of errorTestCases) {
-        const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query });
+        const result = await client.callTool('search_best_practices', { query });
         
         if (expectedError) {
           const errorAnalysis = assertErrorResponse(result, expectedError);
@@ -896,7 +799,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
       ];
 
       for (const query of qualityTestQueries) {
-        const { result } = await performanceMonitor.measureTool(client, 'search_best_practices', { query });
+        const result = await client.callTool('search_best_practices', { query });
         
         const resultsArray = assertSearchResults(result);
         const analysis = searchAnalyzer.analyzeResults(query, resultsArray);
@@ -915,25 +818,6 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
           
           console.log(`Query "${query}": ${effectiveness} quality, ${analysis.searchEffectiveness.precision.toFixed(2)} precision`);
         }
-      }
-    });
-
-    test('should provide comprehensive performance summary', async () => {
-      const stats = performanceMonitor.getStats('search_best_practices');
-      
-      if (stats) {
-        assert.ok(stats.count > 0, 'Should have performance measurements');
-        assert.ok(stats.avg > 0, 'Average response time should be positive');
-        assert.ok(stats.min <= stats.avg, 'Min should be <= average');
-        assert.ok(stats.max >= stats.avg, 'Max should be >= average');
-        assert.ok(stats.variationRatio >= 1, 'Variation ratio should be >= 1');
-        
-        console.log(`Performance Summary - Count: ${stats.count}, Avg: ${stats.avg.toFixed(1)}ms, Min: ${stats.min}ms, Max: ${stats.max}ms, P95: ${stats.p95}ms, Variation: ${stats.variationRatio.toFixed(1)}x`);
-        
-        // Performance quality assertions
-        assert.ok(stats.avg < 3000, 'Average response time should be under 3 seconds');
-        assert.ok(stats.p95 < 5000, '95th percentile should be under 5 seconds');
-        assert.ok(stats.variationRatio < 300, 'Performance variation should be reasonable (CI-friendly threshold)');
       }
     });
   });

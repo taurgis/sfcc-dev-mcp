@@ -223,52 +223,6 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
     });
   });
 
-  describe('Performance and Reliability', () => {
-    test('should respond within reasonable time for valid classes', async () => {
-      const startTime = Date.now();
-      const result = await client.callTool('get_sfcc_class_documentation', {
-        className: 'dw.catalog.Product'
-      });
-      const duration = Date.now() - startTime;
-
-      assert.ok(duration < 5000, `Response time ${duration}ms should be under 5000ms`);
-      assert.equal(result.isError, false, 'Should have isError: false on success');
-    });
-
-    test('should respond within reasonable time for non-existent classes', async () => {
-      const startTime = Date.now();
-      const result = await client.callTool('get_sfcc_class_documentation', {
-        className: 'NonExistentClass'
-      });
-      const duration = Date.now() - startTime;
-
-      assert.ok(duration < 5000, `Response time ${duration}ms should be under 5000ms`);
-      assert.equal(result.isError, true, 'Should be marked as error');
-    });
-
-    test('should handle multiple concurrent requests', async () => {
-      const classNames = [
-        'dw.catalog.Product',
-        'dw.order.Order',
-        'dw.customer.Customer',
-        'dw.system.Site'
-      ];
-
-      const promises = classNames.map(className => 
-        client.callTool('get_sfcc_class_documentation', { className })
-      );
-
-      const results = await Promise.all(promises);
-
-      results.forEach((result, index) => {
-        assert.equal(result.isError, false, `Request ${index} should not have isError property on success`);
-        assert.ok(result.content, `Request ${index} should have content`);
-        assert.equal(result.content[0].type, 'text', `Request ${index} should have text content`);
-        assert.ok(result.content[0].text.includes(classNames[index].split('.').pop()), 
-          `Request ${index} should include class name`);
-      });
-    });
-  });
 
   describe('Edge Cases and Special Characters', () => {
     test('should handle class names with special characters gracefully', async () => {

@@ -4,21 +4,15 @@ import { connect } from 'mcp-conductor';
 
 describe('get_sfra_document Tool - Programmatic Tests', () => {
   let client;
-  let performanceMonitor;
 
   before(async () => {
     client = await connect('./conductor.config.docs-only.json');
-    performanceMonitor = new PerformanceMonitor();
   });
 
   after(async () => {
     if (client?.connected) {
       await client.disconnect();
     }
-    
-    // Print performance summary
-    console.log('\n📊 Performance Summary:');
-    performanceMonitor.printSummary();
   });
 
   beforeEach(() => {
@@ -66,9 +60,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
 
     coreDocuments.forEach(({ name, expectedContent }) => {
       test(`should retrieve ${name} document with rich content`, async () => {
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_sfra_document', { documentName: name }
-        );
+        const result = await client.callTool('get_sfra_document', { documentName: name });
 
         // Basic response validation
         assertValidMCPResponse(result);
@@ -88,10 +80,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
           );
         });
 
-        // Performance validation
-        assert.ok(duration < 3000, `${name} document should load within 3 seconds (took ${duration}ms)`);
-        
-        console.log(`✓ ${name} document: ${duration}ms, ${documentData.content.length} chars`);
+        console.log(`✓ ${name} document: ${documentData.content.length} chars`);
       });
     });
 
@@ -276,105 +265,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
     });
   });
 
-  describe('Performance & Load Testing', () => {
-    test('should meet performance benchmarks for individual documents', async () => {
-      const performanceTests = [
-        { doc: 'server', maxTime: 2000, description: 'core server doc' },
-        { doc: 'request', maxTime: 2000, description: 'core request doc' },
-        { doc: 'product-full', maxTime: 3000, description: 'complex product model' },
-        { doc: 'cart', maxTime: 2500, description: 'cart model' }
-      ];
-
-      for (const { doc, maxTime, description } of performanceTests) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_sfra_document', { documentName: doc }
-        );
-
-        assert.equal(result.isError, false, `${doc} should load successfully`);
-        assert.ok(duration < maxTime, 
-          `${description} should load within ${maxTime}ms (took ${duration}ms)`);
-        
-      }
-
-      // Print performance stats
-      console.log('\n📈 Individual Document Performance:');
-      performanceTests.forEach(({ doc }) => {
-        const stats = performanceMonitor.getStats('get_sfra_document', doc);
-        if (stats.count > 0) {
-          console.log(`  ${doc}: avg ${stats.avg.toFixed(1)}ms (min: ${stats.min}ms, max: ${stats.max}ms)`);
-        }
-      });
-    });
-
-    test('should handle concurrent requests efficiently', async () => {
-      const concurrentDocs = ['server', 'request', 'response', 'querystring', 'render'];
-      const startTime = Date.now();
-
-      const results = [];
-      
-      // Process documents sequentially to avoid message stream interference
-      for (let i = 0; i < concurrentDocs.length; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const result = await client.callTool('get_sfra_document', { documentName: concurrentDocs[i] });
-        results.push(result);
-        
-      }
-      
-      const totalTime = Date.now() - startTime;
-
-      // Validate all requests succeeded
-      results.forEach((result, index) => {
-        assert.equal(result.isError, false, 
-          `Sequential request for ${concurrentDocs[index]} should succeed`);
-      });
-
-      // Performance validation - adjusted for sequential execution
-      const expectedSequentialTime = 5000; // 5 seconds for sequential execution
-      
-      assert.ok(totalTime < expectedSequentialTime, 
-        `Sequential requests should be efficient: ${totalTime}ms vs estimated ${expectedSequentialTime}ms`);
-
-      console.log(`✓ Sequential test: ${concurrentDocs.length} documents in ${totalTime}ms`);
-    });
-
-    test('should handle rapid sequential requests without degradation', async () => {
-      const testDoc = 'server';
-      const iterations = 10;
-      const durations = [];
-
-      for (let i = 0; i < iterations; i++) {
-        // Clear buffers before each request to prevent interference
-        client.clearAllBuffers();
-        
-        const { result, duration } = await performanceMonitor.measureTool(
-          client, 'get_sfra_document', { documentName: testDoc }
-        );
-
-        assert.equal(result.isError, false, `Iteration ${i + 1} should succeed`);
-        durations.push(duration);
-        
-      }
-
-      // Check for performance degradation
-      const firstHalf = durations.slice(0, Math.floor(iterations / 2));
-      const secondHalf = durations.slice(Math.floor(iterations / 2));
-
-      const avgFirst = firstHalf.reduce((a, b) => a + b) / firstHalf.length;
-      const avgSecond = secondHalf.reduce((a, b) => a + b) / secondHalf.length;
-
-      // Allow for some variation but flag significant degradation
-      const degradationRatio = avgSecond / avgFirst;
-      assert.ok(degradationRatio < 3.0, 
-        `Performance should not degrade significantly: ${avgFirst.toFixed(1)}ms -> ${avgSecond.toFixed(1)}ms (${degradationRatio.toFixed(2)}x)`);
-
-      console.log(`✓ Sequential test: ${iterations} requests, avg ${(durations.reduce((a, b) => a + b) / durations.length).toFixed(1)}ms`);
-    });
-  });
 
   describe('Content Quality & Completeness Analysis', () => {
     test('should provide comprehensive documentation content', async () => {
@@ -581,62 +471,6 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
 
 // Helper Classes and Functions
 
-class PerformanceMonitor {
-  constructor() {
-    // Use plain object instead of Map to avoid serialization issues
-    this.measurements = {};
-  }
-
-  async measureTool(client, toolName, params) {
-    const startTime = Date.now(); // Use Date.now() instead of process.hrtime.bigint()
-    const result = await client.callTool(toolName, params);
-    const endTime = Date.now();
-    
-    const duration = endTime - startTime; // Already in ms
-    
-    // Use simple string key instead of JSON.stringify which can be complex
-    const key = `${toolName}_${params?.documentName || 'default'}`;
-    if (!this.measurements[key]) {
-      this.measurements[key] = [];
-    }
-    this.measurements[key].push(duration);
-    
-    return { result, duration };
-  }
-
-  getStats(toolName, params = null) {
-    const key = params ? `${toolName}_${params.documentName || 'default'}` : toolName;
-    const measurements = this.measurements[key] || [];
-    
-    if (measurements.length === 0) return { count: 0 };
-    
-    return {
-      count: measurements.length,
-      avg: measurements.reduce((a, b) => a + b, 0) / measurements.length,
-      min: Math.min(...measurements),
-      max: Math.max(...measurements)
-    };
-  }
-
-  printSummary() {
-    // Convert to simple arrays to avoid Map serialization
-    const allMeasurements = Object.values(this.measurements).flat();
-    if (allMeasurements.length === 0) {
-      console.log('  No performance measurements recorded');
-      return;
-    }
-
-    const totalCalls = allMeasurements.length;
-    const avgTime = allMeasurements.reduce((a, b) => a + b, 0) / totalCalls;
-    const minTime = Math.min(...allMeasurements);
-    const maxTime = Math.max(...allMeasurements);
-
-    console.log(`  Total calls: ${totalCalls}`);
-    console.log(`  Average time: ${avgTime.toFixed(1)}ms`);
-    console.log(`  Min time: ${minTime.toFixed(1)}ms`);
-    console.log(`  Max time: ${maxTime.toFixed(1)}ms`);
-  }
-}
 
 function assertValidMCPResponse(result) {
   assert.ok(result.content, 'Should have content');

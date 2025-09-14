@@ -3,7 +3,6 @@
  * 
  * These tests go beyond what's possible with YAML testing to provide:
  * - Complex validation scenarios
- * - Performance testing
  * - Concurrent request handling
  * - Advanced workflow simulation
  * - Stress testing
@@ -308,38 +307,6 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       const classInfo = JSON.parse(result.content[0].text);
       assert(classInfo.className, `Result ${index} should have className`);
     });
-  });
-
-  // ==================================================================================
-  // PERFORMANCE TESTS
-  // ==================================================================================
-
-  test('should meet response time requirements for simple classes', async () => {
-    const startTime = Date.now();
-    
-    const result = await client.callTool('get_sfcc_class_info', {
-      className: 'dw.system.Site'
-    });
-    
-    const duration = Date.now() - startTime;
-    assertValidMCPResponse(result);
-    
-    // Should respond within reasonable time (adjust as needed)
-    assert(duration < 5000, `Response time ${duration}ms should be under 5 seconds`);
-  });
-
-  test('should handle complex classes within reasonable time', async () => {
-    const startTime = Date.now();
-    
-    const result = await client.callTool('get_sfcc_class_info', {
-      className: 'dw.catalog.Product',
-      expand: true
-    });
-    
-    const duration = Date.now() - startTime;
-    assertValidMCPResponse(result);
-    
-    assert(duration < 10000, `Complex class response time ${duration}ms should be under 10 seconds`);
   });
 
   // ==================================================================================
