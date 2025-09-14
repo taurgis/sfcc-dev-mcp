@@ -30,6 +30,9 @@ jobs:
     - name: Run build
       run: npm run build
 
+    - name: Setup WebDAV server
+      run: npm run test:webdav:setup
+
     - name: Run tests
       run: npm test
 
