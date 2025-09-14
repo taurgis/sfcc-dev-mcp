@@ -70,7 +70,8 @@ class SFCCMockWebDAVServer {
         // Add CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, PROPFIND');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Depth');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Depth, Range');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges');
 
         if (this.isDevMode) {
             console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -128,14 +129,73 @@ class SFCCMockWebDAVServer {
                 return;
             }
 
+            // Handle range requests for partial content
+            const rangeHeader = req.headers.range;
+            if (rangeHeader) {
+                return this.handleRangeRequest(req, res, fsPath, stats);
+            }
+
+            // Normal full file request
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/plain');
             res.setHeader('Content-Length', stats.size);
+            res.setHeader('Accept-Ranges', 'bytes');
             
             const stream = fs.createReadStream(fsPath);
             stream.pipe(res);
         } catch (error) {
             console.error('Error handling GET request:', error);
+            res.statusCode = 500;
+            res.end('Internal Server Error');
+        }
+    }
+
+    handleRangeRequest(req, res, fsPath, stats) {
+        try {
+            const rangeHeader = req.headers.range;
+            const fileSize = stats.size;
+            
+            if (this.isDevMode) {
+                console.log(`[DEBUG] Range request: ${rangeHeader} for file ${fsPath} (size: ${fileSize})`);
+            }
+
+            // Parse range header (e.g., "bytes=0-499" or "bytes=500-999")
+            const rangeMatch = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+            if (!rangeMatch) {
+                res.statusCode = 416; // Range Not Satisfiable
+                res.setHeader('Content-Range', `bytes */${fileSize}`);
+                res.end('Range Not Satisfiable');
+                return;
+            }
+
+            const start = parseInt(rangeMatch[1], 10);
+            const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : fileSize - 1;
+
+            // Validate range
+            if (start >= fileSize || end >= fileSize || start > end) {
+                res.statusCode = 416; // Range Not Satisfiable
+                res.setHeader('Content-Range', `bytes */${fileSize}`);
+                res.end('Range Not Satisfiable');
+                return;
+            }
+
+            const contentLength = end - start + 1;
+
+            if (this.isDevMode) {
+                console.log(`[DEBUG] Range: ${start}-${end}, Content-Length: ${contentLength}`);
+            }
+
+            // Send partial content response
+            res.statusCode = 206; // Partial Content
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Content-Length', contentLength);
+            res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+            res.setHeader('Accept-Ranges', 'bytes');
+
+            const stream = fs.createReadStream(fsPath, { start, end });
+            stream.pipe(res);
+        } catch (error) {
+            console.error('Error handling range request:', error);
             res.statusCode = 500;
             res.end('Internal Server Error');
         }
