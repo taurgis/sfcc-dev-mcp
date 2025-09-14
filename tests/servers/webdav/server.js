@@ -143,13 +143,24 @@ class SFCCMockWebDAVServer {
 
     handlePropfind(req, res, fsPath, urlPath) {
         try {
+            if (this.isDevMode) {
+                console.log(`[DEBUG] PROPFIND request: ${urlPath} -> ${fsPath}`);
+            }
+
             if (!fs.existsSync(fsPath)) {
+                if (this.isDevMode) {
+                    console.log(`[DEBUG] File not found: ${fsPath}`);
+                }
                 res.statusCode = 404;
                 res.end('Not Found');
                 return;
             }
 
             const stats = fs.statSync(fsPath);
+            
+            if (this.isDevMode) {
+                console.log(`[DEBUG] File stats: size=${stats.size}, isFile=${stats.isFile()}, isDirectory=${stats.isDirectory()}`);
+            }
             
             // Handle PROPFIND for individual files (used by webdav client's stat() method)
             if (stats.isFile()) {
@@ -169,6 +180,10 @@ class SFCCMockWebDAVServer {
         </D:propstat>
     </D:response>
 </D:multistatus>`;
+
+                if (this.isDevMode) {
+                    console.log(`[DEBUG] Returning file PROPFIND response for ${urlPath}`);
+                }
 
                 res.statusCode = 207; // Multi-Status
                 res.setHeader('Content-Type', 'application/xml');
@@ -224,7 +239,12 @@ class SFCCMockWebDAVServer {
             res.setHeader('Content-Type', 'application/xml');
             res.end(xml);
         } catch (error) {
-            console.error('Error handling PROPFIND request:', error);
+            console.error(`Error handling PROPFIND request for ${urlPath} -> ${fsPath}:`, error);
+            console.error('Error details:', {
+                message: error.message,
+                code: error.code,
+                stack: error.stack
+            });
             res.statusCode = 500;
             res.end('Internal Server Error');
         }

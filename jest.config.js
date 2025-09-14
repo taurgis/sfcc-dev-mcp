@@ -2,6 +2,7 @@ export default {
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
+  testTimeout: process.env.CI ? 30000 : 10000, // 30s for CI, 10s for local
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
@@ -15,11 +16,6 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^webdav$': '<rootDir>/tests/__mocks__/webdav.js'
-  },
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
   },
   collectCoverageFrom: [
     'src/**/*.ts',

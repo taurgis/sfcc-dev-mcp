@@ -33,7 +33,9 @@ export class LogFileReader {
 
     try {
       // First, try to get file info to determine the file size
+      this.logger.debug(`Attempting stat for file: ${filename}`);
       const stat = await this.webdavClient.stat(filename);
+      this.logger.debug(`Stat successful for ${filename}:`, stat);
       const fileSize = (stat as any).size;
 
       if (!fileSize || fileSize <= maxBytes) {
@@ -48,7 +50,13 @@ export class LogFileReader {
       return await this.getRangeFileContents(filename, startByte, fileSize - 1);
 
     } catch (statError) {
-      this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file:`, statError);
+      const error = statError as Error;
+      this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file. Error:`, {
+        message: error.message,
+        name: error.name,
+        code: (error as any).code,
+        status: (error as any).status,
+      });
       return await this.getFullFileContents(filename);
     }
   }
@@ -81,7 +89,9 @@ export class LogFileReader {
 
     try {
       // First, try to get file info to determine the file size
+      this.logger.debug(`Attempting stat for file: ${filename}`);
       const stat = await this.webdavClient.stat(filename);
+      this.logger.debug(`Stat successful for ${filename}:`, stat);
       const fileSize = (stat as any).size;
 
       if (!fileSize || fileSize <= maxBytes) {
@@ -95,7 +105,13 @@ export class LogFileReader {
       return await this.getRangeFileContents(filename, 0, maxBytes - 1);
 
     } catch (statError) {
-      this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file with truncation:`, statError);
+      const error = statError as Error;
+      this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file with truncation. Error:`, {
+        message: error.message,
+        name: error.name,
+        code: (error as any).code,
+        status: (error as any).status,
+      });
       // Fallback to reading full file and truncating
       const content = await this.getFullFileContents(filename);
       if (content.length > maxBytes) {

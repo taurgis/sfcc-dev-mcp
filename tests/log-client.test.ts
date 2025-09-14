@@ -85,6 +85,9 @@ describe('SFCCLogClient', () => {
         {
           username: 'testuser',
           password: 'testpass',
+          timeout: 30000,
+          maxBodyLength: 10 * 1024 * 1024,
+          maxContentLength: 10 * 1024 * 1024,
         },
       );
     });
@@ -103,6 +106,9 @@ describe('SFCCLogClient', () => {
         {
           username: 'testclientid',
           password: 'testclientsecret',
+          timeout: 30000,
+          maxBodyLength: 10 * 1024 * 1024,
+          maxContentLength: 10 * 1024 * 1024,
         },
       );
     });

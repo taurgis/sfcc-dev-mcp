@@ -29,7 +29,16 @@ export class WebDAVClientManager {
     this.logger.debug('Setting up WebDAV client:', { hostname: config.hostname, url: webdavUrl });
 
     const authConfig = this.buildAuthConfig(config);
-    this.client = createClient(webdavUrl, authConfig);
+
+    // Add timeout configuration for better CI compatibility
+    const clientConfig = {
+      ...authConfig,
+      timeout: 30000, // 30 second timeout (generous for CI environments)
+      maxBodyLength: 10 * 1024 * 1024, // 10MB max body length
+      maxContentLength: 10 * 1024 * 1024, // 10MB max content length
+    };
+
+    this.client = createClient(webdavUrl, clientConfig);
 
     return this.client;
   }
