@@ -33,8 +33,29 @@ jobs:
     - name: Setup WebDAV server
       run: npm run test:webdav:setup
 
+    - name: Start WebDAV server
+      run: |
+        cd tests/servers/webdav
+        npm start &
+        echo $! > webdav_server.pid
+        # Wait for server to start up
+        sleep 3
+        # Verify server is running
+        curl -f http://localhost:3000/Logs/ || (echo "WebDAV server failed to start" && exit 1)
+
     - name: Run tests
       run: npm test
+
+    - name: Stop WebDAV server
+      if: always()
+      run: |
+        cd tests/servers/webdav
+        if [ -f webdav_server.pid ]; then
+          kill $(cat webdav_server.pid) 2>/dev/null || true
+          rm -f webdav_server.pid
+        fi
+        # Fallback: kill any remaining server processes
+        pkill -f "node.*server.js" || true
 
     - name: Upload coverage reports (Node.js 20 only)
       if: matrix.node-version == 20
