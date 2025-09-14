@@ -251,8 +251,8 @@ describe('list_sfcc_classes Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent test interference
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent test interference
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   describe('Protocol Compliance', () => {
@@ -502,6 +502,9 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       const measurements = [];
       
       for (let i = 0; i < testRuns; i++) {
+        // Clear buffers before each request to prevent interference
+        client.clearAllBuffers();
+        
         const { result, duration } = await performanceMonitor.measureTool(
           client, 'list_sfcc_classes', {}
         );

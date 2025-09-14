@@ -33,8 +33,8 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent leaking into next tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   // ==================================================================================

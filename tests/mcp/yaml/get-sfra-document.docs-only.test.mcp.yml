@@ -1,0 +1,525 @@
+description: "Test get_sfra_document tool for retrieving SFRA documentation"
+tests:
+  # Smoke test - ensure tool is available and accessible
+  - it: "should be available in tools list"
+    request:
+      jsonrpc: "2.0"
+      id: "list-sfra-document-tool"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-sfra-document-tool"
+        result:
+          tools:
+            match:arrayContains:name:get_sfra_document
+      stderr: "toBeEmpty"
+
+  # Valid document tests - Core SFRA classes
+  - it: "should retrieve server document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-server-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-server-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Class Server"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve request document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-request-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "request"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-request-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Class Request"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve response document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-response-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "response"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-response-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Class Response"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve querystring document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-querystring-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "querystring"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-querystring-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:QueryString"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve render document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-render-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "render"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-render-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:render"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # Product model tests
+  - it: "should retrieve product-full document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-product-full-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "product-full"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-product-full-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:product"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve cart document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-cart-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "cart"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-cart-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:cart"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # Customer model tests
+  - it: "should retrieve account document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-account-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "account"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-account-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:account"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # Response format validation tests
+  - it: "should return properly structured JSON content"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-server-structure"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-server-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\{[\\s\\S]*title[\\s\\S]*sections[\\s\\S]*content[\\s\\S]*\\}"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include document metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-metadata"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-metadata"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*type[\\s\\S]*category[\\s\\S]*filename[\\s\\S]*lastModified[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include sections array"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-sections"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-sections"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*sections[\\s\\S]*\\[[\\s\\S]*\\][\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include comprehensive content"
+    request:
+      jsonrpc: "2.0"
+      id: "validate-content-detail"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validate-content-detail"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*Description[\\s\\S]*Method Summary[\\s\\S]*Method Detail[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Error handling tests
+  - it: "should handle nonexistent document gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-nonexistent"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "nonexistent-document"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-nonexistent"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:not found"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty document name"
+    request:
+      jsonrpc: "2.0"
+      id: "error-empty-name"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-empty-name"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(Error|not found|invalid)"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid document name characters"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-chars"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "invalid/document/name"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-chars"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(Error|not found|invalid)"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing documentName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-param"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(Error|required|missing|documentName|non-empty string)"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # Case sensitivity tests - it appears the tool is case-insensitive
+  - it: "should handle case variations for document names"
+    request:
+      jsonrpc: "2.0"
+      id: "case-insensitive-upper"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "SERVER"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "case-insensitive-upper"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Class Server"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle mixed case document names"
+    request:
+      jsonrpc: "2.0"
+      id: "case-insensitive-mixed"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "Server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "case-insensitive-mixed"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Class Server"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Content quality tests
+  - it: "should provide meaningful content for server document"
+    request:
+      jsonrpc: "2.0"
+      id: "content-quality-server"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-quality-server"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*middleware[\\s\\S]*routing[\\s\\S]*HTTP[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should provide meaningful content for request document"
+    request:
+      jsonrpc: "2.0"
+      id: "content-quality-request"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "request"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "content-quality-request"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*HTTP[\\s\\S]*session[\\s\\S]*customer[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Additional model document tests
+  - it: "should retrieve billing document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-billing-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "billing"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-billing-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:billing"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve shipping document successfully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-shipping-doc"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "shipping"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-shipping-doc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:shipping"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # Edge case tests
+  - it: "should handle document names with hyphens"
+    request:
+      jsonrpc: "2.0"
+      id: "hyphen-document"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "product-full"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "hyphen-document"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long nonexistent document names"
+    request:
+      jsonrpc: "2.0"
+      id: "long-nonexistent"
+      method: "tools/call"
+      params:
+        name: "get_sfra_document"
+        arguments:
+          documentName: "this-is-a-very-long-document-name-that-definitely-does-not-exist-anywhere"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "long-nonexistent"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:(Error|not found)"
+          isError: true
+      stderr: "toBeEmpty"

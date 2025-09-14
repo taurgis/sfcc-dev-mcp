@@ -282,8 +282,7 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent test interference
-    client.clearStderr();
+    client.clearAllBuffers();
   });
 
   describe('Protocol Compliance', () => {

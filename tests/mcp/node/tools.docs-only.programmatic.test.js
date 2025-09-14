@@ -16,9 +16,8 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
-    client.clearStderr(); // Available method - prevents stderr buffer leaking
-    // TODO: Use client.clearAllBuffers() when available - comprehensive protection
+    // CRITICAL: Clear all buffers to prevent leaking into next tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   test('should successfully connect to server', async () => {
@@ -245,7 +244,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
 
   test('should validate cartridge generation response structure', async () => {
     // Clear any previous test state
-    client.clearStderr();
+    client.clearAllBuffers();
     
     const result = await client.callTool('generate_cartridge_structure', { 
       cartridgeName: 'advanced_test_cartridge',
@@ -288,7 +287,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     const guideName = 'cartridge_creation'; // Test just one to keep test focused
     
     // Clear state
-    client.clearStderr();
+    client.clearAllBuffers();
     
     const result = await client.callTool('get_best_practice_guide', { guideName });
     assert.ok(result.content, `Should return content for ${guideName} guide`);

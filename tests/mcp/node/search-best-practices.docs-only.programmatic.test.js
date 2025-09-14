@@ -621,8 +621,8 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent stderr leaking between tests
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent leaking between tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   describe('Basic Search Functionality', () => {

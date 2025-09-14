@@ -16,8 +16,8 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent leaking into next tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   describe('Valid Class Documentation Retrieval', () => {

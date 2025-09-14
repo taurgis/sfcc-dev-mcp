@@ -63,9 +63,9 @@ describe('[SERVER_NAME] Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent leaking into next tests
-    client.clearStderr(); // Available method - prevents stderr buffer leaking
-    // TODO: Use client.clearAllBuffers() when available - comprehensive protection
+    // CRITICAL: Clear all buffers to prevent leaking into next tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
+    // OR: client.clearStderr(); // Minimum - stderr only
   });
 
   test('should list available tools', async () => {
@@ -181,11 +181,11 @@ if (result.isError) {
 #### Always Include beforeEach Hook
 ```javascript
 beforeEach(() => {
-  // REQUIRED: Clear stderr buffer to prevent stderr leaking between tests
-  client.clearStderr();
+  // RECOMMENDED: Clear all buffers to prevent any leaking
+  client.clearAllBuffers();
   
-  // TODO: When available, use comprehensive buffer clearing
-  // client.clearAllBuffers(); // Future enhancement - clears all buffers
+  // OR minimum: Clear only stderr (less comprehensive)
+  // client.clearStderr();
 });
 ```
 
@@ -195,7 +195,7 @@ beforeEach(() => {
 - **Ready state**: Server readiness flag not reset
 - **Pending reads**: Lingering message handlers
 
-**Best Practice**: Use `client.clearStderr()` (currently available) to prevent stderr leaking between tests. A future enhancement `client.clearAllBuffers()` will provide comprehensive protection against all buffer types when available in mcp-conductor.
+**Best Practice**: Use `client.clearAllBuffers()` instead of just `clearStderr()` for comprehensive protection.
 
 #### Common Anti-Patterns to Avoid
 ```javascript
@@ -433,7 +433,29 @@ describe('Error Recovery', () => {
 });
 ```
 
-### 5. Performance and Load Testing
+### ⚠️ Critical: Avoid Concurrent Requests
+
+**Never use `Promise.all()` or concurrent requests** with MCP Conductor's programmatic API. MCP communication uses a single stdio process with shared message handlers and buffers. Concurrent requests can cause:
+
+- **Buffer conflicts**: Multiple requests writing to the same stdout/stderr streams
+- **Message handler interference**: JSON-RPC messages getting mixed or corrupted  
+- **Race conditions**: Responses arriving out of order or getting lost
+- **Unpredictable test failures**: Flaky tests that pass/fail randomly
+
+```javascript
+// ❌ NEVER DO THIS - Causes buffer/message handler conflicts
+const promises = tools.map(tool => client.callTool(tool.name, {}));
+const results = await Promise.all(promises); // WILL CAUSE ISSUES!
+
+// ✅ ALWAYS DO THIS - Sequential requests work reliably
+const results = [];
+for (const tool of tools) {
+  const result = await client.callTool(tool.name, {});
+  results.push(result);
+}
+```
+
+### 5. Performance and Sequential Testing
 ```javascript
 describe('Performance Testing', () => {
   test('should meet response time requirements', async () => {
@@ -447,12 +469,14 @@ describe('Performance Testing', () => {
     assert.equal(result.isError, false);
   });
 
-  test('should handle concurrent requests', async () => {
-    const promises = Array.from({ length: 10 }, (_, i) => 
-      client.callTool('concurrent_operation', { id: i })
-    );
+  test('should handle sequential requests', async () => {
+    const results = [];
     
-    const results = await Promise.all(promises);
+    // Execute requests sequentially to avoid buffer/message handler conflicts
+    for (let i = 0; i < 10; i++) {
+      const result = await client.callTool('sequential_operation', { id: i });
+      results.push(result);
+    }
     
     results.forEach((result, i) => {
       assert.equal(result.isError, false, `Request ${i} should succeed`);

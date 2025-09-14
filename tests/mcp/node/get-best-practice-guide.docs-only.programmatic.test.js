@@ -345,8 +345,8 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent stderr leaking between tests
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent leaking between tests
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   describe('Protocol Compliance and Basic Functionality', () => {
@@ -562,6 +562,9 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
       const guideName = 'security';
 
       for (let i = 0; i < iterations; i++) {
+        // Clear buffers before each request to prevent interference
+        client.clearAllBuffers();
+        
         const { result, duration } = await performanceMonitor.measureTool(
           client, 'get_best_practice_guide', { guideName }
         );

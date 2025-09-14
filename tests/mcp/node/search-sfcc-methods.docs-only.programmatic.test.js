@@ -168,8 +168,8 @@ describe('search_sfcc_methods Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear stderr buffer to prevent test interference
-    client.clearStderr();
+    // CRITICAL: Clear all buffers to prevent test interference
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   describe('Protocol Compliance', () => {

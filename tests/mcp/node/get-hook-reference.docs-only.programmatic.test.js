@@ -78,7 +78,7 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
   });
 
   beforeEach(() => {
-    client.clearStderr();
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   test('tool should be present in listTools', async () => {
@@ -204,6 +204,9 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
   test('performance stats (CI-friendly thresholds)', async () => {
     // Trigger a few calls to gather metrics
     for (let i=0;i<3;i++) {
+      // Clear buffers before each iteration to prevent interference
+      client.clearAllBuffers();
+      
       await client.callTool('get_hook_reference', { guideName: 'ocapi_hooks' });
       await client.callTool('get_hook_reference', { guideName: 'scapi_hooks' });
     }

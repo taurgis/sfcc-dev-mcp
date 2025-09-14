@@ -29,7 +29,7 @@ describe('get_available_sfra_documents (programmatic)', () => {
   });
 
   beforeEach(() => {
-    client.clearStderr();
+    client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
   const TOOL_NAME = 'get_available_sfra_documents';
