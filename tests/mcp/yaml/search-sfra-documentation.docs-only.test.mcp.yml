@@ -1,0 +1,427 @@
+description: "Tests for search_sfra_documentation tool in docs-only mode"
+
+tests:
+  - it: "should return structured search results for valid query 'render'"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-1"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "render"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-1"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should validate search result structure contains JSON array with documents"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-2"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "server"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-2"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:document"
+      stderr: "toBeEmpty"
+
+  - it: "should include relevance scores and matches in search results"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-3"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "response"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-3"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:relevanceScore)[\\s\\S]*(?:matches)"
+      stderr: "toBeEmpty"
+
+  - it: "should return empty array for query with no matches"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-4"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-4"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty query with validation error"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-5"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-5"
+        result:
+          isError: true
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:query must be a non-empty string"
+      stderr: "toBeEmpty"
+
+  - it: "should reject missing query parameter"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-6"
+      params:
+        name: "search_sfra_documentation"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-6"
+        result:
+          isError: true
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:query must be a non-empty string"
+      stderr: "toBeEmpty"
+
+  - it: "should return results with document categories for complex queries"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-7"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-7"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:category)[\\s\\S]*(?:core|product|order|customer|pricing|store|other)"
+      stderr: "toBeEmpty"
+
+  - it: "should include document types in search results"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-8"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "model"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-8"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:type)[\\s\\S]*(?:class|module|model)"
+      stderr: "toBeEmpty"
+
+  - it: "should respond within reasonable time for complex search"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-9"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "cart billing shipping"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-9"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle special characters in search query"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-10"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "dw.util"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-10"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long search queries efficiently"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-11"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "template rendering isml view data processing controller middleware response request server router"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-11"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      performance:
+        maxResponseTime: "3000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return results for single character queries"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-12"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "a"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-12"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should handle numeric search terms"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-13"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "200"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-13"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should return consistent results for same query"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-14"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "cart"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-14"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:relevanceScore"
+      stderr: "toBeEmpty"
+
+  - it: "should handle case-insensitive searches"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-15"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "PRODUCT"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-15"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+      stderr: "toBeEmpty"
+
+  - it: "should find results for core SFRA concepts"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-16"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "middleware"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-16"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:matches)[\\s\\S]*(?:section)[\\s\\S]*(?:content)"
+      stderr: "toBeEmpty"
+
+  - it: "should handle hyphenated search terms"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-17"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "product-full"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-17"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should return structured results for pricing queries"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-18"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "price"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-18"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:category)[\\s\\S]*(?:pricing|product|core)"
+      stderr: "toBeEmpty"
+
+  - it: "should handle underscore in search terms"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-19"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "view_data"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-19"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+      stderr: "toBeEmpty"
+
+  - it: "should respond quickly for common search terms"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: "test-20"
+      params:
+        name: "search_sfra_documentation"
+        arguments:
+          query: "model"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "test-20"
+        result:
+          isError: false
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:document"
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
