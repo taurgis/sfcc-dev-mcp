@@ -1,0 +1,335 @@
+---
+description: "Test search_job_logs_by_name tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should search for job logs by name with default limit"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-name-default"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-name-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should search for job logs with custom limit"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-name-limit"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-name-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle partial job name matches"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-partial"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-partial"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should return no results for non-existent job name"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-not-found"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "NonExistentJobName"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-not-found"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No job logs found"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Content validation tests
+  - it: "should include job details when jobs are found"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-content"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-content"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:Found \\d+ job logs[\\s\\S]*🔧 Job:[\\s\\S]*ID:[\\s\\S]*File:[\\s\\S]*Modified:[\\s\\S]*Size:|No job logs found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should format job information with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-format"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-format"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Error handling tests
+  - it: "should reject empty job name"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-empty"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-empty"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should reject missing jobName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-missing"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-missing"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should handle invalid limit parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-invalid-limit"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+          limit: -1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-invalid-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle large limit values"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-large-limit"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+          limit: 1000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-large-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  # Edge case tests
+  - it: "should handle special characters in job name"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-special-chars"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Job-With_Special.Chars"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-special-chars"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle case sensitivity in job name search"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-case"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "import"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-case"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Performance tests
+  - it: "should complete search operation efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-performance"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-performance"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  - it: "should validate response structure consistency"
+    request:
+      jsonrpc: "2.0"
+      id: "search-job-structure"
+      method: "tools/call"
+      params:
+        name: "search_job_logs_by_name"
+        arguments:
+          jobName: "Import"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-job-structure"
+        result:
+          match:partial:
+            content:
+              match:arrayElements:
+                match:partial:
+                  type: "text"
+                  text: "match:type:string"
+            isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
