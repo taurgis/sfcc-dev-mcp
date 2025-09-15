@@ -1,0 +1,280 @@
+---
+description: "Test get_job_execution_summary tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should retrieve job execution summary for existing job"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-existing"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "ImportCatalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-existing"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Job Execution Summary: ImportCatalog[\\s\\S]*⏱️ Timing:[\\s\\S]*📊 Status:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include timing information in execution summary"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-timing"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "ProcessOrders"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-timing"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:⏱️ Timing:[\\s\\S]*Start:[\\s\\S]*End:[\\s\\S]*Duration:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include status information in execution summary"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-status"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "ImportCatalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-status"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:📊 Status:[\\s\\S]*Status:[\\s\\S]*Errors:[\\s\\S]*Warnings:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle non-existent job gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-nonexistent"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "NonExistentJob"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-nonexistent"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No job logs found for job name: NonExistentJob"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  # Error handling tests
+  - it: "should return error for missing jobName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-missing-param"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-missing-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "Error: jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should return error for empty jobName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-empty-param"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-empty-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "Error: jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should return error for null jobName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-null-param"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-null-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "Error: jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should return error for non-string jobName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-invalid-type"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-invalid-type"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "Error: jobName must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  # Edge case tests
+  - it: "should handle job names with special characters"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-special-chars"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "Job-With-Dashes_And_Underscores.123"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-special-chars"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No job logs found for job name: Job-With-Dashes_And_Underscores.123"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  - it: "should handle very long job names"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-long-name"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "VeryLongJobNameThatMightCauseIssuesWithSomeSystemsBecauseItExceedsTypicalLimits"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-long-name"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No job logs found for job name:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  # Performance and functional validation
+  - it: "should complete job execution summary retrieval within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-performance"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "ImportCatalog"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-performance"
+        result:
+          content:
+            match:arrayLength:1
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should return proper content structure"
+    request:
+      jsonrpc: "2.0"
+      id: "job-summary-structure"
+      method: "tools/call"
+      params:
+        name: "get_job_execution_summary"
+        arguments:
+          jobName: "ProcessOrders"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-summary-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: "match:type:boolean"
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
