@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'docs-site/**'
-      - '.github/workflows/deploy-docs.yml'
+      - '.github/workflows/deploy-pages.yml'
   pull_request:
     branches: [ main ]
     paths:
