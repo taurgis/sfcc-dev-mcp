@@ -1,6 +1,11 @@
 import React from 'react';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import useSEO from '../hooks/useSEO';
+import { Collapsible } from '../components/Collapsible';
+
+const badge = (label: string) => (
+  <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mr-2 mb-2 bg-slate-100 text-slate-700 border border-slate-200">{label}</span>
+);
 
 const FeaturesPage: React.FC = () => {
   useSEO({
@@ -14,326 +19,272 @@ const FeaturesPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-      <H1 id="features">✨ Features</H1>
-      
-      <div className="prose prose-lg max-w-none">
-        <PageSubtitle>
-          The SFCC Development MCP Server provides comprehensive tools and documentation access for Salesforce B2C Commerce Cloud development.
+    <div className="max-w-6xl mx-auto px-6 py-12">
+      <header className="mb-14 text-center">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+          Feature Surface
+        </div>
+        <H1 id="features" className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Discover & Apply Faster</H1>
+        <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          Lean overview of every capability—expand only what you need. Optimized for AI-assisted flows and rapid onboarding.
         </PageSubtitle>
 
-        <H2 id="cartridge-generation">🚀 Cartridge Generation</H2>
-        <p><strong>Generate Complete Cartridge Structure</strong> - Create a complete SFCC cartridge directory structure with all necessary files and configurations using the <code>generate_cartridge_structure</code> tool.</p>
+          </header>
+                  <div className="flex flex-wrap gap-2 mt-2">
+          {badge('Docs')}
+          {badge('SFRA')}
+          {badge('Best Practices')}
+          {badge('Logs')}
+          {badge('Jobs')}
+          {badge('System Objects')}
+          {badge('Code Versions')}
+          {badge('Security')}
+        </div>
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+          <strong className="block font-semibold text-blue-900">Getting started</strong>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Generate a cartridge with <code>generate_cartridge_structure</code></li>
+            <li>Or ask your AI assistant: <em>"Show me dw.catalog.Product methods"</em></li>
+          </ul>
+          <p className="mt-3 m-0 text-blue-800">Ready for deeper insight? Expand the sections below.</p>
+        </div>
+    
 
-        <H3 id="cartridge-features">Features:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Proper directory organization with controllers, models, templates, and client assets</li>
-          <li>Complete package.json with all necessary dependencies</li>
-          <li>Webpack configuration for asset bundling</li>
-          <li>ESLint setup for code quality</li>
-          <li>All standard cartridge subdirectories (controllers, models, templates, static assets)</li>
-          <li>Support for both full project setup (new projects) and cartridge-only setup (adding to existing projects)</li>
-          <li>Creates files directly in the specified target directory for precise control over cartridge placement</li>
-        </ul>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="sfcc-best-practices-guides">📚 SFCC Best Practices Guides</H2>
-        <p><strong>Comprehensive Development Guidelines</strong> - Access curated best practice guides covering all major SFCC development areas.</p>
-
-        <H3 id="available-guides">Available Guides:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Get Available Guides</strong> - List all available SFCC best practice guides</li>
-          <li><strong>Get Complete Guide</strong> - Retrieve comprehensive guides with structured content</li>
-          <li><strong>Search Best Practices</strong> - Search across all guides for specific terms and concepts</li>
-          <li><strong>Get Hook Reference</strong> - Access detailed hook reference tables for OCAPI and SCAPI hooks</li>
-        </ul>
-
-        <H3 id="coverage-areas">Coverage Areas:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Cartridge creation and architecture patterns</li>
-          <li>ISML templates with security and performance guidelines</li>
-          <li>Job framework development (task-oriented and chunk-oriented patterns)</li>
-          <li>LocalServiceRegistry service integrations with OAuth flows and reusable patterns</li>
-          <li>OCAPI hooks (legacy API extension patterns)</li>
-          <li>SCAPI hooks (modern API hooks with transactional integrity)</li>
-          <li>SFRA controllers and middleware chains</li>
-          <li>SFRA models and JSON object layer design</li>
-          <li>Custom SCAPI endpoints with three-pillar architecture</li>
-          <li>Performance optimization and scalability best practices</li>
-          <li>Security guidelines with OWASP compliance</li>
-        </ul>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="sfcc-documentation-querying">🔍 SFCC Documentation Querying</H2>
-        <p><strong>Complete API Documentation Access</strong> - Search and explore all SFCC API classes and methods with intelligent discovery.</p>
-
-        <H3 id="documentation-capabilities">Capabilities:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Get Class Information</strong> - Retrieve detailed information about any SFCC class including properties, methods, and descriptions</li>
-          <li><strong>Search Classes</strong> - Find SFCC classes by name with partial matching capabilities</li>
-          <li><strong>Search Methods</strong> - Find methods across all SFCC classes by method name</li>
-          <li><strong>List All Classes</strong> - Get a complete list of available SFCC classes for exploration</li>
-          <li><strong>Get Raw Documentation</strong> - Access the complete Markdown documentation for any class with examples and detailed descriptions</li>
-        </ul>
-
-        <H3 id="supported-namespaces">Supported Namespaces:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><code>dw.campaign</code> - Campaign and promotion management</li>
-          <li><code>dw.catalog</code> - Product and catalog management</li>
-          <li><code>dw.content</code> - Content management systems</li>
-          <li><code>dw.customer</code> - Customer profile and authentication</li>
-          <li><code>dw.order</code> - Order processing and management</li>
-          <li><code>dw.system</code> - System utilities and configurations</li>
-          <li><code>dw.web</code> - Web framework and request handling</li>
-          <li><code>dw.util</code> - Utility functions and helpers</li>
-          <li>And many more specialized namespaces...</li>
-        </ul>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="enhanced-sfra-documentation-access">🏗️ Enhanced SFRA Documentation Access</H2>
-        <p><strong>Advanced Storefront Reference Architecture Documentation</strong> - Comprehensive access to all SFRA components with intelligent categorization.</p>
-
-        <H3 id="sfra-document-categories">📂 SFRA Document Categories (26+ documents total):</H3>
-
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Core SFRA Classes (5 documents)</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><code>server</code> - Main server functionality and routing</li>
-              <li><code>request</code> - Request object handling and middleware</li>
-              <li><code>response</code> - Response management and rendering</li>
-              <li><code>querystring</code> - Query parameter processing</li>
-              <li><code>render</code> - Template rendering and view management</li>
+      {/* DEEP DIVES */}
+  <section className="space-y-8" aria-label="Feature deep dives">
+        <Collapsible id="cartridge-generation" title="🚀 Cartridge Generation" defaultOpen>
+          <p className="text-sm">Create a production-ready SFCC cartridge (or full project) in seconds via <code>generate_cartridge_structure</code>.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Controllers, models, ISML templates, static assets, config, lint, build</li>
+            <li>Full project mode adds package.json, Webpack, linting, scripts</li>
+            <li>Direct file creation in specified target path (no manual copy)</li>
+            <li>Consistent patterns for AI to reason about project shape</li>
+          </ul>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"Generate a cartridge named <em>training_core</em> and show the created directories."</li>
+              <li>"What files does generate_cartridge_structure create in full project mode?"</li>
+              <li>"Add a controller skeleton to my generated cartridge for listing products."</li>
             </ul>
           </div>
+        </Collapsible>
 
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Product Models (5 documents)</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><code>product-full</code> - Complete product model with all attributes</li>
-              <li><code>product-bundle</code> - Product bundle handling</li>
-              <li><code>product-tile</code> - Product tile display models</li>
-              <li><code>product-search</code> - Search result product models</li>
-              <li><code>product-line-items</code> - Cart line item product models</li>
+        <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices & Hook References">
+            <p className="text-sm mb-2">Structured guidance for core development domains plus searchable hook reference tables.</p>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold mb-1">Guides</h4>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li>Cartridge creation & architecture</li>
+                  <li>ISML templates (security & performance)</li>
+                  <li>Job framework patterns</li>
+                  <li>LocalServiceRegistry integrations</li>
+                  <li>SFRA controllers & models</li>
+                  <li>Custom SCAPI endpoints</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Also Covers</h4>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li>OCAPI & SCAPI hooks</li>
+                  <li>Security hardening (OWASP)</li>
+                  <li>Performance & scalability tactics</li>
+                  <li>Search across all guides</li>
+                  <li>Hook reference tables</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-4 text-xs text-slate-600">
+              <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>"Show me security recommendations for ISML templates."</li>
+                <li>"List OCAPI hook points for product import and explain when to use each."</li>
+                <li>"Summarize performance best practices relevant to checkout."</li>
+              </ul>
+            </div>
+        </Collapsible>
+
+        <Collapsible id="sfcc-documentation" title="🔍 SFCC API Documentation">
+          <p className="text-sm">Query the entire <code>dw.*</code> namespace surface area.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Get class info (properties, methods, descriptions)</li>
+            <li>Search classes & methods with partial matching</li>
+            <li>List all classes for discovery</li>
+            <li>Retrieve raw markdown documentation</li>
+          </ul>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"What methods does dw.catalog.Product have for pricing?"</li>
+              <li>"Search SFCC classes related to inventory."</li>
+              <li>"Show raw documentation for dw.system.Transaction."</li>
             </ul>
           </div>
+        </Collapsible>
 
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Order &amp; Cart Models (6 documents)</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><code>cart</code> - Shopping cart functionality</li>
-              <li><code>order</code> - Order processing models</li>
-              <li><code>billing</code> - Billing address and payment models</li>
-              <li><code>shipping</code> - Shipping address and method models</li>
-              <li><code>totals</code> - Price calculation and tax models</li>
-              <li><code>payment</code> - Payment processing models</li>
+        <Collapsible id="sfra-docs" title="🏗️ Enhanced SFRA Documentation">
+          <p className="text-sm">26+ documents with smart categorization (core, product, order, customer, pricing, store, other).</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Relevance-scored search with highlighted context</li>
+            <li>Category filtering and model coverage</li>
+            <li>Core classes: server, request, response, querystring, render</li>
+            <li>Extensive product/order/customer/pricing/store models</li>
+          </ul>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"Search SFRA docs for middleware examples."</li>
+              <li>"Show differences between product-full and product-tile models."</li>
+              <li>"List order-related SFRA documents and summarize each."</li>
             </ul>
           </div>
+        </Collapsible>
 
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Customer Models (4 documents)</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><code>account</code> - Customer account management</li>
-              <li><code>address</code> - Address handling and validation</li>
-              <li><code>customer</code> - Customer profile models</li>
-              <li><code>profile</code> - Extended customer profile data</li>
+        <Collapsible id="logs" title="📊 Log Analysis & Job Debugging">
+          <p className="text-sm mb-2">Real-time visibility into runtime behaviour plus job execution insight.</p>
+          <div className="grid sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 className="font-semibold mb-1">Runtime Logs</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Latest error / warn / info / debug</li>
+                <li>Pattern search & daily summarization</li>
+                <li>Full file listing & tail reads</li>
+                <li>Health & recurrence analysis</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-1">Job Logs</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Latest job log files</li>
+                <li>Search by job name or pattern</li>
+                <li>Execution summary (steps, timings)</li>
+                <li>Unified multi-level parsing</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            <strong className="font-semibold">Requires full mode:</strong> WebDAV / log tools need sandbox <code>username</code> & <code>password</code> (basic auth) plus any required realm access.
+          </div>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"Show the latest 10 error log entries containing 'OCAPI'."</li>
+              <li>"Summarize today’s log health and top recurring issues."</li>
+              <li>"Get the latest job execution summary for ProductFeedJob."</li>
             </ul>
           </div>
+        </Collapsible>
 
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Additional Models</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><code>pricing</code> - Pricing models and calculations</li>
-              <li><code>store</code> - Store locator and inventory models</li>
-              <li><code>content</code> - Content asset models</li>
-              <li><code>search</code> - Search functionality models</li>
-              <li><code>locale</code> - Localization and currency models</li>
+        <Collapsible id="system-objects" title="⚙️ System Objects & Data Model">
+          <p className="text-sm">Explore object schemas, attributes, and site preferences with advanced querying.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>List all system objects with metadata</li>
+            <li>Attribute & group searches (boolean, text, sort)</li>
+            <li>Custom object attribute discovery</li>
+            <li>Site preference group & value exploration</li>
+          </ul>
+          <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            <strong className="font-semibold">Requires full mode:</strong> OCAPI system object & preference tools need <code>client_id</code> and <code>client_secret</code> with proper scopes (Data API + Shop as applicable).
+          </div>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"List custom attributes for Product containing 'brand'."</li>
+              <li>"Search site preferences in the SEO group for description fields."</li>
+              <li>"Show attribute definitions for custom object Global_String matching 'locale'."</li>
             </ul>
+          </div>
+        </Collapsible>
+
+        <Collapsible id="code-versions" title="🔄 Code Version Management">
+          <p className="text-sm">Manage deployment states directly via MCP.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>List available code versions</li>
+            <li>Activate version to resolve endpoint or job issues</li>
+            <li>AI can propose switches based on log diagnostics</li>
+          </ul>
+          <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            <strong className="font-semibold">Requires full mode:</strong> Code version tools require OCAPI <code>client_id</code> and <code>client_secret</code> authorized for code/version management.
+          </div>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"List code versions and highlight the active one."</li>
+              <li>"Activate code version <em>int_release_2025_09</em>."</li>
+              <li>"Which inactive code versions look safe to remove?"</li>
+            </ul>
+          </div>
+        </Collapsible>
+
+        <Collapsible id="security-performance" title="🛡️ Security & Performance">
+          <div className="grid sm:grid-cols-2 gap-6 text-sm">
+            <div>
+              <h4 className="font-semibold mb-1">Security</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Credential isolation & never persisted plaintext</li>
+                <li>Path traversal & input validation guards</li>
+                <li>Scoped tool surface (principle of least privilege)</li>
+                <li>Structured error sanitization</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-1">Performance</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Layered caching & deduplicated requests</li>
+                <li>Chunked log tailing (range reads)</li>
+                <li>Lazy loading of heavy docs</li>
+                <li>Resource bounding for single-dev usage</li>
+              </ul>
+            </div>
+          </div>
+        </Collapsible>
+
+        <Collapsible id="ai-integration" title="🤖 AI Integration Rationale">
+          <p className="text-sm">Designed so assistants like GitHub Copilot, Claude, and Cursor can produce higher-quality SFCC code.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Deterministic tool naming & argument shapes</li>
+            <li>High-signal, low-noise responses (agent friendly)</li>
+            <li>Semantic grouping reduces prompt tokens</li>
+            <li>Guides & raw docs unify knowledge surface</li>
+          </ul>
+        </Collapsible>
+      </section>
+
+      {/* NEXT STEPS (aligned with home/config CTA style) */}
+      <section className="mt-20 mb-12 text-center" aria-labelledby="next-steps">
+        <H2 id="next-steps" className="text-3xl font-bold mb-4">🔗 Next Steps</H2>
+        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Pick a direction—inspect the precise tool surface first or jump straight into multi-step usage patterns.</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+          <a 
+            href="/#/tools" 
+            className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
+          >
+            Browse Tools
+            <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
+          </a>
+          <a 
+            href="/#/examples" 
+            className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
+          >
+            Examples & Use Cases
+          </a>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8 text-left">
+          <div className="rounded-xl border border-gray-200 bg-white p-5">
+            <h3 className="font-semibold text-sm mb-2">Need exact tool names?</h3>
+            <p className="text-xs text-gray-600">The tools catalog lists arguments & intent so you can craft precise, low-token prompts.</p>
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+            <h3 className="font-semibold text-sm mb-2 text-blue-800">Prefer guided flows?</h3>
+            <p className="text-xs text-blue-800">Example sequences show chained usage (docs → logs → versions) ready to reuse.</p>
           </div>
         </div>
-
-        <H3 id="sfra-capabilities">SFRA Capabilities:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Dynamic Discovery</strong> - Automatically finds all 26+ SFRA documents including core classes and extensive model documentation</li>
-          <li><strong>Smart Categorization</strong> - Organizes documents into 7 logical categories for efficient discovery</li>
-          <li><strong>Advanced Search</strong> - Relevance-scored search across all documents with context highlighting</li>
-          <li><strong>Category Filtering</strong> - Explore documents by functional areas</li>
-          <li><strong>Complete Coverage</strong> - Core SFRA classes plus comprehensive model documentation</li>
-        </ul>
-
-        <H2 id="sfcc-system-object-definitions">⚙️ SFCC System Object Definitions</H2>
-        <p><strong>Deep System Integration</strong> - Explore and understand SFCC's data model with comprehensive system object access.</p>
-
-        <H3 id="system-object-tools">System Object Tools:</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Get All System Objects</strong> - Retrieve complete list of all system object definitions with metadata</li>
-          <li><strong>Get System Object Definition</strong> - Detailed information about specific objects (Product, Customer, Order, etc.)</li>
-          <li><strong>Search System Object Attribute Definitions</strong> - Find specific attributes using complex queries</li>
-          <li><strong>Search Site Preferences</strong> - Discover custom site preferences and configurations</li>
-          <li><strong>Search System Object Attribute Groups</strong> - Find attribute groups and preference categories</li>
-          <li><strong>Search Custom Object Attribute Definitions</strong> - Explore custom object structures</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Advanced Query Capabilities:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Text search on id/display_name/description</li>
-          <li>Filtering by properties (mandatory/searchable/system)</li>
-          <li>Sorting and pagination support</li>
-          <li>Boolean query combinations (AND/OR/NOT)</li>
-          <li>Match-all queries for complete attribute lists</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Use Cases:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Discovering custom attributes added to standard SFCC objects</li>
-          <li>Understanding site preference configurations</li>
-          <li>Exploring custom object definitions</li>
-          <li>Finding attributes with specific characteristics</li>
-          <li>Mapping data model relationships</li>
-        </ul>
-
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 my-4">
-          <p className="text-yellow-800">
-            <strong>Note:</strong> Requires OAuth credentials (clientId and clientSecret) for full functionality
-          </p>
+        <div className="mx-auto max-w-xl p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+          💡 <strong>Tip:</strong> Ask: <em>"Suggest a workflow to inspect a product attribute then trace related log errors using available tools."</em>
         </div>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="log-analysis-monitoring">📊 Log Analysis & Monitoring</H2>
-        <p><strong>Real-time Debugging and Monitoring</strong> - Comprehensive log analysis tools for SFCC instance monitoring and debugging.</p>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Log Analysis Tools:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Get Latest Errors</strong> - Retrieve the most recent error messages from SFCC logs</li>
-          <li><strong>Get Latest Warnings</strong> - Fetch recent warning messages and deprecation notices</li>
-          <li><strong>Get Latest Info</strong> - Access recent info-level log entries for application flow</li>
-          <li><strong>Get Latest Debug</strong> - Detailed debug messages for step-by-step execution tracing</li>
-          <li><strong>Summarize Logs</strong> - Get overview of log activity with error counts and key issues</li>
-          <li><strong>Search Logs</strong> - Search for specific patterns, keywords, or error messages across log files</li>
-          <li><strong>List Log Files</strong> - View available log files with metadata including sizes and modification dates</li>
-          <li><strong>Get Log File Contents</strong> - Read complete contents of specific log files for detailed analysis</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Monitoring Capabilities:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Real-time error tracking and alerting</li>
-          <li>Performance monitoring through log analysis</li>
-          <li>Pattern recognition for recurring issues</li>
-          <li>System health assessment</li>
-          <li>Debugging assistance with detailed execution traces</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Log Types Supported:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Application logs (info, warn, error, debug)</li>
-          <li>System logs with performance metrics</li>
-          <li>Custom log entries from cartridge code</li>
-          <li>WebDAV access logs</li>
-          <li>OCAPI/SCAPI request logs</li>
-        </ul>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="code-version-management">🔄 Code Version Management</H2>
-        <p><strong>Code Version Control and Deployment</strong> - Manage code versions and handle deployment-related issues.</p>
-
-        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Features:</h3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>List Code Versions</strong> - Get all available code versions with status information</li>
-          <li><strong>Activate Code Versions</strong> - Switch between code versions for troubleshooting and deployment fixes</li>
-          <li><strong>Deployment Troubleshooting</strong> - Resolve SCAPI endpoint registration issues and job deployment problems</li>
-        </ul>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
-          <h4 className="text-lg font-semibold text-blue-800 mb-2">💡 Perfect for AI-Assisted Development</h4>
-          <p className="text-blue-800">
-            All features are designed to work seamlessly with AI assistants like GitHub Copilot, Claude, and Cursor. 
-            The MCP protocol enables real-time access to SFCC knowledge, making AI suggestions more accurate and context-aware.
-          </p>
-        </div>
-
-        <H2 id="operating-modes">🎯 Operating Modes</H2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <H3 id="documentation-only-mode">📖 Documentation-Only Mode (15 tools)</H3>
-            <p className="text-gray-600 mb-4">Perfect for learning, reference, and development without requiring SFCC instance access:</p>
-            <ul className="list-disc pl-6 space-y-1 text-gray-700">
-              <li>Complete SFCC API documentation (5 tools)</li>
-              <li>Best practices guides (4 tools)</li>
-              <li>SFRA documentation access (5 tools)</li>
-              <li>Cartridge generation (1 tool)</li>
-            </ul>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <H3 id="full-mode">🔧 Full Mode (36 tools)</H3>
-            <p className="text-gray-600 mb-4">Complete development experience with SFCC instance access:</p>
-            <ul className="list-disc pl-6 space-y-1 text-gray-700">
-              <li>All documentation-only features (15 tools)</li>
-              <li>Real-time log analysis and job debugging (13 tools)</li>
-              <li>System object definitions (6 tools)</li>
-              <li>Code version management (2 tools)</li>
-            </ul>
-          </div>
-        </div>
-
-        <hr className="my-8 border-gray-300" />
-
-        <H2 id="security-performance">🔒 Security & Performance</H2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">� Built-in Security Features:</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>Secure credential management</li>
-              <li>Path traversal protection</li>
-              <li>Input validation and sanitization</li>
-              <li>Rate limiting and resource management</li>
-              <li>Audit logging for all operations</li>
-            </ul>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Performance Optimizations:</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>Intelligent caching systems</li>
-              <li>Lazy loading for large datasets</li>
-              <li>Connection pooling for SFCC APIs</li>
-              <li>Request deduplication</li>
-              <li>Background processing for heavy operations</li>
-            </ul>
-          </div>
-        </div>
-
-        <H2 id="next-steps">🔗 Next Steps</H2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/tools" className="text-blue-600 hover:text-blue-800">🛠️ Available Tools</a>
-            </h3>
-            <p className="text-gray-600 text-sm">Detailed tool documentation and usage examples</p>
-          </div>
-          
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/examples" className="text-blue-600 hover:text-blue-800">💡 Examples</a>
-            </h3>
-            <p className="text-gray-600 text-sm">Real-world usage patterns and AI assistant interactions</p>
-          </div>
-          
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/configuration" className="text-blue-600 hover:text-blue-800">⚙️ Configuration</a>
-            </h3>
-            <p className="text-gray-600 text-sm">Setup and credential configuration guide</p>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };
