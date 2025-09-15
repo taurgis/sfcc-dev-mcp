@@ -236,11 +236,10 @@ describe('get_latest_job_log_files - Full Mode Programmatic Tests', () => {
     test('should handle string limit parameter gracefully', async () => {
       const result = await client.callTool('get_latest_job_log_files', { limit: '3' });
       
-      const actualCount = assertJobLogFormat(result, 3);
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.equal(jobs.length, actualCount, 'Extracted jobs should match actual count');
-      assert.ok(jobs.length <= 3, 'Should respect string limit parameter');
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
+      assert.ok(result.content[0].text.includes('Invalid limit \'3\' for tool. Must be a valid number'), 
+        'Should include validation error message');
     });
 
     test('should handle large limit values', async () => {
@@ -271,9 +270,10 @@ describe('get_latest_job_log_files - Full Mode Programmatic Tests', () => {
     test('should handle invalid limit parameter type gracefully', async () => {
       const result = await client.callTool('get_latest_job_log_files', { limit: 'invalid' });
       
-      // Should handle gracefully (converts to 0 and returns empty result)
-      assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found');
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
+      assert.ok(result.content[0].text.includes('Invalid limit \'invalid\' for tool. Must be a valid number'), 
+        'Should include validation error message');
     });
 
     test('should handle missing arguments object gracefully', async () => {

@@ -119,7 +119,10 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
     test('should handle string limit parameter gracefully', async () => {
       const result = await client.callTool('get_latest_warn', { limit: '5' });
       
-      assertLogFormat(result, '5');
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
+      assert.ok(result.content[0].text.includes('Invalid limit \'5\' for get_latest_warn. Must be a valid number'), 
+        'Should include validation error message');
     });
 
     test('should handle large limit values', async () => {

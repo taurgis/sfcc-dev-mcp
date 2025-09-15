@@ -77,6 +77,15 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('pattern'), toolName);
       JobLogValidators.validateJobLogLevel(args.level as string, toolName);
       LogToolValidators.validateLimit(args.limit as number, toolName);
+      // Validate optional jobName parameter - must be string if provided
+      if (args.jobName !== undefined) {
+        ValidationHelpers.validateArguments(args, CommonValidations.optionalField(
+          'jobName',
+          'string',
+          (value: string) => typeof value === 'string' && value.trim().length > 0,
+          'jobName must be a non-empty string',
+        ), toolName);
+      }
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;

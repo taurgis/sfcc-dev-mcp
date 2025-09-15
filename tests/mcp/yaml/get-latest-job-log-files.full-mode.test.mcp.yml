@@ -264,8 +264,8 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:No job logs found"
-          isError: false
+              text: "match:contains:Invalid limit 'invalid' for tool. Must be a valid number"
+          isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"

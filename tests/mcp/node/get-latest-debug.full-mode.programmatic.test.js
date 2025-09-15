@@ -158,7 +158,7 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
     test('should handle string limit parameter gracefully', async () => {
       const result = await client.callTool('get_latest_debug', { limit: '5' });
       
-      assertDebugLogFormat(result, '5');
+      assertErrorResponse(result, 'Invalid limit \'5\' for get_latest_debug. Must be a valid number');
     });
 
     test('should handle large limit values', async () => {
@@ -367,10 +367,7 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
     test('should handle invalid limit types', async () => {
       const result = await client.callTool('get_latest_debug', { limit: 'invalid' });
       
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should handle invalid limit type gracefully');
-      assert.ok(result.content[0].text.includes('Latest invalid debug messages'), 
-        'Should include invalid limit in response');
+      assertErrorResponse(result, 'Invalid limit \'invalid\' for get_latest_debug. Must be a valid number');
     });
   });
 

@@ -23,14 +23,28 @@ export class LogToolValidators {
   }
 
   static validateLimit(limit: number | undefined, toolName: string): void {
-    if (limit !== undefined && (limit <= 0 || limit > 1000)) {
-      throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be between 1 and 1000`);
+    if (limit !== undefined) {
+      // Validate type first
+      if (typeof limit !== 'number' || isNaN(limit)) {
+        throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be a valid number`);
+      }
+      // Then validate range
+      if (limit <= 0 || limit > 1000) {
+        throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be between 1 and 1000`);
+      }
     }
   }
 
   static validateMaxBytes(maxBytes: number | undefined, toolName: string): void {
-    if (maxBytes !== undefined && (maxBytes <= 0 || maxBytes > 10_000_000)) { // 10MB limit
-      throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be between 1 and 10,000,000`);
+    if (maxBytes !== undefined) {
+      // Validate type first
+      if (typeof maxBytes !== 'number' || isNaN(maxBytes)) {
+        throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be a valid number`);
+      }
+      // Then validate range
+      if (maxBytes <= 0 || maxBytes > 10_000_000) { // 10MB limit
+        throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be between 1 and 10,000,000`);
+      }
     }
   }
 

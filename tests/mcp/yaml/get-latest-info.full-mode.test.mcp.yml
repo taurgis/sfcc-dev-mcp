@@ -208,8 +208,8 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Latest invalid info messages"
-          isError: false
+                text: "match:contains:Invalid limit 'invalid' for get_latest_info. Must be a valid number"
+          isError: true
 
   - it: "should return appropriate message for invalid date format"
     request:

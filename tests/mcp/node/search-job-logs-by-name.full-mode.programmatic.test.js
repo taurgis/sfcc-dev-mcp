@@ -412,12 +412,10 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
         limit: '3' 
       });
       
-      assertSuccessResponse(result);
-      const actualCount = assertJobSearchFormat(result, 3, 'Import');
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.equal(jobs.length, actualCount, 'Should handle string limit parameter');
-      assert.ok(jobs.length <= 3, 'Should respect string limit parameter');
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
+      assert.ok(result.content[0].text.includes('Invalid limit \'3\' for tool. Must be a valid number'), 
+        'Should include validation error message');
     });
 
     test('should handle invalid limit parameter gracefully', async () => {

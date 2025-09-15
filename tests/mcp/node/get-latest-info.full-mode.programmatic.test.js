@@ -147,9 +147,9 @@ describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
       const result = await client.callTool('get_latest_info', { limit: 'invalid' });
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should handle invalid limit type gracefully');
-      assert.ok(result.content[0].text.includes('Latest invalid info messages'), 
-        'Should include invalid limit in response');
+      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
+      assert.ok(result.content[0].text.includes('Invalid limit \'invalid\' for get_latest_info. Must be a valid number'), 
+        'Should include validation error message');
     });
 
     test('should return appropriate message for invalid date format', async () => {

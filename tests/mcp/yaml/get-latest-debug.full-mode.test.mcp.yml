@@ -290,8 +290,8 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Latest 5 debug messages"
-          isError: false
+              text: "match:contains:Invalid limit '5' for get_latest_debug. Must be a valid number"
+          isError: true
       stderr: "toBeEmpty"
 
   - it: "should handle zero limit parameter with validation error"

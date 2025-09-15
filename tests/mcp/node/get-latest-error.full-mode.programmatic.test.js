@@ -121,7 +121,7 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
     test('should handle string limit parameter gracefully', async () => {
       const result = await client.callTool('get_latest_error', { limit: '5' });
       
-      assertLogFormat(result, '5');
+      assertErrorResponse(result, 'Invalid limit \'5\' for get_latest_error. Must be a valid number');
     });
 
     test('should handle large limit values', async () => {
