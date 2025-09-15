@@ -152,18 +152,18 @@ const HomePage: React.FC = () => {
           <div>
             <h4 className="font-semibold text-blue-900 mb-2">With GitHub Copilot:</h4>
             <ul className="text-blue-800 text-sm space-y-1">
-              <li>• Context-aware code suggestions</li>
-              <li>• SFCC-specific template generation</li>
-              <li>• Real-time error detection</li>
+              <li>Context-aware code suggestions</li>
+              <li>SFCC-specific template generation</li>
+              <li>Real-time error detection</li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold text-blue-900 mb-2">With Claude Desktop:</h4>
             <ul className="text-blue-800 text-sm space-y-1">
-              <li>• Full MCP integration</li>
-              <li>• Complex debugging assistance</li>
-              <li>• Architecture discussions</li>
+              <li>Full MCP integration</li>
+              <li>Complex debugging assistance</li>
+              <li>Architecture discussions</li>
             </ul>
           </div>
         </div>
@@ -175,20 +175,20 @@ const HomePage: React.FC = () => {
         <div className="border border-gray-200 rounded-lg p-4">
           <h4 className="font-semibold text-gray-900 mb-2">Documentation & Best Practices</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• SFCC class information (5 tools)</li>
-            <li>• Best practice guides (4 tools)</li>
-            <li>• SFRA documentation (5 tools)</li>
-            <li>• Cartridge generation (1 tool)</li>
+            <li>SFCC class information (5 tools)</li>
+            <li>Best practice guides (4 tools)</li>
+            <li>SFRA documentation (5 tools)</li>
+            <li>Cartridge generation (1 tool)</li>
           </ul>
         </div>
         
         <div className="border border-gray-200 rounded-lg p-4">
           <h4 className="font-semibold text-gray-900 mb-2">Development & Operations</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• Log analysis tools (13 tools)</li>
-            <li>• System object management (6 tools)</li>
-            <li>• Code version control (2 tools)</li>
-            <li>• Total: 36 tools available</li>
+            <li>Log analysis tools (13 tools)</li>
+            <li>System object management (6 tools)</li>
+            <li>Code version control (2 tools)</li>
+            <li>Total: 36 tools available</li>
           </ul>
         </div>
       </div>

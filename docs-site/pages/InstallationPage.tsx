@@ -226,10 +226,10 @@ npx sfcc-dev-mcp --debug false`} />
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <p className="font-semibold text-gray-900 mb-2">Debug logging includes:</p>
                 <ul className="space-y-1 text-gray-700 text-sm">
-                  <li>• Method entry and exit logs</li>
-                  <li>• Detailed timing information for operations</li>
-                  <li>• Full response previews for debugging</li>
-                  <li>• Additional context for troubleshooting</li>
+                  <li>Method entry and exit logs</li>
+                  <li>Detailed timing information for operations</li>
+                  <li>Full response previews for debugging</li>
+                  <li>Additional context for troubleshooting</li>
                 </ul>
               </div>
             </div>

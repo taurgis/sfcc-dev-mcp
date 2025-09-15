@@ -285,11 +285,11 @@ npx sfcc-dev-mcp --debug true`} />
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <h4 className="font-semibold text-blue-800 mb-2">Available tools in this mode:</h4>
           <ul className="text-blue-800 space-y-1">
-            <li>• SFCC API documentation (5 tools)</li>
-            <li>• Best practices guides (4 tools)</li>
-            <li>• SFRA documentation (5 tools)</li>
-            <li>• Cartridge generation (1 tool)</li>
-            <li>• Total: 15 tools</li>
+            <li>SFCC API documentation (5 tools)</li>
+            <li>Best practices guides (4 tools)</li>
+            <li>SFRA documentation (5 tools)</li>
+            <li>Cartridge generation (1 tool)</li>
+            <li>Total: 15 tools</li>
           </ul>
         </div>
 
@@ -306,11 +306,11 @@ npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug true`} />
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
           <h4 className="font-semibold text-green-800 mb-2">Available tools in this mode:</h4>
           <ul className="text-green-800 space-y-1">
-            <li>• All documentation-only tools (15 tools)</li>
-            <li>• Log analysis tools (13 tools)</li>
-            <li>• System object management (6 tools)</li>
-            <li>• Code version control (2 tools)</li>
-            <li>• Total: 36 tools</li>
+            <li>All documentation-only tools (15 tools)</li>
+            <li>Log analysis tools (13 tools)</li>
+            <li>System object management (6 tools)</li>
+            <li>Code version control (2 tools)</li>
+            <li>Total: 36 tools</li>
           </ul>
         </div>
 
@@ -393,8 +393,8 @@ ls -la dw.json
               <div>
                 <div className="font-semibold text-gray-900">Command-line arguments</div>
                 <div className="text-gray-600 text-sm">
-                  • <InlineCode>--dw-json /path/to/file.json</InlineCode><br/>
-                  • <InlineCode>--debug true</InlineCode>
+                  <InlineCode>--dw-json /path/to/file.json</InlineCode><br/>
+                  <InlineCode>--debug true</InlineCode>
                 </div>
                 <span className="text-blue-600 text-sm">(highest priority)</span>
               </div>
@@ -404,10 +404,10 @@ ls -la dw.json
               <div>
                 <div className="font-semibold text-gray-900">Auto-detected dw.json files</div>
                 <div className="text-gray-600 text-sm">
-                  • <InlineCode>./dw.json</InlineCode> (current directory)<br/>
-                  • <InlineCode>../dw.json</InlineCode> (parent directory)<br/>
-                  • <InlineCode>../../dw.json</InlineCode> (grandparent directory)<br/>
-                  • <InlineCode>~/dw.json</InlineCode> (home directory)
+                  <InlineCode>./dw.json</InlineCode> (current directory)<br/>
+                  <InlineCode>../dw.json</InlineCode> (parent directory)<br/>
+                  <InlineCode>../../dw.json</InlineCode> (grandparent directory)<br/>
+                  <InlineCode>~/dw.json</InlineCode> (home directory)
                 </div>
               </div>
             </li>
@@ -416,8 +416,8 @@ ls -la dw.json
               <div>
                 <div className="font-semibold text-gray-900">Environment variables</div>
                 <div className="text-gray-600 text-sm">
-                  • <InlineCode>SFCC_HOSTNAME</InlineCode>, <InlineCode>SFCC_USERNAME</InlineCode>, <InlineCode>SFCC_PASSWORD</InlineCode><br/>
-                  • <InlineCode>SFCC_CLIENT_ID</InlineCode>, <InlineCode>SFCC_CLIENT_SECRET</InlineCode>
+                  <InlineCode>SFCC_HOSTNAME</InlineCode>, <InlineCode>SFCC_USERNAME</InlineCode>, <InlineCode>SFCC_PASSWORD</InlineCode><br/>
+                  <InlineCode>SFCC_CLIENT_ID</InlineCode>, <InlineCode>SFCC_CLIENT_SECRET</InlineCode>
                 </div>
                 <span className="text-gray-500 text-sm">(lowest priority)</span>
               </div>
@@ -574,10 +574,10 @@ npx sfcc-dev-mcp --dw-json ./dw.json --debug`} />
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <h4 className="font-semibold text-blue-800 mb-2">Debug output includes:</h4>
           <ul className="text-blue-800 space-y-1">
-            <li>• Configuration loading details</li>
-            <li>• Connection attempt information</li>
-            <li>• Tool availability status</li>
-            <li>• Error details and stack traces</li>
+            <li>Configuration loading details</li>
+            <li>Connection attempt information</li>
+            <li>Tool availability status</li>
+            <li>Error details and stack traces</li>
           </ul>
         </div>
 

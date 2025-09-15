@@ -118,29 +118,29 @@ const SecurityPage: React.FC = () => {
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <h4 className="text-lg font-semibold text-red-800 mb-2">🚨 Never Use in Production</h4>
             <ul className="text-red-800 space-y-1">
-              <li>• This tool is designed for local development only</li>
-              <li>• Never deploy to shared servers or production environments</li>
-              <li>• Use sandbox instances only for testing and development</li>
+              <li>This tool is designed for local development only</li>
+              <li>Never deploy to shared servers or production environments</li>
+              <li>Use sandbox instances only for testing and development</li>
             </ul>
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h4 className="text-lg font-semibold text-yellow-800 mb-2">⚠️ Credential Management</h4>
             <ul className="text-yellow-800 space-y-1">
-              <li>• Never commit credentials to version control systems</li>
-              <li>• Use separate OAuth clients for different environments</li>
-              <li>• Regularly audit and rotate access credentials</li>
-              <li>• Monitor OAuth client usage in SFCC Account Manager</li>
+              <li>Never commit credentials to version control systems</li>
+              <li>Use separate OAuth clients for different environments</li>
+              <li>Regularly audit and rotate access credentials</li>
+              <li>Monitor OAuth client usage in SFCC Account Manager</li>
             </ul>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="text-lg font-semibold text-blue-800 mb-2">💡 Security Best Practices</h4>
             <ul className="text-blue-800 space-y-1">
-              <li>• Use minimal OCAPI permissions required for your use case</li>
-              <li>• Enable debug mode only when necessary for troubleshooting</li>
-              <li>• Review log output before sharing with team members</li>
-              <li>• Keep the MCP server package updated to the latest version</li>
+              <li>Use minimal OCAPI permissions required for your use case</li>
+              <li>Enable debug mode only when necessary for troubleshooting</li>
+              <li>Review log output before sharing with team members</li>
+              <li>Keep the MCP server package updated to the latest version</li>
             </ul>
           </div>
         </div>

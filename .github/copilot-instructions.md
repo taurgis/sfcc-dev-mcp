@@ -98,6 +98,15 @@ sfcc-dev-mcp/
 │   ├── config/                   # Configuration management
 │   │   ├── configuration-factory.ts # Config factory for different modes
 │   │   └── dw-json-loader.ts     # dw.json configuration loader
+│   ├── tool-configs/             # Tool configuration definitions
+│   │   ├── best-practices-tool-config.ts # Best practices tools configuration
+│   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
+│   │   ├── code-version-tool-config.ts # Code version tools configuration
+│   │   ├── docs-tool-config.ts   # Documentation tools configuration
+│   │   ├── job-log-tool-config.ts # Job log tools configuration
+│   │   ├── log-tool-config.ts    # Log analysis tools configuration
+│   │   ├── sfra-tool-config.ts   # SFRA documentation tools configuration
+│   │   └── system-object-tool-config.ts # System object tools configuration
 │   ├── utils/                    # Utility functions and helpers
 │   │   ├── cache.ts              # Caching layer for API responses
 │   │   ├── logger.ts             # Structured logging system
@@ -131,23 +140,40 @@ sfcc-dev-mcp/
 │   ├── dw_order/                # SFCC Order API documentation
 │   ├── dw_system/               # SFCC System API documentation
 │   └── [other dw_* namespaces]  # Complete SFCC API documentation
-├── docs-site/                   # Jekyll documentation website
-│   ├── _config.yml              # Jekyll configuration
-│   ├── index.md                 # Homepage with quick start guide
-│   ├── ai-interfaces.md         # AI interface setup guides
-│   ├── configuration.md         # Configuration documentation
-│   ├── development.md           # Development guidelines
-│   ├── examples.md              # Usage examples
-│   ├── features.md              # Feature documentation
-│   ├── installation.md          # Installation instructions
-│   ├── security.md              # Security considerations
-│   ├── tools.md                 # Available tools documentation
-│   ├── troubleshooting.md       # Troubleshooting guide
-│   ├── Gemfile                  # Ruby gem dependencies
-│   ├── Gemfile.lock             # Locked gem versions
-│   ├── _site/                   # Generated Jekyll site (build output)
-│   ├── assets/                  # CSS, JS, and image assets
-│   └── vendor/                  # Bundler vendor directory
+├── docs-site/                   # React documentation website
+│   ├── App.tsx                  # Main React application component
+│   ├── index.html               # HTML template with SEO and structured data
+│   ├── index.tsx                # React application entry point
+│   ├── package.json             # Node.js dependencies and scripts
+│   ├── vite.config.ts           # Vite build configuration
+│   ├── tailwind.config.js       # Tailwind CSS configuration
+│   ├── postcss.config.js        # PostCSS configuration
+│   ├── tsconfig.json            # TypeScript configuration
+│   ├── components/              # Reusable React components
+│   │   ├── CodeBlock.tsx        # Syntax highlighted code blocks
+│   │   ├── Navigation.tsx       # Site navigation component
+│   │   └── Typography.tsx       # Typography components (H1, H2, etc.)
+│   ├── pages/                   # Page components for routing
+│   │   ├── HomePage.tsx         # Homepage with quick start guide
+│   │   ├── AIInterfacesPage.tsx # AI interface setup guides
+│   │   ├── ConfigurationPage.tsx # Configuration documentation
+│   │   ├── DevelopmentPage.tsx  # Development guidelines
+│   │   ├── ExamplesPage.tsx     # Usage examples
+│   │   ├── FeaturesPage.tsx     # Feature documentation
+│   │   ├── InstallationPage.tsx # Installation instructions
+│   │   ├── SecurityPage.tsx     # Security considerations
+│   │   ├── ToolsPage.tsx        # Available tools documentation
+│   │   └── TroubleshootingPage.tsx # Troubleshooting guide
+│   ├── hooks/                   # React hooks
+│   │   └── useSEO.tsx           # Dynamic SEO hook for per-page metadata
+│   ├── utils/                   # Utility functions
+│   ├── public/                  # Static assets
+│   │   ├── robots.txt           # Search engine crawling instructions
+│   │   ├── sitemap.xml          # Site map for search engines
+│   │   ├── favicon.ico          # Website favicon
+│   │   └── [favicon variants]   # Various favicon formats
+│   ├── dist/                    # Built website output (Vite build)
+│   └── node_modules/            # Node.js dependencies
 ├── ai-instructions/             # AI instruction files for different platforms
 │   ├── claude-desktop/          # Claude Desktop specific instructions
 │   │   └── claude_custom_instructions.md
@@ -155,6 +181,16 @@ sfcc-dev-mcp/
 │   └── github-copilot/          # GitHub Copilot specific instructions
 │       └── copilot-instructions.md
 ├── tests/                       # Comprehensive test suite
+│   ├── __mocks__/               # Mock implementations for testing
+│   │   └── src/                 # Source code mocks
+│   ├── mcp/                     # MCP-specific testing tools
+│   │   ├── node/                # Programmatic JavaScript/TypeScript testing
+│   │   ├── yaml/                # YAML-based declarative testing
+│   │   └── test-fixtures/       # Test fixtures and sample data
+│   ├── servers/                 # Test server implementations
+│   │   └── webdav/              # WebDAV server mocks
+│   ├── *.test.ts                # Individual test files for components
+│   └── [various test files]     # Unit and integration tests
 ├── scripts/                     # Build and documentation scripts
 └── package.json                 # Node.js package configuration
 ```
@@ -250,19 +286,23 @@ sfcc-dev-mcp/
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-5. **Log Analysis Tools** (13 tools)
+5. **Log Analysis Tools** (8 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
-   - Job log analysis and debugging
 
-6. **System Object Tools** (6 tools)
+6. **Job Log Tools** (5 tools)
+   - Job log analysis and debugging
+   - Job execution summaries
+   - Custom job step monitoring
+
+7. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
    - Custom object attribute definitions search
 
-7. **Code Version Tools** (2 tools)
+8. **Code Version Tools** (2 tools)
    - Code version listing and management
    - Code version activation for deployment fixes
 
