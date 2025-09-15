@@ -62,18 +62,15 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
     }
   }
 
-  async function discoverAvailableFiles() {
-    console.log('🔍 Discovering available log files using MCP server tools...');
-    
+  async function discoverAvailableFiles() {   
     // Discover standard log files using list_log_files
     try {
       const logFilesResult = await client.callTool('list_log_files', {});
       if (!logFilesResult.isError) {
         availableLogFiles = extractLogFileNames(parseResponseText(logFilesResult.content[0].text));
-        console.log(`📄 Found ${availableLogFiles.length} standard log files:`, availableLogFiles);
       }
-    } catch (error) {
-      console.warn('⚠️ Could not discover standard log files:', error.message);
+    } catch {
+      // Ignore errors in discovery - not all systems support it
     }
 
     // Discover job log files using get_latest_job_log_files
@@ -81,10 +78,9 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
       const jobLogFilesResult = await client.callTool('get_latest_job_log_files', {});
       if (!jobLogFilesResult.isError) {
         availableJobLogFiles = extractJobLogFileNames(parseResponseText(jobLogFilesResult.content[0].text));
-        console.log(`🔧 Found ${availableJobLogFiles.length} job log files:`, availableJobLogFiles);
       }
-    } catch (error) {
-      console.warn('⚠️ Could not discover job log files:', error.message);
+    } catch {
+      // Ignore errors in discovery - not all systems support it
     }
   }
 
@@ -147,7 +143,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
   describe('Basic Functionality', () => {
     test('should get contents of a discovered log file', async () => {
       const testFile = getTestFile();
-      console.log(`🧪 Testing with file: ${testFile}`);
       
       const result = await client.callTool('get_log_file_contents', {
         filename: testFile
@@ -325,13 +320,10 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
   describe('Dynamic File Testing', () => {
     test('should handle all discovered standard log files', async () => {
       if (availableLogFiles.length === 0) {
-        console.log('⏭️ Skipping standard log files test - no files discovered');
         return;
       }
 
-      for (const logFile of availableLogFiles) {
-        console.log(`🧪 Testing standard log file: ${logFile}`);
-        
+      for (const logFile of availableLogFiles) {       
         const result = await client.callTool('get_log_file_contents', {
           filename: logFile
         });
@@ -341,21 +333,16 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
         if (!result.isError) {
           assertTextContent(result, 'Log File Contents:');
           assertTextContent(result, logFile);
-        } else {
-          console.log(`⚠️ File ${logFile} returned error: ${result.content[0].text}`);
         }
       }
     });
 
     test('should handle all discovered job log files', async () => {
       if (availableJobLogFiles.length === 0) {
-        console.log('⏭️ Skipping job log files test - no files discovered');
         return;
       }
 
-      for (const jobLogFile of availableJobLogFiles) {
-        console.log(`🧪 Testing job log file: ${jobLogFile}`);
-        
+      for (const jobLogFile of availableJobLogFiles) {       
         const result = await client.callTool('get_log_file_contents', {
           filename: jobLogFile
         });
@@ -373,7 +360,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
 
     test('should validate file size consistency across tools', async () => {
       if (availableLogFiles.length === 0) {
-        console.log('⏭️ Skipping size validation test - no standard log files discovered');
         return;
       }
 
@@ -397,7 +383,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
       );
       
       if (sizeFromList && sizeFromContents) {
-        console.log(`📊 File ${testFile}: List=${sizeFromList}, Contents=${sizeFromContents}`);
         // Sizes should be reasonably close (allowing for formatting differences)
         const tolerance = 0.1; // 10% tolerance
         const ratio = Math.abs(sizeFromList - sizeFromContents) / Math.max(sizeFromList, sizeFromContents);
@@ -436,7 +421,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
       const allFiles = [...availableLogFiles, ...availableJobLogFiles];
       
       if (allFiles.length === 0) {
-        console.log('⏭️ Skipping structure validation test - no files discovered');
         return;
       }
 
@@ -475,7 +459,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
         const result = await client.callTool('get_log_file_contents', testCase);
         
         assertValidMCPResponse(result);
-        console.log(`✅ Edge case handled: ${JSON.stringify(testCase)}`);
       }
     });
   });
@@ -498,16 +481,14 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
           });
 
           assertSuccessResponse(result);
-          console.log('✅ Integration with search_logs successful');
         }
       } catch {
-        console.log('⏭️ Skipping search_logs integration - tool may not be available');
+        // Ignore errors in search_logs - not all systems support it
       }
     });
 
     test('should validate job logs found via get_latest_job_log_files', async () => {
       if (availableJobLogFiles.length === 0) {
-        console.log('⏭️ Skipping job log validation - no job logs discovered');
         return;
       }
 
@@ -571,7 +552,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
         const result = await client.callTool('get_log_file_contents', fullParams);
 
         assertValidMCPResponse(result);
-        console.log(`✅ Parameter combination handled: ${JSON.stringify(params)}`);
       }
     });
 
@@ -601,8 +581,6 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
       const tolerance = avgTime * 100;
       assert.ok(maxDeviation <= tolerance, 
         `Response time variation too high: avg=${avgTime}ms, max_dev=${maxDeviation}ms`);
-      
-      console.log(`📊 Response times: ${times.join('ms, ')}ms (avg: ${avgTime.toFixed(1)}ms)`);
-    });
+      });
   });
 });
