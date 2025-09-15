@@ -61,6 +61,15 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
       'Should contain GMT timestamp pattern');
   }
 
+  // Helper function to get current date in YYYYMMDD format
+  function getCurrentDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+  }
+
   // ========================================
   // SUCCESS SCENARIOS
   // ========================================
@@ -116,7 +125,7 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
     });
 
     test('should accept date parameter in YYYYMMDD format', async () => {
-      const testDate = '20250914';
+      const testDate = getCurrentDateString();
       const result = await client.callTool('get_latest_debug', { 
         date: testDate, 
         limit: 2 
@@ -127,7 +136,7 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
 
     test('should handle both date and limit parameters together', async () => {
       const result = await client.callTool('get_latest_debug', { 
-        date: '20250914', 
+        date: getCurrentDateString(), 
         limit: 5 
       });
       
@@ -454,8 +463,8 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
       const paramCombinations = [
         {},
         { limit: 5 },
-        { date: '20250914' },
-        { limit: 3, date: '20250914' },
+        { date: getCurrentDateString() },
+        { limit: 3, date: getCurrentDateString() },
         { limit: 1 },
         { limit: 50 }
       ];

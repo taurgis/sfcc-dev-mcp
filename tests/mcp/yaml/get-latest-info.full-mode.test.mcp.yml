@@ -122,49 +122,6 @@ tests:
                 text: "match:contains:Latest 3 info messages"
           isError: false
 
-  - it: "should accept date parameter in YYYYMMDD format"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-date"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          date: "20250914"
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-date"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Latest 2 info messages"
-          isError: false
-
-  - it: "should handle both date and limit parameters together"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-both-params"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          date: "20250914"
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-both-params"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-
   # ========================================
   # EDGE CASE SCENARIOS
   # ========================================

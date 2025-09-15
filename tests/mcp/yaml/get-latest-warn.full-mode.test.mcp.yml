@@ -47,7 +47,7 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should retrieve warn messages for specific date"
+  - it: "should retrieve two warn messages for today"
     request:
       jsonrpc: "2.0"
       id: "warn-date"
@@ -55,7 +55,6 @@ tests:
       params:
         name: "get_latest_warn"
         arguments:
-          date: "20250914"
           limit: 2
     expect:
       response:
@@ -358,7 +357,7 @@ tests:
       params:
         name: "get_latest_warn"
         arguments:
-          date: "20251225"
+          date: "20501225"
           limit: 5
     expect:
       response:

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js --dev",
-    "setup": "npm install && node setup-logs.js"
+    "setup": "npm install && rm -rf mock-logs && node setup-logs.js"
   },
   "dependencies": {},
   "devDependencies": {

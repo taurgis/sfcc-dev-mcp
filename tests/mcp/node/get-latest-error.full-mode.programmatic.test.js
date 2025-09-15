@@ -63,6 +63,15 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       'Should contain GMT timestamp pattern');
   }
 
+  // Helper function to get current date in YYYYMMDD format
+  function getCurrentDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+  }
+
   // Basic functionality tests
   describe('Basic Functionality', () => {
     test('should retrieve latest error messages with default parameters', async () => {
@@ -90,7 +99,7 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
 
     test('should handle specific date parameter', async () => {
       const result = await client.callTool('get_latest_error', { 
-        date: '20250914',
+        date: getCurrentDateString(),
         limit: 2 
       });
       
@@ -99,7 +108,7 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
 
     test('should handle both date and limit parameters together', async () => {
       const result = await client.callTool('get_latest_error', {
-        date: '20250914',
+        date: getCurrentDateString(),
         limit: 1
       });
       
@@ -248,7 +257,7 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       
       // Step 3: Get errors for specific date
       const dateSpecificErrors = await client.callTool('get_latest_error', { 
-        date: '20250914',
+        date: getCurrentDateString(),
         limit: 5 
       });
       assertSuccessResponse(dateSpecificErrors);
@@ -267,7 +276,7 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       const calls = [
         { limit: 1 },
         { limit: 5 },
-        { date: '20250914', limit: 3 },
+        { date: getCurrentDateString(), limit: 3 },
         {} // default parameters
       ];
       

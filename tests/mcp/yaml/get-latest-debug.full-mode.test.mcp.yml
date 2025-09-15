@@ -95,7 +95,7 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should retrieve debug messages for specific date"
+  - it: "should retrieve 2 debug messages for today"
     request:
       jsonrpc: "2.0"
       id: "debug-date"
@@ -103,7 +103,6 @@ tests:
       params:
         name: "get_latest_debug"
         arguments:
-          date: "20250914"
           limit: 2
     expect:
       response:

@@ -20,6 +20,15 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
     client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
+  // Helper function to get current date in YYYYMMDD format
+  function getCurrentDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+  }
+
   // Helper functions for common validations
   function assertValidMCPResponse(result) {
     assert.ok(result.content, 'Should have content');
@@ -109,7 +118,7 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
     });
 
     test('should handle specific date parameter correctly', async () => {
-      const testDate = '20250914';
+      const testDate = getCurrentDateString();
       const result = await client.callTool('summarize_logs', { date: testDate });
       
       assertSummaryFormat(result, testDate);
@@ -225,7 +234,7 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
 
     test('should handle extra parameters gracefully', async () => {
       const result = await client.callTool('summarize_logs', { 
-        date: '20250914',
+        date: getCurrentDateString(),
         extraParam: 'should-be-ignored'
       });
       
@@ -394,7 +403,7 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
     });
 
     test('should maintain consistent response format across different dates', async () => {
-      const dates = ['20250914', '20220101', '20301231'];
+      const dates = [getCurrentDateString(), '20220101', '20301231'];
       
       for (const date of dates) {
         const result = await client.callTool('summarize_logs', { date });

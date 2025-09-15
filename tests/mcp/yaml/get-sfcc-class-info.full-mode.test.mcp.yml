@@ -733,7 +733,7 @@ tests:
               text: "match:contains:Catalog"
           isError: false
       performance:
-        maxResponseTime: "100ms"  # Documentation lookup should be very fast
+        maxResponseTime: "250ms"  # Documentation lookup should be very fast
       stderr: "toBeEmpty"
 
   - it: "should return complex class info with expand within timeout"

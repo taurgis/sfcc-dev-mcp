@@ -32,8 +32,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup WebDAV test server
+        run: |
+          cd tests/servers/webdav
+          node server.js &
+          sleep 5
+
       - name: Run tests
         run: npm test
+
+      - name: Stop WebDAV server
+        if: always()
+        run: |
+          cd tests/servers/webdav
+          if [ -f webdav_server.pid ]; then
+            kill $(cat webdav_server.pid) 2>/dev/null || true
+            rm -f webdav_server.pid
+          fi
+          # Fallback: kill any remaining server processes
+          pkill -f "node.*server.js" || true
 
       - name: Run linting
         run: npm run lint:check

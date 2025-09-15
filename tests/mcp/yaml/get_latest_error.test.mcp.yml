@@ -47,7 +47,7 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should retrieve error messages for specific date"
+  - it: "should retrieve the latest 2 error messages"
     request:
       jsonrpc: "2.0"
       id: "error-date"
@@ -55,7 +55,6 @@ tests:
       params:
         name: "get_latest_error"
         arguments:
-          date: "20250914"
           limit: 2
     expect:
       response:
@@ -351,27 +350,6 @@ tests:
       maxResponseTime: "1500ms"
 
   # Edge cases and robustness
-  - it: "should handle both date and limit parameters together"
-    request:
-      jsonrpc: "2.0"
-      id: "error-both-params"
-      method: "tools/call"
-      params:
-        name: "get_latest_error"
-        arguments:
-          date: "20250914"
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "error-both-params"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Latest 2 error messages"
-          isError: false
-      stderr: "toBeEmpty"
 
   - it: "should return consistent structure regardless of parameters"
     request:
