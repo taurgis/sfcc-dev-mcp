@@ -1,0 +1,481 @@
+---
+description: "Test get_job_log_entries tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should retrieve job log entries with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-default"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest \\d+ all levels messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should limit job log entries when limit parameter is provided"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-limit"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 all levels messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should retrieve last 3 job log entries"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-limit-3"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-limit-3"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 3 all levels messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Log level filtering tests
+  - it: "should filter job log entries by error level"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-error"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "error"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-error"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 error messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should filter job log entries by warn level"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-warn"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "warn"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-warn"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 warn messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should filter job log entries by info level"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-info"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "info"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-info"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 info messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should filter job log entries by debug level"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-debug"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "debug"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-debug"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 debug messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle 'all' level explicitly"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-all"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "all"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-all"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 all levels messages from latest jobs:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Job name filtering tests
+  - it: "should filter job log entries by job name"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-by-name"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          jobName: "ProcessOrders"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-by-name"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 3 all levels messages from job: ProcessOrders:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should filter job log entries by job name and level"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-name-level"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          jobName: "ImportCatalog"
+          level: "info"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-name-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 5 info messages from job: ImportCatalog:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Content validation tests
+  - it: "should contain job execution details in response"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-content"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-content"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:SystemJobThread"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include job names in log entries"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-job-names"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-job-names"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[\\w+\\]"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should include timestamps in log entries"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-timestamps"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-timestamps"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} GMT"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Edge cases and error handling
+  - it: "should handle large limit values gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-large-limit"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 1000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-large-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "5000ms"
+
+  - it: "should handle zero limit value"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-zero-limit"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-zero-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid limit"
+          isError: true
+      stderr: "match:type:string"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle nonexistent job name"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-nonexistent-job"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          jobName: "NonExistentJob"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-nonexistent-job"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No job logs found for job name: NonExistentJob"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle invalid log level gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-invalid-level"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "invalid"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-invalid-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "match:type:string"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Comprehensive parameter combination tests
+  - it: "should handle all parameters together"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-all-params"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "info"
+          limit: 7
+          jobName: "ProcessOrders"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-all-params"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Latest 7 info messages from job: ProcessOrders:"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Performance tests
+  - it: "should return job log entries in reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-performance"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          limit: 20
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-performance"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should handle frequent calls efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "job-entries-efficiency"
+      method: "tools/call"
+      params:
+        name: "get_job_log_entries"
+        arguments:
+          level: "error"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-entries-efficiency"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
