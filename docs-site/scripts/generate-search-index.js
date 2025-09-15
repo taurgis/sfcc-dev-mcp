@@ -24,7 +24,6 @@ const OUTPUT_FILE = path.join(__dirname, '../src/generated-search-index.ts');
  */
 const ROUTE_MAPPINGS = {
   'HomePage.tsx': '/',
-  'InstallationPage.tsx': '/installation',
   'ConfigurationPage.tsx': '/configuration',
   'AIInterfacesPage.tsx': '/ai-interfaces',
   'FeaturesPage.tsx': '/features',

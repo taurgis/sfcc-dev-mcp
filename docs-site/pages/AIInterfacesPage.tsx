@@ -1,366 +1,140 @@
 import React from 'react';
-import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
+import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import useSEO from '../hooks/useSEO';
+
+// Small reusable bullet list with icon
+const Check: React.FC<{ color?: string; children: React.ReactNode }> = ({ color = 'text-green-500', children }) => (
+  <li className="flex items-start gap-2 text-sm text-gray-700">
+    <span className={`${color} mt-0.5`}>✅</span>
+    <span>{children}</span>
+  </li>
+);
+
+const SectionCard: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ className = '', children }) => (
+  <div className={`rounded-2xl p-6 md:p-8 md:pt-0 border shadow-sm bg-white/90 backdrop-blur-sm ${className}`}>{children}</div>
+);
 
 const AIInterfacesPage: React.FC = () => {
   useSEO({
     title: 'AI Interface Integration - SFCC Development MCP Server',
-    description: 'Integration guide for AI assistants with SFCC Development MCP Server. Setup instructions for Claude Desktop, GitHub Copilot, Cursor, and other Model Context Protocol compatible AI tools.',
-    keywords: 'Claude Desktop MCP, GitHub Copilot integration, Cursor AI setup, MCP AI assistants, SFCC AI development, Model Context Protocol integration, AI coding assistants',
+    description: 'Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server.',
+    keywords: 'Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools',
     canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces',
     ogTitle: 'AI Interface Integration - SFCC Development MCP Server',
-    ogDescription: 'Complete guide for integrating SFCC Development MCP Server with Claude Desktop, GitHub Copilot, Cursor, and other AI assistants.',
+    ogDescription: 'Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces.',
     ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces'
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-      <H1 id="ai-interface-setup">🤖 AI Interface Setup</H1>
-      
-      <div className="prose prose-lg max-w-none">
-        <p className="text-xl text-gray-600 mb-8">
-          The SFCC Development MCP Server integrates with multiple AI interfaces. Each has specific setup procedures and capabilities.
-        </p>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
-          <p className="text-blue-800">
-            📁 <strong>Get AI instruction files:</strong> <a href="https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">ai-instructions folder on GitHub</a>
-          </p>
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      {/* Hero */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+          AI Interface Integration
         </div>
+        <H1 id="ai-interface-setup" className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Connect Your AI Assistants</H1>
+        <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          Unified setup guide for Claude Desktop, GitHub Copilot, Cursor and any MCP-compatible client. Start
+          in documentation-only mode then unlock full log analysis & system exploration with credentials.
+        </PageSubtitle>
+      </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 my-6">
-          <h4 className="text-lg font-semibold text-green-800 mb-2">Quick Start</h4>
-          <p className="text-green-800 mb-4">
-            Get immediate access to SFCC documentation and best practices without any credentials by using documentation-only mode:
-          </p>
-          <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx", 
-      "args": ["sfcc-dev-mcp"]
-    }
-  }
-}`} />
-          <p className="text-green-800 mt-4">
-            For full functionality including log analysis and system objects, provide SFCC credentials via <InlineCode>--dw-json</InlineCode> parameter.
-          </p>
+      {/* Quick Start (Tabbed) */}
+      <div id="quick-start" className="relative mb-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
+        <SectionCard className="relative border-white/30 shadow-xl">
+          <div className="text-center mb-10">
+            <H2 id="environment-modes" className="text-3xl font-bold mb-4">🚀 Environment Modes</H2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">Switch between zero-config documentation mode and full analytics mode with a single flag.</p>
+          </div>
+          {/* Tabs */}
+          <ModeTabs />
+        </SectionCard>
+      </div>
+
+      {/* Configuration Options */}
+      <div id="configuration" className="relative mb-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl" />
+        <SectionCard className="relative border-gray-200">
+          <div className="text-center mb-10">
+            <H2 id="configuration-flags" className="text-3xl font-bold mb-4">⚙️ Configuration Flags</H2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">Minimal surface area – just two flags control operating mode & diagnostics.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="bg-blue-100 rounded-full p-2"><svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg></div>
+                <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">--dw-json &lt;path&gt;</span>
+              </div>
+              <p className="text-gray-700 text-sm">Add credentials for log analysis, system object exploration & code version management.</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="bg-green-100 rounded-full p-2"><svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg></div>
+                <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">--debug &lt;true|false&gt;</span>
+              </div>
+              <p className="text-gray-700 text-sm">Enable verbose internal logging for troubleshooting & development.</p>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
+
+      {/* Assistant Tabs Section */}
+      <div id="assistants" className="mb-24">
+        <div className="text-center mb-10">
+          <H2 id="ai-assistant-setup" className="text-3xl font-bold mb-4">AI Assistant Setup</H2>
+          <p className="text-gray-600 max-w-3xl mx-auto">Choose your interface – configuration, strengths & verification prompts in one place.</p>
         </div>
+        <SectionCard className="border-blue-200">
+          <AssistantTabs />
+        </SectionCard>
+      </div>
 
-        <H3 id="github-copilot-installation">Installation Steps</H3>
-        
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">1. Add the instruction file:</h4>
-            <CodeBlock language="bash" code="cp ai-instructions/github-copilot/copilot-instructions.md your-sfcc-project/.github/copilot-instructions.md" />
-          </div>
+      {/* Anchors preserved for deep links */}
+      <div id="claude" className="hidden" aria-hidden="true" />
+      <div id="copilot" className="hidden" aria-hidden="true" />
+      <div id="cursor" className="hidden" aria-hidden="true" />
 
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Configure MCP server (for MCP-compatible tools):</h4>
-            <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx",
-      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "true"]
-    }
-  }
-}`} />
-          </div>
+      {/* Universal Config */}
+      <div id="universal" className="mb-24">
+        <div className="text-center mb-8">
+          <H2 className="text-3xl font-bold mb-4">Universal MCP Configuration</H2>
+          <p className="text-gray-600 max-w-3xl mx-auto">Works across any MCP-compatible AI (desktop, IDE plugin, CLI agent).</p>
         </div>
-
-        <h4 className="text-lg font-semibold text-gray-900 mt-4 mb-2">Available command-line options:</h4>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><InlineCode>--dw-json &lt;path&gt;</InlineCode> - Path to your dw.json configuration file</li>
-          <li><InlineCode>--debug &lt;true|false&gt;</InlineCode> - Enable debug logging (optional, defaults to false)</li>
-        </ul>
-
-        <H3 id="github-copilot-features">Features Enabled</H3>
-        <ul className="list-none space-y-2">
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Inline code suggestions</strong> with SFCC context</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Auto-completion</strong> for SFCC APIs and patterns</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Template generation</strong> for controllers, hooks, and components</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Real-time error detection</strong> and fixes</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>SFCC-aware refactoring</strong> suggestions</li>
-        </ul>
-
-        <H3 id="github-copilot-best-practices">Best Practices</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li>Place the instructions file in every SFCC project</li>
-          <li>Keep the instructions updated with your project-specific patterns</li>
-          <li>Use descriptive commit messages for better context</li>
-        </ul>
-
-        <H3 id="github-copilot-troubleshooting">Troubleshooting GitHub Copilot</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Configuration not loading</strong>: Ensure the file is named exactly <code>copilot-instructions.md</code> and placed in <code>.github/</code> directory</li>
-          <li><strong>Suggestions not SFCC-aware</strong>: Verify the instruction file is in the project root's <code>.github/</code> folder</li>
-          <li><strong>MCP integration issues</strong>: Check that MCP client configuration matches the server command exactly</li>
-        </ul>
-
-        <H3 id="claude-desktop-installation">Installation Steps</H3>
-        
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">1. Copy the instruction file to your project:</h4>
-            <CodeBlock language="bash" code="cp ai-instructions/claude-desktop/claude_custom_instructions.md your-sfcc-project/claude-instructions.md" />
-          </div>
-
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Locate your Claude Desktop config file:</h4>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><strong>macOS</strong>: <InlineCode>~/Library/Application Support/Claude/claude_desktop_config.json</InlineCode></li>
-              <li><strong>Windows</strong>: <InlineCode>%APPDATA%\Claude\claude_desktop_config.json</InlineCode></li>
-              <li><strong>Linux</strong>: <InlineCode>~/.config/Claude/claude_desktop_config.json</InlineCode></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">3. Choose your operating mode:</h4>
-            
-            <h5 className="text-md font-semibold text-gray-800 mt-4 mb-2">Documentation-Only Mode (No SFCC credentials needed)</h5>
-            <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx",
-      "args": ["sfcc-dev-mcp"]
-    }
-  }
-}`} />
-
-            <h5 className="text-md font-semibold text-gray-800 mt-4 mb-2">Full Mode (With SFCC credentials)</h5>
-            <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx",
-      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json"]
-    }
-  }
-}`} />
-          </div>
-        </div>
-
-        <H3 id="claude-desktop-features">Features Enabled</H3>
-        <ul className="list-none space-y-2">
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Full MCP integration</strong> with real-time tool access</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Log analysis</strong> and debugging assistance</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>System object exploration</strong> and schema analysis</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Cartridge generation</strong> and project setup</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Architecture discussions</strong> with SFCC context</li>
-        </ul>
-
-        <H3 id="cursor-installation">Installation Steps</H3>
-        
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">1. Copy the rules structure to your SFCC project:</h4>
-            <CodeBlock language="bash" code="cp -r ai-instructions/cursor/.cursor your-sfcc-project/" />
-          </div>
-
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Configure MCP server (for MCP-compatible extensions):</h4>
-            <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx",
-      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "true"]
-    }
-  }
-}`} />
-          </div>
-        </div>
-
-        <H3 id="cursor-available-rules">Available Cursor Rules</H3>
-
-        <h4 className="text-lg font-semibold text-gray-900 mt-4 mb-2">Always Applied</h4>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>sfcc-development.mdc</strong> - Core SFCC patterns and conventions</li>
-        </ul>
-
-        <h4 className="text-lg font-semibold text-gray-900 mt-4 mb-2">Auto-Applied (Context Aware)</h4>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>sfra-controllers.mdc</strong> - Controller development patterns</li>
-          <li><strong>sfra-models.mdc</strong> - SFRA model development and architecture patterns</li>
-          <li><strong>hooks-development.mdc</strong> - Hook implementation guidelines</li>
-          <li><strong>system-objects.mdc</strong> - Data model and attribute patterns</li>
-          <li><strong>testing-patterns.mdc</strong> - Testing templates and best practices</li>
-          <li><strong>isml-templates.mdc</strong> - ISML template development patterns</li>
-          <li><strong>job-framework.mdc</strong> - Job framework development guidelines</li>
-          <li><strong>scapi-endpoints.mdc</strong> - SCAPI endpoint development patterns</li>
-        </ul>
-
-        <h4 className="text-lg font-semibold text-gray-900 mt-4 mb-2">Manual Application</h4>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>@debugging-workflows</strong> - Debugging guidance and log analysis</li>
-          <li><strong>@security-patterns</strong> - Security best practices and vulnerability prevention</li>
-          <li><strong>@performance-optimization</strong> - Performance tuning and optimization strategies</li>
-        </ul>
-
-        <H3 id="cursor-features">Features Enabled</H3>
-        <ul className="list-none space-y-2">
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Context-aware code completion</strong> based on file type</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Real-time validation</strong> against SFCC APIs</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>File-aware refactoring</strong> across cartridge structures</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Security-first development</strong> patterns</li>
-          <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Automatic rule application</strong> based on context</li>
-        </ul>
-
-        <H3 id="cursor-using-rules">Using Cursor Rules</H3>
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <CodeBlock language="javascript" code={`// Trigger specific rules with @mentions
-// @security-patterns - Apply security best practices
-// @performance-optimization - Focus on performance
-// @debugging-workflows - Get debugging assistance`} />
-        </div>
-
-        <H3 id="cursor-troubleshooting">Troubleshooting Cursor</H3>
-        <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Rules not applying</strong>: Ensure <InlineCode>.cursor</InlineCode> directory is copied to project root</li>
-          <li><strong>Context-aware features not working</strong>: Verify file types match rule patterns</li>
-          <li><strong>MCP integration issues</strong>: Check MCP client configuration and server connectivity</li>
-          <li><strong>Performance issues</strong>: Consider disabling unused rules for better performance</li>
-        </ul>
-
-        <H2 id="available-tools-overview">Available Tools Overview</H2>
-        <p>All AI interfaces can access these tools based on configuration mode:</p>
-
-        <H3 id="docs-only-mode-tools">Documentation-Only Mode Tools (15 tools)</H3>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-          <ul className="list-none space-y-2">
-            <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>SFCC Documentation</strong> (5 tools) - Class information, search, and raw documentation</li>
-            <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Best Practices Guides</strong> (4 tools) - Comprehensive development guides and hook references</li>
-            <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Enhanced SFRA Documentation</strong> (5 tools) - Complete SFRA ecosystem with 26+ documents</li>
-            <li className="flex items-center"><span className="text-green-500 mr-2">✅</span> <strong>Cartridge Generation</strong> (1 tool) - Automated cartridge structure creation</li>
+        <SectionCard>
+          <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
+          <ul className="list-disc pl-5 text-sm text-gray-700 mt-6 space-y-1">
+            <li><InlineCode>--dw-json</InlineCode> optional for docs-only mode</li>
+            <li><InlineCode>--debug</InlineCode> set true when diagnosing tool behavior</li>
           </ul>
-        </div>
+        </SectionCard>
+      </div>
 
-        <H3 id="full-mode-tools">Full Mode Additional Tools (21 tools)</H3>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <ul className="list-none space-y-2">
-            <li className="flex items-center"><span className="text-blue-500 mr-2">✅</span> <strong>Log Analysis & Job Debugging</strong> (13 tools) - Real-time error monitoring, pattern search, and job log analysis</li>
-            <li className="flex items-center"><span className="text-blue-500 mr-2">✅</span> <strong>System Object Definitions</strong> (6 tools) - Custom attributes and site preferences</li>
-            <li className="flex items-center"><span className="text-blue-500 mr-2">✅</span> <strong>Code Version Management</strong> (2 tools) - Code version control and activation</li>
-          </ul>
-        </div>
-
-        <H2 id="comparison-recommendations">Comparison & Recommendations</H2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <H3 id="choose-claude-desktop">Choose Claude Desktop if:</H3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-blue-500 mr-2 mt-1">🎯</span>
-                You need <strong>complex multi-turn conversations</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-500 mr-2 mt-1">🎯</span>
-                You want <strong>full log analysis capabilities</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-500 mr-2 mt-1">🎯</span>
-                You prefer <strong>comprehensive debugging sessions</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-500 mr-2 mt-1">🎯</span>
-                You work on <strong>architecture and design decisions</strong>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <H3 id="choose-github-copilot">Choose GitHub Copilot if:</H3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2 mt-1">🎯</span>
-                You primarily work <strong>in VS Code</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2 mt-1">🎯</span>
-                You want <strong>inline code suggestions</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2 mt-1">🎯</span>
-                You prefer <strong>lightweight integration</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2 mt-1">🎯</span>
-                You focus on <strong>rapid code completion</strong>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <H3 id="choose-cursor">Choose Cursor if:</H3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-purple-500 mr-2 mt-1">🎯</span>
-                You want <strong>modern AI-powered editing</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-500 mr-2 mt-1">🎯</span>
-                You need <strong>context-aware rule application</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-500 mr-2 mt-1">🎯</span>
-                You prefer <strong>file-based intelligence</strong>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-500 mr-2 mt-1">🎯</span>
-                You want <strong>advanced refactoring capabilities</strong>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <H2 id="universal-mcp-configuration">Universal MCP Configuration</H2>
-        <p>For any MCP-compatible AI interface, use this base configuration:</p>
-
-        <CodeBlock language="json" code={`{
-  "mcpServers": {
-    "sfcc-dev": {
-      "command": "npx",
-      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/your/dw.json", "--debug", "false"]
-    }
-  }
-}`} />
-
-        <H3 id="configuration-options">Configuration Options</H3>
-        <ul className="list-disc pl-6 space-y-1 mb-6">
-          <li><InlineCode>--dw-json &lt;path&gt;</InlineCode> - Path to dw.json file (optional for docs-only mode)</li>
-          <li><InlineCode>--debug &lt;true|false&gt;</InlineCode> - Enable debug logging (default: false)</li>
-        </ul>
-
-        <H3 id="verification">Verification</H3>
-        <p className="mb-4">Test your MCP connection by asking your AI assistant to:</p>
-        <ul className="list-disc pl-6 space-y-1 mb-8">
-          <li>Search for SFCC documentation on a specific topic</li>
-          <li>Explain how to create a custom cartridge</li>
-          <li>Analyze recent error logs (if credentials provided)</li>
-          <li>Generate a controller template</li>
-        </ul>
-
-        <H2 id="next-steps">🔗 Next Steps</H2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/configuration" className="text-blue-600 hover:text-blue-800">⚙️ Configuration Guide</a>
-            </h3>
-            <p className="text-gray-600 text-sm">Set up SFCC credentials and configuration options</p>
-          </div>
-          
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/tools" className="text-blue-600 hover:text-blue-800">🛠️ Available Tools</a>
-            </h3>
-            <p className="text-gray-600 text-sm">Explore server capabilities and 36 available tools</p>
-          </div>
-          
-          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              <a href="/#/examples" className="text-blue-600 hover:text-blue-800">💡 Examples</a>
-            </h3>
-            <p className="text-gray-600 text-sm">See real-world usage patterns and AI interactions</p>
-          </div>
+      {/* Next Steps - HomePage style */}
+      <div id="next" className="mb-16">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
+            <div className="relative bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-10 shadow-xl">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                  You're Set Up
+                </div>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto">Pick your next path—refine configuration or explore full capability surface.</p>
+                <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                  <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
+                    Configuration Guide
+                    <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
+                  </a>
+                  <a href="/#/features" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
+                    Explore Features
+                    <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
+                  </a>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
@@ -368,3 +142,185 @@ const AIInterfacesPage: React.FC = () => {
 };
 
 export default AIInterfacesPage;
+
+// --- Inline Tab Component (kept at bottom for clarity) ---
+const ModeTabs: React.FC = () => {
+  const [active, setActive] = React.useState<'docs' | 'full'>('docs');
+  const tabBase = 'px-5 py-2 rounded-full text-sm font-medium transition border';
+  return (
+    <div>
+      <div role="tablist" aria-label="Mode selection" className="flex flex-wrap gap-3 mb-8 justify-center">
+        <button
+          role="tab"
+          aria-selected={active === 'docs'}
+          className={`${tabBase} ${active === 'docs' ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600'}`}
+          onClick={() => setActive('docs')}
+        >Docs Mode</button>
+        <button
+          role="tab"
+          aria-selected={active === 'full'}
+          className={`${tabBase} ${active === 'full' ? 'bg-purple-600 text-white border-purple-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-400 hover:text-purple-600'}`}
+          onClick={() => setActive('full')}
+        >Full Mode</button>
+      </div>
+      {/* Panels */}
+      {active === 'docs' && (
+        <div role="tabpanel" aria-label="Documentation Mode" className="space-y-8 animate-fade-in">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Docs Mode)</h3>
+            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+              <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp"]\n    }\n  }\n}`} />
+            </div>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
+            <div className="grid md:grid-cols-3 gap-4">
+              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA, best practices." />
+              <BenefitCard title="Fast Onboarding" color="green" text="Great for new devs or quick reference sessions." />
+              <BenefitCard title="Safe & Local" color="purple" text="No credentials needed!" />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">Upgrade any time by adding <InlineCode>--dw-json</InlineCode>.</p>
+        </div>
+      )}
+      {active === 'full' && (
+        <div role="tabpanel" aria-label="Full Mode" className="space-y-8 animate-fade-in">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Full Mode)</h3>
+            <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-4">
+              <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
+            </div>
+            <p className="text-sm text-gray-600">Set <InlineCode>--debug true</InlineCode> temporarily when diagnosing tool responses.</p>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Additional Benefits</h4>
+            <div className="grid md:grid-cols-3 gap-4">
+              <BenefitCard title="Live Logs" color="blue" text="Real-time error, warn, info & debug analysis." />
+              <BenefitCard title="Job Insights" color="green" text="Job log discovery, execution summaries & step health." />
+              <BenefitCard title="Data Model" color="purple" text="System objects, custom attributes & preferences." />
+              <BenefitCard title="Code Versions" color="orange" text="List & activate versions for deployment fixes." />
+              <BenefitCard title="Deeper Reasoning" color="indigo" text="More context = better AI architectural guidance." />
+              <BenefitCard title="Unified Workflow" color="rose" text="Docs + analysis in one consistent interface." />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">Credentials never leave your machine—local, this MCP server runs on your system.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const BenefitCard: React.FC<{ title: string; text: string; color: string }> = ({ title, text, color }) => {
+  const colorMap: Record<string, string> = {
+    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+    green: 'bg-green-50 text-green-700 border-green-200',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200',
+    orange: 'bg-orange-50 text-orange-700 border-orange-200',
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    rose: 'bg-rose-50 text-rose-700 border-rose-200'
+  };
+  return (
+    <div className={`rounded-xl border p-4 ${colorMap[color] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+      <h5 className="font-semibold mb-1 text-sm">{title}</h5>
+      <p className="text-xs leading-relaxed">{text}</p>
+    </div>
+  );
+};
+
+// AssistantTabs component for Claude / Copilot / Cursor (refined layout)
+const AssistantTabs: React.FC = () => {
+  type Assistant = 'claude' | 'copilot' | 'cursor';
+  const [active, setActive] = React.useState<Assistant>('claude');
+  const tabBase = 'px-5 py-2 rounded-full text-sm font-medium transition border';
+  // Unified configuration: keep identical parameters for all assistants for clarity
+  const unifiedSnippet = `{"mcpServers":{"sfcc-dev":{"command":"npx","args":["sfcc-dev-mcp","--dw-json","/path/to/dw.json","--debug","false"]}}}`;
+  const configSnippets: Record<Assistant, string> = {
+    claude: unifiedSnippet,
+    copilot: unifiedSnippet,
+    cursor: unifiedSnippet
+  };
+  const benefits: Record<Assistant, Array<{ title: string; text: string; color: string }>> = {
+    claude: [
+      { title: 'Deep Reasoning', text: 'Great for architecture & multi-step planning.', color: 'blue' },
+      { title: 'Debug Sessions', text: 'Explain logs & identify root causes.', color: 'green' },
+      { title: 'Exploration', text: 'Modeling & refactor strategy guidance.', color: 'purple' }
+    ],
+    copilot: [
+      { title: 'Inline Speed', text: 'Rapid completions & edits in VS Code.', color: 'green' },
+      { title: 'Scaffolding', text: 'Generate controllers, models & tests.', color: 'blue' },
+      { title: 'Everyday Flow', text: 'Low-friction iteration for daily work.', color: 'purple' }
+    ],
+    cursor: [
+      { title: 'Rule Packs', text: 'Context-aware security & performance rules.', color: 'purple' },
+      { title: 'Large Changes', text: 'Safely coordinate multi-file refactors.', color: 'blue' },
+      { title: 'Consistency', text: 'Standardize patterns across the codebase.', color: 'green' }
+    ]
+  };
+  const prompts: Record<Assistant, string[]> = {
+    claude: [
+      'List available SFCC documentation tools',
+      'Analyze recent error logs',
+      'Generate cartridge structure named demo_cartridge'
+    ],
+    copilot: [
+      'Show methods on dw.catalog.Product',
+      'Create SFRA controller for Product-Show'
+    ],
+    cursor: [
+      'Suggest performance improvements for this controller',
+      'Apply security patterns to this hook'
+    ]
+  };
+
+  const renderSnippet = (assistant: Assistant) => {
+    const json = configSnippets[assistant];
+    const pretty = JSON.stringify(JSON.parse(json), null, 2);
+    return <CodeBlock language="json" code={pretty} />;
+  };
+
+  return (
+    <div>
+      <div role="tablist" aria-label="Assistant selection" className="flex flex-wrap gap-3 mb-10 mt-10 justify-center">
+        <button
+          role="tab"
+          aria-selected={active === 'claude'}
+          className={`${tabBase} ${active === 'claude' ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600'}`}
+          onClick={() => setActive('claude')}
+        >Claude Desktop</button>
+        <button
+          role="tab"
+          aria-selected={active === 'copilot'}
+          className={`${tabBase} ${active === 'copilot' ? 'bg-green-600 text-white border-green-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-600'}`}
+          onClick={() => setActive('copilot')}
+        >GitHub Copilot</button>
+        <button
+          role="tab"
+          aria-selected={active === 'cursor'}
+          className={`${tabBase} ${active === 'cursor' ? 'bg-purple-600 text-white border-purple-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-400 hover:text-purple-600'}`}
+          onClick={() => setActive('cursor')}
+        >Cursor</button>
+      </div>
+      <div className="space-y-10 animate-fade-in" role="tabpanel">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration</h3>
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            {renderSnippet(active)}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Docs-only mode: omit <InlineCode>--dw-json</InlineCode>. Enable verbose logging temporarily with <InlineCode>--debug true</InlineCode>.</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-900 mb-3">Key Strengths</h4>
+          <div className="grid md:grid-cols-3 gap-4">
+            {benefits[active].map(b => <BenefitCard key={b.title} title={b.title} text={b.text} color={b.color} />)}
+          </div>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-900 mb-2">Verification Prompts</h4>
+          <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
+            {prompts[active].map(p => <li key={p}>{p}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};

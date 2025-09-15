@@ -5,9 +5,8 @@ export const NAVIGATION_LINKS: NavGroup[] = [
     title: 'GETTING STARTED',
     items: [
       { label: 'Introduction', path: '/' },
-      { label: 'Installation & Setup', path: '/installation' },
+      { label: 'AI Assistant Setup', path: '/ai-interfaces' },
       { label: 'Configuration Guide', path: '/configuration' },
-      { label: 'AI Interface Setup', path: '/ai-interfaces' },
     ],
   },
   {

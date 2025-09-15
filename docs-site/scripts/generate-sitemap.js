@@ -28,12 +28,6 @@ const pages = [
     description: 'SFCC Development MCP Server Homepage',
   },
   {
-    path: '/installation',
-    priority: '0.9',
-    changefreq: 'monthly',
-    description: 'Installation & Setup Guide',
-  },
-  {
     path: '/configuration',
     priority: '0.9',
     changefreq: 'monthly',

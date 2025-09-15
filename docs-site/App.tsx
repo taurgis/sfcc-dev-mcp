@@ -1,8 +1,7 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
-import InstallationPage from './pages/InstallationPage';
 import ConfigurationPage from './pages/ConfigurationPage';
 import AIInterfacesPage from './pages/AIInterfacesPage';
 import FeaturesPage from './pages/FeaturesPage';
@@ -18,7 +17,8 @@ const App: React.FC = () => {
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/installation" element={<InstallationPage />} />
+          {/* Redirect old installation path to AI interfaces */}
+          <Route path="/installation" element={<Navigate to="/ai-interfaces" replace />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
           <Route path="/ai-interfaces" element={<AIInterfacesPage />} />
           <Route path="/features" element={<FeaturesPage />} />

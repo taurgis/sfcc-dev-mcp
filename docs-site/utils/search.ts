@@ -19,10 +19,10 @@ const FALLBACK_SEARCH_INDEX: SearchableItem[] = [
   { path: '/', pageTitle: 'Introduction', heading: 'Key Features', content: 'SFCC Documentation Access, Log Analysis, Best Practices Guides, Cartridge Generation, System Object Management, Code Version Control.' },
   { path: '/', pageTitle: 'Introduction', heading: 'Why Choose SFCC Development MCP Server?', content: 'The comprehensive solution for AI-assisted SFCC development. Complete SFCC API Coverage, Real-time Log Analysis, Production Ready, Developer Friendly.' },
 
-  // InstallationPage
-  { path: '/installation', pageTitle: 'Installation', heading: 'Installation Guide', content: 'Get SFCC Development MCP Server Running in Minutes. This guide covers installation and configuration.' },
-  { path: '/installation', pageTitle: 'Installation', heading: 'Prerequisites', content: 'Node.js Version 18 or higher, npm Version 8 or higher.' },
-  { path: '/installation', pageTitle: 'Installation', heading: 'Quick Setup', content: 'The fastest way to get started is to install globally and configure with your SFCC credentials.' },
+  // AIInterfacesPage
+  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'AI Assistant Setup Guide', content: 'Set up the SFCC Development MCP Server with your AI assistant. Connect Claude Desktop, Cursor AI, or other MCP-compatible tools.' },
+  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'Claude Desktop', content: 'Configure Claude Desktop to use the SFCC Development MCP Server for enhanced SFCC development assistance.' },
+  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'Cursor AI', content: 'Set up Cursor AI editor with the MCP server for intelligent code completion and SFCC guidance.' },
 
   // ConfigurationPage
   { path: '/configuration', pageTitle: 'Configuration', heading: 'Configuration Guide', content: 'Configure SFCC Development MCP Server for your Commerce Cloud environment.' },
