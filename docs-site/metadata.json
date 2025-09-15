@@ -1,0 +1,5 @@
+{
+  "name": "SFCC Development MCP Server Docs",
+  "description": "A documentation site for the SFCC Development MCP Server, a comprehensive Model Context Protocol server for Salesforce B2C Commerce Cloud development. The site provides guides for getting started, configuration, tools, and examples for AI-assisted SFCC development.",
+  "requestFramePermissions": []
+}

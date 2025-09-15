@@ -1,8 +1,8 @@
 /node_modules/
 /dist/
 /.idea/
-/docs-site/.bundle
-/docs-site/_site
-/docs-site/vendor
+/docs-site-old/.bundle
+/docs-site-old/_site
+/docs-site-old/vendor
 tests/servers/webdav/mock-logs/Logs/
 tests/servers/webdav/node_modules/

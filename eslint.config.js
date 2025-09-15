@@ -127,6 +127,7 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       'docs-site/**',
+      'docs-site-old/**',
       '*.config.js',
       'jest.config.js',
       'tests/servers/**',

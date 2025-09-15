@@ -4,12 +4,12 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'docs-site/**'
+      - 'docs-site-v2/**'
       - '.github/workflows/deploy-docs.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'docs-site/**'
+      - 'docs-site-v2/**'
 
 permissions:
   contents: read
@@ -32,18 +32,18 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: './docs-site/package-lock.json'
+          cache-dependency-path: './docs-site-v2/package-lock.json'
 
       - name: Install dependencies
-        working-directory: ./docs-site
+        working-directory: ./docs-site-v2
         run: npm ci
 
       - name: Clean build directory
-        working-directory: ./docs-site
+        working-directory: ./docs-site-v2
         run: rm -rf dist
 
       - name: Build site
-        working-directory: ./docs-site
+        working-directory: ./docs-site-v2
         run: npm run build
         env:
           NODE_ENV: production
@@ -54,7 +54,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs-site/dist
+          path: ./docs-site-v2/dist
 
   deploy:
     if: github.ref == 'refs/heads/main'
