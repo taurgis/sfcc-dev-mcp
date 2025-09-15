@@ -139,7 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         <div className="lg:pl-64 flex-1 min-w-0 max-w-full">
           <div className="flex min-w-0 max-w-full">
-            <main id="main-content" className="flex-1 max-w-4xl mx-auto p-4 sm:p-6 lg:p-12 min-w-0 overflow-hidden">
+            <main id="main-content" className="flex-1 max-w-4xl mx-auto p-2 sm:p-4 lg:p-12 min-w-0 overflow-hidden">
               <div className="prose prose-slate max-w-none min-w-0 break-words">
                 {children}
               </div>
