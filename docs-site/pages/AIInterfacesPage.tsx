@@ -309,19 +309,6 @@ const AssistantTabs: React.FC = () => {
           
           <div className="flex justify-center mb-6">
             <div className="flex flex-wrap gap-3 justify-center">
-              {active === 'claude' && (
-                <a 
-                  href="https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
-                >
-                  📖 Claude MCP Setup
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </a>
-              )}
               {active === 'copilot' && (
                 <>
                   <a 
@@ -347,6 +334,19 @@ const AssistantTabs: React.FC = () => {
                     </svg>
                   </a>
                 </>
+              )}
+              {active === 'claude' && (
+                <a 
+                  href="https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+                >
+                  📖 Claude MCP Setup
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </a>
               )}
               {active === 'cursor' && (
                 <a 
