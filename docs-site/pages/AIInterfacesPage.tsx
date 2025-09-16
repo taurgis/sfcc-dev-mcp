@@ -233,7 +233,7 @@ const AssistantTabs: React.FC = () => {
   const [active, setActive] = React.useState<Assistant>('copilot');
   const tabBase = 'px-5 py-2 rounded-full text-sm font-medium transition border';
   // Unified configuration: keep identical parameters for all assistants for clarity
-  const unifiedSnippet = `{"mcpServers":{"sfcc-dev":{"command":"npx","args":["sfcc-dev-mcp","--dw-json","/path/to/dw.json","--debug","false"]}}}`;
+  const unifiedSnippet = `{"mcpServers":{"sfcc-dev":{"command":"npx","args":["sfcc-dev-mcp","--dw-json","/Users/username/sfcc-project/dw.json","--debug","false"]}}}`;
   const configSnippets: Record<Assistant, string> = {
     claude: unifiedSnippet,
     copilot: unifiedSnippet,
