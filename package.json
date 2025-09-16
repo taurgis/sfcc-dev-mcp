@@ -1,6 +1,6 @@
 {
   "name": "sfcc-dev-mcp",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "main": "dist/index.js",
   "bin": {
@@ -53,7 +53,11 @@
     "webdav"
   ],
   "author": "Thomas Theunen <thomas.theunen@forward.eu>",
-  "license": "ISC",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18",
+    "npm": ">=8"
+  },
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.18.0",

@@ -70,7 +70,7 @@ export class SFCCDevServer {
     this.server = new Server(
       {
         name: 'SFCC Development MCP Server',
-        version: '1.0.9',
+        version: '1.0.14', // synced with package.json
       },
       {
         capabilities: {

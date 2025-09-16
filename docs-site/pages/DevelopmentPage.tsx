@@ -53,45 +53,84 @@ npm run dev -- --dw-json /path/to/your/dw.json
             <H3 id="directory-structure">Directory Structure</H3>
             <CodeBlock language="text" code={`
 sfcc-dev-mcp/
-├── src/                          # TypeScript source code
-│   ├── main.ts                   # CLI entry point
-│   ├── index.ts                  # Package exports
-│   ├── core/                     # Core MCP server functionality
-│   │   ├── server.ts             # Main MCP server implementation
-│   │   └── tool-definitions.ts   # MCP tool schema definitions
-│   ├── clients/                  # API clients for different services
-│   │   ├── base/                 # Base client classes
-│   │   │   ├── http-client.ts    # Base HTTP client with authentication
-│   │   │   ├── oauth-token.ts    # OAuth token management
-│   │   │   └── ocapi-auth-client.ts # OCAPI authentication client
-│   │   ├── ocapi/                # OCAPI-specific clients
-│   │   │   ├── site-preferences-client.ts # Site preferences client
-│   │   │   └── system-objects-client.ts # System objects client
-│   │   ├── best-practices-client.ts # Best practices guides client
-│   │   ├── cartridge-generation-client.ts # Cartridge generation client
-│   │   ├── docs-client.ts        # SFCC documentation client
-│   │   ├── log-client.ts         # Log analysis client
-│   │   ├── ocapi-client.ts       # Main OCAPI coordinator
-│   │   └── sfra-client.ts        # SFRA documentation client
-│   ├── config/                   # Configuration management
-│   │   ├── config.ts             # Configuration loading
-│   │   ├── configuration-factory.ts # Configuration factory
-│   │   ├── constants.ts          # Application constants
-│   │   └── dw-json-loader.ts     # Secure dw.json loading
-│   ├── utils/                    # Utility functions
-│   │   ├── cache.ts              # Caching utilities
-│   │   ├── logger.ts             # Logging utilities
-│   │   ├── path-resolver.ts      # Path resolution utilities
-│   │   ├── query-builder.ts      # Query building utilities
-│   │   ├── utils.ts              # Common utilities
-│   │   └── validator.ts          # Input validation
-│   └── types/                    # TypeScript type definitions
-│       └── types.ts              # Comprehensive type definitions
-├── docs/                         # SFCC documentation files
-├── docs-site/                    # GitHub Pages documentation
-├── tests/                        # Test suite
-├── scripts/                      # Build and utility scripts
-└── .github/                      # GitHub workflows and templates
+├── src/
+│   ├── main.ts                    # CLI entry point
+│   ├── index.ts                   # Package exports
+│   ├── core/                      # Core MCP server & tool definitions
+│   │   ├── server.ts              # MCP server (registers handlers, capability gating)
+│   │   ├── tool-definitions.ts    # All tool schemas grouped by category
+│   │   └── handlers/              # Modular tool handlers
+│   │       ├── base-handler.ts
+│   │       ├── docs-handler.ts
+│   │       ├── best-practices-handler.ts
+│   │       ├── sfra-handler.ts
+│   │       ├── log-handler.ts
+│   │       ├── job-log-handler.ts
+│   │       ├── system-object-handler.ts
+│   │       ├── code-version-handler.ts
+│   │       └── cartridge-handler.ts
+│   ├── clients/                   # API & domain clients (logic, not routing)
+│   │   ├── base/                  # Shared HTTP + auth
+│   │   │   ├── http-client.ts
+│   │   │   ├── ocapi-auth-client.ts
+│   │   │   └── oauth-token.ts
+│   │   ├── logs/                  # Modular log system (composition)
+│   │   │   ├── log-client.ts          # Orchestrator
+│   │   │   ├── log-file-reader.ts     # Range / tail reads
+│   │   │   ├── log-file-discovery.ts  # Listing & filtering
+│   │   │   ├── log-processor.ts       # Parsing & normalization
+│   │   │   ├── log-analyzer.ts        # Pattern & health analysis
+│   │   │   ├── log-formatter.ts       # Output shaping
+│   │   │   ├── log-constants.ts       # Central constants/config
+│   │   │   └── log-types.ts           # Type definitions
+│   │   ├── docs-client.ts
+│   │   ├── sfra-client.ts
+│   │   ├── best-practices-client.ts
+│   │   ├── cartridge-generation-client.ts
+│   │   ├── ocapi/
+│   │   │   ├── site-preferences-client.ts
+│   │   │   └── system-objects-client.ts
+│   │   ├── ocapi-client.ts
+│   │   └── log-client.ts              # Backwards compat wrapper
+│   ├── services/                 # Dependency injection service layer
+│   │   ├── file-system-service.ts
+│   │   ├── path-service.ts
+│   │   └── index.ts
+│   ├── tool-configs/             # Tool grouping & category configs
+│   │   ├── docs-tool-config.ts
+│   │   ├── sfra-tool-config.ts
+│   │   ├── best-practices-tool-config.ts
+│   │   ├── log-tool-config.ts
+│   │   ├── job-log-tool-config.ts
+│   │   ├── system-object-tool-config.ts
+│   │   ├── cartridge-tool-config.ts
+│   │   └── code-version-tool-config.ts
+│   ├── config/
+│   │   ├── configuration-factory.ts   # Mode & capability resolution
+│   │   └── dw-json-loader.ts          # Secure dw.json loading
+│   ├── utils/
+│   │   ├── cache.ts
+│   │   ├── logger.ts
+│   │   ├── path-resolver.ts
+│   │   ├── query-builder.ts
+│   │   ├── utils.ts
+│   │   ├── validator.ts
+│   │   ├── log-cache.ts
+│   │   ├── log-tool-constants.ts
+│   │   ├── log-tool-utils.ts
+│   │   ├── job-log-utils.ts
+│   │   └── job-log-tool-config.ts (legacy placement if used)
+│   └── types/
+│       └── types.ts
+├── tests/                        # Jest + MCP YAML + programmatic tests
+│   ├── *.test.ts
+│   ├── mcp/yaml/*.mcp.yml        # Declarative tool tests
+│   ├── mcp/node/*.programmatic.test.js
+│   └── servers/webdav/           # Mock WebDAV server fixtures
+├── docs/                         # SFCC & best practices markdown sources
+├── docs-site/                    # React + Vite documentation site
+├── scripts/                      # Conversion & build scripts
+└── ai-instructions/              # AI platform instruction sets
             `} />
 
             <H3 id="key-components">Key Components</H3>
@@ -102,88 +141,47 @@ sfcc-dev-mcp/
                 <li><strong>tool-definitions.ts</strong>: Tool schema definitions and validation</li>
             </ul>
 
-            <H3 id="client-architecture">Client Architecture (<InlineCode>src/clients/</InlineCode>)</H3>
-            <ul className="list-disc pl-6 space-y-1">
-                <li><strong>Base Classes</strong>: Shared HTTP client functionality and authentication</li>
-                <li><strong>Specialized Clients</strong>: Domain-specific API integrations</li>
-                <li><strong>Service Coordination</strong>: Orchestrates multiple API calls</li>
-            </ul>
+      <H3 id="client-architecture">Client vs Handler Architecture</H3>
+      <ul className="list-disc pl-6 space-y-1">
+        <li><strong>Clients (src/clients)</strong>: Encapsulate domain logic (docs parsing, log analysis modules, OCAPI calls) but DO NOT decide routing.</li>
+        <li><strong>Handlers (src/core/handlers)</strong>: Map tool names → execution, unify timing, error shaping, logging.</li>
+        <li><strong>Orchestration</strong>: <InlineCode>server.ts</InlineCode> registers all handlers and filters tool exposure by capability.</li>
+        <li><strong>Separation Benefit</strong>: Adding a tool rarely requires editing the server—extend or adjust the relevant handler.</li>
+      </ul>
 
-            <H3 id="configuration-system">Configuration System (<InlineCode>src/config/</InlineCode>)</H3>
-            <ul className="list-disc pl-6 space-y-1">
-                <li><strong>Flexible Loading</strong>: Supports dw.json, environment variables, CLI args</li>
-                <li><strong>Mode Detection</strong>: Automatically determines operating mode</li>
-                <li><strong>Validation</strong>: Comprehensive configuration validation</li>
-            </ul>
+      <H3 id="configuration-system">Configuration & Capability Gating (<InlineCode>src/config/</InlineCode>)</H3>
+      <ul className="list-disc pl-6 space-y-1">
+        <li><strong>configuration-factory.ts</strong>: Determines operating mode & derives capabilities (<InlineCode>canAccessLogs</InlineCode>, <InlineCode>canAccessOCAPI</InlineCode>).</li>
+        <li><strong>dw-json-loader.ts</strong>: Safe credential ingestion, prevents accidental misuse.</li>
+        <li><strong>Capability Gating</strong>: Tool lists dynamically filtered—no credentials → only documentation tools, OCAPI credentials → system objects + code versions, log credentials → log + job log tools.</li>
+        <li><strong>Security Principle</strong>: Never expose tools requiring unavailable credentials (principle of least privilege).</li>
+      </ul>
             <H2 id="development-workflow">🔧 Development Workflow</H2>
             
-            <H3 id="adding-new-tools">Adding New Tools</H3>
-            
-            <p><strong>1. Define Tool Schema</strong> in <InlineCode>src/core/tool-definitions.ts</InlineCode>:</p>
-            <CodeBlock language="typescript" code={`
-export const toolDefinitions: ToolDefinition[] = [
-  // ... existing tools
-  {
-    name: "my_new_tool",
-    description: "Description of what the tool does",
-    inputSchema: {
-      type: "object",
-      properties: {
-        parameter1: {
-          type: "string",
-          description: "Description of parameter"
-        }
-      },
-      required: ["parameter1"]
-    }
-  }
-];
-            `} />
+            <H3 id="adding-new-tools">Adding New Tools (Updated Flow)</H3>
+            <ol className="list-decimal pl-6 space-y-2">
+              <li><strong>Define schema</strong>: Add a new object in the correct category array inside <InlineCode>tool-definitions.ts</InlineCode>.</li>
+              <li><strong>Decide placement</strong>: If existing handler category fits (e.g. logs, docs, sfra) extend that handler's <InlineCode>handle()</InlineCode>. If truly new category, create a new handler extending <InlineCode>BaseToolHandler</InlineCode>.</li>
+              <li><strong>Implement logic</strong>: Put core logic in a client or service (keep handlers thin).</li>
+              <li><strong>Register handler (only if new)</strong>: Add to the array in <InlineCode>registerHandlers()</InlineCode> inside <InlineCode>server.ts</InlineCode>.</li>
+              <li><strong>Run conductor</strong>: Use <InlineCode>npx conductor query --config ./conductor.config.docs-only.json [tool]</InlineCode> to capture real response shape BEFORE writing tests.</li>
+              <li><strong>Add tests</strong>: Jest unit tests + YAML MCP tests (docs vs full mode as applicable).</li>
+              <li><strong>Update docs</strong>: Adjust this guide + README tool counts if category changed.</li>
+            </ol>
+            <CodeBlock language="typescript" code={`// Minimal handler example\nexport class ExampleToolHandler extends BaseToolHandler {\n  canHandle(name: string): boolean {\n    return name === 'my_new_tool';\n  }\n  protected async execute(name: string, args: any): Promise<string> {\n    const { param } = args as { param: string };\n    // domain logic (delegate to client/service ideally)\n    return \`Result for \${param}\`;\n  }\n}\n// Add to registerHandlers() in server.ts if new category.\n`} />
 
-            <p><strong>2. Implement Tool Handler</strong> in appropriate client:</p>
+            <p><strong>Testing YAML (discovery first):</strong></p>
             <CodeBlock language="typescript" code={`
-// In src/clients/my-client.ts
-export class MyClient extends BaseHttpClient {
-  async handleMyNewTool(params: MyNewToolParams): Promise<ToolResponse> {
-    try {
-      // Implementation logic
-      const result = await this.performOperation(params);
-      
-      return {
-        content: [
-          {
-            type: "text",
-            text: this.formatResult(result)
-          }
-        ]
-      };
-    } catch (error) {
-      return this.handleError('my_new_tool', error);
-    }
-  }
-}
-            `} />
-
-            <p><strong>3. Register Handler</strong> in <InlineCode>src/core/server.ts</InlineCode>:</p>
-            <CodeBlock language="typescript" code={`
-// Add to the appropriate handler method
-case 'my_new_tool':
-  return await this.myClient.handleMyNewTool(params);
-            `} />
-
-            <p><strong>4. Add Tests</strong> in <InlineCode>tests/</InlineCode>:</p>
-            <CodeBlock language="typescript" code={`
-describe('MyClient', () => {
-  describe('handleMyNewTool', () => {
-    it('should handle valid input', async () => {
-      // Test implementation
-    });
-    
-    it('should handle errors gracefully', async () => {
-      // Error handling tests
-    });
-  });
+// jest unit example
+describe('ExampleToolHandler', () => {
+  it('maps tool definition & executes', async () => { /* ... */ });
 });
+
+# YAML (pseudo)
+# - tool: my_new_tool
+#   params: { "param": "value" }
+#   expect:
+#     - text: "match:contains:Result for value"
             `} />
 
             <H3 id="testing-strategy">Testing Strategy</H3>
@@ -219,10 +217,10 @@ npm run lint:check    # Check with zero warnings
             <H3 id="manual-testing">Manual Testing</H3>
             <CodeBlock language="bash" code={`
 # Test with real SFCC instance (create your own test-dw.json)
-npm run dev -- --dw-json ./test-dw.json --debug true
+npm run dev -- --dw-json ./test-dw.json --debug
 
 # Test documentation-only mode
-npm run dev -- --debug true
+npm run dev -- --debug
             `} />
 
             <H2 id="documentation-updates">📚 Documentation Updates</H2>
@@ -254,22 +252,23 @@ npm run dev -- --debug true
 # Then use MCP client to test get_sfcc_class_info with "NewClass"
             `} />
 
-            <H3 id="updating-github-pages">Updating GitHub Pages</H3>
-            <p>The GitHub Pages site is automatically deployed when changes are pushed to <InlineCode>docs-site/</InlineCode>:</p>
-            
+            <H3 id="updating-github-pages">Updating Documentation Site</H3>
+            <p>The documentation site (<InlineCode>docs-site/</InlineCode>) is a React + Vite app. Deployment is handled by GitHub Actions after changes are pushed to the default branch.</p>
             <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Edit Documentation Pages</strong> in <InlineCode>docs-site/</InlineCode></li>
-                <li><strong>Test Locally</strong> with Jekyll (requires Ruby and Jekyll setup):
-                    <CodeBlock language="bash" code={`
-cd docs-site
-# Install Jekyll if not already installed
-gem install jekyll bundler
-bundle install
-bundle exec jekyll serve
-# Visit http://localhost:4000/sfcc-dev-mcp/
-                    `} />
-                </li>
-                <li><strong>Commit and Push</strong> - GitHub Actions will deploy automatically via <InlineCode>.github/workflows/deploy-pages.yml</InlineCode></li>
+              <li><strong>Edit Content</strong>: Modify or add pages/components under <InlineCode>docs-site/</InlineCode>.</li>
+              <li><strong>Local Preview</strong>:
+                <CodeBlock language="bash" code={`cd docs-site
+npm install
+npm run dev  # Opens Vite dev server (default http://localhost:5173)
+                `} />
+              </li>
+              <li><strong>Build (optional check)</strong>:
+                <CodeBlock language="bash" code={`cd docs-site
+npm run build  # Generates dist/ with static assets
+                `} />
+              </li>
+              <li><strong>Push Changes</strong>: CI workflow publishes the built site to GitHub Pages.</li>
+              <li><strong>Search Index / Sitemap</strong>: Automatically generated via build scripts (<InlineCode>generate:search-index</InlineCode>, <InlineCode>generate:sitemap</InlineCode>).</li>
             </ol>
 
             <H2 id="coding-standards">🎯 Coding Standards</H2>
@@ -396,16 +395,49 @@ const createMockSFCCResponse = (overrides = {}) => ({
 });
             `} />
 
-            <H3 id="testing-files-available">Testing Files Available</H3>
-            <p>The project has comprehensive test coverage in the <InlineCode>tests/</InlineCode> directory:</p>
+            <H3 id="testing-files-available">Testing Coverage Overview</H3>
             <ul className="list-disc pl-6 space-y-1">
-                <li><InlineCode>base-http-client.test.ts</InlineCode> - Base HTTP client testing</li>
-                <li><InlineCode>cache.test.ts</InlineCode> - Caching mechanism tests</li>
-                <li><InlineCode>config.test.ts</InlineCode> - Configuration loading tests</li>
-                <li><InlineCode>log-client.test.ts</InlineCode> - Log analysis client tests</li>
-                <li><InlineCode>oauth-token.test.ts</InlineCode> - OAuth token management tests</li>
-                <li><InlineCode>system-objects-client.test.ts</InlineCode> - System objects client tests</li>
-                <li>And more...</li>
+              <li><strong>Unit Clients</strong>: HTTP/auth, OCAPI subclients, docs, SFRA, best practices, cartridge generation.</li>
+              <li><strong>Handlers</strong>: Each modular handler has focused tests (error shaping, capability filtering).</li>
+              <li><strong>Log System</strong>: Discovery, reader, processor, analyzer, formatter modules.</li>
+              <li><strong>Job Logs</strong>: Parsing & multi-level consolidation logic.</li>
+              <li><strong>MCP Protocol Tests</strong>: YAML declarative + programmatic (Node) in <InlineCode>tests/mcp/</InlineCode>.</li>
+              <li><strong>WebDAV Mock</strong>: Integration environment for log + job retrieval.</li>
+            </ul>
+
+            <H3 id="handler-architecture">Handler Architecture</H3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>BaseToolHandler</strong>: Central timing, error normalization, logger integration.</li>
+              <li><strong>Category Isolation</strong>: Each functional domain kept small & cohesive.</li>
+              <li><strong>Extensibility</strong>: New feature area → new handler; minimal churn to existing code.</li>
+              <li><strong>Testing Benefit</strong>: Handlers test orchestration; clients test domain logic.</li>
+            </ul>
+
+            <H3 id="services-di">Services & Dependency Injection</H3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>FileSystemService</strong> & <strong>PathService</strong>: Abstract Node APIs for test isolation.</li>
+              <li><strong>Client Composition</strong>: Pass services or mocks explicitly—no hidden globals.</li>
+              <li><strong>Deterministic Tests</strong>: Avoids brittle fs/path mocking at module level.</li>
+            </ul>
+
+            <H3 id="log-architecture">Log & Job Log Architecture</H3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Reader</strong>: Range tail reads minimize bandwidth.</li>
+              <li><strong>Processor</strong>: Normalizes raw lines → structured entries.</li>
+              <li><strong>Analyzer</strong>: Pattern extraction, severity grouping, health scoring.</li>
+              <li><strong>Formatter</strong>: Produces human-oriented summaries for MCP output.</li>
+              <li><strong>Job Logs</strong>: Unified multi-level log files consolidated logically.</li>
+            </ul>
+
+            <H3 id="tool-configs">Tool Config Modules</H3>
+            <p>Each <InlineCode>tool-configs/*.ts</InlineCode> file groups logically related tool definitions or export sets, enabling cleaner segregation and future dynamic registration strategies.</p>
+
+            <H3 id="caching-performance">Caching & Performance</H3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>cache.ts</strong>: In-memory response caching (documentation & static lookups).</li>
+              <li><strong>log-cache.ts</strong>: Specialized transient caching for recently tailed segments.</li>
+              <li><strong>Avoid Premature I/O</strong>: Lazy fetch patterns in log discovery & system objects.</li>
+              <li><strong>Capability Filter</strong>: Reduces surface area → fewer accidental expensive calls.</li>
             </ul>
 
             <H2 id="release-process">🚀 Release Process</H2>
