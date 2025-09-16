@@ -22,9 +22,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Scroll restoration - scroll to top on route change or to specific element if hash is present
   useEffect(() => {
     const scrollToTarget = () => {
+      let targetId = '';
+      
+      // Check for hash fragment in location.hash
       if (location.hash) {
-        // If there's a hash fragment, try to scroll to that element
-        const targetId = location.hash.substring(1); // Remove the # symbol
+        targetId = location.hash.substring(1); // Remove the # symbol
+      } 
+      // Check for URL-encoded hash (%23) in the pathname
+      else if (location.pathname.includes('%23')) {
+        const parts = location.pathname.split('%23');
+        if (parts.length > 1) {
+          targetId = decodeURIComponent(parts[1]);
+        }
+      }
+      
+      if (targetId) {
+        // If there's a target ID, try to scroll to that element
         const targetElement = document.getElementById(targetId);
         
         if (targetElement) {
