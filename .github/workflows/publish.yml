@@ -23,6 +23,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
 
       - name: Configure Git
         run: |
@@ -32,9 +33,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build project
+        run: npm run build
+
       - name: Setup WebDAV test server
         run: |
           cd tests/servers/webdav
+          npm install
+          npm run setup
           node server.js &
           sleep 5
 
@@ -55,7 +61,7 @@ jobs:
       - name: Run linting
         run: npm run lint:check
 
-      - name: Build project
+      - name: Final build for publishing
         run: npm run build
 
       - name: Extract version and create release branch
