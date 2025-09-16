@@ -97,6 +97,19 @@ const AIInterfacesPage: React.FC = () => {
       <div id="copilot" className="hidden" aria-hidden="true" />
       <div id="cursor" className="hidden" aria-hidden="true" />
 
+      {/* AI Instruction Files Section */}
+      <div id="instruction-files" className="mb-24">
+        <div className="text-center mb-10">
+          <H2 id="ai-instruction-files" className="text-3xl font-bold mb-4">📋 AI Instruction Files</H2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            Enhance your AI assistant's SFCC expertise with specialized instruction files that provide context about development patterns, security practices, and MCP tool usage.
+          </p>
+        </div>
+        <SectionCard className="border-amber-200">
+          <InstructionFilesTabs />
+        </SectionCard>
+      </div>
+
       {/* Universal Config */}
       <div id="universal" className="mb-24">
         <div className="text-center mb-8">
@@ -377,6 +390,180 @@ const AssistantTabs: React.FC = () => {
           <ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">
             {prompts[active].map(p => <li key={p}>{p}</li>)}
           </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// InstructionFilesTabs component for AI instruction file setup
+const InstructionFilesTabs: React.FC = () => {
+  type InstructionTarget = 'copilot' | 'claude' | 'cursor';
+  const [active, setActive] = React.useState<InstructionTarget>('copilot');
+  const tabBase = 'px-5 py-2 rounded-full text-sm font-medium transition border';
+
+  const instructionData: Record<InstructionTarget, {
+    setupUrl: string;
+    files: Array<{ name: string; path: string; description: string }>;
+    instructions: string[];
+  }> = {
+    copilot: {
+      setupUrl: 'https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions',
+      files: [
+        {
+          name: 'copilot-instructions.md',
+          path: '.github/copilot-instructions.md',
+          description: 'Main instruction file for GitHub Copilot with SFCC expertise and MCP tool usage patterns'
+        }
+      ],
+      instructions: [
+        'Copy the instruction file from the repository to your project',
+        'Place it in the .github folder of your repository',
+        'Copilot will automatically detect and use these instructions when working in your repo',
+        'The file includes SFCC development patterns, security guidelines, and MCP tool usage'
+      ]
+    },
+    claude: {
+      setupUrl: 'https://support.anthropic.com/en/articles/10185728-understanding-claude-s-personalization-features',
+      files: [
+        {
+          name: 'claude_custom_instructions.md',
+          path: 'ai-instructions/claude-desktop/claude_custom_instructions.md',
+          description: 'Claude Desktop-optimized instructions with conversational development patterns and MCP integration'
+        }
+      ],
+      instructions: [
+        'Copy the instruction content from the repository file',
+        'Click your initials in the lower left corner of Claude',
+        'Select "Settings" from the menu',
+        'Under "What preferences should Claude consider in responses?", paste the content',
+        'These profile preferences will apply to all your conversations with Claude'
+      ]
+    },
+    cursor: {
+      setupUrl: 'https://docs.cursor.com/en/context/rules',
+      files: [
+        {
+          name: 'SFCC Rule Pack',
+          path: 'ai-instructions/cursor/.cursor/rules/',
+          description: 'Complete rule pack with 12 specialized files covering all SFCC development areas'
+        }
+      ],
+      instructions: [
+        'Copy the entire .cursor folder from the repository to your project root',
+        'This includes 12 specialized rule files covering different SFCC development areas',
+        'Cursor automatically applies rules based on file context and development patterns',
+        'Rules cover cartridge development, SFRA patterns, security, performance, and debugging'
+      ]
+    }
+  };
+
+  return (
+    <div>
+      <div role="tablist" aria-label="Instruction files selection" className="flex flex-wrap gap-3 mb-10 mt-10 justify-center">
+        <button
+          role="tab"
+          aria-selected={active === 'copilot'}
+          className={`${tabBase} ${active === 'copilot' ? 'bg-green-600 text-white border-green-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-600'}`}
+          onClick={() => setActive('copilot')}
+        >GitHub Copilot</button>
+        <button
+          role="tab"
+          aria-selected={active === 'claude'}
+          className={`${tabBase} ${active === 'claude' ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600'}`}
+          onClick={() => setActive('claude')}
+        >Claude Desktop</button>
+        <button
+          role="tab"
+          aria-selected={active === 'cursor'}
+          className={`${tabBase} ${active === 'cursor' ? 'bg-purple-600 text-white border-purple-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-400 hover:text-purple-600'}`}
+          onClick={() => setActive('cursor')}
+        >Cursor</button>
+      </div>
+      
+      <div className="space-y-8 animate-fade-in" role="tabpanel">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Available Instruction Files</h3>
+          <div className="space-y-4">
+            {instructionData[active].files.map((file, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200">
+                <div className="flex items-start gap-4">
+                  <div className="bg-amber-100 rounded-full p-2 flex-shrink-0">
+                    <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-grow">
+                    <h4 className="font-semibold text-gray-900 mb-2">{file.name}</h4>
+                    <p className="text-sm text-gray-600 mb-3">{file.description}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <a 
+                        href={`https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions/cursor/.cursor/rules`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-800 rounded-lg text-sm font-medium transition-all duration-200 no-underline hover:no-underline focus:no-underline"
+                      >
+                        📁 View on GitHub
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </a>
+                      <span className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 text-gray-600 rounded-lg text-xs font-mono">
+                        {file.path}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-semibold text-gray-900 mb-4">Setup Instructions</h4>
+          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200">
+            <ol className="list-decimal list-inside space-y-3 text-sm text-gray-700">
+              {instructionData[active].instructions.map((instruction, index) => (
+                <li key={index} className="leading-relaxed">{instruction}</li>
+              ))}
+            </ol>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <a 
+              href={instructionData[active].setupUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-700 hover:text-amber-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+            >
+              📖 Official Setup Guide
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <h5 className="font-semibold text-green-700 mb-2 text-sm">🎯 Enhanced Expertise</h5>
+              <p className="text-xs text-green-600 leading-relaxed">Pre-loaded SFCC knowledge, development patterns, and security best practices</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <h5 className="font-semibold text-blue-700 mb-2 text-sm">🔧 MCP Tool Awareness</h5>
+              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of all 36 MCP tools and their optimal usage patterns</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+              <h5 className="font-semibold text-purple-700 mb-2 text-sm">⚡ Faster Development</h5>
+              <p className="text-xs text-purple-600 leading-relaxed">Immediate access to SFCC-specific patterns without requiring context</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <h5 className="font-semibold text-amber-700 mb-2 text-sm">🔒 Security-First</h5>
+              <p className="text-xs text-amber-600 leading-relaxed">Built-in security patterns and validation practices for SFCC development</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
