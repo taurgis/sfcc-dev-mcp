@@ -8,24 +8,50 @@ Release comparison links are provided at the bottom. Earlier patch releases on t
 
 ## [1.0.14] - 2025-09-16
 ### Added
-- Documentation site: examples page, tools page, features page, configuration documentation page (progressive enhancement of React/Vite docs site).
+- **SFCC Class Information Filtering**: Enhanced `get_sfcc_class_info` tool with comprehensive filtering capabilities including search parameter, inclusion/exclusion of descriptions, constants, properties, methods, and inheritance hierarchy.
+- **AI Response Comparison Modals**: Interactive modals on documentation site showing side-by-side comparison of AI responses with and without MCP server, including zoom functionality for detailed inspection.
+- **Documentation Site Enhancements**: 
+  - Examples page with practical usage scenarios and filtering demonstrations
+  - Tools page documenting all available MCP tools
+  - Features page highlighting key capabilities
+  - Configuration documentation page with setup instructions
+  - AI Instruction Files section for different AI platforms
+  - LLMs documentation file for AI assistant integration
+  - Troubleshooting page for common issues
+  - Development and security documentation pages
+- **Homepage Value Proposition**: Enhanced homepage with clear value proposition and practical examples.
+- **Anchor Link Navigation**: Added IDs to documentation headers for direct linking.
 
 ### Changed
-- Project licensing aligned to MIT: replaced ISC LICENSE text with MIT License; updated `package.json` license field.
-- UI/Docs polish: padding/layout adjustments, site structure updates, simplified deployment workflow.
+- **Project Licensing**: Aligned to MIT License (replaced ISC LICENSE text, updated `package.json` license field).
+- **CI/CD Pipeline**: Enhanced with improved linting and security checks.
+- **Documentation Structure**: Comprehensive reorganization and expansion of documentation site structure.
+- **Code Examples**: Updated with full path references for better clarity.
+- **Configuration Examples**: Updated example configurations for better usability.
+- **UI/UX Polish**: Improved padding, layout adjustments, and site navigation structure.
 
 ### Fixed
-- Workflow path correction for page deployment.
-- Improved log tool argument validation robustness.
+- **URL Fragment Handling**: Fixed URL-encoded hash fragment handling in documentation site.
+- **Workflow Deployment**: Corrected path issues for page deployment.
+- **Log Tool Validation**: Improved argument validation robustness for log analysis tools.
 
 ### Documentation
-- AI interface setup guide updates; refined documentation site structure; removed obsolete legacy docs site; clarified deployment and navigation.
+- **AI Interface Setup**: Comprehensive guides for Claude Desktop, Cursor, and GitHub Copilot integration.
+- **Security Guidance**: Enhanced security considerations and best practices documentation.
+- **Troubleshooting**: Added comprehensive troubleshooting guide for common setup and usage issues.
+- **Development Workflow**: Detailed development guidelines and contribution instructions.
 
 ### Testing
-- Added / enhanced job execution summary tests; job log tests (entries, search, summary); improved test setup reliability.
+- **Enhanced Test Coverage**: 
+  - Comprehensive programmatic tests for SFCC class info filtering in documentation mode
+  - Enhanced YAML-based MCP tests for class information tools
+  - Job execution summary tests and job log analysis tests
+  - Improved test setup reliability and CI stability
 
 ### Notes
-- Consider CI guard to ensure LICENSE, badge, and package metadata remain consistent.
+- Major documentation site expansion with React/Vite architecture
+- Enhanced developer experience with comprehensive filtering and search capabilities
+- Improved AI assistant integration with detailed setup guides for multiple platforms
 
 ## [1.0.13] - 2025-09-15
 ### Added
