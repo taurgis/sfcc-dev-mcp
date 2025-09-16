@@ -114,7 +114,14 @@ describe('DocsToolHandler', () => {
       const args = { className: 'Product', expand: true };
       const result = await handler.handle('get_sfcc_class_info', args, Date.now());
 
-      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Product', true);
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Product', true, {
+        includeDescription: true,
+        includeConstants: true,
+        includeProperties: true,
+        includeMethods: true,
+        includeInheritance: true,
+        search: undefined,
+      });
       expect(result.content[0].text).toContain('Product');
       expect(result.content[0].text).toContain('Product class description');
     });
@@ -123,13 +130,79 @@ describe('DocsToolHandler', () => {
       const args = { className: 'Customer' };
       await handler.handle('get_sfcc_class_info', args, Date.now());
 
-      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Customer', false);
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Customer', false, {
+        includeDescription: true,
+        includeConstants: true,
+        includeProperties: true,
+        includeMethods: true,
+        includeInheritance: true,
+        search: undefined,
+      });
     });
 
     it('should throw error when className is missing', async () => {
       const result = await handler.handle('get_sfcc_class_info', {}, Date.now());
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain('className must be a non-empty string');
+    });
+
+    it('should handle get_sfcc_class_info with filtering options', async () => {
+      const args = {
+        className: 'Product',
+        includeDescription: false,
+        includeConstants: false,
+        includeProperties: true,
+        includeMethods: false,
+        includeInheritance: false,
+      };
+      const result = await handler.handle('get_sfcc_class_info', args, Date.now());
+
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Product', false, {
+        includeDescription: false,
+        includeConstants: false,
+        includeProperties: true,
+        includeMethods: false,
+        includeInheritance: false,
+        search: undefined,
+      });
+      expect(result.content[0].text).toContain('Product');
+    });
+
+    it('should handle get_sfcc_class_info with search parameter', async () => {
+      const args = { className: 'Product', search: 'image' };
+      const result = await handler.handle('get_sfcc_class_info', args, Date.now());
+
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Product', false, {
+        includeDescription: true,
+        includeConstants: true,
+        includeProperties: true,
+        includeMethods: true,
+        includeInheritance: true,
+        search: 'image',
+      });
+      expect(result.content[0].text).toContain('Product');
+    });
+
+    it('should handle get_sfcc_class_info with combined filtering and search', async () => {
+      const args = {
+        className: 'Product',
+        expand: true,
+        includeDescription: false,
+        includeMethods: true,
+        includeProperties: false,
+        search: 'price',
+      };
+      const result = await handler.handle('get_sfcc_class_info', args, Date.now());
+
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith('Product', true, {
+        includeDescription: false,
+        includeConstants: true,
+        includeProperties: false,
+        includeMethods: true,
+        includeInheritance: true,
+        search: 'price',
+      });
+      expect(result.content[0].text).toContain('Product');
     });
   });
 

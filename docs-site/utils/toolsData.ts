@@ -39,13 +39,25 @@ export const tools: ToolMeta[] = [
     name: 'get_sfcc_class_info',
     category: 'Documentation',
     mode: 'both',
-    description: 'Detailed information about an SFCC class: properties, methods, descriptions.',
-    params: [p('className', "SFCC class (e.g. 'Catalog' or 'dw.catalog.Catalog')"), p('expand', 'Include referenced type details (boolean)', false)],
+    description: 'Detailed information about an SFCC class with filtering and search capabilities: properties, methods, descriptions.',
+    params: [
+      p('className', "SFCC class (e.g. 'Catalog' or 'dw.catalog.Catalog')"), 
+      p('expand', 'Include referenced type details (boolean)', false),
+      p('includeDescription', 'Include class description (boolean, default: true)', false),
+      p('includeConstants', 'Include class constants (boolean, default: true)', false),
+      p('includeProperties', 'Include class properties (boolean, default: true)', false),
+      p('includeMethods', 'Include class methods (boolean, default: true)', false),
+      p('includeInheritance', 'Include inheritance info (boolean, default: true)', false),
+      p('search', 'Filter results by search term (string)', false)
+    ],
     examples: [
       'Show methods and properties on dw.catalog.Product',
-      'Explain dw.system.Status class and give usage examples'
+      'Show only methods for dw.system.Status class',
+      'Search for "get" methods in dw.catalog.Product',
+      'Show dw.order.Order class without description or constants',
+      'Find "name" related properties and methods in dw.catalog.Product'
     ],
-    tags: ['api','classes','introspection'],
+    tags: ['api','classes','introspection','filtering','search'],
     popular: true
   },
   { id: 'search-sfcc-classes', name: 'search_sfcc_classes', category: 'Documentation', mode: 'both', description: 'Search SFCC classes by partial name (single word).', params: [p('query', 'Search term (single word)')], examples: ['Find classes related to price','Search for catalog classes'], tags: ['search'], popular: true },

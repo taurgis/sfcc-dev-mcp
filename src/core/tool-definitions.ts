@@ -21,6 +21,35 @@ export const SFCC_DOCUMENTATION_TOOLS = [
           description: 'Whether to include detailed information about referenced types used by this class (default: false)',
           default: false,
         },
+        includeDescription: {
+          type: 'boolean',
+          description: 'Whether to include the class description in the response (default: true)',
+          default: true,
+        },
+        includeConstants: {
+          type: 'boolean',
+          description: 'Whether to include constants in the response (default: true)',
+          default: true,
+        },
+        includeProperties: {
+          type: 'boolean',
+          description: 'Whether to include properties in the response (default: true)',
+          default: true,
+        },
+        includeMethods: {
+          type: 'boolean',
+          description: 'Whether to include methods in the response (default: true)',
+          default: true,
+        },
+        includeInheritance: {
+          type: 'boolean',
+          description: 'Whether to include inheritance hierarchy in the response (default: true)',
+          default: true,
+        },
+        search: {
+          type: 'string',
+          description: 'Optional search term to filter constants, properties, methods, and inheritance entries. Case-insensitive search across names and descriptions. Only one word at a time (e.g., "get", "create", "order"). Combining multiple words or looking for multiple items at the same time is not supported.',
+        },
       },
       required: ['className'],
     },

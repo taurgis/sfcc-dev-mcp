@@ -23,20 +23,37 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
     defaults: (args: ToolArguments) => ({
       ...args,
       expand: args.expand ?? false,
+      includeDescription: args.includeDescription ?? true,
+      includeConstants: args.includeConstants ?? true,
+      includeProperties: args.includeProperties ?? true,
+      includeMethods: args.includeMethods ?? true,
+      includeInheritance: args.includeInheritance ?? true,
+      search: args.search ?? undefined,
     }),
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('className'), toolName);
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
-      const result = await client.getClassDetailsExpanded(args.className as string, args.expand as boolean);
+      const result = await client.getClassDetailsExpanded(
+        args.className as string,
+        args.expand as boolean,
+        {
+          includeDescription: args.includeDescription as boolean,
+          includeConstants: args.includeConstants as boolean,
+          includeProperties: args.includeProperties as boolean,
+          includeMethods: args.includeMethods as boolean,
+          includeInheritance: args.includeInheritance as boolean,
+          search: args.search as string | undefined,
+        },
+      );
       if (!result) {
         throw new Error(`Class "${args.className}" not found`);
       }
       return result;
     },
     logMessage: (args: ToolArguments) =>
-      `Class info ${args.className} expand=${args.expand ?? false}`,
+      `Class info ${args.className} expand=${args.expand ?? false} ${args.search ? `search="${args.search}"` : ''}`,
   },
 
   search_sfcc_classes: {

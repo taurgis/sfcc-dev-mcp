@@ -438,6 +438,315 @@ tests:
       stderr: "toBeEmpty"
 
 # ==================================================================================
+# FILTERING AND SEARCH FUNCTIONALITY TESTS
+# Tests all boolean filtering parameters and search functionality
+# ==================================================================================
+
+  - it: "should get class info with default parameters (all sections included)"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-default"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-default"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Product"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should get class info with expand enabled"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-expand"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Catalog"
+          expand: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-expand"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.catalog.Catalog"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter out description when includeDescription is false"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-no-description"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeDescription: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-no-description"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter out constants when includeConstants is false"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-no-constants"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeConstants: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-no-constants"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter out properties when includeProperties is false"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-no-properties"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeProperties: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-no-properties"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter out methods when includeMethods is false"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-no-methods"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeMethods: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-no-methods"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter out inheritance when includeInheritance is false"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-no-inheritance"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeInheritance: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-no-inheritance"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should apply multiple filters together (minimal response)"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-minimal"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeDescription: false
+          includeConstants: false
+          includeProperties: false
+          includeMethods: false
+          includeInheritance: false
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-minimal"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should search within class info using search parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-basic"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          search: "get"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-basic"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should combine filtering with search functionality"
+    request:
+      jsonrpc: "2.0"
+      id: "search-filtered"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          includeMethods: true
+          includeProperties: false
+          includeConstants: false
+          search: "getName"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-filtered"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle class name without dw prefix"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-short-name"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-short-name"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle System class with all filters enabled"
+    request:
+      jsonrpc: "2.0"
+      id: "filter-system-class"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.system.System"
+          expand: true
+          includeDescription: true
+          includeConstants: true
+          includeProperties: true
+          includeMethods: true
+          includeInheritance: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "filter-system-class"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:dw.system.System"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle Customer class with case-insensitive search"
+    request:
+      jsonrpc: "2.0"
+      id: "search-case-insensitive"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.customer.Customer"
+          search: "EMAIL"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-case-insensitive"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle search with no matches gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "search-no-matches"
+      method: "tools/call"
+      params:
+        name: "get_sfcc_class_info"
+        arguments:
+          className: "dw.catalog.Product"
+          search: "zzznomatchesexpected"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-no-matches"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
 # ERROR HANDLING TESTS
 # ==================================================================================
 

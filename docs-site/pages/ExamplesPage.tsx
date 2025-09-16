@@ -132,6 +132,40 @@ Minimal Access Snippet:
             </SectionCard>
 
             <SectionCard
+                id="focused-class-exploration"
+                title="Focused Class Exploration with Filtering"
+                icon="🔍"
+                gradient="from-emerald-50 via-white to-teal-50"
+                subtitle="Use enhanced filtering and search to find exactly what you need from SFCC classes."
+            >
+                <PromptBlock prompt="I need to understand only the getter methods in dw.catalog.Product that relate to pricing or availability. Don't show me everything." intent="Targeted exploration with precise filtering" />
+                <div className="mb-4 flex flex-wrap gap-2">
+                    <ModeBadge>Docs Mode</ModeBadge>
+                </div>
+                <StepsList steps={[
+                    { label: 'Show only methods with price-related terms', tool: 'get_sfcc_class_info {"className": "dw.catalog.Product", "includeProperties": false, "includeConstants": false, "includeDescription": false, "includeInheritance": false, "search": "price"}', mode: 'docs' },
+                    { label: 'Show only methods with availability terms', tool: 'get_sfcc_class_info {"className": "dw.catalog.Product", "includeProperties": false, "includeConstants": false, "includeDescription": false, "includeInheritance": false, "search": "availab"}', mode: 'docs' },
+                    { label: 'Compare with full getter methods', tool: 'get_sfcc_class_info {"className": "dw.catalog.Product", "includeProperties": false, "includeConstants": false, "includeDescription": false, "includeInheritance": false, "search": "get"}', mode: 'docs', note: 'See complete getter landscape' }
+                ]} />
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Focused Results (price-related methods only):</p>
+                    <CodeBlock language="markdown" code={`### dw.catalog.Product - Price Methods Only
+
+**Methods:**
+• getPriceModel() : PriceModel - Returns pricing model for current product
+• getPriceModel(ProductOptionModel) : PriceModel - Returns pricing with option adjustments
+
+**Key Benefits:**
+- Clean, targeted view without noise from 50+ other methods
+- Focus on exactly what's needed for pricing logic
+- Search functionality quickly surfaces relevant APIs`} />
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-800"><strong>Pro Tip:</strong> Use <code>search</code> parameter with partial terms like "get", "set", "price", "availab" to quickly find relevant methods. Combine with <code>includeProperties: false</code> to focus only on methods.</p>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard
                 id="controller-from-docs"
                 title="Generate a Controller from Documentation Context"
                 icon="🛠️"

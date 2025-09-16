@@ -58,6 +58,15 @@ export interface SFCCClassDetails {
   constructorInfo?: string;
 }
 
+export interface ClassDetailsFilterOptions {
+  includeDescription?: boolean;
+  includeConstants?: boolean;
+  includeProperties?: boolean;
+  includeMethods?: boolean;
+  includeInheritance?: boolean;
+  search?: string;
+}
+
 export class SFCCDocumentationClient {
   private docsPath: string;
   private classCache: Map<string, SFCCClassInfo> = new Map();
@@ -636,29 +645,49 @@ export class SFCCDocumentationClient {
   }
 
   /**
-   * Get class details with optional expansion of referenced types
+   * Get class details with optional expansion of referenced types and filtering
    */
-  async getClassDetailsExpanded(className: string, expand: boolean = false):
-      Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
-    // Check cache first for expanded details
-    const cacheKey = `details-expanded:${className}:${expand}`;
+  async getClassDetailsExpanded(
+    className: string,
+    expand: boolean = false,
+    filterOptions?: ClassDetailsFilterOptions,
+  ): Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
+    // Set default filter options
+    const filters = {
+      includeDescription: filterOptions?.includeDescription ?? true,
+      includeConstants: filterOptions?.includeConstants ?? true,
+      includeProperties: filterOptions?.includeProperties ?? true,
+      includeMethods: filterOptions?.includeMethods ?? true,
+      includeInheritance: filterOptions?.includeInheritance ?? true,
+      search: filterOptions?.search,
+    };
+
+    // Check cache first for expanded details with filter options
+    const cacheKey = `details-expanded:${className}:${expand}:${JSON.stringify(filters)}`;
     const cachedResult = this.cacheManager.getClassDetails(cacheKey);
     if (cachedResult !== undefined) {
       return cachedResult;
     }
 
     const classDetails = await this.getClassDetails(className);
-    if (!classDetails || !expand) {
-      const result = classDetails;
-      this.cacheManager.setClassDetails(cacheKey, result);
-      return result;
+    if (!classDetails) {
+      this.cacheManager.setClassDetails(cacheKey, null);
+      return null;
+    }
+
+    // Apply filtering and search to the class details
+    const filteredDetails = this.applyFiltersAndSearch(classDetails, filters);
+
+    if (!expand) {
+      this.cacheManager.setClassDetails(cacheKey, filteredDetails);
+      return filteredDetails;
     }
 
     // Get the raw content to extract referenced types
     const content = await this.getClassDocumentation(className);
     if (!content) {
-      this.cacheManager.setClassDetails(cacheKey, classDetails);
-      return classDetails;
+      this.cacheManager.setClassDetails(cacheKey, filteredDetails);
+      return filteredDetails;
     }
 
     const referencedTypeNames = this.extractReferencedTypes(content);
@@ -684,7 +713,7 @@ export class SFCCDocumentationClient {
     }
 
     const result = {
-      ...classDetails,
+      ...filteredDetails,
       referencedTypes: referencedTypes.length > 0 ? referencedTypes : undefined,
     };
 
@@ -692,6 +721,80 @@ export class SFCCDocumentationClient {
     this.cacheManager.setClassDetails(cacheKey, result);
 
     return result;
+  }
+
+  /**
+   * Apply filters and search to class details
+   */
+  private applyFiltersAndSearch(
+    classDetails: SFCCClassDetails,
+    filters: {
+      includeDescription: boolean;
+      includeConstants: boolean;
+      includeProperties: boolean;
+      includeMethods: boolean;
+      includeInheritance: boolean;
+      search?: string;
+    },
+  ): SFCCClassDetails {
+    const result: SFCCClassDetails = {
+      className: classDetails.className,
+      packageName: classDetails.packageName,
+      description: filters.includeDescription ? classDetails.description : '',
+      constants: [],
+      properties: [],
+      methods: [],
+      inheritance: filters.includeInheritance ? classDetails.inheritance : undefined,
+      constructorInfo: classDetails.constructorInfo,
+    };
+
+    // Apply search filter to constants
+    if (filters.includeConstants) {
+      result.constants = filters.search
+        ? classDetails.constants.filter(constant =>
+          this.matchesSearch(constant.name, constant.description, filters.search!),
+        )
+        : classDetails.constants;
+    }
+
+    // Apply search filter to properties
+    if (filters.includeProperties) {
+      result.properties = filters.search
+        ? classDetails.properties.filter(property =>
+          this.matchesSearch(property.name, property.description, filters.search!),
+        )
+        : classDetails.properties;
+    }
+
+    // Apply search filter to methods
+    if (filters.includeMethods) {
+      result.methods = filters.search
+        ? classDetails.methods.filter(method =>
+          this.matchesSearch(method.name, method.description, filters.search!) ||
+          this.matchesSearch(method.signature, '', filters.search!),
+        )
+        : classDetails.methods;
+    }
+
+    // Apply search filter to inheritance
+    if (filters.includeInheritance && filters.search && result.inheritance) {
+      result.inheritance = result.inheritance.filter(inheritanceItem =>
+        this.matchesSearch(inheritanceItem, '', filters.search!),
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   * Check if a name or description matches the search term (case-insensitive)
+   */
+  private matchesSearch(name: string, description: string, searchTerm: string): boolean {
+    const search = searchTerm.toLowerCase();
+    return (
+      name.toLowerCase().includes(search) ||
+      description.toLowerCase().includes(search)
+    );
   }
 
   /**

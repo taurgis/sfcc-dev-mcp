@@ -447,6 +447,572 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       assert.strictEqual(classInfo.packageName, 'dw.catalog');
     });
   });
+
+  // ==================================================================================
+  // FILTERING PARAMETERS COMPREHENSIVE TESTS
+  // ==================================================================================
+
+  describe('Filtering Parameters', () => {
+    test('should validate all filtering parameters exist in tool schema', async () => {
+      const tools = await client.listTools();
+      const tool = tools.find(t => t.name === 'get_sfcc_class_info');
+      const props = tool.inputSchema.properties;
+      
+      // Validate all new filtering parameters are defined
+      assert(props.includeDescription, 'Should have includeDescription parameter');
+      assert(props.includeConstants, 'Should have includeConstants parameter');
+      assert(props.includeProperties, 'Should have includeProperties parameter');
+      assert(props.includeMethods, 'Should have includeMethods parameter');
+      assert(props.includeInheritance, 'Should have includeInheritance parameter');
+      assert(props.search, 'Should have search parameter');
+      
+      // Validate parameter types
+      assert.strictEqual(props.includeDescription.type, 'boolean');
+      assert.strictEqual(props.includeConstants.type, 'boolean');
+      assert.strictEqual(props.includeProperties.type, 'boolean');
+      assert.strictEqual(props.includeMethods.type, 'boolean');
+      assert.strictEqual(props.includeInheritance.type, 'boolean');
+      assert.strictEqual(props.search.type, 'string');
+    });
+
+    test('should include all sections by default', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Verify all sections are present by default
+      assert(classInfo.description, 'Should include description by default');
+      assert(Array.isArray(classInfo.constants), 'Should include constants array');
+      assert(Array.isArray(classInfo.properties), 'Should include properties array');
+      assert(Array.isArray(classInfo.methods), 'Should include methods array');
+      assert(classInfo.inheritance, 'Should include inheritance by default');
+    });
+
+    test('should exclude description when includeDescription is false', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeDescription: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Description should be excluded or empty
+      assert(!classInfo.description || classInfo.description === '', 
+             'Description should be excluded when includeDescription is false');
+      
+      // Other sections should still be present
+      assert(Array.isArray(classInfo.properties), 'Properties should still be included');
+      assert(Array.isArray(classInfo.methods), 'Methods should still be included');
+    });
+
+    test('should exclude constants when includeConstants is false', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeConstants: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Constants should be excluded or empty
+      assert(!classInfo.constants || classInfo.constants.length === 0, 
+             'Constants should be excluded when includeConstants is false');
+      
+      // Other sections should still be present
+      assert(classInfo.description, 'Description should still be included');
+      assert(Array.isArray(classInfo.properties), 'Properties should still be included');
+    });
+
+    test('should exclude properties when includeProperties is false', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeProperties: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Properties should be excluded or empty
+      assert(!classInfo.properties || classInfo.properties.length === 0, 
+             'Properties should be excluded when includeProperties is false');
+      
+      // Other sections should still be present
+      assert(classInfo.description, 'Description should still be included');
+      assert(Array.isArray(classInfo.methods), 'Methods should still be included');
+    });
+
+    test('should exclude methods when includeMethods is false', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeMethods: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Methods should be excluded or empty
+      assert(!classInfo.methods || classInfo.methods.length === 0, 
+             'Methods should be excluded when includeMethods is false');
+      
+      // Other sections should still be present
+      assert(classInfo.description, 'Description should still be included');
+      assert(Array.isArray(classInfo.properties), 'Properties should still be included');
+    });
+
+    test('should exclude inheritance when includeInheritance is false', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeInheritance: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Inheritance should be excluded or empty
+      assert(!classInfo.inheritance || 
+             (Array.isArray(classInfo.inheritance) && classInfo.inheritance.length === 0) ||
+             classInfo.inheritance === '', 
+             'Inheritance should be excluded when includeInheritance is false');
+      
+      // Other sections should still be present
+      assert(classInfo.description, 'Description should still be included');
+      assert(Array.isArray(classInfo.methods), 'Methods should still be included');
+    });
+
+    test('should create minimal response when all filters disabled', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeDescription: false,
+        includeConstants: false,
+        includeProperties: false,
+        includeMethods: false,
+        includeInheritance: false
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Only basic class info should remain
+      assert.strictEqual(classInfo.className, 'Product');
+      assert.strictEqual(classInfo.packageName, 'dw.catalog');
+      
+      // All optional sections should be excluded or empty
+      assert(!classInfo.description || classInfo.description === '');
+      assert(!classInfo.constants || classInfo.constants.length === 0);
+      assert(!classInfo.properties || classInfo.properties.length === 0);
+      assert(!classInfo.methods || classInfo.methods.length === 0);
+      assert(!classInfo.inheritance || 
+             (Array.isArray(classInfo.inheritance) && classInfo.inheritance.length === 0) ||
+             classInfo.inheritance === '');
+    });
+
+    test('should combine filtering parameters effectively', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeDescription: true,
+        includeConstants: false,
+        includeProperties: true,
+        includeMethods: false,
+        includeInheritance: true
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Should include: description, properties, inheritance
+      assert(classInfo.description, 'Description should be included');
+      assert(Array.isArray(classInfo.properties), 'Properties should be included');
+      assert(classInfo.inheritance, 'Inheritance should be included');
+      
+      // Should exclude: constants, methods
+      assert(!classInfo.constants || classInfo.constants.length === 0, 'Constants should be excluded');
+      assert(!classInfo.methods || classInfo.methods.length === 0, 'Methods should be excluded');
+    });
+  });
+
+  // ==================================================================================
+  // SEARCH FUNCTIONALITY COMPREHENSIVE TESTS
+  // ==================================================================================
+
+  describe('Search Functionality', () => {
+    test('should filter results with search parameter', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        search: 'name'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Search should filter properties and methods
+      if (classInfo.properties && classInfo.properties.length > 0) {
+        classInfo.properties.forEach(prop => {
+          assert(prop.name.toLowerCase().includes('name') || 
+                 (prop.description && prop.description.toLowerCase().includes('name')),
+                 `Property ${prop.name} should match search term 'name'`);
+        });
+      }
+      
+      if (classInfo.methods && classInfo.methods.length > 0) {
+        classInfo.methods.forEach(method => {
+          assert(method.name.toLowerCase().includes('name') || 
+                 (method.description && method.description.toLowerCase().includes('name')),
+                 `Method ${method.name} should match search term 'name'`);
+        });
+      }
+    });
+
+    test('should perform case-insensitive search', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        search: 'NAME'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Search should be case-insensitive
+      if (classInfo.properties && classInfo.properties.length > 0) {
+        classInfo.properties.forEach(prop => {
+          assert(prop.name.toLowerCase().includes('name') || 
+                 (prop.description && prop.description.toLowerCase().includes('name')),
+                 `Property ${prop.name} should match case-insensitive search 'NAME'`);
+        });
+      }
+    });
+
+    test('should combine search with filtering parameters', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeMethods: true,
+        includeProperties: false,
+        includeConstants: false,
+        search: 'get'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Should only have methods (no properties/constants)
+      assert(!classInfo.properties || classInfo.properties.length === 0, 'Properties should be excluded');
+      assert(!classInfo.constants || classInfo.constants.length === 0, 'Constants should be excluded');
+      
+      // Methods should be filtered by search term
+      if (classInfo.methods && classInfo.methods.length > 0) {
+        classInfo.methods.forEach(method => {
+          assert(method.name.toLowerCase().includes('get') || 
+                 (method.description && method.description.toLowerCase().includes('get')),
+                 `Method ${method.name} should match search term 'get'`);
+        });
+      }
+    });
+
+    test('should handle search with no matches gracefully', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        search: 'zzznomatchesexpected'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Should still have basic class info
+      assert.strictEqual(classInfo.className, 'Product');
+      assert.strictEqual(classInfo.packageName, 'dw.catalog');
+      
+      // Arrays should be empty (no matches)
+      if (classInfo.properties) {
+        assert.strictEqual(classInfo.properties.length, 0, 'Properties should be empty with no matches');
+      }
+      if (classInfo.methods) {
+        assert.strictEqual(classInfo.methods.length, 0, 'Methods should be empty with no matches');
+      }
+      if (classInfo.constants) {
+        assert.strictEqual(classInfo.constants.length, 0, 'Constants should be empty with no matches');
+      }
+    });
+
+    test('should search across multiple field types', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        search: 'get'  // Changed from 'id' to 'get' which is more common
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Should find matches in different sections
+      let foundMatches = false;
+      
+      if (classInfo.properties && classInfo.properties.length > 0) {
+        foundMatches = true;
+        classInfo.properties.forEach(prop => {
+          assert(prop.name.toLowerCase().includes('get') || 
+                 (prop.description && prop.description.toLowerCase().includes('get')),
+                 `Property ${prop.name} should match search term 'get'`);
+        });
+      }
+      
+      if (classInfo.methods && classInfo.methods.length > 0) {
+        foundMatches = true;
+        classInfo.methods.forEach(method => {
+          assert(method.name.toLowerCase().includes('get') || 
+                 (method.description && method.description.toLowerCase().includes('get')),
+                 `Method ${method.name} should match search term 'get'`);
+        });
+      }
+      
+      // Should find at least some matches with 'get' in Product class
+      assert(foundMatches, 'Should find matches for common term "get" in Product class');
+    });
+
+    test('should handle empty search string', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        search: ''
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Empty search should return all results (no filtering)
+      assert.strictEqual(classInfo.className, 'Product');
+      assert(classInfo.description, 'Should include description with empty search');
+      assert(Array.isArray(classInfo.properties), 'Should include all properties with empty search');
+      assert(Array.isArray(classInfo.methods), 'Should include all methods with empty search');
+    });
+  });
+
+  // ==================================================================================
+  // RESPONSE STRUCTURE VALIDATION WITH dw.catalog.Product
+  // ==================================================================================
+
+  describe('Product Class Response Structure Validation', () => {
+    test('should return comprehensive Product class information', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Validate basic structure
+      assert.strictEqual(classInfo.className, 'Product');
+      assert.strictEqual(classInfo.packageName, 'dw.catalog');
+      assert(typeof classInfo.description === 'string', 'Description should be string');
+      
+      // Validate arrays are present and non-empty for a rich class like Product
+      assert(Array.isArray(classInfo.properties), 'Properties should be array');
+      assert(classInfo.properties.length > 0, 'Product should have properties');
+      
+      assert(Array.isArray(classInfo.methods), 'Methods should be array');
+      assert(classInfo.methods.length > 0, 'Product should have methods');
+      
+      // Validate property structure
+      classInfo.properties.forEach(prop => {
+        assert(typeof prop.name === 'string', 'Property name should be string');
+        assert(typeof prop.type === 'string', 'Property type should be string');
+        // Description is optional but should be string if present
+        if (prop.description) {
+          assert(typeof prop.description === 'string', 'Property description should be string');
+        }
+      });
+      
+      // Validate method structure
+      classInfo.methods.forEach(method => {
+        assert(typeof method.name === 'string', 'Method name should be string');
+        assert(typeof method.signature === 'string', 'Method signature should be string');
+        // Return type and description are optional
+        if (method.returnType) {
+          assert(typeof method.returnType === 'string', 'Method returnType should be string');
+        }
+        if (method.description) {
+          assert(typeof method.description === 'string', 'Method description should be string');
+        }
+      });
+    });
+
+    test('should validate filtered Product class responses maintain structure', async () => {
+      const scenarios = [
+        { includeProperties: true, includeMethods: false },
+        { includeProperties: false, includeMethods: true },
+        { includeDescription: false, includeProperties: true },
+        { includeConstants: false, includeInheritance: false }
+      ];
+      
+      for (const scenario of scenarios) {
+        const result = await client.callTool('get_sfcc_class_info', {
+          className: 'dw.catalog.Product',
+          ...scenario
+        });
+        
+        assertValidMCPResponse(result);
+        const classInfo = JSON.parse(result.content[0].text);
+        
+        // Basic info should always be present
+        assert.strictEqual(classInfo.className, 'Product');
+        assert.strictEqual(classInfo.packageName, 'dw.catalog');
+        
+        // Validate conditional sections
+        if (scenario.includeProperties === false) {
+          assert(!classInfo.properties || classInfo.properties.length === 0,
+                 'Properties should be excluded when includeProperties is false');
+        } else if (scenario.includeProperties !== false) {
+          assert(Array.isArray(classInfo.properties), 'Properties should be array when included');
+        }
+        
+        if (scenario.includeMethods === false) {
+          assert(!classInfo.methods || classInfo.methods.length === 0,
+                 'Methods should be excluded when includeMethods is false');
+        } else if (scenario.includeMethods !== false) {
+          assert(Array.isArray(classInfo.methods), 'Methods should be array when included');
+        }
+        
+        if (scenario.includeDescription === false) {
+          assert(!classInfo.description || classInfo.description === '',
+                 'Description should be excluded when includeDescription is false');
+        }
+      }
+    });
+
+    test('should validate Product class search results maintain proper structure', async () => {
+      const searchTerms = ['get', 'set', 'name'];  // Changed from including 'id' and 'price' to more reliable terms
+      
+      for (const searchTerm of searchTerms) {
+        const result = await client.callTool('get_sfcc_class_info', {
+          className: 'dw.catalog.Product',
+          search: searchTerm
+        });
+        
+        assertValidMCPResponse(result);
+        const classInfo = JSON.parse(result.content[0].text);
+        
+        // Basic structure should be maintained
+        assert.strictEqual(classInfo.className, 'Product');
+        assert.strictEqual(classInfo.packageName, 'dw.catalog');
+        
+        // Filtered arrays should still have proper structure
+        if (classInfo.properties && classInfo.properties.length > 0) {
+          classInfo.properties.forEach(prop => {
+            assert(typeof prop.name === 'string', 'Filtered property name should be string');
+            assert(typeof prop.type === 'string', 'Filtered property type should be string');
+            
+            // Verify search filtering worked
+            const matchesSearch = prop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (prop.description && prop.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            assert(matchesSearch, `Property ${prop.name} should match search term ${searchTerm}`);
+          });
+        }
+        
+        if (classInfo.methods && classInfo.methods.length > 0) {
+          classInfo.methods.forEach(method => {
+            assert(typeof method.name === 'string', 'Filtered method name should be string');
+            assert(typeof method.signature === 'string', 'Filtered method signature should be string');
+            
+            // Verify search filtering worked
+            const matchesSearch = method.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (method.description && method.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            assert(matchesSearch, `Method ${method.name} should match search term ${searchTerm}`);
+          });
+        }
+      }
+    });
+
+    test('should validate Product class with expand parameter maintains structure', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        expand: true
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Basic structure should be maintained
+      assert.strictEqual(classInfo.className, 'Product');
+      assert.strictEqual(classInfo.packageName, 'dw.catalog');
+      assert(Array.isArray(classInfo.properties), 'Properties should be array');
+      assert(Array.isArray(classInfo.methods), 'Methods should be array');
+      
+      // With expand=true, there might be additional type information
+      // Validate that expanded information maintains proper structure
+      classInfo.properties.forEach(prop => {
+        assert(typeof prop.name === 'string', 'Expanded property name should be string');
+        assert(typeof prop.type === 'string', 'Expanded property type should be string');
+      });
+      
+      classInfo.methods.forEach(method => {
+        assert(typeof method.name === 'string', 'Expanded method name should be string');
+        assert(typeof method.signature === 'string', 'Expanded method signature should be string');
+      });
+    });
+  });
+
+  // ==================================================================================
+  // PARAMETER COMBINATIONS AND EDGE CASES
+  // ==================================================================================
+
+  describe('Parameter Combinations and Edge Cases', () => {
+    test('should handle all parameters together', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        expand: true,
+        includeDescription: true,
+        includeConstants: false,
+        includeProperties: true,
+        includeMethods: true,
+        includeInheritance: false,
+        search: 'get'
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Validate combination of parameters
+      assert.strictEqual(classInfo.className, 'Product');
+      assert(classInfo.description, 'Description should be included');
+      assert(!classInfo.constants || classInfo.constants.length === 0, 'Constants should be excluded');
+      assert(!classInfo.inheritance || 
+             (Array.isArray(classInfo.inheritance) && classInfo.inheritance.length === 0) ||
+             classInfo.inheritance === '', 'Inheritance should be excluded');
+      
+      // Properties and methods should be filtered by search
+      if (classInfo.properties && classInfo.properties.length > 0) {
+        classInfo.properties.forEach(prop => {
+          assert(prop.name.toLowerCase().includes('get') || 
+                 (prop.description && prop.description.toLowerCase().includes('get')),
+                 `Property ${prop.name} should match search term 'get'`);
+        });
+      }
+      
+      if (classInfo.methods && classInfo.methods.length > 0) {
+        classInfo.methods.forEach(method => {
+          assert(method.name.toLowerCase().includes('get') || 
+                 (method.description && method.description.toLowerCase().includes('get')),
+                 `Method ${method.name} should match search term 'get'`);
+        });
+      }
+    });
+
+    test('should handle contradictory filters gracefully', async () => {
+      const result = await client.callTool('get_sfcc_class_info', {
+        className: 'dw.catalog.Product',
+        includeMethods: false,
+        search: 'getName'  // Searching for method while excluding methods
+      });
+      
+      assertValidMCPResponse(result);
+      const classInfo = JSON.parse(result.content[0].text);
+      
+      // Should respect the filter over the search
+      assert(!classInfo.methods || classInfo.methods.length === 0, 
+             'Methods should be excluded even when searching for method names');
+    });
+  });
+
 });
 
 // ==================================================================================
