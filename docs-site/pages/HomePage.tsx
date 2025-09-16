@@ -1,9 +1,54 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import useSEO from '../hooks/useSEO';
 
 const HomePage: React.FC = () => {
+  const [isWithoutMcpModalOpen, setIsWithoutMcpModalOpen] = useState(false);
+  const [isWithMcpModalOpen, setIsWithMcpModalOpen] = useState(false);
+  const [zoomPosition1, setZoomPosition1] = useState({ x: 0, y: 0 });
+  const [isZooming1, setIsZooming1] = useState(false);
+  const [zoomPosition2, setZoomPosition2] = useState({ x: 0, y: 0 });
+  const [isZooming2, setIsZooming2] = useState(false);
+  const imageRef1 = useRef<HTMLImageElement>(null);
+  const imageRef2 = useRef<HTMLImageElement>(null);
+
+  const handleMouseMove1 = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
+    if (!imageRef1.current) return;
+    
+    const rect = imageRef1.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setZoomPosition1({ x, y });
+  }, []);
+
+  const handleMouseEnter1 = useCallback(() => {
+    setIsZooming1(true);
+  }, []);
+
+  const handleMouseLeave1 = useCallback(() => {
+    setIsZooming1(false);
+  }, []);
+
+  const handleMouseMove2 = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
+    if (!imageRef2.current) return;
+    
+    const rect = imageRef2.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setZoomPosition2({ x, y });
+  }, []);
+
+  const handleMouseEnter2 = useCallback(() => {
+    setIsZooming2(true);
+  }, []);
+
+  const handleMouseLeave2 = useCallback(() => {
+    setIsZooming2(false);
+  }, []);
+
   useSEO({
     title: 'SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools',
     description: 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance.',
@@ -578,12 +623,12 @@ const HomePage: React.FC = () => {
                       <p className="font-medium text-blue-900 mb-3">Copy this prompt:</p>
                       <div className="bg-white rounded-lg p-4 border border-blue-200">
                         <p className="text-base font-mono text-gray-800 leading-relaxed">
-                          "Show me the pricing methods available on dw.catalog.Product and explain how to get the sale price for a product variant."
+                          "Explain how to get the sale price for a product variant in SFCC. Keep it short and a quick example"
                         </p>
                       </div>
-                      <div className="mt-3 flex justify-center">
+                      <div className="mt-3 flex justify-center gap-2 flex-wrap">
                         <button 
-                          onClick={() => navigator.clipboard.writeText('Show me the pricing methods available on dw.catalog.Product and explain how to get the sale price for a product variant.')}
+                          onClick={() => navigator.clipboard.writeText('Explain how to get the sale price for a product variant in SFCC. Keep it short and a quick example')}
                           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -591,6 +636,24 @@ const HomePage: React.FC = () => {
                             <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
                           </svg>
                           Copy Prompt
+                        </button>
+                        <button 
+                          onClick={() => setIsWithoutMcpModalOpen(true)}
+                          className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                          View Without MCP
+                        </button>
+                        <button 
+                          onClick={() => setIsWithMcpModalOpen(true)}
+                          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          View With MCP
                         </button>
                       </div>
                     </div>
@@ -693,6 +756,253 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for WITHOUT MCP screenshot */}
+      {isWithoutMcpModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={() => setIsWithoutMcpModalOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-5xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  AI Response Without MCP Server
+                </h3>
+                <button
+                  onClick={() => setIsWithoutMcpModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="mb-6 relative">
+                <div className="relative overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                  <img
+                    ref={imageRef1}
+                    src="/explain-product-pricing-methods-no-mcp.png"
+                    alt="AI response without MCP server - generic and potentially inaccurate information"
+                    className="w-full h-auto cursor-crosshair"
+                    onMouseMove={handleMouseMove1}
+                    onMouseEnter={handleMouseEnter1}
+                    onMouseLeave={handleMouseLeave1}
+                  />
+                  
+                  {/* Zoom circle */}
+                  {isZooming1 && (
+                    <div
+                      className="absolute pointer-events-none border-4 border-white shadow-lg rounded-full overflow-hidden"
+                      style={{
+                        width: '300px',
+                        height: '300px',
+                        left: `${zoomPosition1.x - 150}px`,
+                        top: `${zoomPosition1.y - 150}px`,
+                        backgroundImage: `url('/explain-product-pricing-methods-no-mcp.png')`,
+                        backgroundSize: `${imageRef1.current ? imageRef1.current.offsetWidth * 2 : 0}px ${imageRef1.current ? imageRef1.current.offsetHeight * 2 : 0}px`,
+                        backgroundPosition: `-${zoomPosition1.x * 2 - 150}px -${zoomPosition1.y * 2 - 150}px`,
+                        backgroundRepeat: 'no-repeat',
+                        transform: 'translate(0, 0)',
+                        zIndex: 1000
+                      }}
+                    >
+                      <div className="absolute inset-0 ring-2 ring-red-500 ring-opacity-50 rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+                <h4 className="text-lg font-semibold text-red-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Problems with This Response
+                </h4>
+                <div className="space-y-4">
+                  <div className="p-4 bg-white border border-red-300 rounded-lg">
+                    <p className="font-semibold text-red-800 mb-2">🎯 Wrong API Usage:</p>
+                    <p className="text-sm text-red-700">
+                      Suggests non-existent methods like <code className="bg-red-200 px-1 rounded font-mono">product.getVariant('variant-id')</code> 
+                      and shows client-side fetch to non-standard endpoints. These approaches don't exist in SFCC 
+                      and would cause runtime errors in production.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white border border-red-300 rounded-lg">
+                    <p className="font-semibold text-red-800 mb-2">📚 Outdated Patterns:</p>
+                    <p className="text-sm text-red-700">
+                      Shows generic client-side fetch patterns to non-standard endpoints like 
+                      <code className="bg-red-200 px-1 rounded font-mono">/on/demandware.store/Sites-SiteGenesis-Site/</code> 
+                      instead of current SFRA controller patterns. This leads developers down the wrong implementation path.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white border border-red-300 rounded-lg">
+                    <p className="font-semibold text-red-800 mb-2">🤔 Generic Assumptions:</p>
+                    <p className="text-sm text-red-700">
+                      Makes assumptions about SFCC architecture without understanding the actual API structure. 
+                      Provides general e-commerce patterns that don't align with SFCC's specific implementation.
+                    </p>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h5 className="font-semibold text-red-800 mb-2">Other Issues:</h5>
+                      <ul className="text-sm text-red-700 space-y-1">
+                        <li>Non-existent API methods suggested</li>
+                        <li>Generic client-side fetch patterns</li>
+                        <li>Broken endpoint examples</li>
+                        <li>Generic assumptions about SFCC</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-red-800 mb-2">Developer Impact:</h5>
+                      <ul className="text-sm text-red-700 space-y-1">
+                        <li>Runtime errors from wrong API calls</li>
+                        <li>Time wasted on deprecated patterns</li>
+                        <li>Following incorrect implementation paths</li>
+                        <li>Loss of confidence in AI guidance</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for WITH MCP screenshot */}
+      {isWithMcpModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={() => setIsWithMcpModalOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-5xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  AI Response With MCP Server
+                </h3>
+                <button
+                  onClick={() => setIsWithMcpModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="mb-6 relative">
+                <div className="relative overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                  <img
+                    ref={imageRef2}
+                    src="/explain-product-pricing-methods.png"
+                    alt="AI response with MCP server - accurate SFCC-specific information and code examples"
+                    className="w-full h-auto cursor-crosshair"
+                    onMouseMove={handleMouseMove2}
+                    onMouseEnter={handleMouseEnter2}
+                    onMouseLeave={handleMouseLeave2}
+                  />
+                  
+                  {/* Zoom circle */}
+                  {isZooming2 && (
+                    <div
+                      className="absolute pointer-events-none border-4 border-white shadow-lg rounded-full overflow-hidden"
+                      style={{
+                        width: '300px',
+                        height: '300px',
+                        left: `${zoomPosition2.x - 150}px`,
+                        top: `${zoomPosition2.y - 150}px`,
+                        backgroundImage: `url('/explain-product-pricing-methods.png')`,
+                        backgroundSize: `${imageRef2.current ? imageRef2.current.offsetWidth * 2 : 0}px ${imageRef2.current ? imageRef2.current.offsetHeight * 2 : 0}px`,
+                        backgroundPosition: `-${zoomPosition2.x * 2 - 150}px -${zoomPosition2.y * 2 - 150}px`,
+                        backgroundRepeat: 'no-repeat',
+                        transform: 'translate(0, 0)',
+                        zIndex: 1000
+                      }}
+                    >
+                      <div className="absolute inset-0 ring-2 ring-green-500 ring-opacity-50 rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+                <h4 className="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Why This Response is Accurate
+                </h4>
+                <div className="space-y-4">
+                  <div className="p-4 bg-white border border-green-300 rounded-lg">
+                    <p className="font-semibold text-green-800 mb-2">✅ Accurate SFCC Implementation:</p>
+                    <p className="text-sm text-green-700">
+                      The AI correctly uses <code className="bg-green-200 px-1 rounded font-mono">ProductMgr.getProduct()</code> 
+                      and <code className="bg-green-200 px-1 rounded font-mono">getPriceModel().getPrice()</code> with 
+                      proper syntax. It also mentions the correct <code className="bg-green-200 px-1 rounded font-mono">Money</code> 
+                      object return type and <code className="bg-green-200 px-1 rounded font-mono">toFormattedString()</code> method.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white border border-green-300 rounded-lg">
+                    <p className="font-semibold text-green-800 mb-2">🔍 Comprehensive Context:</p>
+                    <p className="text-sm text-green-700">
+                      Explains important details like <code className="bg-green-200 px-1 rounded font-mono">Money.NOT_AVAILABLE</code> 
+                      handling, quantity-based pricing options, and <code className="bg-green-200 px-1 rounded font-mono">getPriceInfo()</code> 
+                      for additional price book details. Shows understanding of SFCC pricing architecture.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white border border-green-300 rounded-lg">
+                    <p className="font-semibold text-green-800 mb-2">🎯 Real-World Ready:</p>
+                    <p className="text-sm text-green-700">
+                      Code examples are production-ready and follow current SFRA patterns. The AI shows 
+                      MCP server integration by using actual SFCC documentation tools during the response.
+                    </p>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h5 className="font-semibold text-green-800 mb-2">Key Benefits:</h5>
+                      <ul className="text-sm text-green-700 space-y-1">
+                        <li>Syntactically correct SFCC code</li>
+                        <li>Proper ProductPriceModel usage</li>
+                        <li>Current SFRA best practices</li>
+                        <li>Real-time documentation access</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-green-800 mb-2">Developer Impact:</h5>
+                      <ul className="text-sm text-green-700 space-y-1">
+                        <li>Copy-paste ready code examples</li>
+                        <li>Production-ready implementations</li>
+                        <li>Comprehensive error handling info</li>
+                        <li>Advanced API usage patterns</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
