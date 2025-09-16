@@ -1,520 +1,417 @@
 import React from 'react';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
+import { H1, PageSubtitle } from '../components/Typography';
 import useSEO from '../hooks/useSEO';
+
+const ModeBadge: React.FC<{ children: React.ReactNode; variant?: 'docs' | 'full' | 'mixed' }> = ({ children, variant = 'docs' }) => {
+    const styles: Record<string, string> = {
+        docs: 'bg-green-100 text-green-700 border-green-300',
+        full: 'bg-blue-100 text-blue-700 border-blue-300',
+        mixed: 'bg-purple-100 text-purple-700 border-purple-300'
+    };
+    return <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md border ${styles[variant]}`}>{children}</span>;
+};
+
+const SectionCard: React.FC<{ children: React.ReactNode; gradient?: string; id?: string; title?: string; icon?: string; subtitle?: string }>
+    = ({ children, gradient = 'from-slate-50 via-white to-slate-50', id, title, icon, subtitle }) => (
+    <section id={id} className="relative mb-14 scroll-mt-20">
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-2xl`} />
+        <div className="relative rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur-sm p-6 md:p-8 shadow-sm">
+            {title && (
+                <div className="mb-5">
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 flex items-start gap-3">
+                        <span className="text-xl md:text-2xl" aria-hidden="true">{icon}</span>
+                        <span>{title}</span>
+                    </h3>
+                    {subtitle && <p className="mt-2 text-slate-600 text-sm md:text-base leading-relaxed max-w-3xl">{subtitle}</p>}
+                </div>
+            )}
+            {children}
+        </div>
+    </section>
+);
+
+const PromptBlock: React.FC<{ prompt: string; intent?: string; }> = ({ prompt, intent }) => (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 mb-5">
+        <p className="text-slate-700 text-sm leading-relaxed">
+            <span className="font-semibold text-slate-900">Prompt:</span> "{prompt}"{intent && <span className="block mt-1 text-xs text-slate-500">Intent: {intent}</span>}
+        </p>
+    </div>
+);
+
+const StepsList: React.FC<{ steps: Array<{ label: string; tool?: string; mode?: 'docs' | 'full'; note?: string; }> }>
+    = ({ steps }) => (
+    <ol className="list-decimal pl-6 space-y-2 text-sm md:text-base">
+        {steps.map((s, i) => (
+            <li key={i} className="leading-relaxed">
+                <span className="font-medium text-slate-800">{s.label}</span>
+                {s.tool && (
+                    <span className="block mt-1 font-mono text-xs md:text-[13px] bg-slate-900 text-slate-100 rounded px-2 py-1 w-fit">{s.tool}</span>
+                )}
+                {s.note && <div className="mt-1 text-xs text-slate-500">{s.note}</div>}
+                {s.mode && <div className="mt-1"><ModeBadge variant={s.mode === 'docs' ? 'docs' : 'full'}>{s.mode === 'docs' ? 'Docs Mode' : 'Full Mode'}</ModeBadge></div>}
+            </li>
+        ))}
+    </ol>
+);
 
 const ExamplesPage: React.FC = () => {
     useSEO({
-        title: 'Examples & Use Cases - SFCC Development MCP Server',
-        description: 'Real-world examples of using the SFCC Development MCP Server with AI assistants for common development tasks. Includes controller creation, debugging, architecture planning, and data model exploration.',
-        keywords: 'SFCC examples, Commerce Cloud examples, AI-assisted development, SFCC controller examples, debugging examples, architecture planning, cartridge development',
+        title: 'Examples & Workflows - SFCC Development MCP Server',
+        description: 'Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs.',
+        keywords: 'SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples',
         canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples',
-        ogTitle: 'SFCC Development Examples - AI-Assisted Commerce Cloud Development',
-        ogDescription: 'Real-world examples of AI-assisted SFCC development workflows, debugging scenarios, and architecture planning.',
+        ogTitle: 'SFCC Development Examples - Prompt-First Workflows',
+        ogDescription: 'Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects.',
         ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples'
     });
 
     return (
-        <>
-            <H1 id="examples">💡 Examples & Use Cases</H1>
-            <PageSubtitle>Real-world examples of how to use the SFCC Development MCP Server with AI assistants for common development tasks.</PageSubtitle>
+        <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="text-center mb-14">
+                <H1 id="examples">💡 Prompt-First Examples</H1>
+                <PageSubtitle>
+                    Copy a prompt. Paste it into your AI assistant. Get a production-quality answer. Each section shows the exact
+                    request, the tool usage behind the scenes, and the kind of response you should expect.
+                </PageSubtitle>
+                <p className="text-sm text-slate-500 max-w-2xl mx-auto">No repetition of feature marketing here—only concrete, minimal, high-signal examples.</p>
+            </div>
 
-            <H2 id="quick-start-examples">🚀 Quick Start Examples</H2>
+            <SectionCard
+                id="explore-class"
+                title="Explore an SFCC Class Quickly"
+                icon="📚"
+                gradient="from-green-50 via-white to-emerald-50"
+                subtitle="Use documentation tools to pull authoritative class context, then build with confidence."
+            >
+                <PromptBlock prompt="Show me everything important about dw.catalog.Product, including methods I actually use in pricing or variation contexts." intent="Documentation deep dive → actionable subset" />
+                <div className="mb-4 flex flex-wrap gap-2">
+                    <ModeBadge>Docs Mode</ModeBadge>
+                </div>
+                <StepsList steps={[
+                    { label: 'Search for candidate classes (confirmation)', tool: 'search_sfcc_classes {"query": "product"}', mode: 'docs' },
+                    { label: 'Fetch class details', tool: 'get_sfcc_class_info {"className": "dw.catalog.Product"}', mode: 'docs' },
+                    { label: 'Cross reference pricing model', tool: 'get_sfcc_class_info {"className": "dw.catalog.PriceModel"}', mode: 'docs', note: 'Inspect pricing methods' }
+                ]} />
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Assistant Consolidation (grounded in tool output):</p>
+                    <CodeBlock language="markdown" code={`### Focused Summary: dw.catalog.Product
+Pulled full class definition (get_sfcc_class_info → dw.catalog.Product) and reduced to what typically drives storefront pricing / availability / variation logic.
 
-            <H3 id="create-sfcc-controller">Create a New SFCC Controller</H3>
-            <p><strong>User:</strong> "Create a new SFCC controller for product search with proper error handling"</p>
-            <p><strong>AI Assistant Response:</strong></p>
-            
-            <CodeBlock language="javascript" code={`
-// Generated using SFRA best practices
+Identity & Routing:
+• ID, name, pageURL for canonical + SEO.
+• onlineFlag vs online (flag is raw, online applies scheduling window).
+
+Pricing:
+• priceModel.getPrice().value / currencyCode for base price display.
+• Use getPriceModel(optionModel) when option selections adjust pricing.
+• Guard: priceModel can be null on offline or misconfigured variants.
+
+Availability:
+• availabilityModel.isInStock() and availabilityModel.getATS()?.value for inventory messaging.
+• Avoid deprecated isAvailable()/getAvailableFlag(); rely on availabilityModel.
+
+Variation Handling:
+• isMaster() / isVariant() to branch logic.
+• variationModel.getVariants() (iterate then filter by onlineFlag).
+• Image fallback: getImage('small', 0) (uses variant images, then master fallback); avoid deprecated no-arg getImage().
+
+Navigation / Category Context:
+• onlineCategories preferred for building live nav trees; allCategories includes offline / non-site assignments.
+
+Common Pitfalls & Mitigations:
+1. Null priceModel → defensive optional chaining.
+2. Using deprecated availability helpers → switch to availabilityModel.
+3. Assuming images exist → null check getImage before URL access.
+4. Iterating variants without online gating → filter by v.onlineFlag.
+
+Minimal Access Snippet:
+\`var pm = p.getPriceModel();\nvar price = pm ? pm.getPrice().value : null;\nvar inStock = p.getAvailabilityModel().isInStock();\nif (p.isMaster()) {\n  var variants = p.getVariationModel().getVariants().toArray().filter(v => v.onlineFlag);\n}\`
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="controller-from-docs"
+                title="Generate a Controller from Documentation Context"
+                icon="🛠️"
+                gradient="from-blue-50 via-white to-indigo-50"
+                subtitle="Documentation → intent → runnable controller with guard rails."
+            >
+                <PromptBlock prompt="Using SFRA patterns, create a Product-Show like controller action that handles missing products, logs errors, and renders a view model with price + availability." intent="Transform docs into production-safe code" />
+                <ModeBadge>Docs Mode</ModeBadge>
+                <div className="mt-4 text-sm text-slate-600">Assistant internally referenced previously fetched class info; no additional tool calls required now.</div>
+                <div className="mt-6">
+                    <CodeBlock language="javascript" code={`// app_storefront_base/cartridge/controllers/CustomProduct.js
 'use strict';
-
 var server = require('server');
+var ProductMgr = require('dw/catalog/ProductMgr');
 var Logger = require('dw/system/Logger');
-var ProductSearchModel = require('*/cartridge/models/search');
-var ProductFactory = require('*/cartridge/scripts/factories/product');
 var cache = require('*/cartridge/scripts/middleware/cache');
 
 server.get('Show', cache.applyDefaultCache, function (req, res, next) {
-    var searchPhrase = req.querystring.q;
-    var categoryId = req.querystring.cgid;
-    
+    var pid = req.querystring.pid;
+    if (!pid) {
+        res.setStatusCode(400); res.render('error/badrequest'); return next();
+    }
     try {
-        var searchModel = new ProductSearchModel(req.querystring, req.locale.id);
-        searchModel.search();
-        
-        if (!searchModel.count) {
-            res.setStatusCode(404);
-            res.render('error/notfound');
-            return next();
+        var product = ProductMgr.getProduct(pid);
+        if (!product || !product.onlineFlag) {
+            res.setStatusCode(404); res.render('error/notfound'); return next();
         }
-        
-        var products = ProductFactory.get({
-            products: searchModel.productIds,
-            viewType: 'tile',
-            variationModel: req.querystring.variationModel
-        });
-        
-        res.render('search/searchresults', {
-            searchModel: searchModel,
-            products: products,
-            searchPhrase: searchPhrase
-        });
-        
-    } catch (e) {
-        var logger = Logger.getLogger('ProductSearch');
-        logger.error('Product search error: ' + e.message);
-        res.setStatusCode(500);
-        res.render('error/somethingwentwrong');
-    }
-    
-    next();
-});
-
-module.exports = server.exports();
-            `} />
-            
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 my-4">
-                <p className="text-sm text-blue-800"><em>The AI automatically used SFRA patterns, proper error handling, caching middleware, and logging based on the best practices guides.</em></p>
-            </div>
-
-            <H2 id="debugging-scenarios">🐛 Debugging Scenarios</H2>
-
-            <H3 id="investigate-checkout-errors">Investigate Checkout Errors</H3>
-            <p><strong>User:</strong> "My checkout flow is failing. Can you check the logs and help me debug?"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Get Recent Errors:</strong> <InlineCode>get_latest_error({"{"} limit: 10 {"}"})</InlineCode></li>
-                <li><strong>Search for Checkout Issues:</strong> <InlineCode>search_logs({"{"} pattern: "checkout", logLevel: "error" {"}"})</InlineCode></li>
-                <li><strong>Analyze Error Patterns:</strong> Identifies common failure points</li>
-                <li><strong>Provide Solutions:</strong> Based on error analysis and best practices</li>
-            </ol>
-
-            <p><strong>Sample AI Response:</strong></p>
-            <div className="bg-gray-50 border-l-4 border-gray-400 p-4 my-4">
-                <p>I found 3 checkout-related errors in the last hour:</p>
-                <br />
-                <p><strong>1. Payment Authorization Failed</strong> (5 occurrences)</p>
-                <ul className="list-disc pl-6">
-                    <li>Error: <InlineCode>Credit card validation failed for order 00001234</InlineCode></li>
-                    <li><strong>Solution:</strong> Check payment processor configuration and card validation logic</li>
-                </ul>
-                <br />
-                <p><strong>2. Inventory Check Failed</strong> (2 occurrences)</p>
-                <ul className="list-disc pl-6">
-                    <li>Error: <InlineCode>Product ABC123 not available in required quantity</InlineCode></li>
-                    <li><strong>Solution:</strong> Implement proper inventory validation in basket calculation hooks</li>
-                </ul>
-                <br />
-                <p>Based on SFCC best practices, I recommend adding these validation steps...</p>
-            </div>
-
-            <H2 id="architecture-planning">🏗️ Architecture & Planning</H2>
-
-            <H3 id="plan-custom-integration">Plan a Custom Integration</H3>
-            <p><strong>User:</strong> "I need to integrate with a third-party shipping service. What's the best approach?"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Get Integration Guide:</strong> <InlineCode>get_best_practice_guide({"{"} guideName: "localserviceregistry" {"}"})</InlineCode></li>
-                <li><strong>Review Service Patterns:</strong> Provides OAuth and API integration examples</li>
-                <li><strong>Suggest Architecture:</strong> Based on SFCC service integration patterns</li>
-            </ol>
-
-            <p><strong>Sample AI Response:</strong></p>
-            <div className="bg-gray-50 border-l-4 border-gray-400 p-4 my-4">
-                <p>For third-party shipping integration, I recommend this architecture:</p>
-                <br />
-                <p><strong>1. Service Configuration</strong></p>
-                <CodeBlock language="javascript" code={`
-// Use LocalServiceRegistry for external API calls
-var ServiceRegistry = require('dw/svc/LocalServiceRegistry');
-
-var shippingService = ServiceRegistry.createService('shipping.api', {
-    createRequest: function(svc, params) {
-        svc.setRequestMethod('POST');
-        svc.addHeader('Authorization', 'Bearer ' + params.token);
-        return JSON.stringify(params.shipment);
-    },
-    parseResponse: function(svc, response) {
-        return JSON.parse(response.text);
-    }
-});
-                `} />
-                <br />
-                <p><strong>2. Hook Integration Points</strong></p>
-                <ul className="list-disc pl-6">
-                    <li>Use <InlineCode>dw.order.calculate</InlineCode> hook for rate calculation</li>
-                    <li>Use <InlineCode>dw.order.shipmentShipped</InlineCode> for tracking updates</li>
-                </ul>
-                <br />
-                <p><strong>3. Error Handling Strategy</strong></p>
-                <ul className="list-disc pl-6">
-                    <li>Implement circuit breaker pattern</li>
-                    <li>Add fallback shipping options</li>
-                    <li>Log all API interactions for debugging</li>
-                </ul>
-            </div>
-
-            <H2 id="data-model-exploration">📊 Data Model Exploration</H2>
-
-            <H3 id="discover-custom-attributes">Discover Custom Attributes</H3>
-            <p><strong>User:</strong> "What custom attributes are available on the Product object in my instance?"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Search Product Attributes:</strong> <InlineCode>search_system_object_attribute_definitions({"{"} objectType: "Product", searchRequest: {"{"} query: {"{"} match_all_query: {"{}"} {"}"} {"}"} {"}"})</InlineCode></li>
-                <li><strong>Filter Custom Attributes:</strong> Identifies non-system attributes</li>
-                <li><strong>Provide Usage Examples:</strong> Shows how to access attributes in code</li>
-            </ol>
-
-            <p><strong>Sample AI Response:</strong></p>
-            <div className="bg-gray-50 border-l-4 border-gray-400 p-4 my-4">
-                <p>Found 12 custom attributes on your Product object:</p>
-                <br />
-                <table className="min-w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-4 py-2 text-left">Attribute ID</th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">Required</th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="border border-gray-300 px-4 py-2"><InlineCode>brandName</InlineCode></td>
-                            <td className="border border-gray-300 px-4 py-2">String</td>
-                            <td className="border border-gray-300 px-4 py-2">No</td>
-                            <td className="border border-gray-300 px-4 py-2">Product brand identifier</td>
-                        </tr>
-                        <tr>
-                            <td className="border border-gray-300 px-4 py-2"><InlineCode>sustainabilityRating</InlineCode></td>
-                            <td className="border border-gray-300 px-4 py-2">Enum</td>
-                            <td className="border border-gray-300 px-4 py-2">No</td>
-                            <td className="border border-gray-300 px-4 py-2">Eco-friendly rating (1-5)</td>
-                        </tr>
-                        <tr>
-                            <td className="border border-gray-300 px-4 py-2"><InlineCode>technicalSpecs</InlineCode></td>
-                            <td className="border border-gray-300 px-4 py-2">Text</td>
-                            <td className="border border-gray-300 px-4 py-2">No</td>
-                            <td className="border border-gray-300 px-4 py-2">Technical specifications</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br />
-                <p><strong>Usage in Controllers:</strong></p>
-                <CodeBlock language="javascript" code={`
-var product = ProductMgr.getProduct('product-id');
-var brandName = product.custom.brandName;
-var rating = product.custom.sustainabilityRating;
-                `} />
-                <br />
-                <p><strong>Usage in Templates:</strong></p>
-                <CodeBlock language="html" code={`
-<div class="product-brand">\${product.custom.brandName}</div>
-<div class="sustainability-rating" data-rating="\${product.custom.sustainabilityRating}">
-                `} />
-            </div>
-
-            <H2 id="development-workflow-examples">🔧 Development Workflow Examples</H2>
-
-            <H3 id="set-up-new-cartridge">Set Up New Cartridge</H3>
-            <p><strong>User:</strong> "Create a new payment integration cartridge with proper structure"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Generate Cartridge:</strong> <InlineCode>generate_cartridge_structure({"{"} cartridgeName: "int_payment_provider" {"}"})</InlineCode></li>
-                <li><strong>Provide Setup Guide:</strong> Based on cartridge creation best practices</li>
-                <li><strong>Suggest Next Steps:</strong> Integration patterns and testing approaches</li>
-            </ol>
-
-            <p><strong>Generated Structure:</strong></p>
-            <CodeBlock language="text" code={`
-int_payment_provider/
-├── cartridge/
-│   ├── controllers/
-│   │   └── PaymentProvider.js
-│   ├── scripts/
-│   │   ├── hooks/
-│   │   │   └── payment.js
-│   │   └── services/
-│   │       └── PaymentProviderService.js
-│   ├── templates/
-│   │   └── default/
-│   │       └── checkout/
-│   │           └── paymentmethods.isml
-│   ├── static/
-│   │   └── default/
-│   │       ├── js/
-│   │       └── css/
-│   └── client/
-│       └── default/
-│           └── js/
-│               └── checkout/
-├── package.json
-├── webpack.config.js
-└── .eslintrc.js
-            `} />
-
-            <H2 id="security-review">🔒 Security Review</H2>
-
-            <H3 id="audit-isml-templates">Audit ISML Templates</H3>
-            <p><strong>User:</strong> "Review my ISML templates for security vulnerabilities"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Get Security Guide:</strong> <InlineCode>get_best_practice_guide({"{"} guideName: "security" {"}"})</InlineCode></li>
-                <li><strong>Review Template Patterns:</strong> Analyzes for XSS and injection risks</li>
-                <li><strong>Provide Remediation:</strong> Specific fixes based on SFCC security practices</li>
-            </ol>
-
-            <p><strong>Sample Security Review:</strong></p>
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-                <p className="font-semibold text-red-800">Security Issues Found:</p>
-                <br />
-                <p className="text-red-800">❌ <strong>XSS Vulnerability</strong> in <InlineCode>product/productdetails.isml</InlineCode>:</p>
-                <CodeBlock language="html" code={`
-<!-- VULNERABLE: Unescaped output -->
-<div>\${product.custom.description}</div>
-                `} />
-                <br />
-                <p className="text-green-800">✅ <strong>Fixed Version:</strong></p>
-                <CodeBlock language="html" code={`
-<!-- SECURE: Properly escaped output -->
-<isprint value="\${pdict.product.custom.description}" encoding="htmlcontent" />
-                `} />
-                <br />
-                <p className="text-red-800">❌ <strong>Missing CSRF Protection</strong> in form submission:</p>
-                <CodeBlock language="html" code={`
-<!-- VULNERABLE: No CSRF token -->
-<form action="\${URLUtils.url('Cart-AddProduct')}" method="post">
-                `} />
-                <br />
-                <p className="text-green-800">✅ <strong>Fixed Version:</strong></p>
-                <CodeBlock language="html" code={`
-<!-- SECURE: CSRF token included -->
-<form action="\${URLUtils.url('Cart-AddProduct')}" method="post">
-    <input type="hidden" name="\${pdict.csrf.tokenName}" value="\${pdict.csrf.token}"/>
-                `} />
-            </div>
-
-            <H2 id="performance-optimization">📈 Performance Optimization</H2>
-
-            <H3 id="optimize-slow-product-pages">Optimize Slow Product Pages</H3>
-            <p><strong>User:</strong> "My product detail pages are loading slowly. Help me optimize them."</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Get Performance Guide:</strong> <InlineCode>get_best_practice_guide({"{"} guideName: "performance" {"}"})</InlineCode></li>
-                <li><strong>Analyze Logs:</strong> <InlineCode>search_logs({"{"} pattern: "performance", logLevel: "warn" {"}"})</InlineCode></li>
-                <li><strong>Provide Optimization Strategy:</strong> Based on SFCC performance patterns</li>
-            </ol>
-
-            <p><strong>Sample Performance Analysis:</strong></p>
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
-                <p className="font-semibold text-yellow-800">Performance Issues Identified:</p>
-                <br />
-                <p><strong>1. Database Query Optimization</strong></p>
-                <ul className="list-disc pl-6">
-                    <li>47ms average for product variant lookups</li>
-                    <li><strong>Solution:</strong> Implement variant caching in product model</li>
-                </ul>
-                <br />
-                <p><strong>2. Image Loading Optimization</strong></p>
-                <ul className="list-disc pl-6">
-                    <li>Multiple image service calls per product</li>
-                    <li><strong>Solution:</strong> Use lazy loading and image optimization</li>
-                </ul>
-                <br />
-                <p><strong>3. Recommendation Engine Delays</strong></p>
-                <ul className="list-disc pl-6">
-                    <li>230ms for recommendation API calls</li>
-                    <li><strong>Solution:</strong> Implement async loading with fallbacks</li>
-                </ul>
-                <br />
-                <p><strong>Optimization Implementation:</strong></p>
-                <CodeBlock language="javascript" code={`
-// Optimized product model with caching
-var CacheMgr = require('dw/system/CacheMgr');
-var cache = CacheMgr.getCache('ProductVariants');
-
-function getProductWithVariants(productID) {
-    var cacheKey = 'product_' + productID;
-    var product = cache.get(cacheKey);
-    
-    if (!product) {
-        product = ProductMgr.getProduct(productID);
-        // Cache for 1 hour
-        cache.put(cacheKey, product, 3600);
-    }
-    
-    return product;
-}
-                `} />
-            </div>
-
-            <H2 id="testing-patterns">🧪 Testing Patterns</H2>
-
-            <H3 id="create-unit-tests-for-service">Create Unit Tests for Service</H3>
-            <p><strong>User:</strong> "Help me write unit tests for my payment service integration"</p>
-            
-            <p><strong>AI Process:</strong></p>
-            <ol className="list-decimal pl-6 space-y-1">
-                <li><strong>Get Security Guide:</strong> <InlineCode>get_best_practice_guide({"{"} guideName: "security" {"}"})</InlineCode></li>
-                <li><strong>Get Service Guide:</strong> <InlineCode>get_best_practice_guide({"{"} guideName: "localserviceregistry" {"}"})</InlineCode></li>
-                <li><strong>Provide Test Structure:</strong> Based on SFCC security and service best practices</li>
-                <li><strong>Generate Test Cases:</strong> Covers success, failure, and edge cases</li>
-            </ol>
-
-            <p><strong>Generated Test Suite:</strong></p>
-            <CodeBlock language="javascript" code={`
-// Test suite for PaymentProviderService
-var assert = require('*/cartridge/scripts/util/assert');
-var PaymentService = require('*/cartridge/scripts/services/PaymentProviderService');
-
-describe('PaymentProviderService', function() {
-    
-    beforeEach(function() {
-        // Mock service dependencies
-        this.mockOrder = {
-            totalGrossPrice: { value: 99.99 },
-            customerEmail: 'test@example.com'
+        var availability = product.getAvailabilityModel();
+        var priceModel = product.getPriceModel();
+        var viewModel = {
+            id: product.ID,
+            name: product.name,
+            price: priceModel ? priceModel.getPrice().value : null,
+            currency: priceModel ? priceModel.getPrice().currencyCode : null,
+            inStock: availability.isInStock(),
+            ats: availability.getATS && availability.getATS().value,
+            images: product.getImages('small', 0).toArray().map(function(i){return i.URL;})
         };
-    });
-    
-    describe('processPayment', function() {
-        
-        it('should successfully process valid payment', function() {
-            var result = PaymentService.processPayment(this.mockOrder, {
-                cardNumber: '4111111111111111',
-                expiryDate: '12/25',
-                cvv: '123'
-            });
-            
-            assert.isTrue(result.success);
-            assert.isNotNull(result.transactionId);
-        });
-        
-        it('should handle invalid card numbers', function() {
-            var result = PaymentService.processPayment(this.mockOrder, {
-                cardNumber: '1234567890123456',
-                expiryDate: '12/25', 
-                cvv: '123'
-            });
-            
-            assert.isFalse(result.success);
-            assert.equals(result.error, 'INVALID_CARD_NUMBER');
-        });
-        
-        it('should handle service timeouts gracefully', function() {
-            // Mock service timeout
-            PaymentService.setTimeout(100);
-            
-            var result = PaymentService.processPayment(this.mockOrder, {
-                cardNumber: '4111111111111111',
-                expiryDate: '12/25',
-                cvv: '123'
-            });
-            
-            assert.isFalse(result.success);
-            assert.equals(result.error, 'SERVICE_TIMEOUT');
-        });
-    });
+        res.render('product/customProduct', viewModel);
+    } catch (e) {
+        Logger.error('CustomProduct.Show error: {0}', e.message);
+        res.setStatusCode(500); res.render('error/general');
+    }
+    return next();
 });
-            `} />
+module.exports = server.exports();`} />
+                </div>
+            </SectionCard>
 
-            <H2 id="common-use-case-patterns">🎯 Common Use Case Patterns</H2>
+            <SectionCard
+                id="cartridge-generation"
+                title="Scaffold a Feature Cartridge"
+                icon="📦"
+                gradient="from-purple-50 via-white to-fuchsia-50"
+                subtitle="Go from blank folder to structured integration base."
+            >
+                <PromptBlock prompt="Generate a cartridge structure for a shipment tracking integration using hooks + a service layer and note follow-up tasks." intent="Structural generation + next actions" />
+                <div className="mb-4 flex flex-wrap gap-2"><ModeBadge>Docs Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Generate skeleton', tool: 'generate_cartridge_structure {"cartridgeName": "int_tracking"}', mode: 'docs' },
+                    { label: 'Request best practice follow-up', tool: 'get_best_practice_guide {"guideName": "cartridge_creation"}', mode: 'docs', note: 'Assistant merges guidance' }
+                ]} />
+                <div className="mt-6 space-y-8">
+                    <div>
+                        <p className="text-sm font-semibold text-slate-700 mb-2">Generated Tree (excerpt):</p>
+                        <CodeBlock language="text" code={`int_tracking/
+└── cartridge/
+        ├── controllers/
+        │   └── Tracking.js
+        ├── scripts/
+        │   ├── hooks/
+        │   │   └── shipment.js
+        │   └── services/
+        │       └── TrackingService.js
+        ├── templates/default/tracking/
+        │   └── trackingstatus.isml
+        └── static/default/js/tracking/`} />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-700 mb-2">Assistant Adds Next Steps:</p>
+                        <CodeBlock language="markdown" code={`1. Configure LocalServiceRegistry service: tracking.api
+2. Implement hooks: updateShippingInfo, exportStatus
+3. Add ISML partial to PDP for shipment ETA
+4. Add logging category: TrackingIntegration
+5. Write integration test harness for mocked API responses
+`} />
+                    </div>
+                </div>
+            </SectionCard>
 
-            <H3 id="typical-ai-assistant-conversations">Typical AI Assistant Conversations</H3>
-            
-            <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="font-semibold">1. "How do I...?" Questions</p>
-                    <ul className="list-disc pl-6 mt-2">
-                        <li>User asks about SFCC functionality</li>
-                        <li>AI uses documentation tools to provide accurate answers</li>
-                        <li>Includes code examples and best practices</li>
-                    </ul>
+            <SectionCard
+                id="full-mode-diff"
+                title="Enhance with Live Logs (Full Mode)"
+                icon="🧪"
+                gradient="from-blue-50 via-white to-sky-50"
+                subtitle="Same style of prompt—but now the assistant executes log tooling to ground its answer." >
+                <PromptBlock prompt="Checkout is intermittently failing with payment declines—identify root causes from recent logs and propose concrete mitigations." intent="Diagnostic + remediation planning" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Daily context snapshot', tool: 'summarize_logs {"date": "20250916"}', mode: 'full', note: 'High-level counts first' },
+                    { label: 'Attempt error retrieval', tool: 'get_latest_error {"limit": 15}', mode: 'full', note: 'May return none → fall back to warnings' },
+                    { label: 'Focus on recurring warning pattern', tool: 'search_logs {"pattern": "cookie_hint", "logLevel": "warn", "limit": 5}', mode: 'full', note: 'Isolate noisy asset issue' },
+                    { label: 'Cross-check security guidelines (token lifecycle / logging hygiene)', tool: 'get_best_practice_guide {"guideName": "security"}', mode: 'docs' }
+                ]} />
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Assistant Narrative (validated with real tool set):</p>
+                    <CodeBlock language="markdown" code={`### Live Log Triage (No Errors Detected Today)
+1. summarize_logs → Errors: 0, Warnings: 27, no debug/info noise. Healthy baseline but warning cluster present.
+2. get_latest_error → Returned none (expected—error file absent). Pivoting to warnings.
+3. search_logs (pattern=cookie_hint, level=warn) → Multiple repeats: "Content asset with ID cookie_hint is offline" across distinct request contexts.
+
+Assessment:
+• Repeated offline content asset warnings inflate noise floor; risk of masking future meaningful warnings.
+• No payment/auth related issues surfaced; current checkout remediation unnecessary.
+
+Recommended Actions:
+• Restore or intentionally remove the cookie_hint asset; if intentionally removed, suppress via conditional include.
+• Add lightweight monitoring rule: if warning count for a single asset > X per hour, raise housekeeping task instead of polluting logs.
+• Keep error path watch in place; re-run summarize_logs after remediation to confirm warning reduction.
+
+If Errors Had Been Present (Pattern Skeleton):
+• Step 1 would still be summarize_logs for counts → then targeted search_logs for signatures (e.g., AUTH_TIMEOUT, TOKEN_EXPIRED) followed by best practice cross-reference.
+`} />
                 </div>
-                
-                <div className="bg-green-50 p-4 rounded-lg">
-                    <p className="font-semibold">2. "Debug this error" Requests</p>
-                    <ul className="list-disc pl-6 mt-2">
-                        <li>User shares error messages or symptoms</li>
-                        <li>AI searches logs and analyzes patterns</li>
-                        <li>Provides root cause analysis and solutions</li>
-                    </ul>
+            </SectionCard>
+
+            <SectionCard
+                id="job-log-analysis"
+                title="Investigate a Failing Job"
+                icon="🧵"
+                gradient="from-amber-50 via-white to-yellow-50"
+                subtitle="Targeted job log inspection with focused summarization." >
+                <PromptBlock prompt="Analyze the latest CatalogFeed job execution – summarize step durations, failures, and recommend optimizations." intent="Temporal + failure analysis" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Discover job logs (filtered)', tool: 'search_job_logs_by_name {"jobName": "CatalogFeed", "limit": 5 }', mode: 'full', note: 'Find specific job log filenames' },
+                    { label: 'List latest job logs (context)', tool: 'get_latest_job_log_files {"limit": 5 }', mode: 'full', note: 'Recency overview (no name filter)' },
+                    { label: 'Fetch recent entries', tool: 'get_job_log_entries {"jobName": "CatalogFeed", "limit": 50, "level": "all" }', mode: 'full', note: 'Multi-level snapshot' },
+                    { label: 'Search for errors', tool: 'search_job_logs {"pattern": "ERROR", "jobName": "CatalogFeed", "limit": 20 }', mode: 'full', note: 'If none → treat as healthy case' },
+                    { label: 'Execution summary', tool: 'get_job_execution_summary {"jobName": "CatalogFeed"}', mode: 'full' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### CatalogFeed Execution Analysis (Validated Flow)
+Flow Used:
+1. search_job_logs_by_name → confirm job exists.
+2. get_latest_job_log_files → establish relative recency.
+3. get_job_log_entries (limit 50, all levels) → capture operational window.
+4. search_job_logs (pattern=ERROR) → branch: errors vs healthy.
+5. get_job_execution_summary → aggregate timing + status.
+
+Illustrative Degraded Scenario (for instructional value):
+Duration: 7m42s (↑18% vs rolling average)
+Step Highlights:
+• LOAD_PRODUCTS: 2m10s (warning — 312 fallback fetches suggests cache miss storm)
+• EXPORT: 15 socket timeout retries before success (dominant latency source)
+
+Primary Bottleneck: External export endpoint + un-jittered linear retry compounding latency.
+
+Recommendations (priority order):
+1. Reduce batch size 200→120 to shrink payload variance.
+2. Exponential backoff + jitter (≤800ms, cap 6) for EXPORT retries.
+3. Parallelize transform stage (2 workers) given idle CPU.
+4. Emit structured metrics: step_duration_ms, retry_count to confirm remediation.
+
+Healthy Case Note: If error search returns 0 (common for maintenance/cleanup jobs) emit concise summary only and skip remediation suggestions.
+`} />
                 </div>
-                
-                <div className="bg-purple-50 p-4 rounded-lg">
-                    <p className="font-semibold">3. "Review my code" Requests</p>
-                    <ul className="list-disc pl-6 mt-2">
-                        <li>User shares code snippets or files</li>
-                        <li>AI applies security and performance best practices</li>
-                        <li>Suggests improvements and optimizations</li>
-                    </ul>
+            </SectionCard>
+
+            <SectionCard
+                id="system-object-attributes"
+                title="Surface High-Value Custom Attributes"
+                icon="🧬"
+                gradient="from-rose-50 via-white to-pink-50"
+                subtitle="Focus on signal: only the attributes you will likely act on in code." >
+                <PromptBlock prompt="List only non-system custom Product attributes that impact pricing, display, or integrations—include access examples." intent="Selective attribute curation" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Search attribute definitions', tool: 'search_system_object_attribute_definitions {"objectType": "Product", "searchRequest": {"query": {"match_all_query": {}}}}', mode: 'full' },
+                    { label: 'Filter & rank', note: 'Assistant filters system vs custom, groups by usage relevance' },
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Curated Product Attribute Focus (Grounded in Live Metadata)
+Source: search_system_object_attribute_definitions → 113 total attributes (first 30 sampled). We extracted *custom* (system=false) fields + a few pivotal system ones (clearly flagged) that materially influence merchandising, variation, UX, integration, or feed logic. Purely operational / audit (UUID, creationDate) or low-impact marketing fluff excluded.
+
+Legend:
+• Cat: Category of impact (Disp = Display/UX, Var = Variation, Facet = Faceting/Search, Int = Integration/Channel, Enr = Enrichment, Dim = Dimensions/Shipping)
+• MV = multi-value (enum_of_string or multi_value_type true)
+• SYS = system attribute retained for high value (otherwise we focus on custom)
+
+| Attribute | Cat | Type | Flags | Rationale | Access Snippet |
+|-----------|-----|------|-------|-----------|----------------|
+| brand (SYS) | Facet/Disp | string | visible | Drives brand badges & facet grouping; high-frequency filter. | \`p.brand\` (system field, not in p.custom) |
+| color | Var | string | custom | Variation presentation / swatch resolution; stored custom but effectively a core merchandising dimension. | \`p.custom.color\` |
+| availableForInStorePickup | Int | boolean | custom, site-agnostic | Gating for store pickup workflows & conditional UI messaging. | \`if (p.custom.availableForInStorePickup) showPickup();\` |
+| batteryLife | Enr/Disp | string | custom, visible | PDP spec table + comparison view; enriches SEO content. | \`p.custom.batteryLife\` |
+| batteryType | Enr/Disp | string | custom, visible | Hardware spec grouping; feed enrichment for certain channels. | \`p.custom.batteryType\` |
+| bootType | Facet | enum_of_string | custom, MV | Multi-select refinement facet; influences search narrowing logic. | \`p.custom.bootType && p.custom.bootType.toArray()\` |
+| bottomType | Facet | enum_of_string | custom, MV | Apparel categorization & layered navigation. | \`(p.custom.bottomType||[]).toArray()\` |
+| consoleWarranty | Int/Disp | string | custom | Extended service offering display + export to warranty provider feed. | \`p.custom.consoleWarranty\` |
+| digitalCameraFeatures | Facet/Enr | enum_of_string | custom, MV, visible | Feature badges + facet refinement; high cardinality set. | \`p.custom.digitalCameraFeatures?.toArray()\` |
+| digitalCameraPixels | Disp/Enr | string | custom, visible | Marketing resolution highlight; conditional comparison logic. | \`p.custom.digitalCameraPixels\` |
+| digitalCameraType | Facet | string | custom, visible | Primary camera classification facet. | \`p.custom.digitalCameraType\` |
+| digitalCameraWarranty | Int | string | custom | Feed & PDP legal/service disclosure. | \`p.custom.digitalCameraWarranty\` |
+| dimDepth | Dim | string | custom, visible | Shipping dimensional weight calc if external DIM service absent. | \`Number(p.custom.dimDepth)\` |
+| dimHeight | Dim | string | custom, visible | Parcel sizing / volumetric charge triggers. | \`Number(p.custom.dimHeight)\` |
+| dimWeight | Dim | string | custom, visible | Fallback for missing system weight or override scenario. | \`Number(p.custom.dimWeight)\` |
+| dimWidth | Dim | string | custom, visible | Combined with others for cubic volume. | \`Number(p.custom.dimWidth)\` |
+| displaySize | Disp | string | custom, visible | Prominence in electronics PDP hero section + compare grid. | \`p.custom.displaySize\` |
+| facebookEnabled (SYS) | Int | boolean | system, site_specific | Channel feed toggle – dictates inclusion in FB catalog export. | \`p.facebookEnabled\` |
+| gameGenre | Facet | enum_of_string | custom, MV, visible | Multi-select discovery facet for gaming taxonomy. | \`p.custom.gameGenre?.toArray()\` |
+| gameRating | Facet/Compliance | string | custom, visible | Age rating badge + compliance gating (e.g., age verification). | \`p.custom.gameRating\` |
+| gameSystemType | Facet | string | custom, visible | Platform segmentation (PS/Xbox/Nintendo) – major navigation axis. | \`p.custom.gameSystemType\` |
+| gpsFeatures | Facet/Enr | enum_of_string | custom, MV, visible | Feature-level refinement & badge cluster. | \`p.custom.gpsFeatures?.toArray()\` |
+| Wool | Enr/Disp | string | custom, localizable, visible | Care instruction overlay & localized PDP sustainability note. | \`p.custom.Wool\` |
+
+Why exclude others like EAN / UPC (system, typically handled upstream) or UUID (audit only)? They rarely drive conditional storefront logic once imported and are better treated as pass-through feed fields.
+
+Implementation Notes:
+1. Multi-value handling: Always null-check before toArray(); some may be undefined on non-merchandised variants.
+2. Numeric coercion: DIM fields are strings – coerce with Number() and guard NaN before calculations.
+3. Site specificity: facebookEnabled is site_specific – avoid caching decisions across sites without keying by site ID.
+4. Variation interplay: color selection should reference variationAttribute values; treat p.custom.color as display fallback not authoritative source.
+5. Performance: When projecting many attributes into a model, prefer a single transform object rather than repeated p.custom dereferencing inside loops.
+
+Minimal Extraction Snippet:
+\`var c = p.custom;\nvar model = {\n  brand: p.brand,\n  color: c.color,\n  pickupEligible: !!c.availableForInStorePickup,\n  dims: ['dimHeight','dimWidth','dimDepth','dimWeight'].reduce(function(acc,k){var v=c[k]; if(v && !isNaN(v)) acc[k.replace('dim','').toLowerCase()]=Number(v); return acc;}, {}),\n  features: (c.digitalCameraFeatures && c.digitalCameraFeatures.toArray()) || [],\n  care: c.Wool,\n  fbActive: p.facebookEnabled\n};\nif (c.bootType) model.bootType = c.bootType.toArray();\nif (c.gameGenre) model.gameGenre = c.gameGenre.toArray();\`
+`} />
                 </div>
-                
-                <div className="bg-orange-50 p-4 rounded-lg">
-                    <p className="font-semibold">4. "Plan this feature" Discussions</p>
-                    <ul className="list-disc pl-6 mt-2">
-                        <li>User describes requirements</li>
-                        <li>AI provides architecture recommendations</li>
-                        <li>Suggests implementation approaches and patterns</li>
-                    </ul>
+            </SectionCard>
+
+            {/* End-to-End section removed per request */}
+
+            <SectionCard
+                id="prompt-patterns"
+                title="Prompt Patterns & Anti-Patterns"
+                icon="🧭"
+                gradient="from-slate-50 via-white to-slate-100"
+                subtitle="Tight prompts yield grounded, production-usable outputs." >
+                <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 className="font-semibold text-slate-800 mb-2">Effective Patterns</h4>
+                        <ul className="space-y-2 text-sm list-disc pl-5">
+                            <li><strong>Role + Scope:</strong> "Act as SFRA dev – generate..."</li>
+                            <li><strong>Constraint:</strong> "Only include attributes affecting pricing."</li>
+                            <li><strong>Mode Awareness:</strong> "Use live logs to confirm before proposing fixes."</li>
+                            <li><strong>Transformation:</strong> "Summarize for junior dev handoff."</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-slate-800 mb-2">Anti-Patterns</h4>
+                        <ul className="space-y-2 text-sm list-disc pl-5">
+                            <li>"Explain everything about SFCC" (Too broad)</li>
+                            <li>"Fix checkout" (No signal / context)</li>
+                            <li>Omitting objective (no success definition)</li>
+                            <li>Forgetting mode capabilities (asks for logs in docs-only)</li>
+                        </ul>
+                    </div>
                 </div>
-                
-                <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="font-semibold">5. "Generate boilerplate" Tasks</p>
-                    <ul className="list-disc pl-6 mt-2">
-                        <li>User needs template code or structures</li>
-                        <li>AI creates proper SFCC-compliant implementations</li>
-                        <li>Includes proper error handling and documentation</li>
-                    </ul>
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Prompt Refinement Example:</p>
+                    <CodeBlock language="markdown" code={`Weak: 
+"Help with product page" 
+Improved: 
+"Generate an SFRA controller extension to enrich Product-Show with cached ATS and badge if sustainabilityRating >=3. Provide only changed code + template snippet."`} />
+                </div>
+            </SectionCard>
+
+            <div className="text-center mt-20">
+                <p className="text-lg text-slate-700 mb-6 font-medium">Ready to try these yourself?</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/#/ai-interfaces" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        Configure Your AI Client <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
+                    </a>
+                    <a href="/#/tools" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
+                        Browse All Tools
+                    </a>
                 </div>
             </div>
-
-            <H2 id="integration-with-development-workflow">🔗 Integration with Development Workflow</H2>
-
-            <H3 id="vs-code-github-copilot">VS Code + GitHub Copilot</H3>
-            <CodeBlock language="javascript" code={`
-// AI suggests SFCC-aware completions
-var ProductMgr = require('dw/catalog/ProductMgr');
-
-// Type "product." and get intelligent suggestions
-var product = ProductMgr.getProduct(productId);
-product.// ← AI suggests: .name, .ID, .custom, .variant, etc.
-            `} />
-
-            <H3 id="claude-desktop-for-architecture">Claude Desktop for Architecture</H3>
-            <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Multi-turn conversations</strong> for complex planning</li>
-                <li><strong>Context-aware suggestions</strong> based on project structure</li>
-                <li><strong>Real-time documentation lookup</strong> during discussions</li>
-            </ul>
-
-            <H3 id="cursor-for-code-generation">Cursor for Code Generation</H3>
-            <ul className="list-disc pl-6 space-y-2">
-                <li><strong>File-aware completions</strong> based on cartridge structure</li>
-                <li><strong>Rule-based suggestions</strong> for security and performance</li>
-                <li><strong>Intelligent refactoring</strong> across related files</li>
-            </ul>
-
-            <H2 id="next-steps">Next Steps</H2>
-            <div className="flex flex-wrap gap-4 mt-4">
-                <a href="#/troubleshooting" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    🐛 Troubleshooting
-                </a>
-                <a href="#/tools" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    🛠️ Available Tools
-                </a>
-                <a href="#/configuration" className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                    ⚙️ Configuration
-                </a>
-            </div>
-        </>
+        </div>
     );
 };
 
