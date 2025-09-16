@@ -313,13 +313,13 @@ find .cursor -name "*.md" -o -name "*.mdc"`} />
                     <div>
                         <h4 className="font-semibold mb-2">Debug Mode Commands</h4>
                         <CodeBlock language="bash" code={`# Enable debug mode
-npx sfcc-dev-mcp --debug --dw-json ./dw.json
+npx sfcc-dev-mcp --debug --dw-json /Users/username/sfcc-project/dw.json
 
 # Documentation-only debug mode
 npx sfcc-dev-mcp --debug
 
 # Disable debug explicitly
-npx sfcc-dev-mcp --debug false --dw-json ./dw.json`} />
+npx sfcc-dev-mcp --debug false --dw-json /Users/username/sfcc-project/dw.json`} />
                     </div>
 
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -383,7 +383,7 @@ npx sfcc-dev-mcp
 npx sfcc-dev-mcp --debug
 
 # Test with SFCC credentials
-npx sfcc-dev-mcp --dw-json ./dw.json --debug`} />
+npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug`} />
                     </div>
 
                     <div>

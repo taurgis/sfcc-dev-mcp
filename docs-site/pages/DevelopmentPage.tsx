@@ -45,7 +45,7 @@ npm run build
 npm test
 
 # Start in development mode
-npm run dev -- --dw-json /path/to/your/dw.json
+npm run dev -- --dw-json /Users/username/sfcc-project/dw.json
             `} />
 
             <H2 id="project-architecture">🏗️ Project Architecture</H2>
@@ -217,7 +217,7 @@ npm run lint:check    # Check with zero warnings
             <H3 id="manual-testing">Manual Testing</H3>
             <CodeBlock language="bash" code={`
 # Test with real SFCC instance (create your own test-dw.json)
-npm run dev -- --dw-json ./test-dw.json --debug
+npm run dev -- --dw-json /Users/username/sfcc-project/test-dw.json --debug
 
 # Test documentation-only mode
 npm run dev -- --debug

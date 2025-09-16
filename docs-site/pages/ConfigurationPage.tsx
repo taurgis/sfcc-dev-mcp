@@ -91,7 +91,7 @@ const ConfigurationPage: React.FC = () => {
                 <li><strong>401</strong>: Credential mismatch – regenerate client secret</li>
                 <li><strong>Missing resource</strong>: Pattern mismatch – copy exact resource IDs above</li>
               </ul>
-              <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json ./dw.json --debug true`} />
+              <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug true`} />
             </Collapsible>
             </div>
           </section>
@@ -107,7 +107,7 @@ const ConfigurationPage: React.FC = () => {
               </div>
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h4 className="font-semibold text-sm mb-3">Environment Overrides</h4>
-                <CodeBlock language="bash" code={`export SFCC_CLIENT_SECRET=\"your-secret\"\nexport SFCC_PASSWORD=\"your-password\n\nnpx sfcc-dev-mcp --dw-json ./dw.json"`} />
+                <CodeBlock language="bash" code={`export SFCC_CLIENT_SECRET=\"your-secret\"\nexport SFCC_PASSWORD=\"your-password\n\nnpx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json"`} />
               </div>
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h4 className="font-semibold text-sm mb-3">Permissions</h4>
@@ -115,7 +115,7 @@ const ConfigurationPage: React.FC = () => {
               </div>
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h4 className="font-semibold text-sm mb-3">Debug Mode</h4>
-                <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json ./dw.json --debug true`} />
+                <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug true`} />
         </div>
             </div>
           </section>
@@ -235,7 +235,7 @@ const ConfigurationPage: React.FC = () => {
               <div className="bg-white border border-gray-200 rounded-xl p-4">
                 <h4 className="font-semibold text-sm mb-2">dw.json Missing</h4>
                 <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
-                  <li>Add <InlineCode>--dw-json /full/path</InlineCode></li>
+                  <li>Add <InlineCode>--dw-json /Users/username/sfcc-project/dw.json</InlineCode></li>
                   <li>Create file in current dir</li>
                   <li>Use env vars instead</li>
                   <li>Check permissions (600)</li>

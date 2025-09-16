@@ -104,7 +104,7 @@ const AIInterfacesPage: React.FC = () => {
           <p className="text-gray-600 max-w-3xl mx-auto">Works across any MCP-compatible AI (desktop, IDE plugin, CLI agent).</p>
         </div>
         <SectionCard>
-          <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
+          <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/Users/username/sfcc-project/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
           <ul className="list-disc pl-5 text-sm text-gray-700 mt-6 space-y-1">
             <li><InlineCode>--dw-json</InlineCode> optional for docs-only mode</li>
             <li><InlineCode>--debug</InlineCode> set true when diagnosing tool behavior</li>
@@ -188,7 +188,7 @@ const ModeTabs: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Full Mode)</h3>
             <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-4">
-              <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/path/to/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
+              <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": [\n         "sfcc-dev-mcp", \n         "--dw-json", \n         "/Users/username/sfcc-project/dw.json", \n         "--debug", \n         "false"\n      ]\n    }\n  }\n}`} />
             </div>
             <p className="text-sm text-gray-600">Set <InlineCode>--debug true</InlineCode> temporarily when diagnosing tool responses.</p>
           </div>
