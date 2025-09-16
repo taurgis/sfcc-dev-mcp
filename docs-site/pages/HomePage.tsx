@@ -32,7 +32,7 @@ const HomePage: React.FC = () => {
         </H1>
         
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-          Supercharge your Salesforce Commerce Cloud development with AI-powered documentation access, 
+          Supercharge your Salesforce B2C Commerce Cloud development with AI-powered documentation access, 
           real-time log analysis, and intelligent best practices guidance
         </PageSubtitle>
       </div>
@@ -173,6 +173,221 @@ const HomePage: React.FC = () => {
                     <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Value Proposition Section */}
+      <div className="mb-16">
+        <div className="text-center mb-12">
+          <H2 id="why-use-this" className="text-4xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
+              Stop Fighting Documentation
+            </span>
+          </H2>
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            Transform your SFCC development workflow from manual documentation hunting to AI-powered assistance
+          </p>
+        </div>
+        
+        {/* Before/After Comparison */}
+        <div className="relative mb-12">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-3xl"></div>
+          <div className="relative bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 shadow-2xl">
+            
+            {/* Timeline Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-3 rounded-full text-sm font-medium">
+                <span className="bg-white/20 rounded-full p-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                Development Timeline Comparison
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8 relative">
+              {/* Connecting Line */}
+              <div className="hidden lg:block absolute left-1/2 top-16 bottom-16 w-px bg-gradient-to-b from-red-300 via-yellow-300 to-green-300 transform -translate-x-1/2"></div>
+              
+              {/* Before Timeline */}
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-3 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Traditional</h3>
+                    <p className="text-red-600 font-medium">Frustrating & Time-Consuming</p>
+                  </div>
+                </div>
+                
+                {/* Timeline Steps */}
+                <div className="space-y-4">
+                  <div className="flex gap-4 p-4 bg-red-50 border border-red-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-red-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-red-600 font-bold text-sm">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Documentation Hunt</h4>
+                      <p className="text-sm text-gray-600">Open 10+ browser tabs searching for method signatures</p>
+                      <div className="text-xs text-red-600 font-medium mt-1">⏱️ 15-30 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-red-50 border border-red-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-red-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-red-600 font-bold text-sm">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Copy-Paste Engineering</h4>
+                      <p className="text-sm text-gray-600">Hunt for code examples across forums and docs</p>
+                      <div className="text-xs text-red-600 font-medium mt-1">⏱️ 20-45 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-red-50 border border-red-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-red-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-red-600 font-bold text-sm">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Debug Blindly</h4>
+                      <p className="text-sm text-gray-600">Manual log analysis without proper context</p>
+                      <div className="text-xs text-red-600 font-medium mt-1">⏱️ 1-3 hours</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-red-50 border border-red-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-red-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-red-600 font-bold text-sm">4</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Feature Scaffolding</h4>
+                      <p className="text-sm text-gray-600">Manually create cartridge structures and boilerplate code for new cartridges, new SCAPI endpoints, ...</p>
+                      <div className="text-xs text-red-600 font-medium mt-1">⏱️ 30-60 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-red-50 border border-red-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-red-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-red-600 font-bold text-sm">5</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Context Switching</h4>
+                      <p className="text-sm text-gray-600">Jump between IDE, browser, logs, and documentation</p>
+                      <div className="text-xs text-red-600 font-medium mt-1">⏱️ Constant overhead</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-red-100 border border-red-300 rounded-xl">
+                  <div className="flex items-center gap-2 text-red-800">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-bold">Total Time Lost: 2-4 hours daily</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* After Timeline */}
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-3 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">AI-Enhanced</h3>
+                    <p className="text-green-600 font-medium">Efficient & Intelligent</p>
+                  </div>
+                </div>
+                
+                {/* Timeline Steps */}
+                <div className="space-y-4">
+                  <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-green-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-green-600 font-bold text-sm">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Ask AI Directly</h4>
+                      <p className="text-sm text-gray-600">"Show me Product pricing methods" → instant comprehensive answer</p>
+                      <div className="text-xs text-green-600 font-medium mt-1">⏱️ 30 seconds</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-green-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-green-600 font-bold text-sm">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Get Complete Examples</h4>
+                      <p className="text-sm text-gray-600">AI generates proper SFCC patterns with best practices</p>
+                      <div className="text-xs text-green-600 font-medium mt-1">⏱️ 1-2 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-green-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-green-600 font-bold text-sm">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Smart Debugging</h4>
+                      <p className="text-sm text-gray-600">"Find errors from last 24h" → AI analyzes and filters logs</p>
+                      <div className="text-xs text-green-600 font-medium mt-1">⏱️ 2-5 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-green-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-green-600 font-bold text-sm">4</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Instant Scaffolding</h4>
+                      <p className="text-sm text-gray-600">"Create custom SCAPI endpoint for wishlist" → complete cartridge with routes</p>
+                      <div className="text-xs text-green-600 font-medium mt-1">⏱️ 1-2 minutes</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-xl transition-all hover:shadow-md">
+                    <div className="bg-green-100 rounded-full p-2 mt-1 flex-shrink-0">
+                      <span className="text-green-600 font-bold text-sm">5</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Stay in Flow</h4>
+                      <p className="text-sm text-gray-600">All SFCC knowledge accessible within your editor</p>
+                      <div className="text-xs text-green-600 font-medium mt-1">⏱️ Zero context switching</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-green-100 border border-green-300 rounded-xl">
+                  <div className="flex items-center gap-2 text-green-800">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-bold">Total Time Saved: 2-3 hours daily</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="mt-10 text-center">
+              <div className="inline-flex items-center gap-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl shadow-lg">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                </svg>
+                <div className="text-left">
+                  <div className="font-bold text-lg">Ready to 10x your SFCC productivity?</div>
+                  <div className="text-blue-100 text-sm">Set up in under 2 minutes • No SFCC credentials required to start</div>
+                </div>
               </div>
             </div>
           </div>
@@ -332,6 +547,125 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900">Cartridges</h3>
             <p className="text-sm text-gray-600">Auto generation</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Test Drive Section */}
+      <div className="mb-16">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl" />
+          <div className="relative bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-2xl p-8 shadow-xl">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Test Drive
+              </div>
+              <H2 id="quick-test-drive" className="text-3xl font-bold mb-4">🧪 Try It Right Now</H2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                After setup, ask your AI assistant this question to see the MCP server in action. No SFCC credentials needed.
+              </p>
+            </div>
+            
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Ask Your AI This</h3>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium text-blue-900 mb-3">Copy this prompt:</p>
+                      <div className="bg-white rounded-lg p-4 border border-blue-200">
+                        <p className="text-base font-mono text-gray-800 leading-relaxed">
+                          "Show me the pricing methods available on dw.catalog.Product and explain how to get the sale price for a product variant."
+                        </p>
+                      </div>
+                      <div className="mt-3 flex justify-center">
+                        <button 
+                          onClick={() => navigator.clipboard.writeText('Show me the pricing methods available on dw.catalog.Product and explain how to get the sale price for a product variant.')}
+                          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                          </svg>
+                          Copy Prompt
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">What You Should See</h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex flex-col h-full">
+                    <div className="grid grid-cols-[auto_1fr] gap-2 items-center mb-3">
+                      <div className="bg-green-100 rounded-full p-1">
+                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="font-medium text-green-800">SFCC Methods</p>
+                    </div>
+                    <p className="text-sm text-green-700 flex-grow">Lists actual methods like getPriceModel(), getVariationModel()</p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex flex-col h-full">
+                    <div className="grid grid-cols-[auto_1fr] gap-2 items-center mb-3">
+                      <div className="bg-green-100 rounded-full p-1">
+                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="font-medium text-green-800">Code Examples</p>
+                    </div>
+                    <p className="text-sm text-green-700 flex-grow">Shows real SFCC code patterns with proper syntax</p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex flex-col h-full">
+                    <div className="grid grid-cols-[auto_1fr] gap-2 items-center mb-3">
+                      <div className="bg-green-100 rounded-full p-1">
+                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="font-medium text-green-800">Documentation</p>
+                    </div>
+                    <p className="text-sm text-green-700 flex-grow">References accurate SFCC API information</p>
+                  </div>
+                </div>
+              </div>
+            </div>            <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="bg-yellow-100 rounded-full p-1 mt-0.5">
+                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-yellow-800 mb-1">Without MCP Server</p>
+                  <p className="text-sm text-yellow-700">
+                    Your AI would give generic responses or outdated information. With MCP, it accesses live SFCC documentation and provides accurate, specific answers.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 mb-4">✅ Getting SFCC-specific answers? Your setup is working perfectly!</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="/#/examples" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
+                  Try More Examples
+                  <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
+                </a>
+                <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
+                  Add Full Mode
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
