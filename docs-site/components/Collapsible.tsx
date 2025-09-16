@@ -6,6 +6,7 @@ interface CollapsibleProps {
   children: React.ReactNode;
   intent?: 'info' | 'warn' | 'danger' | 'plain';
   id?: string;
+  className?: string;
 }
 
 const intentStyles: Record<string,string> = {
@@ -15,10 +16,10 @@ const intentStyles: Record<string,string> = {
   plain: 'border-gray-200 bg-white'
 };
 
-export const Collapsible: React.FC<CollapsibleProps> = ({ title, defaultOpen=false, children, intent='plain', id }) => {
+export const Collapsible: React.FC<CollapsibleProps> = ({ title, defaultOpen=false, children, intent='plain', id, className = '' }) => {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div id={id} className={`rounded-xl border ${intentStyles[intent]} overflow-hidden`}> 
+    <div id={id} className={`rounded-xl border ${intentStyles[intent]} overflow-hidden ${className}`}> 
       <button
         onClick={() => setOpen(o=>!o)}
         className="w-full flex items-center justify-between px-5 py-3 text-left text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"

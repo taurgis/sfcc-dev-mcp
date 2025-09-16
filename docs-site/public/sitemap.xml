@@ -6,63 +6,63 @@
     <!-- SFCC Development MCP Server Homepage -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>    
     <!-- Configuration Guide -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/configuration</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>    
     <!-- AI Interface Setup Guide -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/ai-interfaces</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>    
     <!-- Features Overview -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/features</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>    
     <!-- Available Tools -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/tools</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>    
     <!-- Examples and Use Cases -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/examples</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>    
     <!-- Security Guidelines -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/security</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>    
     <!-- Development Guide -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/development</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>    
     <!-- Troubleshooting Guide -->
     <url>
         <loc>https://sfcc-dev-mcp.rhino-inquisitor.com/#/troubleshooting</loc>
-        <lastmod>2025-09-15</lastmod>
+        <lastmod>2025-09-16</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
