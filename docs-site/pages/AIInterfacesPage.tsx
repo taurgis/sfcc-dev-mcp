@@ -230,7 +230,7 @@ const BenefitCard: React.FC<{ title: string; text: string; color: string }> = ({
 // AssistantTabs component for Claude / Copilot / Cursor (refined layout)
 const AssistantTabs: React.FC = () => {
   type Assistant = 'claude' | 'copilot' | 'cursor';
-  const [active, setActive] = React.useState<Assistant>('claude');
+  const [active, setActive] = React.useState<Assistant>('copilot');
   const tabBase = 'px-5 py-2 rounded-full text-sm font-medium transition border';
   // Unified configuration: keep identical parameters for all assistants for clarity
   const unifiedSnippet = `{"mcpServers":{"sfcc-dev":{"command":"npx","args":["sfcc-dev-mcp","--dw-json","/path/to/dw.json","--debug","false"]}}}`;
@@ -283,16 +283,16 @@ const AssistantTabs: React.FC = () => {
       <div role="tablist" aria-label="Assistant selection" className="flex flex-wrap gap-3 mb-10 mt-10 justify-center">
         <button
           role="tab"
-          aria-selected={active === 'claude'}
-          className={`${tabBase} ${active === 'claude' ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600'}`}
-          onClick={() => setActive('claude')}
-        >Claude Desktop</button>
-        <button
-          role="tab"
           aria-selected={active === 'copilot'}
           className={`${tabBase} ${active === 'copilot' ? 'bg-green-600 text-white border-green-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-600'}`}
           onClick={() => setActive('copilot')}
         >GitHub Copilot</button>
+        <button
+          role="tab"
+          aria-selected={active === 'claude'}
+          className={`${tabBase} ${active === 'claude' ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600'}`}
+          onClick={() => setActive('claude')}
+        >Claude Desktop</button>
         <button
           role="tab"
           aria-selected={active === 'cursor'}
@@ -303,10 +303,68 @@ const AssistantTabs: React.FC = () => {
       <div className="space-y-10 animate-fade-in" role="tabpanel">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration</h3>
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-6">
             {renderSnippet(active)}
           </div>
-          <p className="text-xs text-gray-500 mt-2">Docs-only mode: omit <InlineCode>--dw-json</InlineCode>. Enable verbose logging temporarily with <InlineCode>--debug true</InlineCode>.</p>
+          
+          <div className="flex justify-center mb-6">
+            <div className="flex flex-wrap gap-3 justify-center">
+              {active === 'claude' && (
+                <a 
+                  href="https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+                >
+                  📖 Claude MCP Setup
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </a>
+              )}
+              {active === 'copilot' && (
+                <>
+                  <a 
+                    href="https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp/extend-copilot-chat-with-mcp" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+                  >
+                    📖 Copilot MCP Setup
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </a>
+                  <a 
+                    href="https://www.youtube.com/watch?v=ZlrQJQV14xQ&t=215s" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+                  >
+                    🎥 Video Guide
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </a>
+                </>
+              )}
+              {active === 'cursor' && (
+                <a 
+                  href="https://docs.cursor.com/advanced/model-context-protocol" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 hover:text-purple-800 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg no-underline hover:no-underline focus:no-underline"
+                >
+                  📖 Cursor MCP Setup
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+          
+          <p className="text-xs text-gray-500 text-center">Docs-only mode: omit <InlineCode>--dw-json</InlineCode>. Enable verbose logging temporarily with <InlineCode>--debug true</InlineCode>.</p>
         </div>
         <div>
           <h4 className="font-semibold text-gray-900 mb-3">Key Strengths</h4>
