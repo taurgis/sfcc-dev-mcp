@@ -56,7 +56,7 @@ const ConfigurationPage: React.FC = () => {
           <section id="data-api" className="scroll-mt-24">
             <div className="mb-4 space-y-2">
               <span className="inline-block bg-yellow-100 text-yellow-700 text-[11px] font-semibold px-3 py-1 rounded-full tracking-wide uppercase">Optional – Enables Data API Tools</span>
-              <h2 className="text-2xl font-bold text-gray-900">🔧 Data API Configuration</h2>
+              <h2 id="data-api-configuration" className="text-2xl font-bold text-gray-900">🔧 Data API Configuration</h2>
             </div>
             <p className="text-gray-600 mb-6 text-sm">Needed for system object definitions, site preferences & code version tools. Skip if you only need logs + docs.</p>
             <div className="space-y-6">
@@ -98,7 +98,7 @@ const ConfigurationPage: React.FC = () => {
           <section id="security" className="scroll-mt-24 space-y-6">
             <div className="mb-4 space-y-2">
               <span className="inline-block bg-blue-100 text-blue-700 text-[11px] font-semibold px-3 py-1 rounded-full tracking-wide uppercase">Protect Credentials</span>
-              <h2 className="text-2xl font-bold text-gray-900">🔒 Security Basics</h2>
+              <h2 id="security-basics" className="text-2xl font-bold text-gray-900">🔒 Security Basics</h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-xl border border-gray-200 bg-white p-5">
@@ -122,7 +122,7 @@ const ConfigurationPage: React.FC = () => {
           <section id="reference" className="scroll-mt-24 space-y-8">
             <div className="mb-4 space-y-2">
               <span className="inline-block bg-purple-100 text-purple-700 text-[11px] font-semibold px-3 py-1 rounded-full tracking-wide uppercase">Reference</span>
-              <h2 className="text-2xl font-bold text-gray-900">📋 Key Reference Tables</h2>
+              <h2 id="key-reference-tables" className="text-2xl font-bold text-gray-900">📋 Key Reference Tables</h2>
             </div>
             <div>
               <H3 id="field-reference" className="text-lg font-semibold mb-3">Supported dw.json Fields</H3>
@@ -220,7 +220,7 @@ const ConfigurationPage: React.FC = () => {
           <section id="troubleshooting" className="scroll-mt-24 space-y-6">
             <div className="mb-4 space-y-2">
               <span className="inline-block bg-red-100 text-red-700 text-[11px] font-semibold px-3 py-1 rounded-full tracking-wide uppercase">Common Issues</span>
-              <h2 className="text-2xl font-bold text-gray-900">🐛 Troubleshooting</h2>
+              <h2 id="troubleshooting" className="text-2xl font-bold text-gray-900">🐛 Troubleshooting</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               <div className="bg-white border border-gray-200 rounded-xl p-4">
@@ -256,7 +256,7 @@ const ConfigurationPage: React.FC = () => {
       </div>
       <div className="mb-24">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">🔗 Next Steps</h2>
+          <h2 id="next-steps" className="text-2xl font-bold text-gray-900 mb-2">🔗 Next Steps</h2>
           <PageSubtitle className="text-base text-gray-600">Pick your next path—feature surface or concrete tool list.</PageSubtitle>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

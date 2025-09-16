@@ -113,7 +113,7 @@ const AIInterfacesPage: React.FC = () => {
       {/* Universal Config */}
       <div id="universal" className="mb-24">
         <div className="text-center mb-8">
-          <H2 className="text-3xl font-bold mb-4">Universal MCP Configuration</H2>
+          <H2 id="universal-mcp-configuration" className="text-3xl font-bold mb-4">Universal MCP Configuration</H2>
           <p className="text-gray-600 max-w-3xl mx-auto">Works across any MCP-compatible AI (desktop, IDE plugin, CLI agent).</p>
         </div>
         <SectionCard>

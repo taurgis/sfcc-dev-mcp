@@ -472,7 +472,7 @@ sed 's/client-secret":"[^"]*"/client-secret":"***"/g' dw-safe.json > dw-final.js
             {/* Next Steps */}
             <div className="mb-24">
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">🔗 Next Steps</h2>
+                    <h2 id="next-steps-troubleshooting" className="text-2xl font-bold text-gray-900 mb-2">🔗 Next Steps</h2>
                     <PageSubtitle className="text-base text-gray-600">Now that you've resolved your issues, explore the full capabilities.</PageSubtitle>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

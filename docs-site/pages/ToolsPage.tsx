@@ -53,7 +53,7 @@ const ToolsPage: React.FC = () => {
         <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 md:p-8 shadow-xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">🚀 Quick Actions</h2>
+              <h2 id="quick-actions" className="text-2xl font-bold text-gray-900 mb-1">🚀 Quick Actions</h2>
               <p className="text-sm text-gray-600">Most common starting points – copy and ask your AI now.</p>
             </div>
             <button onClick={() => setShowPopularExpanded(e=>!e)} className="text-xs font-medium text-blue-700 hover:text-blue-900 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg transition">
