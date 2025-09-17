@@ -1,62 +1,28 @@
 /**
- * SFCC Documentation Client
+ * SFCC Documentation Client (Refactored)
  *
  * This module provides functionality to query and retrieve SFCC class documentation
- * from the converted Markdown files. It enables AI assistants to access detailed
- * information about SFCC classes, methods, properties, and usage examples.
+ * from converted Markdown files. It orchestrates specialized modules to handle
+ * different aspects of documentation processing.
+ *
+ * Responsibilities:
+ * - Orchestrating specialized modules
+ * - Managing initialization and caching
+ * - Providing public API for documentation access
+ * - Applying filters and search functionality
  */
 
-import fs from 'fs/promises';
-import path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
+import { DocumentationScanner, SFCCClassInfo } from './docs/documentation-scanner.js';
+import { ClassContentParser, SFCCClassDetails, SFCCMethod } from './docs/class-content-parser.js';
+import { ClassNameResolver } from './docs/class-name-resolver.js';
+import { ReferencedTypesExtractor } from './docs/referenced-types-extractor.js';
 
-export interface SFCCClassInfo {
-  className: string;
-  packageName: string;
-  filePath: string;
-  content: string;
-}
-
-export interface SFCCMethod {
-  name: string;
-  signature: string;
-  description: string;
-  parameters?: string[];
-  returnType?: string;
-  deprecated?: boolean;
-  deprecationMessage?: string;
-}
-
-export interface SFCCProperty {
-  name: string;
-  type: string;
-  description: string;
-  modifiers?: string[];
-  deprecated?: boolean;
-  deprecationMessage?: string;
-}
-
-export interface SFCCConstant {
-  name: string;
-  type: string;
-  value?: string;
-  description: string;
-  deprecated?: boolean;
-  deprecationMessage?: string;
-}
-
-export interface SFCCClassDetails {
-  className: string;
-  packageName: string;
-  description: string;
-  constants: SFCCConstant[];
-  properties: SFCCProperty[];
-  methods: SFCCMethod[];
-  inheritance?: string[];
-  constructorInfo?: string;
-}
+// Re-export types for backward compatibility
+export { SFCCClassInfo, SFCCMethod, SFCCClassDetails };
+export type { SFCCProperty, SFCCConstant } from './docs/class-content-parser.js';
 
 export interface ClassDetailsFilterOptions {
   includeDescription?: boolean;
@@ -73,157 +39,30 @@ export class SFCCDocumentationClient {
   private cacheManager: CacheManager;
   private initialized = false;
   private logger: Logger;
+  private documentationScanner: DocumentationScanner;
+  private classContentParser: ClassContentParser;
 
   constructor() {
     this.docsPath = PathResolver.getDocsPath();
     this.cacheManager = new CacheManager();
     this.logger = Logger.getChildLogger('DocsClient');
+    this.documentationScanner = new DocumentationScanner();
+    this.classContentParser = new ClassContentParser();
   }
 
   /**
    * Initialize the documentation client by scanning all available classes
    */
   async initialize(): Promise<void> {
-    if (this.initialized) {return;}
+    if (this.initialized) {
+      return;
+    }
 
     try {
-      await this.scanDocumentation();
+      this.classCache = await this.documentationScanner.scanDocumentation(this.docsPath);
       this.initialized = true;
     } catch (error) {
       throw new Error(`Failed to initialize SFCC documentation: ${error}`);
-    }
-  }
-
-  /**
-   * Check if a directory name represents an SFCC-specific directory
-   * SFCC directories include dw_ prefixed namespaces and TopLevel
-   * Excludes best-practices and sfra directories
-   */
-  private isSFCCDirectory(directoryName: string): boolean {
-    // Include dw_ prefixed directories (SFCC namespaces)
-    if (directoryName.startsWith('dw_')) {
-      return true;
-    }
-
-    // Include TopLevel directory (contains core JavaScript classes)
-    if (directoryName === 'TopLevel') {
-      return true;
-    }
-
-    // Exclude best-practices directory (handled by best practices tools)
-    if (directoryName === 'best-practices') {
-      return false;
-    }
-
-    // Exclude sfra directory (handled by SFRA tools)
-    if (directoryName === 'sfra') {
-      return false;
-    }
-
-    // Exclude any other non-SFCC directories
-    return false;
-  }
-
-  /**
-   * Scan the docs directory and index all SFCC classes
-   * Only scans SFCC-specific directories, excluding best-practices and sfra
-   */
-  private async scanDocumentation(): Promise<void> {
-    const packages = await fs.readdir(this.docsPath, { withFileTypes: true });
-
-    for (const packageDir of packages) {
-      if (!packageDir.isDirectory()) {continue;}
-
-      const packageName = packageDir.name;
-
-      // Only scan SFCC-specific directories (dw_ prefixed and TopLevel)
-      // Exclude best-practices and sfra directories which are handled by other tools
-      if (!this.isSFCCDirectory(packageName)) {
-        continue;
-      }
-      const packagePath = path.join(this.docsPath, packageName);
-
-      try {
-        const files = await fs.readdir(packagePath);
-
-        for (const file of files) {
-          if (file.endsWith('.md')) {
-            const className = file.replace('.md', '');
-            const filePath = path.join(packagePath, file);
-
-            try {
-              // Enhanced security validation - validate file name before path operations
-              if (!file || typeof file !== 'string') {
-                this.logger.warn(`Warning: Invalid file name type: ${file}`);
-                continue;
-              }
-
-              // Prevent null bytes and dangerous characters in the file name itself
-              if (file.includes('\0') || file.includes('\x00')) {
-                this.logger.warn(`Warning: File name contains null bytes: ${file}`);
-                continue;
-              }
-
-              // Prevent path traversal sequences in the file name
-              if (file.includes('..') || file.includes('/') || file.includes('\\')) {
-                this.logger.warn(`Warning: File name contains path traversal sequences: ${file}`);
-                continue;
-              }
-
-              // Only allow alphanumeric characters, underscores, hyphens, and dots for file names
-              if (!/^[a-zA-Z0-9_.-]+$/.test(file)) {
-                this.logger.warn(`Warning: File name contains invalid characters: ${file}`);
-                continue;
-              }
-
-              // Additional security validation - ensure the resolved path is within the package directory
-              const resolvedPath = path.resolve(filePath);
-              const resolvedPackagePath = path.resolve(packagePath);
-              const resolvedDocsPath = path.resolve(this.docsPath);
-
-              // Ensure the file is within the package directory and docs directory
-              if (!resolvedPath.startsWith(resolvedPackagePath) || !resolvedPath.startsWith(resolvedDocsPath)) {
-                this.logger.warn(`Warning: File path outside allowed directory: ${file}`);
-                continue;
-              }
-
-              // Ensure the file still ends with .md after path resolution
-              if (!resolvedPath.toLowerCase().endsWith('.md')) {
-                this.logger.warn(`Warning: File does not reference a markdown file: ${file}`);
-                continue;
-              }
-
-              const content = await fs.readFile(resolvedPath, 'utf-8');
-
-              // Basic content validation
-              if (!content.trim()) {
-                this.logger.warn(`Warning: Empty documentation file: ${file}`);
-                continue;
-              }
-
-              // Check for binary content
-              if (content.includes('\0')) {
-                this.logger.warn(`Warning: Binary content detected in: ${file}`);
-                continue;
-              }
-
-              this.classCache.set(
-                `${packageName}.${className}`,
-                {
-                  className,
-                  packageName,
-                  filePath,
-                  content,
-                },
-              );
-            } catch (fileError) {
-              this.logger.warn(`Warning: Could not read file ${file}: ${fileError}`);
-            }
-          }
-        }
-      } catch (error) {
-        this.logger.warn(`Warning: Could not read package ${packageName}: ${error}`);
-      }
     }
   }
 
@@ -234,8 +73,7 @@ export class SFCCDocumentationClient {
     await this.initialize();
     return Array.from(this.classCache.keys())
       .sort()
-      // Return the official . notation for class names (e.g., dw.content.ContentMgr)
-      .map(className => className.replace(/_/g, '.'));
+      .map(className => ClassNameResolver.toOfficialFormat(className));
   }
 
   /**
@@ -253,13 +91,9 @@ export class SFCCDocumentationClient {
 
     const lowercaseQuery = query.toLowerCase();
     const results = Array.from(this.classCache.keys())
-      .filter(className =>
-        className.toLowerCase().includes(lowercaseQuery),
-      )
+      .filter(className => className.toLowerCase().includes(lowercaseQuery))
       .sort()
-    // Return the official . notation for class names (e.g., dw.content.ContentMgr)
-      .map(className => className.replace(/_/g, '.'))
-    ;
+      .map(className => ClassNameResolver.toOfficialFormat(className));
 
     // Cache the results
     this.cacheManager.setSearchResults(cacheKey, results);
@@ -272,70 +106,22 @@ export class SFCCDocumentationClient {
   async getClassDocumentation(className: string): Promise<string | null> {
     await this.initialize();
 
-    // Normalize class name to support both formats (dw.content.ContentMgr -> dw_content.ContentMgr)
-    const normalizedClassName = this.normalizeClassName(className);
-
     // Check cache first
+    const normalizedClassName = ClassNameResolver.normalizeClassName(className);
     const cacheKey = `content:${normalizedClassName}`;
     const cachedContent = this.cacheManager.getFileContent(cacheKey);
     if (cachedContent !== undefined) {
       return cachedContent || null;
     }
 
-    // Try exact match first with normalized name
-    let classInfo = this.classCache.get(normalizedClassName);
-
-    // If not found, try to find by class name only (without package)
-    if (!classInfo) {
-      const simpleClassName = this.extractSimpleClassName(normalizedClassName);
-      const matches = Array.from(this.classCache.entries())
-        .filter(([, info]) => info.className === simpleClassName);
-
-      if (matches.length === 1) {
-        classInfo = matches[0][1];
-      } else if (matches.length > 1) {
-        throw new Error(`Multiple classes found with name "${simpleClassName}": ${matches.map(([key]) => key).join(', ')}`);
-      }
-    }
-
-    const content = classInfo ? classInfo.content : null;
+    // Resolve class name with fallback logic
+    const resolved = ClassNameResolver.resolveClassName(normalizedClassName, this.classCache);
+    const content = resolved ? resolved.info.content : null;
 
     // Cache the result (including null results to avoid repeated lookups)
     this.cacheManager.setFileContent(cacheKey, content ?? '');
 
     return content;
-  }
-
-  /**
-   * Normalize class name to handle both dot and underscore formats
-   * Examples:
-   * - dw.content.ContentMgr -> dw_content.ContentMgr
-   * - dw_content.ContentMgr -> dw_content.ContentMgr (unchanged)
-   * - ContentMgr -> ContentMgr (unchanged)
-   */
-  private normalizeClassName(className: string): string {
-    // If it contains dots but not underscores in the package part, convert dots to underscores
-    if (className.includes('.') && !className.includes('_')) {
-      // Split by dots and convert package parts (all but last) to use underscores
-      const parts = className.split('.');
-      if (parts.length > 1) {
-        const packageParts = parts.slice(0, -1);
-        const simpleClassName = parts[parts.length - 1];
-        return `${packageParts.join('_')}.${simpleClassName}`;
-      }
-    }
-    return className;
-  }
-
-  /**
-   * Extract simple class name from full class name
-   * Examples:
-   * - dw_content.ContentMgr -> ContentMgr
-   * - ContentMgr -> ContentMgr
-   */
-  private extractSimpleClassName(className: string): string {
-    const parts = className.split('.');
-    return parts[parts.length - 1];
   }
 
   /**
@@ -356,292 +142,12 @@ export class SFCCDocumentationClient {
       return null;
     }
 
-    const details = this.parseClassContent(content);
+    const details = this.classContentParser.parseClassContent(content);
 
     // Cache the parsed details
     this.cacheManager.setClassDetails(cacheKey, details);
 
     return details;
-  }
-
-  /**
-   * Parse markdown content and extract structured class information
-   */
-  private parseClassContent(content: string): SFCCClassDetails {
-    const lines = content.split('\n');
-
-    let currentSection = '';
-    let className = '';
-    let packageName = '';
-    let description = '';
-    const constants: SFCCConstant[] = [];
-    const properties: SFCCProperty[] = [];
-    const methods: SFCCMethod[] = [];
-    const inheritance: string[] = [];
-    let constructorInfo = '';
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      // Extract package name
-      if (line.startsWith('## Package:')) {
-        packageName = line.replace('## Package:', '').trim();
-      }
-
-      // Extract class name
-      if (line.startsWith('# ') && !line.startsWith('## ')) {
-        className = line.replace('# ', '').replace('Class ', '').trim();
-      }
-
-      // Track current section
-      if (line.startsWith('## ')) {
-        currentSection = line.replace('## ', '').trim();
-      }
-
-      // Extract description
-      if (currentSection === 'Description' && line && !line.startsWith('#')) {
-        description += `${line  } `;
-      }
-
-      // Extract inheritance hierarchy
-      if (currentSection === 'Inheritance Hierarchy' && line.includes('-')) {
-        const hierarchyItem = line.replace(/^[\s-]*/, '').trim();
-        if (hierarchyItem) {
-          inheritance.push(hierarchyItem);
-        }
-      }
-
-      // Extract constants
-      if (currentSection === 'Constants' && line.startsWith('### ')) {
-        const constName = line.replace('### ', '').trim();
-        let constType = '';
-        let constValue = '';
-        let constDesc = '';
-        let deprecated = false;
-        let deprecationMessage = '';
-
-        // Look for type, value and description in following lines
-        for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
-          const nextLine = lines[j].trim();
-          if (nextLine.startsWith('**Type:**')) {
-            const typeMatch = nextLine.match(/\*\*Type:\*\*\s*(.+)/);
-            if (typeMatch) {
-              const typeInfo = typeMatch[1];
-              // Extract type and value if present (e.g., "String = 'COMPLETED'" or "Number = 8")
-              const valueMatch = typeInfo.match(/^(\w+)\s*=\s*(.+)$/);
-              if (valueMatch) {
-                constType = valueMatch[1];
-                constValue = valueMatch[2];
-              } else {
-                constType = typeInfo.trim();
-              }
-            }
-          } else if (nextLine.startsWith('**Deprecated:**')) {
-            deprecated = true;
-            // Check if there's a message on the same line
-            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
-            if (sameLineMessage) {
-              deprecationMessage = sameLineMessage;
-            } else {
-              // Look for the deprecation message on subsequent lines until next ** marker
-              const depLines: string[] = [];
-              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
-                const depLine = lines[k].trim();
-                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
-                  break; // Stop at next ** marker
-                }
-                if (depLine && !depLine.startsWith('---')) {
-                  depLines.push(depLine);
-                }
-              }
-              deprecationMessage = depLines.join(' ').trim();
-            }
-          } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#')) {
-            constDesc += `${nextLine  } `;
-          }
-        }
-
-        constants.push({
-          name: constName,
-          type: constType,
-          value: constValue || undefined,
-          description: constDesc.trim(),
-          deprecated: deprecated || undefined,
-          deprecationMessage: deprecationMessage || undefined,
-        });
-      }
-
-      // Extract properties
-      if (currentSection === 'Properties' && line.startsWith('### ')) {
-        const propName = line.replace('### ', '').trim();
-        let propType = '';
-        let propDesc = '';
-        const modifiers: string[] = [];
-        let deprecated = false;
-        let deprecationMessage = '';
-
-        // Look for type and description in following lines
-        for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
-          const nextLine = lines[j].trim();
-          if (nextLine.startsWith('**Type:**')) {
-            const typeMatch = nextLine.match(/\*\*Type:\*\*\s*(.+)/);
-            if (typeMatch) {
-              const typeInfo = typeMatch[1];
-              propType = typeInfo.split(' ')[0];
-              if (typeInfo.includes('(Read Only)')) {modifiers.push('Read Only');}
-              if (typeInfo.includes('(Static)')) {modifiers.push('Static');}
-            }
-          } else if (nextLine.startsWith('**Deprecated:**')) {
-            deprecated = true;
-            // Check if there's a message on the same line
-            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
-            if (sameLineMessage) {
-              deprecationMessage = sameLineMessage;
-            } else {
-              // Look for the deprecation message on subsequent lines until next ** marker
-              const depLines: string[] = [];
-              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
-                const depLine = lines[k].trim();
-                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
-                  break; // Stop at next ** marker
-                }
-                if (depLine && !depLine.startsWith('---')) {
-                  depLines.push(depLine);
-                }
-              }
-              deprecationMessage = depLines.join(' ').trim();
-            }
-          } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#')) {
-            propDesc += `${nextLine  } `;
-          }
-        }
-
-        properties.push({
-          name: propName,
-          type: propType,
-          description: propDesc.trim(),
-          modifiers: modifiers.length > 0 ? modifiers : undefined,
-          deprecated: deprecated || undefined,
-          deprecationMessage: deprecationMessage || undefined,
-        });
-      }
-
-      // Extract methods
-      if ((currentSection === 'Method Summary' || currentSection === 'Method Details') && line.startsWith('### ')) {
-        const methodName = line.replace('### ', '').trim();
-        let signature = '';
-        let methodDesc = '';
-        let deprecated = false;
-        let deprecationMessage = '';
-
-        // Look for signature and description in following lines
-        for (let j = i + 1; j < lines.length && !lines[j].startsWith('#'); j++) {
-          const nextLine = lines[j].trim();
-          if (nextLine.startsWith('**Signature:**')) {
-            const sigMatch = nextLine.match(/\*\*Signature:\*\*\s*`(.+)`/);
-            if (sigMatch) {
-              signature = sigMatch[1];
-            }
-          } else if (nextLine.startsWith('**Description:**')) {
-            methodDesc = nextLine.replace('**Description:**', '').trim();
-          } else if (nextLine.startsWith('**Deprecated:**')) {
-            deprecated = true;
-            // Check if there's a message on the same line
-            const sameLineMessage = nextLine.replace('**Deprecated:**', '').trim();
-            if (sameLineMessage) {
-              deprecationMessage = sameLineMessage;
-            } else {
-              // Look for the deprecation message on subsequent lines until next ** marker
-              const depLines: string[] = [];
-              for (let k = j + 1; k < lines.length && !lines[k].startsWith('#'); k++) {
-                const depLine = lines[k].trim();
-                if (depLine.startsWith('**') && !depLine.startsWith('**Deprecated:**')) {
-                  break; // Stop at next ** marker
-                }
-                if (depLine && !depLine.startsWith('---')) {
-                  depLines.push(depLine);
-                }
-              }
-              deprecationMessage = depLines.join(' ').trim();
-            }
-          } else if (nextLine && !nextLine.startsWith('**') && !nextLine.startsWith('#') && !nextLine.startsWith('---')) {
-            if (!methodDesc && !nextLine.includes('Signature:')) {
-              methodDesc += `${nextLine  } `;
-            }
-          }
-        }
-
-        methods.push({
-          name: methodName,
-          signature: signature || methodName,
-          description: methodDesc.trim(),
-          deprecated: deprecated || undefined,
-          deprecationMessage: deprecationMessage || undefined,
-        });
-      }
-
-      // Extract constructor info
-      if (currentSection === 'Constructor Summary' && line && !line.startsWith('#')) {
-        constructorInfo += `${line  } `;
-      }
-    }
-
-    return {
-      className: className.trim(),
-      packageName: packageName.trim(),
-      description: description.trim(),
-      constants,
-      properties,
-      methods,
-      inheritance: inheritance.length > 0 ? inheritance : undefined,
-      constructorInfo: constructorInfo.trim() || undefined,
-    };
-  }
-
-  /**
-   * Parse markdown content and extract referenced types from a class
-   */
-  private extractReferencedTypes(content: string): string[] {
-    const referencedTypes = new Set<string>();
-    const lines = content.split('\n');
-
-    for (const line of lines) {
-      // Extract types from property definitions
-      const propTypeMatch = line.match(/\*\*Type:\*\*\s*([A-Za-z][A-Za-z0-9.]*)/);
-      if (propTypeMatch) {
-        const type = propTypeMatch[1];
-        // Only include SFCC types (those that start with uppercase or contain dots)
-        if (/^[A-Z]/.test(type) || type.includes('.')) {
-          referencedTypes.add(type);
-        }
-      }
-
-      // Extract return types from method signatures
-      const methodReturnMatch = line.match(/:\s*([A-Za-z][A-Za-z0-9.]*)\s*$/);
-      if (methodReturnMatch) {
-        const type = methodReturnMatch[1];
-        if (/^[A-Z]/.test(type) || type.includes('.')) {
-          referencedTypes.add(type);
-        }
-      }
-
-      // Extract parameter types from method signatures
-      const paramMatches = line.match(/\(\s*([^)]+)\s*\)/);
-      if (paramMatches) {
-        const params = paramMatches[1];
-        const typeMatches = params.match(/:\s*([A-Za-z][A-Za-z0-9.]*)/g);
-        if (typeMatches) {
-          typeMatches.forEach(match => {
-            const type = match.replace(/:\s*/, '');
-            if (/^[A-Z]/.test(type) || type.includes('.')) {
-              referencedTypes.add(type);
-            }
-          });
-        }
-      }
-    }
-
-    return Array.from(referencedTypes);
   }
 
   /**
@@ -690,23 +196,17 @@ export class SFCCDocumentationClient {
       return filteredDetails;
     }
 
-    const referencedTypeNames = this.extractReferencedTypes(content);
+    const referencedTypeNames = ReferencedTypesExtractor.extractFilteredReferencedTypes(content, className);
     const referencedTypes: SFCCClassDetails[] = [];
 
     // Get details for each referenced type
     for (const typeName of referencedTypeNames) {
-      // Skip if it's the same class to avoid circular references
-      if (typeName === className || typeName.endsWith(`.${className}`)) {
-        continue;
-      }
-
       try {
         const typeDetails = await this.getClassDetails(typeName);
         if (typeDetails) {
           referencedTypes.push(typeDetails);
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         // Silently skip types that can't be found
         this.logger.warn(`Could not find details for referenced type: ${typeName}`);
       }

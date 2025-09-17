@@ -85,9 +85,15 @@ sfcc-dev-mcp/
 │   │   │   ├── log-constants.ts  # Constants & configuration
 │   │   │   ├── log-types.ts      # TypeScript interfaces
 │   │   │   └── index.ts          # Module exports
+│   │   ├── docs/                 # Modular SFCC documentation system
+│   │   │   ├── documentation-scanner.ts # Documentation file discovery and class listing
+│   │   │   ├── class-content-parser.ts # Markdown parsing and content extraction
+│   │   │   ├── class-name-resolver.ts # Class name normalization and resolution
+│   │   │   ├── referenced-types-extractor.ts # Type extraction from documentation content
+│   │   │   └── index.ts          # Module exports
 │   │   ├── cartridge-generation-client.ts # Cartridge structure generation client
 │   │   ├── log-client.ts         # Log client compatibility wrapper
-│   │   ├── docs-client.ts        # SFCC documentation client
+│   │   ├── docs-client.ts        # SFCC documentation client orchestrator
 │   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
 │   │   └── best-practices-client.ts # Best practices guide client
@@ -238,8 +244,14 @@ sfcc-dev-mcp/
 - **LogConstants** (`log-constants.ts`): Centralized constants, configuration values, message templates, and job log patterns
 - **LogTypes** (`log-types.ts`): Comprehensive TypeScript interfaces for all log operations including job log types
 
+##### **Modular SFCC Documentation System** (`clients/docs/`)
+- **DocumentationScanner** (`documentation-scanner.ts`): File discovery and class listing across all SFCC namespaces, scanning Markdown documentation files and building comprehensive class inventories
+- **ClassContentParser** (`class-content-parser.ts`): Markdown parsing and content extraction, processing class documentation to extract methods, properties, constants, and inheritance information
+- **ClassNameResolver** (`class-name-resolver.ts`): Class name normalization and resolution, handling various naming patterns and ensuring consistent class identification across the documentation system
+- **ReferencedTypesExtractor** (`referenced-types-extractor.ts`): Type extraction from documentation content with circular reference protection, identifying SFCC types used in method signatures and class relationships
+
 ##### **Service Clients** (`clients/`)
-- **DocsClient** (`docs-client.ts`): Processes SFCC documentation and provides search capabilities across all namespaces
+- **DocsClient** (`docs-client.ts`): Main orchestrator for SFCC documentation processing that coordinates specialized modules for documentation scanning, content parsing, class name resolution, and type extraction across all namespaces
 - **LogClient** (`log-client.ts`): Backward compatibility wrapper that re-exports the modular log system
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
@@ -435,6 +447,7 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
 - **Job Log Analysis**: Use job log tools for debugging custom job steps - `get_latest_job_log_files`, `get_job_log_entries`, `search_job_logs`, `search_job_logs_by_name`, `get_job_execution_summary`
 - **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
+- **Modular Documentation Development**: Work with individual documentation modules in `clients/docs/` for specific functionality - modify `documentation-scanner.ts` for file discovery improvements, `class-content-parser.ts` for parsing enhancements, `class-name-resolver.ts` for name resolution logic, or `referenced-types-extractor.ts` for type extraction algorithms
 - **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
 - **CI-Friendly Performance Testing**: When writing performance tests, use lenient timeouts (500ms+) and variation ratios (50x+) to account for GitHub Actions CI environment variability. Prioritize functional validation over strict timing requirements to prevent flaky failures due to infrastructure differences.
 
@@ -697,6 +710,20 @@ The comprehensive log client refactoring provides:
 7. **Centralized Configuration**: All constants and configuration values managed in `log-constants.ts`
 8. **Type Safety**: Comprehensive TypeScript interfaces in `log-types.ts` for all log operations
 9. **Backward Compatibility**: Original API preserved through orchestrator pattern in main `log-client.ts`
+
+### 📚 Modular Documentation Architecture Benefits
+
+The comprehensive documentation client refactoring provides:
+
+1. **Single Responsibility Principle**: Each module has one focused purpose (scanning, parsing, resolving, extracting)
+2. **Improved Maintainability**: Changes to parsing logic don't affect file discovery or type extraction functionality
+3. **Better Testing**: Individual modules can be tested in isolation with targeted test cases and mock data
+4. **Performance Optimization**: File scanning and content parsing isolated for focused improvements and caching strategies
+5. **Extensible Processing**: New content parsing patterns can be added to `class-content-parser.ts` without affecting other components
+6. **Flexible Type Extraction**: Advanced type extraction algorithms in `referenced-types-extractor.ts` with circular reference protection
+7. **Centralized Name Resolution**: All class name normalization logic managed in `class-name-resolver.ts`
+8. **Type Safety**: Comprehensive TypeScript interfaces for all documentation operations
+9. **Backward Compatibility**: Original API preserved through orchestrator pattern in main `docs-client.ts`
 
 This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
 
