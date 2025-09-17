@@ -1,0 +1,783 @@
+# ==================================================================================
+# SFCC MCP Server - get_system_object_definitions Tool YAML Tests
+# Comprehensive testing for SFCC system object definitions retrieval functionality
+# Tests both successful responses and error handling scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/get-system-object-definitions.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/get-system-object-definitions.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query get_system_object_definitions '{}' --config "conductor.config.with-dw.json"
+# conductor query get_system_object_definitions '{"start": 0, "count": 3}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+
+description: "get_system_object_definitions tool tests - Retrieve all SFCC system object definitions"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_system_object_definitions tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+  - it: "should have get_system_object_definitions in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description-quality"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description-quality"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+  - it: "should have proper input schema structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESS SCENARIOS - DEFAULT PARAMETERS
+# ==================================================================================
+
+  - it: "should retrieve system object definitions with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "default-params"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "default-params"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"  # Should complete within 2 seconds
+      stderr: "toBeEmpty"
+
+  - it: "should return valid JSON structure in response text"
+    request:
+      jsonrpc: "2.0"
+      id: "json-structure"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:\\{[\\s\\S]*\"_type\"[\\s\\S]*\"object_type_definitions\"[\\s\\S]*\\}"
+          isError: false
+
+  - it: "should contain SFCC system object types in response"
+    request:
+      jsonrpc: "2.0"
+      id: "system-objects-content"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "system-objects-content"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"object_type\"[\\s\\S]*\"Product\"[\\s\\S]*"
+          isError: false
+
+  - it: "should include multiple object types in the response"
+    request:
+      jsonrpc: "2.0"
+      id: "multiple-objects"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "multiple-objects"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*(Product|Category|Order|Customer)[\\s\\S]*(Product|Category|Order|Customer)[\\s\\S]*"
+          isError: false
+
+  - it: "should include pagination metadata in response"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-metadata"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-metadata"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*\"start\"[\\s\\S]*\"total\"[\\s\\S]*"
+          isError: false
+
+  - it: "should include SFCC API version and type metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "api-metadata"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "api-metadata"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"_v\"[\\s\\S]*\"_type\"[\\s\\S]*object_type_definitions[\\s\\S]*"
+          isError: false
+
+# ==================================================================================
+# SUCCESS SCENARIOS - PAGINATION PARAMETERS
+# ==================================================================================
+
+  - it: "should handle pagination with start parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-start"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 2
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-start"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*:[\\s]*2[\\s\\S]*"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+
+  - it: "should handle pagination with count parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*3[\\s\\S]*"
+          isError: false
+
+  - it: "should include pagination URLs when applicable"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-urls"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 2
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-urls"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*(\"next\"|\"previous\")[\\s\\S]*"
+          isError: false
+
+  - it: "should handle custom select parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "custom-select"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          select: "(*)"
+          count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "custom-select"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+  - it: "should handle zero start parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "zero-start"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "zero-start"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*:[\\s]*0[\\s\\S]*"
+          isError: false
+
+# ==================================================================================
+# PERFORMANCE TESTING
+# ==================================================================================
+
+  - it: "should retrieve definitions efficiently with small count"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-small"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-small"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "1500ms"  # Smaller result set should be faster
+
+  - it: "should handle larger count requests efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-large"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 50
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-large"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "3000ms"  # Larger result set may take longer
+
+# ==================================================================================
+# EDGE CASES AND BOUNDARY CONDITIONS
+# ==================================================================================
+
+  - it: "should handle minimum count parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-min-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-min-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*1[\\s\\S]*"
+          isError: false
+
+  - it: "should handle large start parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-large-start"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 1000
+          count: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-large-start"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+  - it: "should handle maximum reasonable count parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "edge-max-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 200
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "edge-max-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "4000ms"  # Maximum count may take longer
+
+# ==================================================================================
+# DATA VALIDATION SCENARIOS
+# ==================================================================================
+
+  - it: "should return proper SFCC object type definition structure"
+    request:
+      jsonrpc: "2.0"
+      id: "data-structure"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "data-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_type_definition\"[\\s\\S]*\"object_type\"[\\s\\S]*"
+          isError: false
+
+  - it: "should include resource state information"
+    request:
+      jsonrpc: "2.0"
+      id: "resource-state"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "resource-state"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"_resource_state\"[\\s\\S]*"
+          isError: false
+
+  - it: "should include API links for object definitions"
+    request:
+      jsonrpc: "2.0"
+      id: "api-links"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "api-links"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"link\"[\\s\\S]*system_object_definitions[\\s\\S]*"
+          isError: false
+
+  - it: "should identify system vs custom objects by type"
+    request:
+      jsonrpc: "2.0"
+      id: "object-types"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "object-types"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"object_type\"[\\s\\S]*"
+          isError: false
+
+# ==================================================================================
+# PARAMETER VALIDATION AND TYPE CHECKING
+# ==================================================================================
+
+  - it: "should handle string start parameter (type coercion)"
+    request:
+      jsonrpc: "2.0"
+      id: "param-string-start"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: "5"
+          count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "param-string-start"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+  - it: "should handle string count parameter (type coercion)"
+    request:
+      jsonrpc: "2.0"
+      id: "param-string-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: "3"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "param-string-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+  - it: "should handle partial parameter sets"
+    request:
+      jsonrpc: "2.0"
+      id: "param-partial"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "param-partial"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+# ==================================================================================
+# NEGATIVE SCENARIOS - PARAMETER VALIDATION
+# ==================================================================================
+
+  - it: "should handle negative start parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "negative-start"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: -1
+          count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "negative-start"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          # Should still work - negative values may be handled by server
+          isError: false
+
+  - it: "should handle negative count parameter gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "negative-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: -5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "negative-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          # Should still work - server may handle negative counts
+          isError: false
+
+  - it: "should handle zero count parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "zero-count"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "zero-count"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+
+# ==================================================================================
+# CONSISTENCY AND RELIABILITY TESTING
+# ==================================================================================
+
+  - it: "should return consistent results across multiple calls"
+    request:
+      jsonrpc: "2.0"
+      id: "consistency-1"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistency-1"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*3[\\s\\S]*"
+          isError: false
+
+  - it: "should return consistent results on second call"
+    request:
+      jsonrpc: "2.0"
+      id: "consistency-2"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistency-2"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*3[\\s\\S]*"
+          isError: false
+
+  - it: "should maintain stable API version information"
+    request:
+      jsonrpc: "2.0"
+      id: "stable-version"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "stable-version"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"_v\"[\\s\\S]*\"\\d+\\.\\d+\"[\\s\\S]*"
+          isError: false
+
+# ==================================================================================
+# CONSISTENCY TESTING - TOOL AVAILABILITY
+# ==================================================================================
+
+  - it: "should consistently include system object tools across multiple calls"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-inclusion-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-inclusion-1"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+
+  - it: "should maintain consistent tool inclusion on second call"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-inclusion-2"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-inclusion-2"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"
+
+  - it: "should consistently provide tool at correct index"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-tool-index"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-tool-index"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definitions"

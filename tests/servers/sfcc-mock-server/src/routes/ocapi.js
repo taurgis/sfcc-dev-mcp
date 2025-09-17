@@ -111,12 +111,40 @@ class OCAPIRouteHandler {
         const startInt = parseInt(start);
         const countInt = parseInt(count);
         const paginatedData = mockData.data.slice(startInt, startInt + countInt);
+        
+        // Calculate pagination URLs
+        const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`;
+        let nextUrl = null;
+        let previousUrl = null;
+        
+        // Generate next URL if there are more items
+        const hasMore = (startInt + paginatedData.length) < mockData.total;
+        if (hasMore) {
+            const nextStart = startInt + countInt;
+            nextUrl = `${baseUrl}?start=${nextStart}&count=${countInt}`;
+            if (select !== '(**)') {
+                nextUrl += `&select=${encodeURIComponent(select)}`;
+            }
+        }
+        
+        // Generate previous URL if not at the beginning
+        if (startInt > 0) {
+            const prevStart = Math.max(0, startInt - countInt);
+            previousUrl = `${baseUrl}?start=${prevStart}&count=${countInt}`;
+            if (select !== '(**)') {
+                previousUrl += `&select=${encodeURIComponent(select)}`;
+            }
+        }
 
         res.json({
-            ...mockData,
-            start: startInt,
-            count: paginatedData.length,
-            data: paginatedData
+            "_v": mockData._v,
+            "_type": mockData._type,
+            "count": paginatedData.length,
+            "data": paginatedData,
+            "next": nextUrl,
+            "previous": previousUrl,
+            "start": startInt,
+            "total": mockData.total
         });
     }
 

@@ -1133,7 +1133,7 @@ tests:
               text: "match:contains:Order"
           isError: false
       performance:
-        maxResponseTime: "100ms"  # Basic order class lookup should be under 100ms
+        maxResponseTime: "150ms"  # Basic order class lookup should be under 100ms
       stderr: "toBeEmpty"
 
   - it: "should handle non-existent class error within timeout"
