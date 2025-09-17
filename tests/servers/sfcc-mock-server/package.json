@@ -1,0 +1,39 @@
+{
+  "name": "sfcc-mock-server",
+  "version": "1.0.0",
+  "description": "Unified SFCC Mock Server combining WebDAV and OCAPI functionality for testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --dev",
+    "start:port": "node server.js --port 3001",
+    "start:custom": "node server.js --host 0.0.0.0 --port 3000 --dev",
+    "setup": "npm install && npm run setup:logs",
+    "setup:clean": "rm -rf mock-data/logs && mkdir -p mock-data/logs && echo 'Cleaned up mock logs directory.'",
+    "setup:logs": "npm run setup:clean && node scripts/setup-logs.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0"
+  },
+  "keywords": [
+    "sfcc",
+    "webdav",
+    "ocapi",
+    "mock",
+    "testing",
+    "mcp",
+    "salesforce",
+    "b2c-commerce",
+    "unified"
+  ],
+  "author": "SFCC Dev MCP",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

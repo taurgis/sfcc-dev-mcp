@@ -10,7 +10,6 @@
   "cwd": "./",
   "startupTimeout": 10000,
   "env": {
-    "NODE_ENV": "test",
-    "LOCAL_OCAPI_MOCK_URL": "http://localhost:4000"
+    "NODE_ENV": "test"
   }
 }

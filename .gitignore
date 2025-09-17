@@ -4,6 +4,7 @@
 /docs-site-old/.bundle
 /docs-site-old/_site
 /docs-site-old/vendor
-tests/servers/webdav/mock-logs/Logs/
+tests/servers/sfcc-mock-server/mock-data/logs/
 tests/servers/webdav/node_modules/
 tests/servers/ocapi/node_modules/
+tests/servers/sfcc-mock-server/node_modules/

@@ -10,8 +10,8 @@ const path = require('path');
 
 class MockLogGenerator {
     constructor() {
-        this.baseDir = path.join(__dirname, 'mock-logs');
-        this.logsDir = path.join(this.baseDir, 'Logs');
+        this.baseDir = path.join(__dirname, '../mock-data');
+        this.logsDir = path.join(this.baseDir, 'logs');
         this.jobsDir = path.join(this.logsDir, 'jobs');
         
         // Current date for log file naming
@@ -179,7 +179,7 @@ class MockLogGenerator {
         this.generateJobLogs();
 
         console.log('✅ Mock log generation completed!');
-        console.log(`📁 Logs created in: ${this.logsDir}`);
+        console.log(`� Logs created in: ${this.logsDir}`);
     }
 }
 
