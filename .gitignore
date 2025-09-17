@@ -6,3 +6,4 @@
 /docs-site-old/vendor
 tests/servers/webdav/mock-logs/Logs/
 tests/servers/webdav/node_modules/
+tests/servers/ocapi/node_modules/

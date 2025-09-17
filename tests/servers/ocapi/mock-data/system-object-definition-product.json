@@ -1,0 +1,31 @@
+{
+  "_type": "object_type_definition",
+  "object_type": "Product",
+  "display_name": {
+    "default": "Product",
+    "en": "Product",
+    "fr": "Produit",
+    "de": "Produkt"
+  },
+  "description": {
+    "default": "Salesforce B2C Commerce product object definition. This represents a sellable item in the catalog with variants, pricing, and inventory information.",
+    "en": "Salesforce B2C Commerce product object definition. This represents a sellable item in the catalog with variants, pricing, and inventory information.",
+    "fr": "Définition d'objet produit Salesforce B2C Commerce. Ceci représente un article vendable dans le catalogue avec des variantes, des prix et des informations d'inventaire.",
+    "de": "Salesforce B2C Commerce Produktobjektdefinition. Dies stellt einen verkäuflichen Artikel im Katalog mit Varianten, Preisen und Lagerinformationen dar."
+  },
+  "attribute_definition_count": 45,
+  "attribute_group_count": 8,
+  "key_attribute_id": "id",
+  "content_object": false,
+  "queryable": true,
+  "read_only": false,
+  "creation_date": "2021-01-01T00:00:00.000Z",
+  "last_modified": "2024-01-01T00:00:00.000Z",
+  "created_by": "system",
+  "last_modified_by": "admin",
+  "custom_metadata": {
+    "api_version": "v21_3",
+    "sfcc_version": "24.4",
+    "primary_use_case": "catalog_management"
+  }
+}

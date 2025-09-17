@@ -1,0 +1,41 @@
+{
+  "name": "sfcc-mock-ocapi-server",
+  "version": "1.0.0",
+  "description": "Mock SFCC OCAPI server for testing the SFCC Development MCP Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --dev",
+    "start:port": "node server.js --port 4001",
+    "start:custom": "node server.js --host 0.0.0.0 --port 4000 --dev",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "sfcc",
+    "ocapi",
+    "mock",
+    "testing",
+    "mcp",
+    "salesforce",
+    "b2c-commerce"
+  ],
+  "author": "SFCC Development MCP Server",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taurgis/sfcc-dev-mcp.git",
+    "directory": "tests/servers/ocapi"
+  },
+  "bugs": {
+    "url": "https://github.com/taurgis/sfcc-dev-mcp/issues"
+  },
+  "homepage": "https://github.com/taurgis/sfcc-dev-mcp#readme"
+}
