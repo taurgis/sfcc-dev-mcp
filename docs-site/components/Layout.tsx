@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import OnThisPage from './OnThisPage';
-import DonationBanner from './DonationBanner';
 import { TocItem } from '../types';
 
 interface LayoutProps {
@@ -129,9 +128,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
         </div>
       </header>
-
-      {/* Donation Banner */}
-      <DonationBanner />
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
