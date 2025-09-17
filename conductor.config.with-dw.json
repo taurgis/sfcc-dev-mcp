@@ -11,6 +11,6 @@
   "startupTimeout": 10000,
   "env": {
     "NODE_ENV": "test",
-    "LOCAL_OCAPI_MOCK_URL": "http://localhost:4001"
+    "LOCAL_OCAPI_MOCK_URL": "http://localhost:4000"
   }
 }

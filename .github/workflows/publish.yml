@@ -44,6 +44,13 @@ jobs:
           node server.js &
           sleep 5
 
+      - name: Setup OCAPI test server
+        run: |
+          cd tests/servers/ocapi
+          npm install
+          node server.js &
+          sleep 5
+
       - name: Run tests
         run: npm test
 
@@ -85,6 +92,15 @@ jobs:
           fi
           # Fallback: kill any remaining server processes
           pkill -f "node.*server.js" || true
+
+      - name: Stop OCAPI server
+        if: always()
+        run: |
+          cd tests/servers/ocapi
+          # Kill OCAPI server process
+          pkill -f "node.*server.js.*ocapi" || true
+          # Fallback: kill any remaining server processes on port 4000
+          lsof -ti :4000 | xargs kill -9 2>/dev/null || true
 
       - name: Publish to NPM
         run: npm publish
