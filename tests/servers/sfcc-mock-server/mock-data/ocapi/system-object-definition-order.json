@@ -1,0 +1,26 @@
+{
+  "_v": "23.2",
+  "_type": "object_type_definition",
+  "attribute_definition_count": 67,
+  "attribute_group_count": 12,
+  "content_object": false,
+  "creation_date": "2024-02-19T10:18:31.000Z",
+  "description": {
+    "default": "Object type representing orders."
+  },
+  "display_name": {
+    "de": "Bestellung",
+    "default": "Order",
+    "ja": "注文",
+    "it": "Ordine",
+    "fr": "Commande",
+    "zh-CN": "订单",
+    "es": "Pedido",
+    "nl": "Bestelling"
+  },
+  "last_modified": "2024-02-19T10:18:31.000Z",
+  "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order",
+  "object_type": "Order",
+  "queryable": true,
+  "read_only": true
+}

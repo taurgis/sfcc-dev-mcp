@@ -1,0 +1,671 @@
+# ==================================================================================
+# SFCC MCP Server - get_system_object_definition Tool YAML Tests (Full Mode)
+# Comprehensive testing for SFCC single system object definition retrieval functionality
+# Tests successful responses, error handling, and performance scenarios
+# 
+# Quick Test Commands:
+# conductor "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
+# conductor "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
+# conductor query get_system_object_definition '{"objectType": "Product"}' --config "conductor.config.with-dw.json"
+# conductor query get_system_object_definition '{"objectType": "Customer"}' --config "conductor.config.with-dw.json"
+# ==================================================================================
+
+description: "get_system_object_definition tool tests - Retrieve specific SFCC system object definition metadata"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_system_object_definition tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definition"
+      stderr: "toBeEmpty"
+
+  - it: "should have get_system_object_definition in tools list with proper structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-metadata"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-metadata"
+        result:
+          tools: "match:arrayContains:name:get_system_object_definition"
+      stderr: "toBeEmpty"
+
+  - it: "should have tool with meaningful description containing system object"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-description"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-description"
+        result:
+          tools:
+            match:arrayContains:name:get_system_object_definition
+      stderr: "toBeEmpty"
+
+  - it: "should have get_system_object_definition tool with description mentioning system object"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema"
+        result:
+          tools:
+            match:arrayContains:name:get_system_object_definition
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL OBJECT RETRIEVAL TESTS
+# ==================================================================================
+
+  - it: "should successfully retrieve Product object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "product-def"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-def"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_type_definition"
+          isError: false
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve Product with correct metadata structure"
+    request:
+      jsonrpc: "2.0"
+      id: "product-structure"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"object_type\"[\\s\\S]*:[\\s\\S]*\"Product\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve Product with attribute counts"
+    request:
+      jsonrpc: "2.0"
+      id: "product-counts"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-counts"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"attribute_definition_count\"[\\s\\S]*:[\\s\\S]*113[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve Product with configuration flags"
+    request:
+      jsonrpc: "2.0"
+      id: "product-flags"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-flags"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"content_object\"[\\s\\S]*:[\\s\\S]*true[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully retrieve Customer object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "customer-def"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customer-def"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Customer"
+          isError: false
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve Customer with queryable flag true"
+    request:
+      jsonrpc: "2.0"
+      id: "customer-queryable"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customer-queryable"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"queryable\"[\\s\\S]*:[\\s\\S]*true[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully retrieve CustomerAddress object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "customeraddress-def"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "CustomerAddress"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customeraddress-def"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomerAddress"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve CustomerAddress with content_object false"
+    request:
+      jsonrpc: "2.0"
+      id: "customeraddress-content"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "CustomerAddress"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customeraddress-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"content_object\"[\\s\\S]*:[\\s\\S]*false[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully retrieve Order object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "order-def"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "order-def"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Order"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve Order with read_only flag true"
+    request:
+      jsonrpc: "2.0"
+      id: "order-readonly"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "order-readonly"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"read_only\"[\\s\\S]*:[\\s\\S]*true[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should successfully retrieve Category object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "category-def"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Category"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-def"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Category"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# FALLBACK BEHAVIOR TESTS (Unknown Object Types)
+# ==================================================================================
+
+  - it: "should handle unknown object type with fallback response"
+    request:
+      jsonrpc: "2.0"
+      id: "unknown-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "NonExistentObject"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "unknown-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:NonExistentObject"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return fallback with default attribute counts for unknown type"
+    request:
+      jsonrpc: "2.0"
+      id: "unknown-fallback"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "UnknownType"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "unknown-fallback"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"attribute_definition_count\"[\\s\\S]*:[\\s\\S]*0[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return fallback with queryable true for unknown type"
+    request:
+      jsonrpc: "2.0"
+      id: "unknown-queryable"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "AnotherUnknownType"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "unknown-queryable"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"queryable\"[\\s\\S]*:[\\s\\S]*true[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# JSON STRUCTURE VALIDATION TESTS
+# ==================================================================================
+
+  - it: "should return valid JSON structure for Product"
+    request:
+      jsonrpc: "2.0"
+      id: "product-json"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-json"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\{[\\s\\S]*\\}$"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include required SFCC metadata fields"
+    request:
+      jsonrpc: "2.0"
+      id: "required-fields"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "required-fields"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*object_type_definition[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include localized display names"
+    request:
+      jsonrpc: "2.0"
+      id: "localized-names"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "localized-names"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"display_name\"[\\s\\S]*\"default\"[\\s\\S]*Product[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include timestamps"
+    request:
+      jsonrpc: "2.0"
+      id: "timestamps"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "timestamps"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"creation_date\"[\\s\\S]*\"last_modified\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PARAMETER VALIDATION TESTS
+# ==================================================================================
+
+  - it: "should handle missing objectType parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-param"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid parameter types"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-param-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-param-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle empty string objectType"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-object-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CASE SENSITIVITY TESTS
+# ==================================================================================
+
+  - it: "should handle lowercase object type"
+    request:
+      jsonrpc: "2.0"
+      id: "lowercase-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "lowercase-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:product"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle uppercase object type (normalizes to Product)"
+    request:
+      jsonrpc: "2.0"
+      id: "uppercase-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "PRODUCT"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "uppercase-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Product"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE VALIDATION TESTS
+# ==================================================================================
+
+  - it: "should respond quickly for existing object types"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-existing"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-existing"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Product"
+          isError: false
+      performance:
+        maxResponseTime: "600ms"
+      stderr: "toBeEmpty"
+
+  - it: "should respond quickly for unknown object types"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-unknown"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "FastUnknownType"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-unknown"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:FastUnknownType"
+          isError: false
+      performance:
+        maxResponseTime: "600ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# EDGE CASE TESTS
+# ==================================================================================
+
+  - it: "should handle object type with special characters (validation error)"
+    request:
+      jsonrpc: "2.0"
+      id: "special-chars"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Object-With_Special.Chars"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "special-chars"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Invalid object type"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle very long object type name"
+    request:
+      jsonrpc: "2.0"
+      id: "long-name"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "VeryLongObjectTypeNameThatExceedsNormalLengthLimitations"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "long-name"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:VeryLongObjectTypeNameThatExceedsNormalLengthLimitations"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle object type with numbers"
+    request:
+      jsonrpc: "2.0"
+      id: "with-numbers"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Object123Type456"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "with-numbers"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Object123Type456"
+          isError: false
+      stderr: "toBeEmpty"
