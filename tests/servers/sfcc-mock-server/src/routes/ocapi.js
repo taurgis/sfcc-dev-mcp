@@ -67,8 +67,8 @@ class OCAPIRouteHandler {
             this.handleSearchCustomObjectAttributeDefinitions.bind(this)
         );
         
-        // Site Preferences Search
-        this.router.post(`/s/-/dw/data/${this.ocapiConfig.version}/site_preferences/:groupId/search`, 
+        // Site Preferences Search - proper SFCC route pattern
+        this.router.post(`/s/-/dw/data/${this.ocapiConfig.version}/site_preferences/preference_groups/:groupId/:instanceType/preference_search`, 
             requireAuth, 
             this.handleSearchSitePreferences.bind(this)
         );
@@ -79,7 +79,7 @@ class OCAPIRouteHandler {
             this.handleGetCodeVersions.bind(this)
         );
         
-        this.router.post(`/s/-/dw/data/${this.ocapiConfig.version}/code_versions/:versionId/activate`, 
+        this.router.patch(`/s/-/dw/data/${this.ocapiConfig.version}/code_versions/:versionId`, 
             requireAuth, 
             this.handleActivateCodeVersion.bind(this)
         );
@@ -94,20 +94,29 @@ class OCAPIRouteHandler {
         let mockData = this.dataLoader.loadOcapiData('system-object-definitions.json');
         
         if (!mockData) {
-            // Fallback mock data
-            mockData = this.getDefaultSystemObjectDefinitions();
+            // Fallback mock data with proper SFCC format
+            mockData = {
+                "_v": "24.4",
+                "_type": "system_object_definitions",
+                "count": 0,
+                "data": [],
+                "next": null,
+                "previous": null,
+                "start": 0,
+                "total": 0
+            };
         }
 
         // Apply pagination
         const startInt = parseInt(start);
         const countInt = parseInt(count);
-        const paginatedHits = mockData.hits.slice(startInt, startInt + countInt);
+        const paginatedData = mockData.data.slice(startInt, startInt + countInt);
 
         res.json({
             ...mockData,
             start: startInt,
-            count: paginatedHits.length,
-            hits: paginatedHits
+            count: paginatedData.length,
+            data: paginatedData
         });
     }
 
@@ -189,27 +198,58 @@ class OCAPIRouteHandler {
         let mockData = this.dataLoader.loadOcapiData(`system-object-attributes-${objectType.toLowerCase()}.json`);
         
         if (!mockData) {
-            // Create fallback data
+            // Create fallback data with realistic SFCC format
             mockData = {
-                count: 0,
-                hits: []
+                "_v": "23.2",
+                "_type": "object_attribute_definition_search_result",
+                "count": 0,
+                "hits": [],
+                "query": searchRequest.query || {"match_all_query": {}},
+                "start": 0,
+                "total": 0
             };
         }
 
         // Apply search and pagination
         let results = mockData.hits || [];
         
+        // Apply text search if provided
+        if (searchRequest.query && searchRequest.query.text_query) {
+            const searchTerm = searchRequest.query.text_query.search_phrase.toLowerCase();
+            results = results.filter(item => 
+                item.id.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Store total filtered results count
+        const totalFiltered = results.length;
+        
         // Apply pagination
         const start = searchRequest.start || 0;
         const count = searchRequest.count || 200;
         const paginatedResults = results.slice(start, start + count);
 
-        res.json({
-            count: paginatedResults.length,
-            total: results.length,
-            start,
-            hits: paginatedResults
-        });
+        // Build response in SFCC format
+        const response = {
+            "_v": mockData._v || "23.2",
+            "_type": "object_attribute_definition_search_result",
+            "count": paginatedResults.length,
+            "hits": paginatedResults,
+            "query": searchRequest.query || {"match_all_query": {}},
+            "start": start,
+            "total": totalFiltered
+        };
+
+        // Add next page link if there are more results
+        if (start + count < totalFiltered) {
+            response.next = {
+                "_type": "result_page",
+                "count": Math.min(count, totalFiltered - (start + count)),
+                "start": start + count
+            };
+        }
+
+        res.json(response);
     }
 
     /**
@@ -219,19 +259,25 @@ class OCAPIRouteHandler {
         const { objectType } = req.params;
         const searchRequest = req.body;
         
-        // Try to load specific attribute groups
-        let mockData = this.dataLoader.loadOcapiData(`system-object-groups-${objectType.toLowerCase()}.json`);
+        // Try to load specific attribute groups with correct naming
+        let mockData = this.dataLoader.loadOcapiData(`system-object-attribute-groups-${objectType.toLowerCase()}.json`);
         
         if (!mockData) {
-            // Create fallback data
+            // Create fallback data with proper SFCC format
             mockData = {
-                count: 0,
-                hits: []
+                "_v": "24.4",
+                "_type": "attribute_groups",
+                "count": 0,
+                "data": [],
+                "next": null,
+                "previous": null,
+                "start": 0,
+                "total": 0
             };
         }
 
         // Apply search and pagination
-        let results = mockData.hits || [];
+        let results = mockData.data || [];
         
         // Apply pagination
         const start = searchRequest.start || 0;
@@ -239,10 +285,10 @@ class OCAPIRouteHandler {
         const paginatedResults = results.slice(start, start + count);
 
         res.json({
+            ...mockData,
             count: paginatedResults.length,
-            total: results.length,
             start,
-            hits: paginatedResults
+            data: paginatedResults
         });
     }
 
@@ -257,15 +303,22 @@ class OCAPIRouteHandler {
         let mockData = this.dataLoader.loadOcapiData(`custom-object-attributes-${objectType.toLowerCase()}.json`);
         
         if (!mockData) {
-            // Create fallback data
+            // Create fallback data with proper SFCC format
             mockData = {
-                count: 0,
-                hits: []
+                "_v": "24.4",
+                "_type": "object_attribute_definition_search_result",
+                "count": 0,
+                "data": [],
+                "next": null,
+                "previous": null,
+                "start": 0,
+                "total": 0,
+                "query": searchRequest.query || {"match_all_query": {}}
             };
         }
 
         // Apply search and pagination
-        let results = mockData.hits || [];
+        let results = mockData.data || [];
         
         // Apply pagination
         const start = searchRequest.start || 0;
@@ -273,10 +326,10 @@ class OCAPIRouteHandler {
         const paginatedResults = results.slice(start, start + count);
 
         res.json({
+            ...mockData,
             count: paginatedResults.length,
-            total: results.length,
             start,
-            hits: paginatedResults
+            data: paginatedResults
         });
     }
 
@@ -284,22 +337,28 @@ class OCAPIRouteHandler {
      * Handle site preferences search
      */
     async handleSearchSitePreferences(req, res) {
-        const { groupId } = req.params;
+        const { groupId, instanceType } = req.params;
         const searchRequest = req.body;
         
         // Try to load specific site preferences
         let mockData = this.dataLoader.loadOcapiData(`site-preferences-${groupId.toLowerCase()}.json`);
         
         if (!mockData) {
-            // Create fallback data
+            // Create fallback data with proper SFCC format
             mockData = {
-                count: 0,
-                hits: []
+                "_v": "24.4",
+                "_type": "site_preferences",
+                "count": 0,
+                "data": [],
+                "next": null,
+                "previous": null,
+                "start": 0,
+                "total": 0
             };
         }
 
         // Apply search and pagination
-        let results = mockData.hits || [];
+        let results = mockData.data || [];
         
         // Apply pagination
         const start = searchRequest.start || 0;
@@ -307,10 +366,10 @@ class OCAPIRouteHandler {
         const paginatedResults = results.slice(start, start + count);
 
         res.json({
+            ...mockData,
             count: paginatedResults.length,
-            total: results.length,
             start,
-            hits: paginatedResults
+            data: paginatedResults
         });
     }
 
@@ -321,23 +380,33 @@ class OCAPIRouteHandler {
         let mockData = this.dataLoader.loadOcapiData('code-versions.json');
         
         if (!mockData) {
-            // Create fallback data
+            // Create fallback data with proper SFCC format
             mockData = {
-                count: 2,
-                data: [
+                "_v": "24.4",
+                "_type": "code_versions",
+                "count": 2,
+                "data": [
                     {
-                        id: 'version1',
-                        active: true,
-                        last_activation_time: new Date().toISOString(),
-                        rollout_percentage: 100
-                    },
-                    {
-                        id: 'version2',
-                        active: false,
-                        last_activation_time: null,
-                        rollout_percentage: 0
+                        "_type": "code_version",
+                        "id": "version1",
+                        "active": true,
+                        "activation_time": new Date().toISOString(),
+                        "last_modification_time": new Date().toISOString(),
+                        "total_size": 12345678,
+                        "cartridges": [
+                            { "name": "app_storefront_base" }
+                        ],
+                        "_links": {
+                            "self": {
+                                "href": "https://{{hostname}}/s/-/dw/data/v24_4/code_versions/version1"
+                            }
+                        }
                     }
-                ]
+                ],
+                "next": null,
+                "previous": null,
+                "start": 0,
+                "total": 2
             };
         }
 

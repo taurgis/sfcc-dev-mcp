@@ -1,0 +1,34 @@
+{
+  "_v": "23.2",
+  "_type": "preference_value_search_result",
+  "count": 5,
+  "hits": [
+    {
+      "_type": "preference_value",
+      "id": "ccvCardsAuthoriseEnabled"
+    },
+    {
+      "_type": "preference_value",
+      "id": "ccvStoreCardsInVaultEnabled"
+    },
+    {
+      "_type": "preference_value",
+      "id": "ccvAutoRefundEnabled"
+    },
+    {
+      "_type": "preference_value",
+      "id": "ccvScaReadyEnabled"
+    },
+    {
+      "_type": "preference_value",
+      "id": "ccv3DSExemption"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 5
+}

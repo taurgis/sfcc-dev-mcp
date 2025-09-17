@@ -267,13 +267,13 @@ describe('Unified SFCC Mock Server Integration', () => {
 
       const data = await response.json();
       expect(data).toHaveProperty('count');
-      expect(data).toHaveProperty('hits');
-      expect(Array.isArray(data.hits)).toBe(true);
+      expect(data).toHaveProperty('data');
+      expect(Array.isArray(data.data)).toBe(true);
 
       // Check for some common system objects
-      const objectIds = data.hits.map((obj: any) => obj.object_type);
+      const objectIds = data.data.map((obj: any) => obj.object_type);
       expect(objectIds).toContain('Product');
-      expect(objectIds).toContain('Customer');
+      expect(objectIds).toContain('CustomObject');
     });
 
     test('should serve site preferences', async () => {
@@ -304,7 +304,7 @@ describe('Unified SFCC Mock Server Integration', () => {
         count: 200,
       };
 
-      const response = await fetch(`${serverManager.getOCAPIUrl()}/site_preferences/SitePreferences/search`, {
+      const response = await fetch(`${serverManager.getOCAPIUrl()}/site_preferences/preference_groups/CCV/sandbox/preference_search`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

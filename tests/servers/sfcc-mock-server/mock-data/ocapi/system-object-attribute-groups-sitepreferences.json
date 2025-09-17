@@ -1,0 +1,44 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 5,
+  "hits": [
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "250db50d76a5e4bf869062a6ed5aab18d77aed015a880e4f0f5b8e86cc8e071d",
+      "id": "CCV",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/CCV"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "34dce900d8eb50d95d97fcc0fd74449e78720a0da5a6804e561f347d8fdb5227",
+      "id": "SFRA",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/SFRA"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "0d4f2e59140361592a0e6998fdd68bacc4f06e4fb77cb25fef07142f8289fb0e",
+      "id": "Storefront",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/Storefront"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "07d4d8544eb98d9036cfd6343d55206374c44f0438c1beb22a88f0ad6cc1089c",
+      "id": "System",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/System"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "bbcd6304068fcf391c849bb37952598bebed1bd55bafbe211e2a6539b4b522a9",
+      "id": "Integration",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/Integration"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 8
+}

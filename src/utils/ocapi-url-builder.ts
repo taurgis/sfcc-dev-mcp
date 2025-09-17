@@ -15,8 +15,16 @@ import { OCAPIConfig } from '../types/types.js';
  */
 export function buildOCAPIBaseUrl(config: OCAPIConfig): string {
   const version = config.version ?? 'v23_2';
+  const hostname = config.hostname;
 
-  return `https://${config.hostname}/s/-/dw/data/${version}`;
+  // Check if hostname is localhost (with or without port) for HTTP protocol
+  if (hostname === 'localhost' || hostname.startsWith('localhost:')) {
+    const protocol = hostname.includes('://') ? '' : 'http://';
+    return `${protocol}${hostname}/s/-/dw/data/${version}`;
+  }
+
+  // For live SFCC instances, use HTTPS
+  return `https://${hostname}/s/-/dw/data/${version}`;
 }
 
 /**

@@ -1,0 +1,26 @@
+{
+  "_v": "23.2",
+  "_type": "object_type_definition",
+  "attribute_definition_count": 23,
+  "attribute_group_count": 2,
+  "content_object": false,
+  "creation_date": "2024-02-19T10:18:31.000Z",
+  "description": {
+    "default": "Object type representing customer addresses."
+  },
+  "display_name": {
+    "de": "Kundenadresse",
+    "default": "Customer Address",
+    "ja": "顧客の住所",
+    "it": "Indirizzo del cliente",
+    "fr": "Adresse du client",
+    "zh-CN": "客户地址",
+    "es": "Dirección de cliente",
+    "nl": "Adres van klant"
+  },
+  "last_modified": "2024-02-19T10:18:31.000Z",
+  "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress",
+  "object_type": "CustomerAddress",
+  "queryable": false,
+  "read_only": false
+}

@@ -1,0 +1,44 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 5,
+  "hits": [
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "f5c17fdc7ebeaf9136d6fef12d76d68cf238abb98ccaa282e40a657b1a5fcfb6",
+      "id": "ChannelIntegration",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/ChannelIntegration"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "9787c54106885bf78ff45cd7f3a7f64a073d911485473db6289f4fb0252e345d",
+      "id": "ExternalSearch",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/ExternalSearch"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "01b32a52ad9a64e426f08a21c0d1c3732fa8f573399db8bcf8d68a49dbdea9b6",
+      "id": "Order",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/Order"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "3ad88093fb2451eb026a2c103b26018e9ab265391da20a39fb8bf3a8c5bb477d",
+      "id": "System",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/System"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "dc899d1d79f89a7a1845bc0fdea1e7b76b826f155f59807be55c0d8ce4763dc9",
+      "id": "Pricing",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/Pricing"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 35
+}

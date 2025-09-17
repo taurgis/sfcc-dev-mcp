@@ -1,0 +1,58 @@
+{
+  "_v": "23.2",
+  "_type": "code_version_result",
+  "count": 3,
+  "data": [
+    {
+      "_type": "code_version",
+      "activation_time": "2025-09-16T18:28:57Z",
+      "active": true,
+      "cartridges": [
+        "app_storefront_base",
+        "bm_app_storefront_base",
+        "bm_tools",
+        "int_stripe_core",
+        "modules",
+        "plugin_demo_mcp",
+        "plugin_mcp_example"
+      ],
+      "compatibility_mode": "22.7",
+      "id": "SFRA_AP_01_24_2024",
+      "last_modification_time": "2025-09-16T18:30:36Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/SFRA_AP_01_24_2024"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": [
+        "app_storefront_base",
+        "bm_tools",
+        "int_adyen_overlay",
+        "int_stripe_core"
+      ],
+      "compatibility_mode": "22.7",
+      "id": "version2",
+      "last_modification_time": "2023-10-14T15:45:00.000Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/version2"
+    },
+    {
+      "_type": "code_version",
+      "activation_time": "2025-09-16T18:28:18Z",
+      "active": false,
+      "cartridges": [
+        "app_storefront_base",
+        "bm_tools",
+        "plugin_giftcertificate",
+        "modules"
+      ],
+      "compatibility_mode": "22.7",
+      "id": "version3",
+      "last_modification_time": "2023-10-13T09:20:00.000Z",
+      "rollback": true,
+      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/version3"
+    }
+  ],
+  "total": 3
+}

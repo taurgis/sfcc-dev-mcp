@@ -1,279 +1,46 @@
 {
-  "count": 25,
-  "hits": [
+  "_v": "23.2",
+  "_type": "object_type_definitions",
+  "count": 6,
+  "data": [
     {
       "_type": "object_type_definition",
+      "_resource_state": "50ddc22db56ece8a16a546bb710d894b8a3d7a90d453c7d3e68c18f1957528b4",
       "object_type": "Product",
-      "display_name": {
-        "default": "Product"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce product object definition"
-      },
-      "attribute_definition_count": 45,
-      "attribute_group_count": 8,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product"
     },
     {
       "_type": "object_type_definition",
-      "object_type": "Customer",
-      "display_name": {
-        "default": "Customer"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce customer object definition"
-      },
-      "attribute_definition_count": 32,
-      "attribute_group_count": 6,
-      "key_attribute_id": "customer_no",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "Order",
-      "display_name": {
-        "default": "Order"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce order object definition"
-      },
-      "attribute_definition_count": 28,
-      "attribute_group_count": 5,
-      "key_attribute_id": "order_no",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
+      "_resource_state": "c02990e0c2dd64cecf2dd7f89b857718ddbf19c1607a30b2a964945f7d653343",
       "object_type": "Category",
-      "display_name": {
-        "default": "Category"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce category object definition"
-      },
-      "attribute_definition_count": 20,
-      "attribute_group_count": 4,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category"
     },
     {
       "_type": "object_type_definition",
-      "object_type": "Site",
-      "display_name": {
-        "default": "Site"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce site object definition"
-      },
-      "attribute_definition_count": 15,
-      "attribute_group_count": 3,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "_resource_state": "41677a8c9dc8a3d7bff48395880f3c80eac4d5627d82d03581f7e6ae8e36c0dd",
+      "object_type": "CustomerAddress",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress"
     },
     {
       "_type": "object_type_definition",
-      "object_type": "Campaign",
-      "display_name": {
-        "default": "Campaign"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce campaign object definition"
-      },
-      "attribute_definition_count": 12,
-      "attribute_group_count": 3,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "Coupon",
-      "display_name": {
-        "default": "Coupon"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce coupon object definition"
-      },
-      "attribute_definition_count": 18,
-      "attribute_group_count": 4,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "Promotion",
-      "display_name": {
-        "default": "Promotion"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce promotion object definition"
-      },
-      "attribute_definition_count": 25,
-      "attribute_group_count": 5,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "PriceBook",
-      "display_name": {
-        "default": "Price Book"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce price book object definition"
-      },
-      "attribute_definition_count": 10,
-      "attribute_group_count": 2,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
+      "_resource_state": "969b2870f867b14ec145ae39ddc0370ea64951112cde3275ff2bf063f045bf96",
       "object_type": "CustomObject",
-      "display_name": {
-        "default": "Custom Object"
-      },
-      "description": {
-        "default": "Custom business object definition"
-      },
-      "attribute_definition_count": 8,
-      "attribute_group_count": 2,
-      "key_attribute_id": "key_property",
-      "content_object": true,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
     },
     {
       "_type": "object_type_definition",
-      "object_type": "Content",
-      "display_name": {
-        "default": "Content"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce content object definition"
-      },
-      "attribute_definition_count": 22,
-      "attribute_group_count": 4,
-      "key_attribute_id": "id",
-      "content_object": true,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "_resource_state": "e7f6d5c4a3b2e1d0c9a8b7e6f5d4c3a2b1e0d9c8b7a6f5e4d3c2a1b0e9f8d7c6",
+      "object_type": "Order",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order"
     },
     {
       "_type": "object_type_definition",
-      "object_type": "ContentFolder",
-      "display_name": {
-        "default": "Content Folder"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce content folder object definition"
-      },
-      "attribute_definition_count": 12,
-      "attribute_group_count": 3,
-      "key_attribute_id": "id",
-      "content_object": true,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "CustomerGroup",
-      "display_name": {
-        "default": "Customer Group"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce customer group object definition"
-      },
-      "attribute_definition_count": 8,
-      "attribute_group_count": 2,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "SourceCodeInfo",
-      "display_name": {
-        "default": "Source Code Info"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce source code information object definition"
-      },
-      "attribute_definition_count": 6,
-      "attribute_group_count": 1,
-      "key_attribute_id": "id",
-      "content_object": false,
-      "queryable": true,
-      "read_only": true,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
-    },
-    {
-      "_type": "object_type_definition",
-      "object_type": "GiftCertificate",
-      "display_name": {
-        "default": "Gift Certificate"
-      },
-      "description": {
-        "default": "Salesforce B2C Commerce gift certificate object definition"
-      },
-      "attribute_definition_count": 14,
-      "attribute_group_count": 3,
-      "key_attribute_id": "gift_certificate_code",
-      "content_object": false,
-      "queryable": true,
-      "read_only": false,
-      "creation_date": "2021-01-01T00:00:00.000Z",
-      "last_modified": "2024-01-01T00:00:00.000Z"
+      "_resource_state": "d6c5a4b3e2d1c0a9b8e7f6d5c4a3b2e1d0c9a8b7e6f5d4c3a2b1e0d9c8b7a6f5",
+      "object_type": "SitePreferences",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences"
     }
   ],
-  "next": null,
-  "previous": null,
+  "next": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions?start=6&count=6",
   "start": 0,
-  "total": 25
+  "total": 72
 }
