@@ -2,6 +2,7 @@
   "name": "sfcc-dev-mcp",
   "version": "1.0.14",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
+  "mcpName": "io.github.taurgis/sfcc-dev-mcp",
   "main": "dist/index.js",
   "bin": {
     "sfcc-dev-mcp": "./dist/main.js"
@@ -36,6 +37,7 @@
     "test:webdav:start": "cd tests/servers/webdav && npm start",
     "test:webdav:dev": "cd tests/servers/webdav && npm run dev",
     "test:webdav": "jest --testPathPatterns=mock-webdav-server",
+    "validate:server-json": "node -e \"const {readFileSync} = require('fs'); const serverJson = JSON.parse(readFileSync('./server.json', 'utf8')); console.log('server.json is valid JSON'); console.log('Server name:', serverJson.name); console.log('Version:', serverJson.version); console.log('Package identifier:', serverJson.packages[0].identifier);\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint . --max-warnings 0",
@@ -68,6 +70,8 @@
     "@types/eslint": "9.6.1",
     "@types/jest": "30.0.0",
     "@types/node": "24.4.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "eslint": "9.35.0",
     "husky": "9.1.7",
     "jest": "30.1.3",
