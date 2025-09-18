@@ -90,6 +90,56 @@ server.post('HandleProfileUpdate', csrfProtection.validateRequest, function(req,
 });
 ```
 
+#### CRITICAL: CSRF Middleware Automation
+
+**❌ COMMON MISTAKE**: Manually adding CSRF tokens to viewData
+
+```javascript
+// ❌ WRONG - Don't do this!
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        csrf: {
+            tokenName: req.csrf.tokenName,  // ❌ Redundant
+            token: req.csrf.token           // ❌ Redundant  
+        }
+    });
+});
+```
+
+**✅ CORRECT APPROACH**: Let middleware handle it automatically
+
+```javascript
+// ✅ CORRECT - Middleware automatically adds CSRF to pdict
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        // No need to manually add CSRF - middleware does this
+        pageTitle: 'My Form',
+        otherData: 'value'
+    });
+    // pdict.csrf.tokenName and pdict.csrf.token are automatically available
+});
+```
+
+#### How CSRF Middleware Works
+
+**`csrfProtection.generateToken` automatically:**
+- Generates a secure token
+- Adds `csrf.tokenName` and `csrf.token` to the response's viewData
+- Makes them available in templates as `${pdict.csrf.tokenName}` and `${pdict.csrf.token}`
+
+**Templates access tokens directly:**
+```isml
+<!-- ✅ Tokens available automatically -->
+<input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+```
+
+**`csrfProtection.validateRequest` automatically:**
+- Validates the submitted token
+- Handles failures (logout/redirect)
+- Allows controller to proceed only if valid
+
+**Key Principle**: Never manually add CSRF data to viewData - the middleware handles this completely. Manually adding CSRF tokens is redundant and can lead to inconsistencies or security issues.
+
 ### Server-Side Validation & Output Encoding
 
 - **Validation**: Define validation rules (e.g., `mandatory`, `regexp`, `max-length`) in your form definition XML. SFRA automatically enforces these on the server when the form is processed. [14]

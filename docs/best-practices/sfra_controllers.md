@@ -225,6 +225,45 @@ server.post('AjaxSubmit', csrfProtection.validateAjaxRequest, function (req, res
 });
 ```
 
+#### CRITICAL: CSRF Middleware Automation
+
+**❌ COMMON MISTAKE**: Manually adding CSRF tokens to viewData
+
+```javascript
+// ❌ WRONG - Don't do this in SFRA controllers!
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        csrf: res.getViewData().csrf,    // ❌ Redundant
+        // OR
+        csrf: {
+            tokenName: req.csrf.tokenName,  // ❌ Redundant
+            token: req.csrf.token           // ❌ Redundant  
+        }
+    });
+});
+```
+
+**✅ CORRECT APPROACH**: Let middleware handle it automatically
+
+```javascript
+// ✅ CORRECT - Middleware automatically adds CSRF to pdict
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        // No need to manually add CSRF - middleware does this
+        pageTitle: 'My Form',
+        otherData: 'value'
+    });
+    // pdict.csrf.tokenName and pdict.csrf.token are automatically available
+    next();
+});
+```
+
+**How CSRF Middleware Works in SFRA:**
+- `csrfProtection.generateToken` automatically adds `csrf.tokenName` and `csrf.token` to viewData
+- Templates access tokens directly via `${pdict.csrf.tokenName}` and `${pdict.csrf.token}`
+- `csrfProtection.validateRequest` and `validateAjaxRequest` handle validation automatically
+- **Never manually add CSRF data to viewData** - it's redundant and can cause issues
+
 ### User Authentication (`userLoggedIn.js`)
 
 Middlewares for protecting routes that require authentication:
@@ -466,8 +505,10 @@ var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 server.get('ShowForm', csrfProtection.generateToken, function (req, res, next) {
     //... logic to render form...
     res.render('myFormTemplate', {
-        csrf: res.getViewData().csrf // Pass token to template
+        // ✅ CORRECT: No need to manually pass CSRF - middleware handles this
+        formData: someData
     });
+    // CSRF token automatically available as pdict.csrf.tokenName and pdict.csrf.token
     next();
 });
 
