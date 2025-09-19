@@ -1,6 +1,6 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import { Collapsible } from '../components/Collapsible';
 
 const badge = (label: string) => (
@@ -8,18 +8,31 @@ const badge = (label: string) => (
 );
 
 const FeaturesPage: React.FC = () => {
-  useSEO({
-    title: 'Features & Capabilities - SFCC Development MCP Server',
-    description: 'Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools.',
-    keywords: 'SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/features',
-    ogTitle: 'SFCC Development MCP Server Features & Capabilities',
-    ogDescription: 'Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/features'
-  });
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
+      <Head>
+        <title>Features & Capabilities - SFCC Development MCP Server</title>
+        <meta name="description" content="Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools." />
+        <meta name="keywords" content="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="SFCC Development MCP Server Features & Capabilities" />
+        <meta property="og:description" content="Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/features" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SFCC Development MCP Server Features & Capabilities" />
+        <meta name="twitter:description" content="Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/features" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       <header className="mb-14 text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
@@ -258,14 +271,14 @@ const FeaturesPage: React.FC = () => {
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Pick a direction—inspect the precise tool surface first or jump straight into multi-step usage patterns.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
           <a 
-            href="/#/tools" 
+            href="/tools" 
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Browse Tools
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
           <a 
-            href="/#/examples" 
+            href="/examples" 
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases

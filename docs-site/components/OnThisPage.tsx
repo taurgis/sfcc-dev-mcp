@@ -10,7 +10,7 @@ interface OnThisPageProps {
 const OnThisPage: React.FC<OnThisPageProps> = ({ items }) => {
   const [activeId, setActiveId] = useState<string>('');
   const location = useLocation();
-  const [initialPathHash, setInitialPathHash] = useState(window.location.hash);
+  const [initialPathHash, setInitialPathHash] = useState(typeof window !== 'undefined' ? window.location.hash : '');
 
   // Reset active ID when location changes
   useEffect(() => {
@@ -18,6 +18,9 @@ const OnThisPage: React.FC<OnThisPageProps> = ({ items }) => {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     if (items.length === 0) {
       setActiveId('');
       return;

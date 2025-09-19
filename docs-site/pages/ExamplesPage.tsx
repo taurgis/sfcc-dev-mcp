@@ -1,7 +1,7 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 
 const ModeBadge: React.FC<{ children: React.ReactNode; variant?: 'docs' | 'full' | 'mixed' }> = ({ children, variant = 'docs' }) => {
     const styles: Record<string, string> = {
@@ -56,18 +56,31 @@ const StepsList: React.FC<{ steps: Array<{ label: string; tool?: string; mode?: 
 );
 
 const ExamplesPage: React.FC = () => {
-    useSEO({
-        title: 'Examples & Workflows - SFCC Development MCP Server',
-        description: 'Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs.',
-        keywords: 'SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples',
-        canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples',
-        ogTitle: 'SFCC Development Examples - Prompt-First Workflows',
-        ogDescription: 'Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects.',
-        ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples'
-    });
-
     return (
         <div className="max-w-6xl mx-auto px-6 py-8">
+            <Head>
+                <title>Examples & Workflows - SFCC Development MCP Server</title>
+                <meta name="description" content="Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs." />
+                <meta name="keywords" content="SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples" />
+                <meta name="robots" content="index, follow" />
+                
+                {/* Open Graph tags */}
+                <meta property="og:title" content="SFCC Development Examples - Prompt-First Workflows" />
+                <meta property="og:description" content="Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects." />
+                <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/examples" />
+                <meta property="og:type" content="website" />
+                
+                {/* Twitter Card tags */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="SFCC Development Examples - Prompt-First Workflows" />
+                <meta name="twitter:description" content="Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/examples" />
+                
+                {/* Character encoding */}
+                <meta charSet="utf-8" />
+            </Head>
             <div className="text-center mb-14">
                 <H1 id="examples">💡 Prompt-First Examples</H1>
                 <PageSubtitle>
@@ -437,10 +450,10 @@ Improved:
             <div className="text-center mt-20">
                 <p className="text-lg text-slate-700 mb-6 font-medium">Ready to try these yourself?</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/#/ai-interfaces" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/ai-interfaces" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                         Configure Your AI Client <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
                     </a>
-                    <a href="/#/tools" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
+                    <a href="/tools" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
                         Browse All Tools
                     </a>
                 </div>

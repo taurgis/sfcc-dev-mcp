@@ -1,25 +1,38 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import { PageSubtitle, H2, H3 } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
 import ConfigHero from '../components/ConfigHero';
 import ConfigModeTabs from '../components/ConfigModeTabs';
 import ConfigBuilder from '../components/ConfigBuilder';
 import Collapsible from '../components/Collapsible';
 
 const ConfigurationPage: React.FC = () => {
-  useSEO({
-    title: 'Configuration Guide - SFCC Development MCP Server',
-    description: 'Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices.',
-    keywords: 'SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration',
-    ogTitle: 'SFCC Development MCP Server Configuration Guide',
-    ogDescription: 'Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration'
-  });
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <Head>
+        <title>Configuration Guide - SFCC Development MCP Server</title>
+        <meta name="description" content="Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices." />
+        <meta name="keywords" content="SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="SFCC Development MCP Server Configuration Guide" />
+        <meta property="og:description" content="Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/configuration" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SFCC Development MCP Server Configuration Guide" />
+        <meta name="twitter:description" content="Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/configuration" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       <ConfigHero />
       <div className="relative mb-16">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
@@ -260,11 +273,11 @@ const ConfigurationPage: React.FC = () => {
           <PageSubtitle className="text-base text-gray-600">Pick your next path—feature surface or concrete tool list.</PageSubtitle>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/#/features" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
+          <a href="/features" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
             Features Overview
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
-          <a href="/#/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
+          <a href="/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
             Available Tools
           </a>
         </div>

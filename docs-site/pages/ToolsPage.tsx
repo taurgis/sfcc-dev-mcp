@@ -1,21 +1,11 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import { H1, PageSubtitle } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import ToolFilters from '../components/ToolFilters';
 import ToolCard from '../components/ToolCard';
 import { tools, popularTools } from '../utils/toolsData';
 
 const ToolsPage: React.FC = () => {
-  useSEO({
-    title: 'Available Tools & APIs - SFCC Development MCP Server',
-    description: 'Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions.',
-    keywords: 'SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools',
-    ogTitle: 'SFCC Development MCP Server - Tools & APIs Reference',
-    ogDescription: 'Browse, filter and search all MCP tools with instant example prompts to accelerate development.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools'
-  });
-
   const [activeCategory, setActiveCategory] = React.useState('All');
   const [search, setSearch] = React.useState('');
   const [showPopularExpanded, setShowPopularExpanded] = React.useState(true);
@@ -36,6 +26,29 @@ const ToolsPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
+      <Head>
+        <title>Available Tools & APIs - SFCC Development MCP Server</title>
+        <meta name="description" content="Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions." />
+        <meta name="keywords" content="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="SFCC Development MCP Server - Tools & APIs Reference" />
+        <meta property="og:description" content="Browse, filter and search all MCP tools with instant example prompts to accelerate development." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/tools" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SFCC Development MCP Server - Tools & APIs Reference" />
+        <meta name="twitter:description" content="Browse, filter and search all MCP tools with instant example prompts to accelerate development." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/tools" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       {/* Hero */}
       <div className="text-center mb-14">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -124,14 +137,14 @@ const ToolsPage: React.FC = () => {
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Move from raw tool surface into practical flows or reinforce secure patterns before enabling full-mode capabilities.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
           <a
-            href="/#/examples"
+            href="/examples"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
           <a
-            href="/#/security"
+            href="/security"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Security Guidance

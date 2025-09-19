@@ -1,6 +1,6 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import { InlineCode } from '../components/CodeBlock';
 
 // Small utility card
@@ -57,18 +57,31 @@ const ModeFeatureList: React.FC<{ color: 'green' | 'blue'; items: Array<{ icon: 
 };
 
 const SecurityPage: React.FC = () => {
-  useSEO({
-    title: 'Security & Privacy - SFCC Development MCP Server',
-    description: 'Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist.',
-    keywords: 'SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/security',
-    ogTitle: 'SFCC Development MCP Server - Security & Privacy Guide',
-    ogDescription: 'Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/security'
-  });
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      <Head>
+        <title>Security & Privacy - SFCC Development MCP Server</title>
+        <meta name="description" content="Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist." />
+        <meta name="keywords" content="SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="SFCC Development MCP Server - Security & Privacy Guide" />
+        <meta property="og:description" content="Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/security" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SFCC Development MCP Server - Security & Privacy Guide" />
+        <meta name="twitter:description" content="Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/security" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       {/* Hero */}
       <header className="text-center mb-16">
         <Pill>Security & Privacy</Pill>
@@ -317,20 +330,20 @@ const SecurityPage: React.FC = () => {
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Keep momentum: refine configuration or explore advanced tooling now that baseline security posture is set.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
           <a
-            href="/#/configuration"
+            href="/configuration"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Configuration Guide
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
           <a
-            href="/#/features"
+            href="/features"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Explore Features
           </a>
           <a
-            href="/#/examples"
+            href="/examples"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             See Examples

@@ -1,23 +1,36 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import Collapsible from '../components/Collapsible';
 import Badge from '../components/Badge';
-import useSEO from '../hooks/useSEO';
 
 const TroubleshootingPage: React.FC = () => {
-    useSEO({
-        title: 'Troubleshooting & Debugging - SFCC Development MCP Server',
-        description: 'Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips.',
-        keywords: 'SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues',
-        canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/troubleshooting',
-        ogTitle: 'SFCC Development MCP Server Troubleshooting Guide',
-        ogDescription: 'Comprehensive troubleshooting guide for SFCC Development MCP Server. Solutions for authentication, connectivity, and AI integration issues.',
-        ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/troubleshooting'
-    });
-
     return (
         <>
+            <Head>
+                <title>Troubleshooting & Debugging - SFCC Development MCP Server</title>
+                <meta name="description" content="Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips." />
+                <meta name="keywords" content="SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues" />
+                <meta name="robots" content="index, follow" />
+                
+                {/* Open Graph tags */}
+                <meta property="og:title" content="SFCC Development MCP Server Troubleshooting Guide" />
+                <meta property="og:description" content="Comprehensive troubleshooting guide for SFCC Development MCP Server. Solutions for authentication, connectivity, and AI integration issues." />
+                <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting" />
+                <meta property="og:type" content="website" />
+                
+                {/* Twitter Card tags */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="SFCC Development MCP Server Troubleshooting Guide" />
+                <meta name="twitter:description" content="Comprehensive troubleshooting guide for SFCC Development MCP Server. Solutions for authentication, connectivity, and AI integration issues." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting" />
+                
+                {/* Character encoding */}
+                <meta charSet="utf-8" />
+            </Head>
             <H1 id="troubleshooting">🐛 Troubleshooting & Debugging</H1>
             <PageSubtitle>Quick solutions to get you back to developing SFCC features with AI assistance.</PageSubtitle>
 
@@ -476,11 +489,11 @@ sed 's/client-secret":"[^"]*"/client-secret":"***"/g' dw-safe.json > dw-final.js
                     <PageSubtitle className="text-base text-gray-600">Now that you've resolved your issues, explore the full capabilities.</PageSubtitle>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/#/configuration" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
+                    <a href="/configuration" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
                         Configuration Guide
                         <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
                     </a>
-                    <a href="/#/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
+                    <a href="/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
                         Available Tools
                     </a>
                 </div>

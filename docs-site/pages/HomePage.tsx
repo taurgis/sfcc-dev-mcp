@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { Head } from 'vite-react-ssg';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
 
 const HomePage: React.FC = () => {
   const [isWithoutMcpModalOpen, setIsWithoutMcpModalOpen] = useState(false);
@@ -49,18 +49,31 @@ const HomePage: React.FC = () => {
     setIsZooming2(false);
   }, []);
 
-  useSEO({
-    title: 'SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools',
-    description: 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance.',
-    keywords: 'SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/',
-    ogTitle: 'SFCC Development MCP Server - AI-Powered Commerce Cloud Development',
-    ogDescription: 'Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/'
-  });
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <Head>
+        <title>SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools</title>
+        <meta name="description" content="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance." />
+        <meta name="keywords" content="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="SFCC Development MCP Server - AI-Powered Commerce Cloud Development" />
+        <meta property="og:description" content="Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SFCC Development MCP Server - AI-Powered Commerce Cloud Development" />
+        <meta name="twitter:description" content="Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       {/* Hero Section */}
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -165,14 +178,14 @@ const HomePage: React.FC = () => {
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 mb-8">
         <a 
-          href="/#/ai-interfaces" 
+          href="/ai-interfaces" 
           className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
         >
           Get Started in 2 Minutes
           <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
         </a>
         <a 
-          href="/#/examples" 
+          href="/examples" 
           className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
         >
           See Examples
@@ -210,7 +223,7 @@ const HomePage: React.FC = () => {
                   Download AI Instructions
                 </a>
                 <a 
-                  href="/#/ai-interfaces" 
+                  href="/ai-interfaces" 
                   className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
                 >
                   📖 Setup Guide
@@ -720,11 +733,11 @@ const HomePage: React.FC = () => {
             <div className="mt-8 text-center">
               <p className="text-gray-600 mb-4">✅ Getting SFCC-specific answers? Your setup is working perfectly!</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="/#/examples" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
+                <a href="/examples" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
                   Try More Examples
                   <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                 </a>
-                <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
+                <a href="/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
                   Add Full Mode
                 </a>
               </div>
@@ -741,14 +754,14 @@ const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="/#/ai-interfaces" 
+              href="/ai-interfaces" 
               className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
             >
               Get Started Now
               <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
             </a>
             <a 
-              href="/#/features" 
+              href="/features" 
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
             >
               Explore Features

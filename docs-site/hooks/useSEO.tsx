@@ -30,6 +30,9 @@ export const useSEO = (props: SEOProps = {}) => {
   const seoConfig = { ...DEFAULT_SEO, ...props };
   
   useEffect(() => {
+    // Only run on client side
+    if (typeof document === 'undefined') return;
+    
     // Update document title
     document.title = seoConfig.title;
     

@@ -44,23 +44,29 @@ const Search: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-                event.preventDefault();
-                openSearch();
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.metaKey && e.key === 'k') {
+                e.preventDefault();
+                if (isOpen) {
+                    closeSearch();
+                } else {
+                    openSearch();
+                }
             }
-            if (event.key === 'Escape' && isOpen) {
-                closeSearch();
-            }
-            if (isOpen && results.length > 0) {
-                 if (event.key === 'ArrowDown') {
-                    event.preventDefault();
-                    setActiveIndex(prev => (prev + 1) % results.length);
-                } else if (event.key === 'ArrowUp') {
-                    event.preventDefault();
-                    setActiveIndex(prev => (prev - 1 + results.length) % results.length);
-                } else if (event.key === 'Enter' && activeIndex >= 0) {
-                    event.preventDefault();
+
+            if (isOpen) {
+                if (e.key === 'Escape') {
+                    closeSearch();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setActiveIndex(prev => prev < results.length - 1 ? prev + 1 : prev);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setActiveIndex(prev => prev > 0 ? prev - 1 : prev);
+                } else if (e.key === 'Enter' && activeIndex >= 0) {
                     const result = results[activeIndex];
                     handleNavigation(result.path, result.heading, result.headingId);
                 }
@@ -128,7 +134,9 @@ const Search: React.FC = () => {
             navigate(targetPath, { replace: false });
             // Use setTimeout to ensure navigation completes before adding hash
             setTimeout(() => {
-                window.location.hash = `#${targetPath}#${hashFragment}`;
+                if (typeof window !== 'undefined') {
+                    window.location.hash = `${targetPath}#${hashFragment}`;
+                }
             }, 100);
         } else {
             navigate(targetPath);

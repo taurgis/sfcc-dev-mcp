@@ -88,8 +88,8 @@ function generateSitemap() {
 </urlset>`;
 
   const urls = pages.map(page => {
-    // For hash routing, all URLs should point to the base URL with hash fragment
-    const url = page.path === '/' ? baseUrl : `${baseUrl}/#${page.path}`;
+    // For SSG routing, URLs should point to clean paths without hash fragments
+    const url = page.path === '/' ? baseUrl : `${baseUrl}${page.path}`;
     return `    
     <!-- ${page.description} -->
     <url>

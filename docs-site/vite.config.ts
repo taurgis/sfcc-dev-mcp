@@ -23,6 +23,10 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      // SSG specific configuration
+      ssgOptions: {
+        script: 'async',
+      },
     };
 });

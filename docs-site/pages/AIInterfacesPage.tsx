@@ -1,7 +1,7 @@
 import React from 'react';
+import { Head } from 'vite-react-ssg';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
 
 // Small reusable bullet list with icon
 const Check: React.FC<{ color?: string; children: React.ReactNode }> = ({ color = 'text-green-500', children }) => (
@@ -16,18 +16,31 @@ const SectionCard: React.FC<React.PropsWithChildren<{ className?: string }>> = (
 );
 
 const AIInterfacesPage: React.FC = () => {
-  useSEO({
-    title: 'AI Interface Integration - SFCC Development MCP Server',
-    description: 'Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server.',
-    keywords: 'Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces',
-    ogTitle: 'AI Interface Integration - SFCC Development MCP Server',
-    ogDescription: 'Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces'
-  });
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <Head>
+        <title>AI Interface Integration - SFCC Development MCP Server</title>
+        <meta name="description" content="Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server." />
+        <meta name="keywords" content="Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools" />
+        <meta name="robots" content="index, follow" />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="AI Interface Integration - SFCC Development MCP Server" />
+        <meta property="og:description" content="Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces." />
+        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="AI Interface Integration - SFCC Development MCP Server" />
+        <meta name="twitter:description" content="Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces." />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces" />
+        
+        {/* Character encoding */}
+        <meta charSet="utf-8" />
+      </Head>
       {/* Hero */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -137,11 +150,11 @@ const AIInterfacesPage: React.FC = () => {
                 </div>
                 <p className="text-lg text-gray-700 max-w-3xl mx-auto">Pick your next path—refine configuration or explore full capability surface.</p>
                 <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                  <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
+                  <a href="/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
                     Configuration Guide
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                   </a>
-                  <a href="/#/features" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
+                  <a href="/features" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
                     Explore Features
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                   </a>

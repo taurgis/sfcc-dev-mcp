@@ -1,15 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import OnThisPage from './OnThisPage';
 import { TocItem } from '../types';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC = () => {
   const [toc, setToc] = useState<TocItem[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -21,6 +17,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Scroll restoration - scroll to top on route change or to specific element if hash is present
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const scrollToTarget = () => {
       let targetId = '';
       
@@ -81,6 +80,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     // Use a small timeout to ensure the DOM has been updated with new content
     const timeoutId = setTimeout(() => {
       const mainContent = document.getElementById('main-content');
@@ -154,7 +156,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex min-w-0 max-w-full">
             <main id="main-content" className="flex-1 max-w-4xl mx-auto sm:p-4 lg:p-12 min-w-0 overflow-hidden">
               <div className="prose prose-slate max-w-none min-w-0 break-words">
-                {children}
+                <Outlet />
               </div>
             </main>
             <aside className="hidden xl:block w-64 flex-shrink-0">
