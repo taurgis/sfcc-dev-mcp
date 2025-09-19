@@ -95,9 +95,7 @@ const HomePage: React.FC = () => {
         </PageSubtitle>
       </div>
       {/* Quick Start Section */}
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl"></div>
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -172,7 +170,6 @@ const HomePage: React.FC = () => {
               real-time log analysis, system object exploration, and advanced debugging tools.
             </p>
           </div>
-        </div>
       </div>
 
       {/* CTA Buttons */}
@@ -193,9 +190,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* AI Instructions Warning */}
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-100 to-orange-100 rounded-xl"></div>
-        <div className="relative bg-white/90 backdrop-blur-sm border-l-4 border-red-500 rounded-xl p-6 shadow-lg">
+      <div className="mb-16 bg-gradient-to-r from-red-100 to-orange-100 border-l-4 border-red-500 rounded-xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="bg-red-100 rounded-full p-3 flex-shrink-0">
               <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -213,7 +208,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-center gap-4">
                 <a 
                   href="https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions" 
-                  className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" 
+                  className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors no-underline hover:no-underline focus:no-underline" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -224,7 +219,7 @@ const HomePage: React.FC = () => {
                 </a>
                 <a 
                   href="/ai-interfaces" 
-                  className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
+                  className="inline-flex no-underline items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
                 >
                   📖 Setup Guide
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -234,7 +229,6 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Value Proposition Section */}
@@ -251,9 +245,7 @@ const HomePage: React.FC = () => {
         </div>
         
         {/* Before/After Comparison */}
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-3xl"></div>
-          <div className="relative bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 shadow-2xl">
+        <div className="mb-12 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-3xl p-8 shadow-2xl border border-gray-200">
             
             {/* Timeline Header */}
             <div className="text-center mb-8">
@@ -448,7 +440,6 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -610,10 +601,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Quick Test Drive Section */}
-      <div className="mb-16">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl" />
-          <div className="relative bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl p-8 shadow-xl border border-emerald-200">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -742,8 +730,6 @@ const HomePage: React.FC = () => {
                 </a>
               </div>
             </div>
-          </div>
-        </div>
       </div>
 
       {/* Final CTA */}
@@ -754,14 +740,14 @@ const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="/ai-interfaces" 
+              href="/#/ai-interfaces" 
               className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
             >
               Get Started Now
               <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
             </a>
             <a 
-              href="/features" 
+              href="/#/features" 
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
             >
               Explore Features

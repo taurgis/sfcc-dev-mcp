@@ -55,22 +55,17 @@ const AIInterfacesPage: React.FC = () => {
       </div>
 
       {/* Quick Start (Tabbed) */}
-      <div id="quick-start" className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <SectionCard className="relative border-white/30 shadow-xl">
+      <div id="quick-start" className="mb-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-xl border border-blue-100 p-8">
           <div className="text-center mb-10">
             <H2 id="environment-modes" className="text-3xl font-bold mb-4">🚀 Environment Modes</H2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">Switch between zero-config documentation mode and full analytics mode with a single flag.</p>
           </div>
           {/* Tabs */}
           <ModeTabs />
-        </SectionCard>
       </div>
 
       {/* Configuration Options */}
-      <div id="configuration" className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl" />
-        <SectionCard className="relative border-gray-200">
+      <div id="configuration" className="mb-20 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200 p-8">
           <div className="text-center mb-10">
             <H2 id="configuration-flags" className="text-3xl font-bold mb-4">⚙️ Configuration Flags</H2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">Minimal surface area – just two flags control operating mode & diagnostics.</p>
@@ -91,7 +86,6 @@ const AIInterfacesPage: React.FC = () => {
               <p className="text-gray-700 text-sm">Enable verbose internal logging for troubleshooting & development.</p>
             </div>
           </div>
-        </SectionCard>
       </div>
 
       {/* Assistant Tabs Section */}
@@ -139,10 +133,7 @@ const AIInterfacesPage: React.FC = () => {
       </div>
 
       {/* Next Steps - HomePage style */}
-      <div id="next" className="mb-16">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-            <div className="relative bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-10 shadow-xl">
+      <div id="next" className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-10 shadow-xl border border-blue-100">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
@@ -160,8 +151,6 @@ const AIInterfacesPage: React.FC = () => {
                   </a>
                 </div>
               </div>
-            </div>
-        </div>
       </div>
     </div>
   );

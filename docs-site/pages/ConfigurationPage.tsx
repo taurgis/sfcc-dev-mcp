@@ -34,19 +34,14 @@ const ConfigurationPage: React.FC = () => {
         <meta charSet="utf-8" />
       </Head>
       <ConfigHero />
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
           <div className="text-center mb-10">
             <H2 id="quick-start" className="text-3xl font-bold mb-3">🚀 Quick Start</H2>
             <p className="text-gray-700 max-w-3xl mx-auto text-lg">Pick a mode, generate <InlineCode>dw.json</InlineCode>, run the server. Minimal friction, fast feedback.</p>
           </div>
           <ConfigModeTabs />
-        </div>
       </div>
-      <div className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-8 shadow-xl">
+      <div className="mb-20 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl p-8 shadow-xl border border-emerald-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
               <H2 id="interactive-config" className="text-2xl font-bold mb-2">🧪 Interactive dw.json Builder</H2>
@@ -62,7 +57,6 @@ const ConfigurationPage: React.FC = () => {
             </div>
           </div>
           <ConfigBuilder />
-        </div>
       </div>
       <div className="space-y-20 mb-20">
         <div className="space-y-16">

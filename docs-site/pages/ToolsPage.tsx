@@ -61,9 +61,7 @@ const ToolsPage: React.FC = () => {
       </div>
 
       {/* Quick Actions / Popular */}
-      <section className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 md:p-8 shadow-xl">
+      <section className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 shadow-xl border border-blue-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
               <h2 id="quick-actions" className="text-2xl font-bold text-gray-900 mb-1">🚀 Quick Actions</h2>
@@ -96,7 +94,6 @@ const ToolsPage: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
       </section>
 
       {/* Filters */}

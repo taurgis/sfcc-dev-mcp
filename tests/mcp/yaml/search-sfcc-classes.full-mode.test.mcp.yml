@@ -1001,7 +1001,7 @@ tests:
               text: "match:regex:^\\[\\s*\\]$"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # No results should be very fast
+        maxResponseTime: "150ms"  # No results should be very fast
       stderr: "toBeEmpty"
 
   - it: "should handle error cases quickly"

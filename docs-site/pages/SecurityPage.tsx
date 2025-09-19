@@ -15,11 +15,8 @@ const Bullet: React.FC<React.PropsWithChildren<{ icon?: string; className?: stri
   </li>
 );
 
-const SectionShell: React.FC<React.PropsWithChildren<{ gradient?: string; className?: string; border?: string }>> = ({ children, gradient = 'from-blue-50 via-indigo-50 to-purple-50', className = '', border = 'border-white/30' }) => (
-  <div className="relative mb-20 last:mb-0">
-    <div className={`absolute inset-0 bg-gradient-to-r ${gradient} rounded-2xl`} />
-    <div className={`relative bg-white/85 backdrop-blur-sm ${border} border rounded-2xl p-8 shadow-xl ${className}`}>{children}</div>
-  </div>
+const SectionShell: React.FC<React.PropsWithChildren<{ gradient?: string; className?: string; border?: string }>> = ({ children, gradient = 'from-blue-50 via-indigo-50 to-purple-50', className = '', border = 'border-blue-100' }) => (
+  <div className={`mb-20 last:mb-0 bg-gradient-to-r ${gradient} rounded-2xl p-8 shadow-xl ${border} border ${className}`}>{children}</div>
 );
 
 // Structured feature list rows for mode comparison
