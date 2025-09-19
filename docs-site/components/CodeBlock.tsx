@@ -1,19 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import Prism from 'prismjs';
-// Import common languages
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-shell-session';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-scss';
+import React, { useState, useEffect, useRef } from 'react';
 import { CopyIcon, CheckIcon } from './icons';
+
+// Dynamic Prism import to prevent SSR issues
+let Prism: any = null;
 
 interface CodeBlockProps {
   code: string;
@@ -22,16 +12,15 @@ interface CodeBlockProps {
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    // Ensure Prism highlights the code after component mounts
-    Prism.highlightAll();
-  }, [code, language]);
+  const [isMounted, setIsMounted] = useState(false);
+  const codeRef = useRef<HTMLElement>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code.trim());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(code.trim());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   // Map common language aliases to Prism language identifiers
@@ -59,6 +48,47 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
 
   const prismLanguage = getPrismLanguage(language);
 
+  // Apply syntax highlighting after component mounts (client-side only)
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Load Prism dynamically on client side only
+    const loadPrismAndHighlight = async () => {
+      if (typeof window !== 'undefined' && !Prism) {
+        try {
+          // Dynamically import Prism and language components
+          const prismModule = await import('prismjs');
+          await import('prismjs/components/prism-javascript');
+          await import('prismjs/components/prism-typescript');
+          await import('prismjs/components/prism-jsx');
+          await import('prismjs/components/prism-tsx');
+          await import('prismjs/components/prism-json');
+          await import('prismjs/components/prism-yaml');
+          await import('prismjs/components/prism-bash');
+          await import('prismjs/components/prism-shell-session');
+          await import('prismjs/components/prism-markdown');
+          await import('prismjs/components/prism-css');
+          await import('prismjs/components/prism-scss');
+          
+          Prism = prismModule.default;
+        } catch (error) {
+          console.warn('Failed to load Prism:', error);
+          return;
+        }
+      }
+      
+      // Apply highlighting after a small delay to ensure hydration is complete
+      setTimeout(() => {
+        if (Prism && codeRef.current && Prism.languages[prismLanguage]) {
+          const highlighted = Prism.highlight(code.trim(), Prism.languages[prismLanguage], prismLanguage);
+          codeRef.current.innerHTML = highlighted;
+        }
+      }, 100);
+    };
+
+    loadPrismAndHighlight();
+  }, [code, language, prismLanguage]);
+
   return (
     <div className="my-6 rounded-xl border border-slate-200 bg-slate-50 not-prose overflow-hidden max-w-full">
       <div className="flex justify-between items-center px-3 sm:px-4 py-2 border-b border-slate-200">
@@ -83,13 +113,11 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
       <div className="overflow-x-auto max-w-full">
         <pre className="p-3 sm:p-4 text-xs sm:text-sm min-w-0 m-0">
           <code 
-            className={`language-${prismLanguage} block whitespace-pre`}
-            dangerouslySetInnerHTML={{
-              __html: Prism.languages[prismLanguage] 
-                ? Prism.highlight(code.trim(), Prism.languages[prismLanguage], prismLanguage)
-                : code.trim()
-            }}
-          />
+            ref={codeRef}
+            className={`block whitespace-pre language-${prismLanguage}`}
+          >
+            {code.trim()}
+          </code>
         </pre>
       </div>
     </div>

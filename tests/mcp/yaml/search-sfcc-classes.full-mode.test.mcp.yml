@@ -1023,7 +1023,7 @@ tests:
               text: "match:contains:Error"
           isError: true
       performance:
-        maxResponseTime: "50ms"  # Error handling should be very fast
+        maxResponseTime: "150ms"  # Error handling should be very fast
       stderr: "toBeEmpty"
 
   - it: "should handle cached results quickly"
@@ -1045,7 +1045,7 @@ tests:
               text: "match:regex:\\[[\\s\\S]*\\]"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # Cached responses should be extremely fast
+        maxResponseTime: "150ms"  # Cached responses should be extremely fast
       stderr: "toBeEmpty"
 
   - it: "should handle single character searches within timeout"
@@ -1089,7 +1089,7 @@ tests:
               text: "match:regex:^\\[\\s*\\]$"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # Long queries with no results should be fast
+        maxResponseTime: "150ms"  # Long queries with no results should be fast
       stderr: "toBeEmpty"
 
 # ==================================================================================

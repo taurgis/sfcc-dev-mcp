@@ -232,7 +232,7 @@ const SecurityPage: React.FC = () => {
       <SectionShell gradient="from-red-50 via-rose-50 to-orange-50" border="border-red-200">
         <div className="text-center mb-10">
           <H2 id="threat-model" className="text-3xl font-bold mb-3">🧪 Practical Threat Model (Local Context)</H2>
-          <p className="text-gray-700 max-w-3xl mx-auto text-lg">In a single‑developer local setup the incremental risk introduced by Full Mode is roughly equivalent to any normal use of <InlineCode>dw.json</InlineCode>. Core concerns remain <strong>credential scope creep</strong>, <strong>accidental sharing of log snippets containing business data</strong>, and <strong>copying sensitive preference values externally</strong>. <p>Below: built‑in mitigations vs. your ongoing hygiene tasks.</p></p>
+          <p className="text-gray-700 max-w-3xl mx-auto text-lg">In a single‑developer local setup the incremental risk introduced by Full Mode is roughly equivalent to any normal use of <InlineCode>dw.json</InlineCode>. Core concerns remain <strong>credential scope creep</strong>, <strong>accidental sharing of log snippets containing business data</strong>, and <strong>copying sensitive preference values externally</strong>. Below: built‑in mitigations vs. your ongoing hygiene tasks.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="rounded-xl bg-white p-6 border border-gray-200">
