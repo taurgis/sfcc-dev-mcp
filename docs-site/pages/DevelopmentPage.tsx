@@ -5,7 +5,7 @@ import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 
 const DevelopmentPage: React.FC = () => {
     return (
-        <>
+        <div className="max-w-6xl mx-auto px-6 py-12">
             <Head>
                 <title>Development Guide - SFCC Development MCP Server</title>
                 <meta name="description" content="Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features." />
@@ -599,7 +599,7 @@ function validateToolInput(input: unknown): ToolParams {
                 <li>💬 <strong><a href="https://github.com/taurgis/sfcc-dev-mcp/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></strong> - Community discussions and Q&A</li>
                 <li>🚀 <strong><a href="https://github.com/taurgis/sfcc-dev-mcp/actions" target="_blank" rel="noopener noreferrer">GitHub Actions</a></strong> - View CI/CD pipeline status</li>
             </ul>
-        </>
+        </div>
     );
 };
 

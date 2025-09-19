@@ -7,8 +7,8 @@ import Badge from '../components/Badge';
 
 const TroubleshootingPage: React.FC = () => {
     return (
-        <>
-            <Head>
+        <div className="max-w-6xl mx-auto px-6 py-12">
+             <Head>
                 <title>Troubleshooting & Debugging - SFCC Development MCP Server</title>
                 <meta name="description" content="Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips." />
                 <meta name="keywords" content="SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues" />
@@ -144,10 +144,10 @@ npx sfcc-dev-mcp --debug`} />
                         <div>
                             <h4 className="font-semibold text-red-700 mb-2">Common Symptoms</h4>
                             <ul className="text-sm space-y-1">
-                                <li>• 401 Unauthorized errors</li>
-                                <li>• System object tools failing</li>
-                                <li>• Log analysis not working</li>
-                                <li>• "OAuth authentication failed"</li>
+                                <li>401 Unauthorized errors</li>
+                                <li>System object tools failing</li>
+                                <li>Log analysis not working</li>
+                                <li>"OAuth authentication failed"</li>
                             </ul>
                         </div>
                         <div>
@@ -226,9 +226,9 @@ get_latest_error({ date: "12/18/2024" })`} />
                             <h4 className="font-semibold">Instance Activity</h4>
                         </div>
                         <ul className="text-sm space-y-1">
-                            <li>• Ensure SFCC instance is active</li>
-                            <li>• Check if logs are being generated</li>
-                            <li>• Verify log retention settings</li>
+                            <li>Ensure SFCC instance is active</li>
+                            <li>Check if logs are being generated</li>
+                            <li>Verify log retention settings</li>
                         </ul>
                     </div>
                 </div>
@@ -288,10 +288,10 @@ code --list-extensions | grep copilot`} />
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h5 className="font-semibold text-blue-800 mb-2">Troubleshooting Steps</h5>
                         <ul className="text-sm space-y-1">
-                            <li>• Ensure GitHub Copilot subscription is active</li>
-                            <li>• Update VS Code Copilot extension</li>
-                            <li>• Restart VS Code to reload instructions</li>
-                            <li>• Check if instructions file is in correct location</li>
+                            <li>Ensure GitHub Copilot subscription is active</li>
+                            <li>Update VS Code Copilot extension</li>
+                            <li>Restart VS Code to reload instructions</li>
+                            <li>Check if instructions file is in correct location</li>
                         </ul>
                     </div>
                 </div>
@@ -311,9 +311,9 @@ find .cursor -name "*.md" -o -name "*.mdc"`} />
                     <div>
                         <h4 className="font-semibold mb-2">Common Issues</h4>
                         <ul className="text-sm space-y-1">
-                            <li>• Rules directory doesn't exist</li>
-                            <li>• Wrong file extension (.md vs .mdc)</li>
-                            <li>• Cursor version compatibility</li>
+                            <li>Rules directory doesn't exist</li>
+                            <li>Wrong file extension (.md vs .mdc)</li>
+                            <li>Cursor version compatibility</li>
                         </ul>
                     </div>
                 </div>
@@ -364,10 +364,10 @@ node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"`} />
                     <div>
                         <h4 className="font-semibold mb-2">Generated Log Files</h4>
                         <ul className="text-sm space-y-1">
-                            <li>• <InlineCode>sfcc-mcp-info.log</InlineCode> - Startup and informational messages</li>
-                            <li>• <InlineCode>sfcc-mcp-warn.log</InlineCode> - Warning messages</li>
-                            <li>• <InlineCode>sfcc-mcp-error.log</InlineCode> - Error messages and stack traces</li>
-                            <li>• <InlineCode>sfcc-mcp-debug.log</InlineCode> - Debug messages (when --debug enabled)</li>
+                            <li><InlineCode>sfcc-mcp-info.log</InlineCode> - Startup and informational messages</li>
+                            <li><InlineCode>sfcc-mcp-warn.log</InlineCode> - Warning messages</li>
+                            <li><InlineCode>sfcc-mcp-error.log</InlineCode> - Error messages and stack traces</li>
+                            <li><InlineCode>sfcc-mcp-debug.log</InlineCode> - Debug messages (when --debug enabled)</li>
                         </ul>
                     </div>
 
@@ -498,7 +498,7 @@ sed 's/client-secret":"[^"]*"/client-secret":"***"/g' dw-safe.json > dw-final.js
                     </a>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
