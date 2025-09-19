@@ -2,6 +2,7 @@ import React from 'react';
 import { Head } from 'vite-react-ssg';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
+import NewcomerCTA from '../components/NewcomerCTA';
 
 // Small reusable bullet list with icon
 const Check: React.FC<{ color?: string; children: React.ReactNode }> = ({ color = 'text-green-500', children }) => (
@@ -53,6 +54,9 @@ const AIInterfacesPage: React.FC = () => {
           in documentation-only mode then unlock full log analysis & system exploration with credentials.
         </PageSubtitle>
       </div>
+      
+      {/* Newcomer CTA */}
+      <NewcomerCTA className="mb-20" />
 
       {/* Quick Start (Tabbed) */}
       <div id="quick-start" className="mb-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-xl border border-blue-100 p-8">
@@ -63,6 +67,8 @@ const AIInterfacesPage: React.FC = () => {
           {/* Tabs */}
           <ModeTabs />
       </div>
+
+ 
 
       {/* Configuration Options */}
       <div id="configuration" className="mb-20 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200 p-8">

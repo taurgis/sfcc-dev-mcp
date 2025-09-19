@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Head } from 'vite-react-ssg';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
+import NewcomerCTA from '../components/NewcomerCTA';
 
 const HomePage: React.FC = () => {
   const [isWithoutMcpModalOpen, setIsWithoutMcpModalOpen] = useState(false);
@@ -109,6 +110,9 @@ const HomePage: React.FC = () => {
               best practices, and cartridge generation tools instantly.
             </p>
           </div>
+          
+          {/* Newcomer CTA */}
+          <NewcomerCTA className="mb-8" />
           
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
