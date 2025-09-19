@@ -148,6 +148,27 @@ describe('get_latest_debug - Full Mode Programmatic Tests', () => {
       
       assertDebugLogFormat(result, 1);
     });
+
+    test('should return debug messages in chronological order (newest first)', async () => {
+      const result = await client.callTool('get_latest_debug', { limit: 2 });
+      
+      assertDebugLogFormat(result, 2);
+      const text = result.content[0].text;
+      
+      // Based on our mock data, the newest debug should be the product cache hit
+      assert.ok(text.includes('Product cache hit: SKU ABC-123-XYZ'), 
+        'Latest debug should be the product cache hit from the newest timestamp');
+      
+      // The second newest should be the search query
+      assert.ok(text.includes('Search query executed: \'laptop\' returned 45 results'),
+        'Second latest debug should be the search query execution');
+      
+      // Verify that newest entry appears before older one in the response
+      const cacheHitIndex = text.indexOf('Product cache hit: SKU ABC-123-XYZ');
+      const searchIndex = text.indexOf('Search query executed: \'laptop\' returned 45 results');
+      assert.ok(cacheHitIndex < searchIndex && cacheHitIndex !== -1 && searchIndex !== -1,
+        'Newest debug should appear before older debug in response');
+    });
   });
 
   // ========================================

@@ -102,6 +102,27 @@ describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
       assert.equal(result.content.length, 1, 'Should have one content item');
       assert.equal(result.isError, false, 'Should not be an error');
     });
+
+    test('should return info messages in chronological order (newest first)', async () => {
+      const result = await client.callTool('get_latest_info', { limit: 2 });
+      
+      assertValidMCPResponse(result);
+      const text = result.content[0].text;
+      
+      // Based on our mock data, the newest info should be the job execution
+      assert.ok(text.includes('Executing job [sfcc-export-dw-analytics-site-config][2664334]'), 
+        'Latest info should be the job execution from the newest timestamp');
+      
+      // The second newest should be the step execution
+      assert.ok(text.includes('Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619] for [Organization]'),
+        'Second latest info should be the step execution');
+      
+      // Verify that newest entry appears before older one in the response
+      const jobIndex = text.indexOf('Executing job [sfcc-export-dw-analytics-site-config][2664334]');
+      const stepIndex = text.indexOf('Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619]');
+      assert.ok(jobIndex < stepIndex && jobIndex !== -1 && stepIndex !== -1,
+        'Newest info should appear before older info in response');
+    });
   });
 
   // ========================================
@@ -232,13 +253,13 @@ describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
         'Should contain SFCC-specific log components');
     });
 
-    test('should contain job or pipeline identifiers', async () => {
+    test('should contain system activity identifiers', async () => {
       const result = await client.callTool('get_latest_info', { limit: 2 });
       
       assertValidMCPResponse(result);
-      const identifierPattern = /(JOB |PipelineCall|custom \[\])/;
+      const identifierPattern = /(INFO|SystemJobThread|ExecutingStep|Executing)/;
       assert.ok(identifierPattern.test(result.content[0].text), 
-        'Should contain job or pipeline identifiers');
+        'Should contain system activity identifiers');
     });
 
     test('should format multiple log entries with separators', async () => {

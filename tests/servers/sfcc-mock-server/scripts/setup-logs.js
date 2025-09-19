@@ -54,14 +54,22 @@ class MockLogGenerator {
     }
 
     generateErrorLogs() {
-        const timestamp = this.formatLogTimestamp(new Date());
+        // Create timestamps with specific ordering - oldest first for proper log file structure
+        const baseTime = new Date();
+        const timestamps = [
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 1000)), // 1 second later (oldest)
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 2000)), // 2 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 3000)), // 3 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 4000)), // 4 seconds later  
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 5000))  // 5 seconds later (newest)
+        ];
         
         const errorEntries = [
-            `[${timestamp} GMT] ERROR SystemJobThread|1645761595|sfcc-download-gdpr-einstein-response-files-for-einstein|DownloadGDPRLogFiles com.demandware.component.transaction.cquotient.feed.s3.S3Store Sites-Site JOB bce341cf01 fd3d5c567c091a16392d5b865e 4815298613491841024 - CQ - AWS S3 Configuration Issue: bucketName is missing.`,
-            `[${timestamp} GMT] ERROR PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|Qq38CuNXpX custom [] Payment authorization failed for order ORDER-000001234`,
-            `[${timestamp} GMT] ERROR PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|V5YDtxRLpL custom [] Customer profile creation failed: Email already exists`,
-            `[${timestamp} GMT] ERROR SystemJobThread|1581553813|sfcc-catalog-import|ImportCatalogStep com.demandware.beehive.core.internal.catalog.CatalogMgr Sites-Site JOB abc123def456 - Product import failed: Invalid category assignment`,
-            `[${timestamp} GMT] ERROR PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Cart-AddProduct|PipelineCall|nYJXtqnEfz custom [] Custom cartridge error: Unable to connect to external service`
+            `[${timestamps[0]} GMT] ERROR PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Cart-AddProduct|PipelineCall|nYJXtqnEfz custom [] Custom cartridge error: Unable to connect to external service`,
+            `[${timestamps[1]} GMT] ERROR SystemJobThread|1581553813|sfcc-catalog-import|ImportCatalogStep com.demandware.beehive.core.internal.catalog.CatalogMgr Sites-Site JOB abc123def456 - Product import failed: Invalid category assignment`,
+            `[${timestamps[2]} GMT] ERROR PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|V5YDtxRLpL custom [] Customer profile creation failed: Email already exists`,
+            `[${timestamps[3]} GMT] ERROR PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|Qq38CuNXpX custom [] Payment authorization failed for order ORDER-000001234`,
+            `[${timestamps[4]} GMT] ERROR SystemJobThread|1645761595|sfcc-download-gdpr-einstein-response-files-for-einstein|DownloadGDPRLogFiles com.demandware.component.transaction.cquotient.feed.s3.S3Store Sites-Site JOB bce341cf01 fd3d5c567c091a16392d5b865e 4815298613491841024 - CQ - AWS S3 Configuration Issue: bucketName is missing.`
         ];
 
         const errorContent = errorEntries.join('\n') + '\n';
@@ -71,14 +79,22 @@ class MockLogGenerator {
     }
 
     generateWarnLogs() {
-        const timestamp = this.formatLogTimestamp(new Date());
+        // Create timestamps with specific ordering - oldest first for proper log file structure
+        const baseTime = new Date();
+        const timestamps = [
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 1000)), // 1 second later (oldest)
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 2000)), // 2 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 3000)), // 3 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 4000)), // 4 seconds later  
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 5000))  // 5 seconds later (newest)
+        ];
         
         const warnEntries = [
-            `[${timestamp} GMT] WARN PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|Qq38CuNXpX custom [] Content asset with ID cookie_hint is offline`,
-            `[${timestamp} GMT] WARN PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|V5YDtxRLpL custom [] Content asset with ID cookie_hint is offline`,
-            `[${timestamp} GMT] WARN PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|290fx4tnVR custom [] Content asset with ID cookie_hint is offline`,
-            `[${timestamp} GMT] WARN PipelineCallServlet|1581553813|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|nYJXtqnEfz custom [] Content asset with ID cookie_hint is offline`,
-            `[${timestamp} GMT] WARN PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Product-Show|PipelineCall|AbcDef123G custom [] Product inventory low: SKU-789-XYZ has only 2 units remaining`
+            `[${timestamps[0]} GMT] WARN PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Product-Show|PipelineCall|AbcDef123G custom [] Product inventory low: SKU-789-XYZ has only 2 units remaining`,
+            `[${timestamps[1]} GMT] WARN PipelineCallServlet|1581553813|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|nYJXtqnEfz custom [] Content asset with ID cookie_hint is offline`,
+            `[${timestamps[2]} GMT] WARN PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|290fx4tnVR custom [] Content asset with ID cookie_hint is offline`,
+            `[${timestamps[3]} GMT] WARN PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|V5YDtxRLpL custom [] Content asset with ID cookie_hint is offline`,
+            `[${timestamps[4]} GMT] WARN PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Page-Include|PipelineCall|Qq38CuNXpX custom [] Content asset with ID cookie_hint is offline`
         ];
 
         const warnContent = warnEntries.join('\n') + '\n';
@@ -88,14 +104,22 @@ class MockLogGenerator {
     }
 
     generateInfoLogs() {
-        const timestamp = this.formatLogTimestamp(new Date());
+        // Create timestamps with specific ordering - oldest first for proper log file structure
+        const baseTime = new Date();
+        const timestamps = [
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 1000)), // 1 second later (oldest)
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 2000)), // 2 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 3000)), // 3 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 4000)), // 4 seconds later  
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 5000))  // 5 seconds later (newest)
+        ];
         
         const infoEntries = [
-            `[${timestamp} GMT] INFO SystemJobThread|67038033|sfcc-export-dw-analytics-site-config Executing job [sfcc-export-dw-analytics-site-config][2664334]...`,
-            `[${timestamp} GMT] INFO SystemJobThread|67038033|sfcc-export-dw-analytics-site-config|ExportDWAnalyticsSiteConfigurationStep Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619] for [Organization]...`,
-            `[${timestamp} GMT] INFO PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Order-Confirm|PipelineCall|AbcDef123G custom [] Order created successfully: ORDER-000001234`,
-            `[${timestamp} GMT] INFO PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Account-SubmitRegistration|PipelineCall|V5YDtxRLpL custom [] Customer registration completed: customer.id=123456789`,
-            `[${timestamp} GMT] INFO SystemJobThread|1581553813|sfcc-process-orders|ProcessOrdersStep com.demandware.beehive.core.internal.job.JobMgr Sites-Site JOB abc123def456 - Job started: ProcessOrders`
+            `[${timestamps[0]} GMT] INFO SystemJobThread|1581553813|sfcc-process-orders|ProcessOrdersStep com.demandware.beehive.core.internal.job.JobMgr Sites-Site JOB abc123def456 - Job started: ProcessOrders`,
+            `[${timestamps[1]} GMT] INFO PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Account-SubmitRegistration|PipelineCall|V5YDtxRLpL custom [] Customer registration completed: customer.id=123456789`,
+            `[${timestamps[2]} GMT] INFO PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Order-Confirm|PipelineCall|AbcDef123G custom [] Order created successfully: ORDER-000001234`,
+            `[${timestamps[3]} GMT] INFO SystemJobThread|67038033|sfcc-export-dw-analytics-site-config|ExportDWAnalyticsSiteConfigurationStep Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619] for [Organization]...`,
+            `[${timestamps[4]} GMT] INFO SystemJobThread|67038033|sfcc-export-dw-analytics-site-config Executing job [sfcc-export-dw-analytics-site-config][2664334]...`
         ];
 
         const infoContent = infoEntries.join('\n') + '\n';
@@ -105,14 +129,22 @@ class MockLogGenerator {
     }
 
     generateDebugLogs() {
-        const timestamp = this.formatLogTimestamp(new Date());
+        // Create timestamps with specific ordering - oldest first for proper log file structure
+        const baseTime = new Date();
+        const timestamps = [
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 1000)), // 1 second later (oldest)
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 2000)), // 2 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 3000)), // 3 seconds later
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 4000)), // 4 seconds later  
+            this.formatLogTimestamp(new Date(baseTime.getTime() + 5000))  // 5 seconds later (newest)
+        ];
         
         const debugEntries = [
-            `[${timestamp} GMT] DEBUG PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Product-Show|PipelineCall|AbcDef123G custom [] Product cache hit: SKU ABC-123-XYZ`,
-            `[${timestamp} GMT] DEBUG PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Search-Show|PipelineCall|V5YDtxRLpL custom [] Search query executed: 'laptop' returned 45 results`,
-            `[${timestamp} GMT] DEBUG SystemJobThread|1581553813|sfcc-data-replication|DataReplicationStep com.demandware.beehive.core.internal.system.SystemMgr Sites-Site JOB abc123def456 - Data replication sync started`,
-            `[${timestamp} GMT] DEBUG PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Cart-Show|PipelineCall|nYJXtqnEfz custom [] Basket calculation: 3 items, subtotal $149.99`,
-            `[${timestamp} GMT] DEBUG PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Account-Show|PipelineCall|290fx4tnVR custom [] Customer session validated: session timeout extended`
+            `[${timestamps[0]} GMT] DEBUG PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Account-Show|PipelineCall|290fx4tnVR custom [] Customer session validated: session timeout extended`,
+            `[${timestamps[1]} GMT] DEBUG PipelineCallServlet|1645761595|Sites-RefArchGlobal-Site|Cart-Show|PipelineCall|nYJXtqnEfz custom [] Basket calculation: 3 items, subtotal $149.99`,
+            `[${timestamps[2]} GMT] DEBUG SystemJobThread|1581553813|sfcc-data-replication|DataReplicationStep com.demandware.beehive.core.internal.system.SystemMgr Sites-Site JOB abc123def456 - Data replication sync started`,
+            `[${timestamps[3]} GMT] DEBUG PipelineCallServlet|1050777654|Sites-RefArchGlobal-Site|Search-Show|PipelineCall|V5YDtxRLpL custom [] Search query executed: 'laptop' returned 45 results`,
+            `[${timestamps[4]} GMT] DEBUG PipelineCallServlet|1912801078|Sites-RefArchGlobal-Site|Product-Show|PipelineCall|AbcDef123G custom [] Product cache hit: SKU ABC-123-XYZ`
         ];
 
         const debugContent = debugEntries.join('\n') + '\n';

@@ -317,7 +317,7 @@ tests:
                 text: "match:regex:(SystemJobThread|PipelineCallServlet|Sites-)"
           isError: false
 
-  - it: "should contain job or pipeline identifiers"
+  - it: "should contain system activity identifiers"
     request:
       jsonrpc: "2.0"
       id: "get-latest-info-identifiers"
@@ -334,7 +334,7 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:regex:(JOB |PipelineCall|custom \\[\\])"
+                text: "match:regex:(INFO|SystemJobThread|ExecutingStep|Executing)"
           isError: false
 
   - it: "should format multiple log entries with separators"

@@ -114,6 +114,27 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       
       assertLogFormat(result, 1);
     });
+
+    test('should return error messages in chronological order (newest first)', async () => {
+      const result = await client.callTool('get_latest_error', { limit: 2 });
+      
+      assertLogFormat(result, 2);
+      const text = result.content[0].text;
+      
+      // Based on our mock data, the newest error should be the S3 configuration issue
+      assert.ok(text.includes('CQ - AWS S3 Configuration Issue: bucketName is missing'), 
+        'Latest error should be the S3 configuration issue from the newest timestamp');
+      
+      // The second newest should be the payment authorization error
+      assert.ok(text.includes('Payment authorization failed for order ORDER-000001234'),
+        'Second latest error should be the payment authorization error');
+      
+      // Verify that newest entry appears before older one in the response
+      const s3ErrorIndex = text.indexOf('CQ - AWS S3 Configuration Issue');
+      const paymentErrorIndex = text.indexOf('Payment authorization failed');
+      assert.ok(s3ErrorIndex < paymentErrorIndex && s3ErrorIndex !== -1 && paymentErrorIndex !== -1,
+        'Newest error should appear before older error in response');
+    });
   });
 
   // Parameter validation tests
