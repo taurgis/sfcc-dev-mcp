@@ -30,6 +30,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "vite-react-ssg": "^0.7.3"
+     "vite-react-ssg": "^0.8.9"
   }
 }
