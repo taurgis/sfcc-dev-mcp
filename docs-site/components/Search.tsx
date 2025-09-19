@@ -130,14 +130,7 @@ const Search: React.FC = () => {
         
         // Navigate to the path first, then handle hash navigation
         if (hashFragment) {
-            // If we have a hash fragment, navigate to path first then add hash
-            navigate(targetPath, { replace: false });
-            // Use setTimeout to ensure navigation completes before adding hash
-            setTimeout(() => {
-                if (typeof window !== 'undefined') {
-                    window.location.hash = `${targetPath}#${hashFragment}`;
-                }
-            }, 100);
+              navigate(targetPath + '#' + hashFragment);
         } else {
             navigate(targetPath);
         }
