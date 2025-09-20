@@ -15,7 +15,7 @@ interface NewcomerCTAProps {
  */
 const NewcomerCTA: React.FC<NewcomerCTAProps> = ({ 
   className = '', 
-  href = '/ai-interfaces#ai-assistant-setup',
+  href = '/ai-interfaces/#ai-assistant-setup',
   centered = true 
 }) => {
   const wrapperClasses = centered ? 'text-center' : '';
