@@ -5,6 +5,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import { Collapsible } from '../components/Collapsible';
+import { SITE_DATES } from '../constants';
 
 const badge = (label: string) => (
   <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mr-2 mb-2 bg-slate-100 text-slate-700 border border-slate-200">{label}</span>
@@ -24,8 +25,8 @@ const FeaturesPage: React.FC = () => {
       "@type": "Person",
       "name": "Thomas Theunen"
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-09-20",
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/features/",
     "about": [
       {

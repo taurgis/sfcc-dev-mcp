@@ -5,6 +5,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import { InlineCode } from '../components/CodeBlock';
+import { SITE_DATES } from '../constants';
 
 // Small utility card
 const Pill: React.FC<React.PropsWithChildren<{ color?: string }>> = ({ children, color = 'from-blue-600 to-purple-600' }) => (
@@ -70,8 +71,8 @@ const SecurityPage: React.FC = () => {
       "@type": "Person",
       "name": "Thomas Theunen"
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-09-20",
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/security/",
     "mainEntity": {
       "@type": "Guide",

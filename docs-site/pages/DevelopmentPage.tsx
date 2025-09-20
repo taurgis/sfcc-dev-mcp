@@ -4,6 +4,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
+import { SITE_DATES } from '../constants';
 
 const DevelopmentPage: React.FC = () => {
     const developmentStructuredData = {
@@ -19,8 +20,8 @@ const DevelopmentPage: React.FC = () => {
             "@type": "Person",
             "name": "Thomas Theunen"
         },
-        "datePublished": "2025-01-01",
-        "dateModified": "2025-09-20",
+        "datePublished": SITE_DATES.PUBLISHED,
+        "dateModified": SITE_DATES.MODIFIED,
         "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/development/",
         "about": [
           {

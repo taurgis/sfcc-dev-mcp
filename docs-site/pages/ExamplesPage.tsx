@@ -5,6 +5,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle } from '../components/Typography';
+import { SITE_DATES } from '../constants';
 
 const ModeBadge: React.FC<{ children: React.ReactNode; variant?: 'docs' | 'full' | 'mixed' }> = ({ children, variant = 'docs' }) => {
     const styles: Record<string, string> = {
@@ -72,8 +73,8 @@ const ExamplesPage: React.FC = () => {
             "@type": "Person",
             "name": "Thomas Theunen"
         },
-        "datePublished": "2025-01-01",
-        "dateModified": "2025-09-20",
+        "datePublished": SITE_DATES.PUBLISHED,
+        "dateModified": SITE_DATES.MODIFIED,
         "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/examples/",
         "educationalLevel": "intermediate",
         "learningResourceType": "tutorial"

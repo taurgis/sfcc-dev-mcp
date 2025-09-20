@@ -6,6 +6,7 @@ import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import NewcomerCTA from '../components/NewcomerCTA';
+import { SITE_DATES } from '../constants';
 
 // Small reusable bullet list with icon
 const Check: React.FC<{ color?: string; children: React.ReactNode }> = ({ color = 'text-green-500', children }) => (
@@ -33,8 +34,8 @@ const AIInterfacesPage: React.FC = () => {
       "@type": "Person",
       "name": "Thomas Theunen"
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-09-20",
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces/",
     "about": {
       "@type": "SoftwareApplication",

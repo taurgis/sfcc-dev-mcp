@@ -8,6 +8,7 @@ import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import ConfigHero from '../components/ConfigHero';
 import ConfigModeTabs from '../components/ConfigModeTabs';
 import ConfigBuilder from '../components/ConfigBuilder';
+import { SITE_DATES } from '../constants';
 import Collapsible from '../components/Collapsible';
 
 const ConfigurationPage: React.FC = () => {
@@ -24,8 +25,8 @@ const ConfigurationPage: React.FC = () => {
       "@type": "Person",
       "name": "Thomas Theunen"
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-09-20",
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration/",
     "about": [
       {

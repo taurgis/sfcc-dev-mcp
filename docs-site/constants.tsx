@@ -1,5 +1,11 @@
 import { NavGroup } from './types';
 
+// Date constants for structured data
+export const SITE_DATES = {
+  PUBLISHED: "2025-09-13T08:00:00+00:00", // Last week
+  MODIFIED: "2025-09-20T08:00:00+00:00"   // Today
+} as const;
+
 export const NAVIGATION_LINKS: NavGroup[] = [
   {
     title: 'GETTING STARTED',

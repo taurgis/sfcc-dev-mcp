@@ -1,4 +1,5 @@
 import React from 'react';
+import { SITE_DATES } from '../constants';
 
 interface StructuredDataProps {
   structuredData?: object;
@@ -19,8 +20,8 @@ const StructuredData: React.FC<StructuredDataProps> = ({ structuredData }) => {
       "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp",
       "installUrl": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration/",
       "softwareVersion": "1.0.0",
-      "datePublished": "2025-01-01",
-      "dateModified": "2025-09-20",
+      "datePublished": SITE_DATES.PUBLISHED,
+      "dateModified": SITE_DATES.MODIFIED,
       "author": {
         "@type": "Person",
         "name": "Thomas Theunen",

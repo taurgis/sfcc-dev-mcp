@@ -7,6 +7,7 @@ import { H1, PageSubtitle } from '../components/Typography';
 import ToolFilters from '../components/ToolFilters';
 import ToolCard from '../components/ToolCard';
 import { tools, popularTools } from '../utils/toolsData';
+import { SITE_DATES } from '../constants';
 
 const ToolsPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = React.useState('All');
@@ -40,8 +41,8 @@ const ToolsPage: React.FC = () => {
       "@type": "Person",
       "name": "Thomas Theunen"
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-09-20",
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/tools/",
     "mainEntity": {
       "@type": "SoftwareApplication",
