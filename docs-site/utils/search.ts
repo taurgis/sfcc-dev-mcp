@@ -20,34 +20,34 @@ const FALLBACK_SEARCH_INDEX: SearchableItem[] = [
   { path: '/', pageTitle: 'Introduction', heading: 'Why Choose SFCC Development MCP Server?', content: 'The comprehensive solution for AI-assisted SFCC development. Complete SFCC API Coverage, Real-time Log Analysis, Production Ready, Developer Friendly.' },
 
   // AIInterfacesPage
-  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'AI Assistant Setup Guide', content: 'Set up the SFCC Development MCP Server with your AI assistant. Connect Claude Desktop, Cursor AI, or other MCP-compatible tools.' },
-  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'Claude Desktop', content: 'Configure Claude Desktop to use the SFCC Development MCP Server for enhanced SFCC development assistance.' },
-  { path: '/ai-interfaces', pageTitle: 'AI Assistant Setup', heading: 'Cursor AI', content: 'Set up Cursor AI editor with the MCP server for intelligent code completion and SFCC guidance.' },
+  { path: '/ai-interfaces/', pageTitle: 'AI Assistant Setup', heading: 'AI Assistant Setup Guide', content: 'Set up the SFCC Development MCP Server with your AI assistant. Connect Claude Desktop, Cursor AI, or other MCP-compatible tools.' },
+  { path: '/ai-interfaces/', pageTitle: 'AI Assistant Setup', heading: 'Claude Desktop', content: 'Configure Claude Desktop to use the SFCC Development MCP Server for enhanced SFCC development assistance.' },
+  { path: '/ai-interfaces/', pageTitle: 'AI Assistant Setup', heading: 'Cursor AI', content: 'Set up Cursor AI editor with the MCP server for intelligent code completion and SFCC guidance.' },
 
   // ConfigurationPage
-  { path: '/configuration', pageTitle: 'Configuration', heading: 'Configuration Guide', content: 'Configure SFCC Development MCP Server for your Commerce Cloud environment.' },
-  { path: '/configuration', pageTitle: 'Configuration', heading: 'Operating Modes', content: 'Documentation-only mode or full mode with SFCC credentials for complete functionality.' },
+  { path: '/configuration/', pageTitle: 'Configuration', heading: 'Configuration Guide', content: 'Configure SFCC Development MCP Server for your Commerce Cloud environment.' },
+  { path: '/configuration/', pageTitle: 'Configuration', heading: 'Operating Modes', content: 'Documentation-only mode or full mode with SFCC credentials for complete functionality.' },
 
   // AI InterfacesPage
-  { path: '/ai-interfaces', pageTitle: 'AI Interfaces', heading: 'AI Interface Setup', content: 'Configure your AI assistant to work with SFCC Development MCP Server.' },
+  { path: '/ai-interfaces/', pageTitle: 'AI Interfaces', heading: 'AI Interface Setup', content: 'Configure your AI assistant to work with SFCC Development MCP Server.' },
 
   // FeaturesPage
-  { path: '/features', pageTitle: 'Features', heading: 'Features Overview', content: 'Comprehensive SFCC development tools powered by AI assistance.' },
+  { path: '/features/', pageTitle: 'Features', heading: 'Features Overview', content: 'Comprehensive SFCC development tools powered by AI assistance.' },
 
   // ToolsPage
-  { path: '/tools', pageTitle: 'Tools', heading: 'Available Tools', content: 'Complete list of available tools for SFCC development assistance.' },
+  { path: '/tools/', pageTitle: 'Tools', heading: 'Available Tools', content: 'Complete list of available tools for SFCC development assistance.' },
 
   // ExamplesPage
-  { path: '/examples', pageTitle: 'Examples', heading: 'Examples & Use Cases', content: 'Real-world examples of using SFCC Development MCP Server for various development tasks.' },
+  { path: '/examples/', pageTitle: 'Examples', heading: 'Examples & Use Cases', content: 'Real-world examples of using SFCC Development MCP Server for various development tasks.' },
 
   // SecurityPage
-  { path: '/security', pageTitle: 'Security', heading: 'Security Guidelines', content: 'Security best practices for using SFCC Development MCP Server.' },
+  { path: '/security/', pageTitle: 'Security', heading: 'Security Guidelines', content: 'Security best practices for using SFCC Development MCP Server.' },
 
   // DevelopmentPage
-  { path: '/development', pageTitle: 'Development', heading: 'Development Guide', content: 'Contributing to SFCC Development MCP Server development.' },
+  { path: '/development/', pageTitle: 'Development', heading: 'Development Guide', content: 'Contributing to SFCC Development MCP Server development.' },
 
   // TroubleshootingPage
-  { path: '/troubleshooting', pageTitle: 'Troubleshooting', heading: 'Troubleshooting & Debugging', content: 'Common issues and solutions for SFCC Development MCP Server.' },
+  { path: '/troubleshooting/', pageTitle: 'Troubleshooting', heading: 'Troubleshooting & Debugging', content: 'Common issues and solutions for SFCC Development MCP Server.' },
 ];
 
 // Use generated index if available, otherwise fall back to manual index

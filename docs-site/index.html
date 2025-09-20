@@ -25,6 +25,19 @@
     <link rel="dns-prefetch" href="https://aistudiocdn.com" />
     <link rel="preload" href="/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="/index.css"></noscript>
+    
+    <!-- Import Map - Must come before module scripts -->
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.8.2"
+  }
+}
+</script>
+    
     <link rel="preload" href="/main.tsx" as="script" crossorigin />
     <link rel="modulepreload" href="/main.tsx" />
     
@@ -40,16 +53,6 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="color-scheme" content="light" />
 
-    <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.8.2"
-  }
-}
-</script>
 </head>
   <body class="bg-white">
     <div id="root" role="application" aria-label="SFCC Development MCP Server Documentation"></div>
