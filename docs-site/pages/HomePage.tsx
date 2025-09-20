@@ -65,7 +65,13 @@ const HomePage: React.FC = () => {
       "applicationCategory": "DeveloperApplication",
       "description": "A comprehensive MCP server providing AI assistants with direct access to SFCC development tools, documentation, and debugging capabilities.",
       "operatingSystem": "Node.js",
-      "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp"
+      "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
     },
     "breadcrumb": {
       "@type": "BreadcrumbList",

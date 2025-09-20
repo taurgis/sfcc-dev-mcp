@@ -31,12 +31,27 @@ const FeaturesPage: React.FC = () => {
       {
         "@type": "SoftwareApplication",
         "name": "SFCC Development MCP Server",
-        "applicationCategory": "DeveloperApplication"
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Node.js",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
       }
     ],
     "mainEntity": {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
       "featureList": [
         "SFCC API Documentation Access",
         "Real-time Log Analysis", 

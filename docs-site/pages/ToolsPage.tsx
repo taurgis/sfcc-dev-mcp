@@ -47,7 +47,14 @@ const ToolsPage: React.FC = () => {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",
       "applicationCategory": "DeveloperApplication",
-      "description": "Interactive API reference and tools catalog"
+      "operatingSystem": "Node.js",
+      "description": "Interactive API reference and tools catalog",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
     }
   };
 

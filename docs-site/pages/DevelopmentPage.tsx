@@ -26,7 +26,14 @@ const DevelopmentPage: React.FC = () => {
           {
             "@type": "SoftwareApplication",
             "name": "SFCC Development MCP Server",
-            "applicationCategory": "DeveloperApplication"
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Node.js",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            }
           }
         ],
         "mainEntity": {

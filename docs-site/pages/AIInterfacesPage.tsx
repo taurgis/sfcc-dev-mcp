@@ -36,23 +36,18 @@ const AIInterfacesPage: React.FC = () => {
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces/",
-    "about": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "Claude Desktop",
-        "applicationCategory": "DeveloperApplication"
-      },
-      {
-        "@type": "SoftwareApplication", 
-        "name": "GitHub Copilot",
-        "applicationCategory": "DeveloperApplication"
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Cursor",
-        "applicationCategory": "DeveloperApplication"
+    "about": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       }
-    ]
+    }
   };
 
   return (
