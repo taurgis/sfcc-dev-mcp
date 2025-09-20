@@ -4,10 +4,10 @@
 # Tests successful responses, error handling, and performance scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
-# conductor "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
-# conductor query get_system_object_definition '{"objectType": "Product"}' --config "conductor.config.with-dw.json"
-# conductor query get_system_object_definition '{"objectType": "Customer"}' --config "conductor.config.with-dw.json"
+# aegis "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --debug --timing
+# aegis query get_system_object_definition '{"objectType": "Product"}' --config "aegis.config.with-dw.json"
+# aegis query get_system_object_definition '{"objectType": "Customer"}' --config "aegis.config.with-dw.json"
 # ==================================================================================
 
 description: "get_system_object_definition tool tests - Retrieve specific SFCC system object definition metadata"

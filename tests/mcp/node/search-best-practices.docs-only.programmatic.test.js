@@ -6,7 +6,7 @@
  * search quality metrics, cross-guide relationship analysis, pattern recognition,
  * and comprehensive error categorization for the SFCC best practices search functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "[{"name":"guide_name","title":"Guide Title","matches":[...]}]" }], isError: false }
  * - Empty: { content: [{ type: "text", text: "[]" }], isError: false }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -15,7 +15,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 
 /**
@@ -564,7 +564,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
   let queryAnalyzer;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
     searchAnalyzer = new SearchResultsAnalyzer();
     queryAnalyzer = new QueryAnalyzer();
   });

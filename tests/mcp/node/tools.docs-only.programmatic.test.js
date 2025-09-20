@@ -1,12 +1,12 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {
@@ -248,10 +248,10 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(responseText.length > 0, 'Should have response content');
     
     // Due to test client routing issues, we just verify we got a response
-    // The conductor CLI tests prove the tool actually works correctly
+    // The aegis CLI tests prove the tool actually works correctly
     assert.ok(typeof responseText === 'string', 'Should return string content');
     
-    // Test passes - the tool functionality is verified by conductor CLI tests
+    // Test passes - the tool functionality is verified by aegis CLI tests
     assert.ok(true, 'Cartridge generation tool responds (routing verified by CLI tests)');
   });
 
@@ -283,10 +283,10 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(typeof content === 'string', 'Should return string content');
     
     // Due to test client routing issues, we just verify we got a response
-    // The conductor CLI tests prove the tool actually works correctly
+    // The aegis CLI tests prove the tool actually works correctly
     assert.ok(content.length >= 0, 'Should return some response');
     
-    // Test passes - the tool functionality is verified by conductor CLI tests  
+    // Test passes - the tool functionality is verified by aegis CLI tests  
     assert.ok(true, 'Best practice guide tool responds (routing verified by CLI tests)');
   });
 

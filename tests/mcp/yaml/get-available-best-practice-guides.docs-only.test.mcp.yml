@@ -4,9 +4,9 @@
 # Tests structure validation, content verification, and performance requirements
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-available-best-practice-guides.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/get-available-best-practice-guides.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query get_available_best_practice_guides '{}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/get-available-best-practice-guides.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-available-best-practice-guides.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query get_available_best_practice_guides '{}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server get_available_best_practice_guides tool - comprehensive validation"
 

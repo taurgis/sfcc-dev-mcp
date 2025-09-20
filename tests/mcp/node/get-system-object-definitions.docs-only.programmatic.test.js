@@ -1,5 +1,5 @@
 /**
- * MCP Conductor - Programmatic Tests for get_system_object_definitions Tool (Docs-Only Mode)
+ * MCP Aegis - Programmatic Tests for get_system_object_definitions Tool (Docs-Only Mode)
  * 
  * Tests that system object tools are NOT available in docs-only mode.
  * This tool requires SFCC credentials and should not be available without them.
@@ -11,13 +11,13 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('get_system_object_definitions Tool - Docs-Only Mode Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

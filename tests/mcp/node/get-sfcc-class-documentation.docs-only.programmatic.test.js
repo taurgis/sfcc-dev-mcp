@@ -1,12 +1,12 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.json');
+    client = await connect('./aegis.config.json');
   });
 
   after(async () => {

@@ -4,10 +4,10 @@
 # Tests both successful responses and error handling scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/search-sfcc-classes.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
-# conductor "tests/mcp/yaml/search-sfcc-classes.full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
-# conductor query search_sfcc_classes '{"query": "catalog"}' --config "conductor.config.with-dw.json"
-# conductor query search_sfcc_classes '{"query": "product"}' --config "conductor.config.with-dw.json"
+# aegis "tests/mcp/yaml/search-sfcc-classes.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis "tests/mcp/yaml/search-sfcc-classes.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --debug --timing
+# aegis query search_sfcc_classes '{"query": "catalog"}' --config "aegis.config.with-dw.json"
+# aegis query search_sfcc_classes '{"query": "product"}' --config "aegis.config.with-dw.json"
 # ==================================================================================
 description: "SFCC MCP Server search_sfcc_classes tool - comprehensive validation"
 

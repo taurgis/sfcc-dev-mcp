@@ -1,5 +1,5 @@
 /**
- * MCP Conductor - Programmatic Tests for get_system_object_definitions Tool (Full Mode)
+ * MCP Aegis - Programmatic Tests for get_system_object_definitions Tool (Full Mode)
  * 
  * Tests the get_system_object_definitions tool with SFCC credentials available.
  * This tool requires OCAPI access and should be available in full mode.
@@ -11,13 +11,13 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
   });
 
   after(async () => {

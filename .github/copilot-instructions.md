@@ -6,7 +6,9 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 
 ### 🎯 Core Expertise Areas
 - **MCP Server Architecture**: Building robust, scalable MCP servers that follow protocol specifications
-- **SFCC API Integration**: Deep knowledge of OCAPI, SCAPI, and WebDAV APIs for commerce cloud integration
+- **SFCC A### 🔍 MCP Server Testing and Debugging with Aegis
+
+The **MCP Aegis** (`npx aegis query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.Integration**: Deep knowledge of OCAPI, SCAPI, and WebDAV APIs for commerce cloud integration
 - **TypeScript Development**: Writing type-safe, maintainable code with proper error handling and validation
 - **OAuth & Authentication**: Implementing secure authentication flows for enterprise API access
 - **Log Analysis Systems**: Building tools for parsing, analyzing, and presenting log data effectively
@@ -26,10 +28,10 @@ You are a **Senior TypeScript/Node.js Developer** specializing in **Model Contex
 2. **Type Safety**: Leverage TypeScript's type system for robust, maintainable code
 3. **Error Handling**: Implement comprehensive error handling with meaningful messages
 4. **Modular Design**: Create loosely coupled, highly cohesive modules
-5. **Testing Coverage**: Write thorough unit and integration tests with MCP Conductor for validation
+5. **Testing Coverage**: Write thorough unit and integration tests with MCP Aegis for validation
 6. **Local Security**: Focus on protecting developer credentials and preventing accidental network exposure
-7. **Conductor-First Development**: Use `npx conductor query` as the primary tool for testing, debugging, and validating MCP tools during development
-8. **Test Discovery Workflow**: ALWAYS use conductor query to discover actual tool response formats before writing any test assertions - never assume response structure
+7. **Aegis-First Development**: Use `npx mcp-aegis query` as the primary tool for testing, debugging, and validating MCP tools during development
+8. **Test Discovery Workflow**: ALWAYS use Aegis query to discover actual tool response formats before writing any test assertions - never assume response structure
 
 ---
 
@@ -451,82 +453,82 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
 - **CI-Friendly Performance Testing**: When writing performance tests, use lenient timeouts (500ms+) and variation ratios (50x+) to account for GitHub Actions CI environment variability. Prioritize functional validation over strict timing requirements to prevent flaky failures due to infrastructure differences.
 
-### � MCP Server Testing and Debugging with Conductor
+### 🔍 MCP Server Testing and Debugging with Aegis
 
-The **MCP Conductor** (`npx conductor query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.
+The **MCP Aegis** (`npx aegis query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.
 
-#### **Basic Conductor Usage**
+#### **Basic Aegis Usage**
 
 ```bash
 # Test a tool with the documentation-only configuration
-npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[json-arguments]'
+npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[json-arguments]'
 
 # Example: Search SFRA documentation
-npx conductor query --config ./conductor.config.docs-only.json search_sfra_documentation '{"query": "render"}'
+npx aegis query --config ./aegis.config.docs-only.json search_sfra_documentation '{"query": "render"}'
 
 # Example: Generate cartridge structure
-npx conductor query --config ./conductor.config.docs-only.json generate_cartridge_structure '{"cartridgeName": "test_cartridge", "targetPath": "/tmp/test"}'
+npx aegis query --config ./aegis.config.docs-only.json generate_cartridge_structure '{"cartridgeName": "test_cartridge", "targetPath": "/tmp/test"}'
 ```
 
 #### **Configuration Files**
 
-- **`conductor.config.docs-only.json`**: For testing documentation-only mode (no SFCC credentials required)
-- **`conductor.config.with-dw.json`**: For testing full mode with SFCC credentials (requires dw.json with valid sandbox details)
+- **`aegis.config.docs-only.json`**: For testing documentation-only mode (no SFCC credentials required)
+- **`aegis.config.with-dw.json`**: For testing full mode with SFCC credentials (requires dw.json with valid sandbox details)
 
-#### **Common Conductor Commands**
+#### **Common Aegis Commands**
 
 ```bash
 # List all available tools
-npx conductor query --config ./conductor.config.docs-only.json --method tools/list
+npx aegis query --config ./aegis.config.docs-only.json --method tools/list
 
 # Get tool schema information
-npx conductor query --config ./conductor.config.docs-only.json --method tools/call --params '{"name": "get_sfcc_class_info", "arguments": {"className": "dw.catalog.Product"}}'
+npx aegis query --config ./aegis.config.docs-only.json --method tools/call --params '{"name": "get_sfcc_class_info", "arguments": {"className": "dw.catalog.Product"}}'
 
 # Test best practice guides
-npx conductor query --config ./conductor.config.docs-only.json get_best_practice_guide '{"guideName": "cartridge_creation"}'
+npx aegis query --config ./aegis.config.docs-only.json get_best_practice_guide '{"guideName": "cartridge_creation"}'
 
 # Test SFCC class searches
-npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
 ```
 
 #### **Debugging Tool Responses**
 
-When developing or debugging tools, use conductor to inspect actual response formats:
+When developing or debugging tools, use aegis to inspect actual response formats:
 
 ```bash
 # Capture full response structure for test validation
-npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[args]' | head -50
+npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | head -50
 
 # Test error handling
-npx conductor query --config ./conductor.config.docs-only.json [tool-name] '{"invalid": "parameters"}'
+npx aegis query --config ./aegis.config.docs-only.json [tool-name] '{"invalid": "parameters"}'
 
 # Verify JSON response structure
-npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[args]' | jq '.'
+npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | jq '.'
 ```
 
 #### **Development Workflow Integration**
 
-1. **Tool Development**: After implementing a new tool, immediately test with conductor before writing unit tests
-2. **Response Validation**: Use conductor to capture actual response structures when writing test assertions
-3. **Error Testing**: Verify error handling behavior with invalid parameters through conductor
+1. **Tool Development**: After implementing a new tool, immediately test with aegis before writing unit tests
+2. **Response Validation**: Use aegis to capture actual response structures when writing test assertions
+3. **Error Testing**: Verify error handling behavior with invalid parameters through aegis
 4. **Configuration Testing**: Test both docs-only and full modes to ensure proper tool availability
-5. **Integration Testing**: Validate tool interactions and data flow using conductor before automated tests
+5. **Integration Testing**: Validate tool interactions and data flow using aegis before automated tests
 
 #### **Critical: Response Format Discovery Before Writing Tests**
 
-**ALWAYS use conductor query to understand actual response formats before writing YAML tests.** This prevents test failures due to incorrect assumptions about response structure.
+**ALWAYS use aegis query to understand actual response formats before writing YAML tests.** This prevents test failures due to incorrect assumptions about response structure.
 
 ##### **Essential Pre-Test Discovery Process:**
 
 1. **Query the tool with sample arguments** to see actual response format:
    ```bash
-   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
    ```
 
 2. **Test edge cases** (empty results, errors) to understand all response variations:
    ```bash
-   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
-   npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": ""}'
+   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
+   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": ""}'
    ```
 
 3. **Document the actual response structure** before writing test expectations:
@@ -560,37 +562,37 @@ npx conductor query --config ./conductor.config.docs-only.json [tool-name] '[arg
 
 ```bash
 # Discover structure for class search
-npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
 # Result: ["dw.catalog.Catalog", "dw.catalog.Product", ...] (simple array)
 
 # Discover empty result format  
-npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
+npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
 # Result: [] (empty array)
 
 # Discover error response format
-npx conductor query --config ./conductor.config.docs-only.json search_sfcc_classes '{"query": ""}'
+npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": ""}'
 # Result: {"content": [{"type": "text", "text": "Error: ..."}], "isError": true}
 ```
 
-**Remember**: The time spent discovering actual response formats with conductor saves hours of debugging failed tests later. Always query first, then write tests based on reality, not assumptions.
+**Remember**: The time spent discovering actual response formats with aegis saves hours of debugging failed tests later. Always query first, then write tests based on reality, not assumptions.
 
-#### **Troubleshooting with Conductor**
+#### **Troubleshooting with Aegis**
 
 - **Tool Not Found**: Check configuration mode (docs-only vs full) and ensure tool is properly registered
-- **Invalid Arguments**: Use conductor to test parameter validation and see exact error messages
-- **Response Issues**: Compare conductor output with programmatic test expectations to identify format mismatches
-- **Performance Issues**: Use conductor timing information to identify slow tools
-- **Authentication Problems**: Test full-mode tools with conductor to validate OCAPI/WebDAV connections
+- **Invalid Arguments**: Use aegis to test parameter validation and see exact error messages
+- **Response Issues**: Compare aegis output with programmatic test expectations to identify format mismatches
+- **Performance Issues**: Use aegis timing information to identify slow tools
+- **Authentication Problems**: Test full-mode tools with aegis to validate OCAPI/WebDAV connections
 
 #### **Best Practices**
 
-- **CRITICAL: Always discover response formats first** - Use conductor query to understand actual response structure before writing any tests
-- **Always test new tools** with conductor before writing automated tests
-- **Use conductor output** to write accurate test assertions rather than guessing response formats  
-- **Test both success and error cases** with conductor during development
-- **Verify tool availability** in different configuration modes using conductor
-- **Debug programmatic test failures** by comparing with conductor CLI results
-- **Test parameter validation** using conductor with various input combinations
+- **CRITICAL: Always discover response formats first** - Use aegis query to understand actual response structure before writing any tests
+- **Always test new tools** with aegis before writing automated tests
+- **Use aegis output** to write accurate test assertions rather than guessing response formats  
+- **Test both success and error cases** with aegis during development
+- **Verify tool availability** in different configuration modes using aegis
+- **Debug programmatic test failures** by comparing with aegis CLI results
+- **Test parameter validation** using aegis with various input combinations
 - **Document actual response formats** in test file comments for future reference
 - **Test edge cases comprehensively** - empty results, invalid inputs, missing parameters
 - **Use correct YAML pattern syntax** - always prefix with `match:` for validation patterns
@@ -630,7 +632,7 @@ The primary testing approach using human-readable YAML files with advanced patte
 
 - **30+ Advanced Pattern Matching**: String patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation
 - **Declarative YAML Testing**: Human-readable test files with sophisticated validation patterns
-- **Interactive Tool Testing**: Quick commands for testing tools interactively with the conductor CLI
+- **Interactive Tool Testing**: Quick commands for testing tools interactively with the aegis CLI
 - **Debugging Workflows**: Step-by-step approaches for troubleshooting test failures and server issues
 - **Real-World Examples**: Complete test suites for filesystem servers, multi-tool servers, and API testing scenarios
 - **Performance Testing**: Patterns for validating response times and system performance
@@ -650,13 +652,13 @@ For complex testing scenarios requiring programmatic logic and integration with 
 **Quick Interactive Testing Commands:**
 ```bash
 # List all available tools
-conductor query --config ./conductor.config.docs-only.json
+aegis query --config ./aegis.config.docs-only.json
 
 # Test specific tool with arguments
-conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-only.json
+aegis query tool_name '{"param": "value"}' --config ./aegis.config.docs-only.json
 
 # Debug with verbose output
-conductor query tool_name '{"param": "value"}' --config ./conductor.config.docs-only.json --verbose
+aegis query tool_name '{"param": "value"}' --config ./aegis.config.docs-only.json --verbose
 ```
 
 **For AI Agents**: Both AGENTS.md files are specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. Choose YAML-based testing for declarative scenarios or programmatic testing for complex logic requirements. Both approaches can be directly applied to validate this SFCC Dev MCP server's functionality.

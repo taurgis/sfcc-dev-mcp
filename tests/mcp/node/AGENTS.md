@@ -1,4 +1,4 @@
-# MCP Conductor - Programmatic Testing Guide for AI Agents
+# MCP Aegis - Programmatic Testing Guide for AI Agents
 
 **Target Audience**: AI coding assistants generating JavaScript/TypeScript programmatic t# Debugging and monitoring
 const stderr = client.getStderr();      // Get captured stderr
@@ -27,8 +27,8 @@ client.clearStderr();                   // Clear stderr buffer (REQUIRED in befo
 - Advanced error recovery and resilience testing
 
 ### 📚 Key Resources
-- **[Programmatic Testing Documentation](https://conductor.rhino-inquisitor.com/programmatic-testing.html)** - Complete guide
-- **[API Reference](https://conductor.rhino-inquisitor.com/api-reference.html)** - All methods and properties
+- **[Programmatic Testing Documentation](https://aegis.rhino-inquisitor.com/programmatic-testing.html)** - Complete guide
+- **[API Reference](https://aegis.rhino-inquisitor.com/api-reference.html)** - All methods and properties
 - **[Examples Directory](../../examples/)** - Real-world programmatic test files
 - **[YAML Testing Guide](../yaml/AGENTS.md)** - Recommended for basic testing scenarios
 
@@ -37,14 +37,13 @@ client.clearStderr();                   // Clear stderr buffer (REQUIRED in befo
 ### 1. Installation and Initialization
 ```bash
 # Install in project
-npm install --save-dev mcp-conductor
-
-# Initialize configuration (creates conductor.config.json)
-npx mcp-conductor init
+npm install --save-dev mcp-aegis
+# OR 
+npx mcp-aegis init
 ```
 
 ### 2. Configuration File
-Always create `conductor.config.json` first:
+Always create `aegis.config.json` first:
 
 ```json
 {
@@ -64,13 +63,13 @@ File naming convention: `*.programmatic.test.js`
 ```javascript
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('[SERVER_NAME] Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.json');
+    client = await connect('./aegis.config.json');
   });
 
   after(async () => {
@@ -105,13 +104,13 @@ Before writing comprehensive programmatic tests, use the `query` command to rapi
 
 ```bash
 # List all available tools
-conductor query --config conductor.config.json
+aegis query --config aegis.config.json
 
 # Test specific tool with arguments
-conductor query read_file '{"path": "test.txt"}' --config conductor.config.json
+aegis query read_file '{"path": "test.txt"}' --config aegis.config.json
 
 # Get JSON output for inspection
-conductor query calculator '{"operation": "add", "a": 5, "b": 3}' --config conductor.config.json --json
+aegis query calculator '{"operation": "add", "a": 5, "b": 3}' --config aegis.config.json --json
 ```
 
 **Benefits for programmatic testing workflow**:
@@ -124,7 +123,7 @@ conductor query calculator '{"operation": "add", "a": 5, "b": 3}' --config condu
 ```javascript
 // Use query command findings to create targeted tests
 test('should handle file reading as discovered via query', async () => {
-  // Based on: conductor query read_file '{"path": "test.txt"}'
+  // Based on: aegis query read_file '{"path": "test.txt"}'
   const result = await client.callTool('read_file', { path: 'test.txt' });
   
   // Query command showed this response structure:
@@ -138,14 +137,14 @@ test('should handle file reading as discovered via query', async () => {
 
 ### Main Entry Points
 ```javascript
-import { createClient, connect } from 'mcp-conductor';
+import { createClient, connect } from 'mcp-aegis';
 
 // Option 1: Create client (not connected)
-const client = await createClient('./conductor.config.json');
+const client = await createClient('./aegis.config.json');
 await client.connect();
 
 // Option 2: Create and auto-connect
-const connectedClient = await connect('./conductor.config.json');
+const connectedClient = await connect('./aegis.config.json');
 
 // Option 3: Inline configuration
 const client = await connect({
@@ -452,7 +451,7 @@ describe('Error Recovery', () => {
 
 ### ⚠️ Critical: Avoid Concurrent Requests
 
-**Never use `Promise.all()` or concurrent requests** with MCP Conductor's programmatic API. MCP communication uses a single stdio process with shared message handlers and buffers. Concurrent requests can cause:
+**Never use `Promise.all()` or concurrent requests** with MCP Aegis's programmatic API. MCP communication uses a single stdio process with shared message handlers and buffers. Concurrent requests can cause:
 
 - **Buffer conflicts**: Multiple requests writing to the same stdout/stderr streams
 - **Message handler interference**: JSON-RPC messages getting mixed or corrupted  
@@ -674,8 +673,8 @@ module.exports = {
 global.mcpClient = null;
 
 beforeAll(async () => {
-  const { connect } = require('mcp-conductor');
-  global.mcpClient = await connect('./conductor.config.json');
+  const { connect } = require('mcp-aegis');
+  global.mcpClient = await connect('./aegis.config.json');
 });
 
 afterAll(async () => {
@@ -688,13 +687,13 @@ afterAll(async () => {
 ### Mocha Integration
 ```javascript
 // test/helpers/mcp-setup.js
-const { connect } = require('mcp-conductor');
+const { connect } = require('mcp-aegis');
 
 let client;
 
 exports.mochaHooks = {
   beforeAll: async () => {
-    client = await connect('./conductor.config.json');
+    client = await connect('./aegis.config.json');
   },
   afterAll: async () => {
     if (client) {
@@ -710,13 +709,13 @@ exports.getClient = () => client;
 ```typescript
 import { test, describe, before, after } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect, MCPClient } from 'mcp-conductor';
+import { connect, MCPClient } from 'mcp-aegis';
 
 describe('TypeScript MCP Tests', () => {
   let client: MCPClient;
 
   before(async () => {
-    client = await connect('./conductor.config.json');
+    client = await connect('./aegis.config.json');
   });
 
   after(async () => {

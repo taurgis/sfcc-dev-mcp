@@ -4,9 +4,9 @@
 # This tool requires SFCC credentials and should not be available without them
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"
 # ==================================================================================
 
 description: "get_system_object_definitions tool tests - Docs-only mode tool availability"
@@ -216,7 +216,7 @@ tests:
         jsonrpc: "2.0"
         id: "expected-tool-count"
         result:
-          tools: "match:arrayLength:15"  # Based on actual count from conductor query
+          tools: "match:arrayLength:15"  # Based on actual count from aegis query
       stderr: "toBeEmpty"
 
 # ==================================================================================

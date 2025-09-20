@@ -5,14 +5,14 @@
  * including directory structure validation, file content verification, cleanup operations,
  * and edge case handling. All tests use system temp directory for safe isolation.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "{\"success\": true, \"message\": \"...\", \"createdFiles\": [...], \"createdDirectories\": [...], \"skippedFiles\": []}" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
  */
 
 import { test, describe, before, after, beforeEach, afterEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,7 +23,7 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
   let testDirectories = []; // Track directories for cleanup
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

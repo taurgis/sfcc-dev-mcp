@@ -6,7 +6,7 @@
  * cross-guide relationship testing, and advanced error categorization for the SFCC
  * best practice guide retrieval functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "{\"title\":\"...\",\"description\":\"...\",\"sections\":[...],\"content\":\"...\"}" }], isError: false }
  * - Error: { content: [{ type: "text", text: "Error: guideName must be a non-empty string" }], isError: true }
  * - Invalid guide: { content: [{ type: "text", text: "null" }], isError: false }
@@ -15,7 +15,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Content analysis utility for comprehensive guide validation
@@ -288,7 +288,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
   let contentAnalyzer;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
     contentAnalyzer = new ContentAnalyzer();
   });
 

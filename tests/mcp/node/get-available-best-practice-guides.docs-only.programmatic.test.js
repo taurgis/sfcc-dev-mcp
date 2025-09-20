@@ -5,7 +5,7 @@
  * including dynamic validation, comprehensive content analysis,
  * and advanced error categorization for the SFCC best practice guides functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "[{\"name\":\"guide_name\",\"title\":\"Guide Title\",\"description\":\"...\"}]" }], isError: false }
  * - Always successful: No isError field or error conditions in docs-only mode
  * - Ignores extra parameters: Gracefully handles unexpected parameters
@@ -14,7 +14,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Content analysis utility for SFCC best practice guides validation
@@ -215,7 +215,7 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
   const bestPracticeAnalyzer = new BestPracticeAnalyzer();
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

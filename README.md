@@ -95,7 +95,7 @@ This server is built around a **capability-gated, modular handler architecture**
 2. Implement domain logic in a client/service (avoid bloating handlers).
 3. Extend an existing handler or create a new one if it's a new category.
 4. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
-5. Discover actual response shape with `npx conductor query` before writing tests.
+5. Discover actual response shape with `npx mcp-aegis query` before writing tests.
 6. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
 7. Update documentation (Development Guide + README counts if changed).
 

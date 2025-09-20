@@ -1,8 +1,8 @@
-# MCP Conductor - YAML Testing Guide for AI Agents
+# MCP Aegis - YAML Testing Guide for AI Agents
 
 **Target**: AI assistants generating declarative YAML test files for Model Context Protocol servers.
 
-**Core Purpose**: Test MCP servers with human-readable YAML files using 30+ advanced pattern matching capabilities including string patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation.
+**Core Purpose**: Test MCP servers with human-readable YAML files using 35+ advanced pattern matching capabilities including string patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation.
 
 ## Quick Setup & Usage
 
@@ -94,8 +94,8 @@ tests:
 
 ### 3. Execute Tests
 ```bash
-conductor "tests/**/*.test.mcp.yml" --config "config.json"
-conductor "tests/*.yml" --config "config.json" --verbose
+aegis "tests/**/*.test.mcp.yml" --config "config.json"
+aegis "tests/*.yml" --config "config.json" --verbose
 ```
 
 ## 30+ Pattern Matching Reference
@@ -118,6 +118,16 @@ result:
   name: "match:startsWith:prefix"
   file: "match:endsWith:.txt"
   pattern: "match:regex:\\d{4}-\\d{2}-\\d{2}"  # YAML: escape backslashes
+  
+  # String length validation
+  title: "match:stringLength:10"              # Exactly 10 characters
+  description: "match:stringLengthGreaterThan:5"        # More than 5 chars
+  summary: "match:stringLengthLessThan:100"             # Less than 100 chars
+  content: "match:stringLengthBetween:10:200"           # Between 10-200 chars
+  message: "match:stringLengthGreaterThanOrEqual:1"     # At least 1 char
+  note: "match:stringLengthLessThanOrEqual:50"          # At most 50 chars
+  error: "match:stringEmpty"                            # Must be empty
+  text: "match:stringNotEmpty"                          # Must not be empty
 
 # 4. ARRAY PATTERNS
 result:
@@ -365,42 +375,42 @@ result:
 
 ```bash
 # Basic testing
-conductor "tests/**/*.test.mcp.yml" --config "config.json"
+aegis "tests/**/*.test.mcp.yml" --config "config.json"
 
 # Debug modes
-conductor "tests/*.yml" --config "config.json" --verbose   # Test hierarchy
-conductor "tests/*.yml" --config "config.json" --debug     # MCP communication
-conductor "tests/*.yml" --config "config.json" --timing    # Performance metrics
-conductor "tests/*.yml" --config "config.json" --json      # JSON output
-conductor "tests/*.yml" --config "config.json" --quiet     # Minimal output
+aegis "tests/*.yml" --config "config.json" --verbose   # Test hierarchy
+aegis "tests/*.yml" --config "config.json" --debug     # MCP communication
+aegis "tests/*.yml" --config "config.json" --timing    # Performance metrics
+aegis "tests/*.yml" --config "config.json" --json      # JSON output
+aegis "tests/*.yml" --config "config.json" --quiet     # Minimal output
 
 # Error analysis and debugging
-conductor "tests/*.yml" --config "config.json" --errors-only     # Only show errors
-conductor "tests/*.yml" --config "config.json" --syntax-only     # Only syntax errors
-conductor "tests/*.yml" --config "config.json" --no-analysis     # Disable detailed analysis  
-conductor "tests/*.yml" --config "config.json" --group-errors    # Group by type
-conductor "tests/*.yml" --config "config.json" --max-errors 5    # Limit error output
+aegis "tests/*.yml" --config "config.json" --errors-only     # Only show errors
+aegis "tests/*.yml" --config "config.json" --syntax-only     # Only syntax errors
+aegis "tests/*.yml" --config "config.json" --no-analysis     # Disable detailed analysis  
+aegis "tests/*.yml" --config "config.json" --group-errors    # Group by type
+aegis "tests/*.yml" --config "config.json" --max-errors 5    # Limit error output
 
 # Interactive tool testing
-conductor query --config "config.json"                           # List tools
-conductor query tool_name '{"param": "value"}' --config "config.json"  # Test tool
+aegis query --config "config.json"                           # List tools
+aegis query tool_name '{"param": "value"}' --config "config.json"  # Test tool
 
 # Performance testing and analysis
-conductor "tests/*.yml" --config "config.json" --timing          # Show response times
-conductor "tests/*.yml" --config "config.json" --debug --timing  # Full performance debug
+aegis "tests/*.yml" --config "config.json" --timing          # Show response times
+aegis "tests/*.yml" --config "config.json" --debug --timing  # Full performance debug
 
 # Combined debugging options
-conductor "tests/*.yml" --config "config.json" --verbose --debug --timing
+aegis "tests/*.yml" --config "config.json" --verbose --debug --timing
 
 # Project initialization  
-conductor init                                                    # Create sample config and tests
+aegis init                                                    # Create sample config and tests
 ```
 
 ## Pattern Selection Guide
 
 - **Deep Equality**: Exact value matching (default)
 - **Type Validation**: Verify data types (`match:type:`)  
-- **String Patterns**: Text validation (`contains`, `startsWith`, `endsWith`, `regex`)
+- **String Patterns**: Text validation (`contains`, `startsWith`, `endsWith`, `regex`, `stringLength`, `stringEmpty`)
 - **Array Patterns**: Array validation (`arrayLength`, `arrayContains`, `arrayElements`)
 - **Field Extraction**: Extract nested values (`match:extractField`)
 - **Numeric**: Math comparisons (`greaterThan`, `approximately`, `decimalPlaces`)
@@ -511,7 +521,7 @@ request:
   params:
     protocolVersion: "2025-06-18"
     capabilities: {"tools": {}}
-    clientInfo: {"name": "MCP Conductor", "version": "1.0.0"}
+    clientInfo: {"name": "MCP Aegis", "version": "1.0.0"}
 ```
 
 #### Tools List Request  
@@ -619,7 +629,7 @@ expect:
 
 ## 🚀 Performance Testing with Timing Assertions
 
-MCP Conductor provides built-in performance testing capabilities to validate response times and ensure SLA compliance.
+MCP Aegis provides built-in performance testing capabilities to validate response times and ensure SLA compliance.
 
 ### Basic Performance Structure
 ```yaml
@@ -812,13 +822,13 @@ tests:
 ### Debugging Performance Issues
 ```bash
 # See actual timing for each test
-conductor "tests/*.yml" --config "config.json" --timing
+aegis "tests/*.yml" --config "config.json" --timing
 
 # Combined debugging for performance analysis
-conductor "tests/*.yml" --config "config.json" --debug --timing --verbose
+aegis "tests/*.yml" --config "config.json" --debug --timing --verbose
 
 # Focus only on performance-related errors
-conductor "tests/*.yml" --config "config.json" --errors-only --timing
+aegis "tests/*.yml" --config "config.json" --errors-only --timing
 ```
 
 ### Performance Best Practices
@@ -835,7 +845,7 @@ conductor "tests/*.yml" --config "config.json" --errors-only --timing
 ### Quick Debugging Workflow
 1. **Start with `--debug`**: See MCP communication flow
 2. **Use `--verbose`**: View test hierarchy and details  
-3. **Try `conductor query`**: Test individual tools interactively
+3. **Try `aegis query`**: Test individual tools interactively
 4. **Check `--syntax-only`**: Isolate YAML syntax issues
 5. **Use `--errors-only`**: Focus on failures
 
@@ -844,7 +854,7 @@ conductor "tests/*.yml" --config "config.json" --errors-only --timing
 #### Server Won't Start
 ```bash
 # Debug server startup issues
-conductor "test.yml" --config "config.json" --debug
+aegis "test.yml" --config "config.json" --debug
 
 # Check stderr output for server errors
 # Increase startupTimeout if server is slow
@@ -877,7 +887,7 @@ email: "match:regex:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"  # Full pat
 ```
 
 ### Regex Escaping & YAML Parse Failures
-**Symptoms:** `unknown escape sequence` or `bad indentation of a mapping entry` during conductor run.
+**Symptoms:** `unknown escape sequence` or `bad indentation of a mapping entry` during aegis run.
 **Common Causes:**
 - Unescaped backslashes in `match:regex:` patterns.
 - Mixing quotes and unescaped `"` inside double-quoted YAML strings.
@@ -980,27 +990,27 @@ result:
 ### Interactive Tool Testing
 ```bash
 # List all available tools
-conductor query --config "config.json"
+aegis query --config "config.json"
 
 # Test specific tool with arguments
-conductor query read_file '{"path": "test.txt"}' --config "config.json"
+aegis query read_file '{"path": "test.txt"}' --config "config.json"
 
 # Debug with verbose output
-conductor query read_file '{"path": "test.txt"}' --config "config.json" --verbose
+aegis query read_file '{"path": "test.txt"}' --config "config.json" --verbose
 ```
 
 ### Performance Debugging
 ```bash
 # See timing for each operation
-conductor "tests/*.yml" --config "config.json" --timing
+aegis "tests/*.yml" --config "config.json" --timing
 
 # Combined debugging for comprehensive analysis
-conductor "tests/*.yml" --config "config.json" --debug --timing --verbose
+aegis "tests/*.yml" --config "config.json" --debug --timing --verbose
 ```
 
 ## Quick Pattern Reference
 
-### All Available Patterns (30+)
+### All Available Patterns (35+)
 ```yaml
 # STRING PATTERNS
 "match:contains:substring"
@@ -1009,6 +1019,14 @@ conductor "tests/*.yml" --config "config.json" --debug --timing --verbose
 "match:containsIgnoreCase:TEXT"
 "match:equalsIgnoreCase:value"
 "match:regex:pattern"
+"match:stringLength:10"
+"match:stringLengthGreaterThan:5"
+"match:stringLengthLessThan:100"
+"match:stringLengthGreaterThanOrEqual:1"
+"match:stringLengthLessThanOrEqual:50"
+"match:stringLengthBetween:10:200"
+"match:stringEmpty"
+"match:stringNotEmpty"
 
 # TYPE PATTERNS  
 "match:type:string|number|boolean|object|array"
@@ -1058,8 +1076,8 @@ match:arrayElements: # Validate ALL array elements
 
 ### Installation & Getting Started
 ```bash
-npm install -g mcp-conductor
-conductor init                    # Create sample config and tests
-conductor "tests/*.yml" --config "config.json"
+npm install -g mcp-aegis
+aegis init                    # Create sample config and tests
+aegis "tests/*.yml" --config "config.json"
 ```
 

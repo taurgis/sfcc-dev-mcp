@@ -5,7 +5,7 @@
  * including performance monitoring, dynamic validation, error categorization,
  * comprehensive response structure analysis, and method signature validation.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "[{\"className\": \"...\", \"method\": {...}}, ...]" }] }
  * - Empty: { content: [{ type: "text", text: "[]" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -23,7 +23,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Performance monitoring utility class
@@ -106,7 +106,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
   const signatureAnalyzer = new MethodSignatureAnalyzer();
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

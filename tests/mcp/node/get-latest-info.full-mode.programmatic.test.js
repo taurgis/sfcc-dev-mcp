@@ -1,13 +1,13 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
   let client;
 
   before(async () => {
     // Connect using the full mode configuration with dw.json credentials
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
   });
 
   after(async () => {

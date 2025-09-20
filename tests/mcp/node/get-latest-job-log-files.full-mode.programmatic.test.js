@@ -1,13 +1,13 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('get_latest_job_log_files - Full Mode Programmatic Tests', () => {
   let client;
   let discoveredJobLogs = [];
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
     
     // Discover available job logs for advanced testing
     await discoverJobLogFiles();

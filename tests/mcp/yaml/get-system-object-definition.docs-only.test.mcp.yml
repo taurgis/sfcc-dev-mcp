@@ -5,10 +5,10 @@
 # However, the tool can still be called and should return authentication error
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query --config "conductor.config.docs-only.json"
-# conductor query get_system_object_definition '{"objectType": "Product"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"
+# aegis query get_system_object_definition '{"objectType": "Product"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 
 description: "get_system_object_definition tool tests - Docs-only mode tool availability and authentication errors"

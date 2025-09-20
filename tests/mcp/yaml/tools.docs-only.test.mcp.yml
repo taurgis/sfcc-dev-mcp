@@ -4,10 +4,10 @@
 # Uses conductor's enhanced pattern matching for thorough validation
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query --config "conductor.config.docs-only.json"  # List all tools
-# conductor query get_sfcc_class_info '{"className": "Catalog"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"  # List all tools
+# aegis query get_sfcc_class_info '{"className": "Catalog"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server docs-only mode - comprehensive tool metadata validation"
 

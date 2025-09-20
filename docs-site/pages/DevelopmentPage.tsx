@@ -177,7 +177,7 @@ sfcc-dev-mcp/
               <li><strong>Decide placement</strong>: If existing handler category fits (e.g. logs, docs, sfra) extend that handler's <InlineCode>handle()</InlineCode>. If truly new category, create a new handler extending <InlineCode>BaseToolHandler</InlineCode>.</li>
               <li><strong>Implement logic</strong>: Put core logic in a client or service (keep handlers thin).</li>
               <li><strong>Register handler (only if new)</strong>: Add to the array in <InlineCode>registerHandlers()</InlineCode> inside <InlineCode>server.ts</InlineCode>.</li>
-              <li><strong>Run conductor</strong>: Use <InlineCode>npx conductor query --config ./conductor.config.docs-only.json [tool]</InlineCode> to capture real response shape BEFORE writing tests.</li>
+              <li><strong>Run aegis</strong>: Use <InlineCode>npx aegis query --config ./aegis.config.docs-only.json [tool]</InlineCode> to capture real response shape BEFORE writing tests.</li>
               <li><strong>Add tests</strong>: Jest unit tests + YAML MCP tests (docs vs full mode as applicable).</li>
               <li><strong>Update docs</strong>: Adjust this guide + README tool counts if category changed.</li>
             </ol>
