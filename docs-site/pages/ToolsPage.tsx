@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import SEO from '../components/SEO';
 import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
@@ -149,19 +150,19 @@ const ToolsPage: React.FC = () => {
         <h2 id="next-steps" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">🔗 Next Steps</h2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Move from raw tool surface into practical flows or reinforce secure patterns before enabling full-mode capabilities.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-          <a
-            href="/examples/"
+          <NavLink
+            to="/examples/"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a
-            href="/security/"
+          </NavLink>
+          <NavLink
+            to="/security/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Security Guidance
-          </a>
+          </NavLink>
         </div>
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-4 text-left">
           <div className="rounded-xl border border-gray-200 bg-white p-5">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import SEO from '../components/SEO';
 import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
@@ -340,25 +341,25 @@ const SecurityPage: React.FC = () => {
         <H2 id="next-steps-security" className="text-3xl font-bold mb-4">🔗 Next Steps</H2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Keep momentum: refine configuration or explore advanced tooling now that baseline security posture is set.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-          <a
-            href="/configuration/"
+          <NavLink
+            to="/configuration/"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Configuration Guide
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a
-            href="/features/"
+          </NavLink>
+          <NavLink
+            to="/features/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Explore Features
-          </a>
-          <a
-            href="/examples/"
+          </NavLink>
+          <NavLink
+            to="/examples/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             See Examples
-          </a>
+          </NavLink>
         </div>
       </section>
     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import SEO from '../components/SEO';
 import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
@@ -462,12 +463,12 @@ Improved:
             <div className="text-center mt-20">
                 <p className="text-lg text-slate-700 mb-6 font-medium">Ready to try these yourself?</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/ai-interfaces/" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <NavLink to="/ai-interfaces/" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                         Configure Your AI Client <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-                    </a>
-                    <a href="/tools/" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
+                    </NavLink>
+                    <NavLink to="/tools/" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
                         Browse All Tools
-                    </a>
+                    </NavLink>
                 </div>
             </div>
         </div>

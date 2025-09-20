@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface NewcomerCTAProps {
   /** Additional CSS classes to apply to the wrapper */
@@ -23,8 +24,8 @@ const NewcomerCTA: React.FC<NewcomerCTAProps> = ({
   return (
     <div className={`${wrapperClasses} ${className}`}>
       <div className="inline-block bg-gradient-to-r from-orange-500 to-red-500 p-1 rounded-2xl shadow-lg">
-        <a 
-          href={href}
+        <Link 
+          to={href}
           className="group block bg-white rounded-xl px-8 py-4 text-center no-underline hover:no-underline focus:no-underline transition-all duration-300 hover:bg-gray-50"
         >
           <div className="flex items-center justify-center gap-3">
@@ -47,7 +48,7 @@ const NewcomerCTA: React.FC<NewcomerCTAProps> = ({
               </div>
             </div>
           </div>
-        </a>
+        </Link>
       </div>
     </div>
   );
