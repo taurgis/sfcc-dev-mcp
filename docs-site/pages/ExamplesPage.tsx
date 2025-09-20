@@ -73,7 +73,7 @@ const ExamplesPage: React.FC = () => {
         },
         "datePublished": "2025-01-01",
         "dateModified": "2025-09-20",
-        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/examples",
+        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/examples/",
         "educationalLevel": "intermediate",
         "learningResourceType": "tutorial"
     };
@@ -89,7 +89,7 @@ const ExamplesPage: React.FC = () => {
             />
             <BreadcrumbSchema items={[
                 { name: "Home", url: "/" },
-                { name: "Examples", url: "/examples" }
+                { name: "Examples", url: "/examples/" }
             ]} />
             <StructuredData data={examplesStructuredData} />
             

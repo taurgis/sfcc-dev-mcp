@@ -23,7 +23,7 @@ const TroubleshootingPage: React.FC = () => {
         },
         "datePublished": "2025-01-01",
         "dateModified": "2025-09-20",
-        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting",
+        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting/",
         "mainEntity": {
             "@type": "Guide",
             "name": "SFCC MCP Troubleshooting Guide"
@@ -41,7 +41,7 @@ const TroubleshootingPage: React.FC = () => {
             />
             <BreadcrumbSchema items={[
                 { name: "Home", url: "/" },
-                { name: "Troubleshooting", url: "/troubleshooting" }
+                { name: "Troubleshooting", url: "/troubleshooting/" }
             ]} />
             <StructuredData data={troubleshootingStructuredData} />
             

@@ -25,7 +25,7 @@ const ConfigurationPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration/",
     "about": [
       {
         "@type": "SoftwareApplication",
@@ -46,7 +46,7 @@ const ConfigurationPage: React.FC = () => {
       />
       <BreadcrumbSchema items={[
         { name: "Home", url: "/" },
-        { name: "Configuration", url: "/configuration" }
+        { name: "Configuration", url: "/configuration/" }
       ]} />
       <StructuredData structuredData={configurationStructuredData} />
       

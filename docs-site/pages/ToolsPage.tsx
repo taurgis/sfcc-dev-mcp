@@ -41,7 +41,7 @@ const ToolsPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/tools",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/tools/",
     "mainEntity": {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",
@@ -61,7 +61,7 @@ const ToolsPage: React.FC = () => {
       />
       <BreadcrumbSchema items={[
         { name: "Home", url: "/" },
-        { name: "Tools", url: "/tools" }
+        { name: "Tools", url: "/tools/" }
       ]} />
       <StructuredData data={toolsStructuredData} />
       
