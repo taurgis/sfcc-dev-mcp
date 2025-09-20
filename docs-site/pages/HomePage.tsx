@@ -195,14 +195,14 @@ const HomePage: React.FC = () => {
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 mb-8">
         <a 
-          href="/ai-interfaces" 
+          href="/ai-interfaces/" 
           className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
         >
           Get Started in 2 Minutes
           <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
         </a>
         <a 
-          href="/examples" 
+          href="/examples/" 
           className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
         >
           See Examples
@@ -238,7 +238,7 @@ const HomePage: React.FC = () => {
                   Download AI Instructions
                 </a>
                 <a 
-                  href="/ai-interfaces" 
+                  href="/ai-interfaces/" 
                   className="inline-flex no-underline items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
                 >
                   📖 Setup Guide
@@ -741,11 +741,11 @@ const HomePage: React.FC = () => {
             <div className="mt-8 text-center">
               <p className="text-gray-600 mb-4">✅ Getting SFCC-specific answers? Your setup is working perfectly!</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="/examples" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
+                <a href="/examples/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
                   Try More Examples
                   <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                 </a>
-                <a href="/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
+                <a href="/configuration/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
                   Add Full Mode
                 </a>
               </div>
@@ -760,14 +760,14 @@ const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="/#/ai-interfaces" 
+              href="/ai-interfaces/" 
               className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
             >
               Get Started Now
               <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
             </a>
             <a 
-              href="/#/features" 
+              href="/features/" 
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
             >
               Explore Features

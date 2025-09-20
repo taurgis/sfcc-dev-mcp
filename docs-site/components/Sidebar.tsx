@@ -10,7 +10,10 @@ const Sidebar: React.FC = () => {
 
   const isLinkActive = (path: string) => {
       if (path === '/') return location.pathname === '/';
-      return location.pathname.startsWith(path);
+      // Normalize paths to have trailing slashes for comparison
+      const normalizedLocationPath = location.pathname.endsWith('/') ? location.pathname : location.pathname + '/';
+      const normalizedPath = path.endsWith('/') ? path : path + '/';
+      return normalizedLocationPath === normalizedPath;
   }
 
   return (

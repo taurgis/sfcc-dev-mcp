@@ -41,7 +41,7 @@ const ConfigurationPage: React.FC = () => {
         title="Configuration Guide"
         description="Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices."
         keywords="SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment"
-        canonical="/configuration"
+        canonical="/configuration/"
         ogType="article"
       />
       <BreadcrumbSchema items={[
@@ -284,11 +284,11 @@ const ConfigurationPage: React.FC = () => {
           <PageSubtitle className="text-base text-gray-600">Pick your next path—feature surface or concrete tool list.</PageSubtitle>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/features" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
+          <a href="/features/" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
             Features Overview
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
-          <a href="/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
+          <a href="/tools/" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
             Available Tools
           </a>
         </div>

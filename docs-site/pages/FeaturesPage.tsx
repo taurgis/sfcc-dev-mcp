@@ -53,7 +53,7 @@ const FeaturesPage: React.FC = () => {
         title="Features & Capabilities"
         description="Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools."
         keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features"
-        canonical="/features"
+        canonical="/features/"
         ogType="article"
       />
       <BreadcrumbSchema items={[
@@ -300,14 +300,14 @@ const FeaturesPage: React.FC = () => {
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Pick a direction—inspect the precise tool surface first or jump straight into multi-step usage patterns.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
           <a 
-            href="/tools" 
+            href="/tools/" 
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Browse Tools
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
           <a 
-            href="/examples" 
+            href="/examples/" 
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases

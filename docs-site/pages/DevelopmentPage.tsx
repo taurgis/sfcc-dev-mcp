@@ -41,7 +41,7 @@ const DevelopmentPage: React.FC = () => {
                 title="Development Guide"
                 description="Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features."
                 keywords="SFCC Development MCP Server, SFCC MCP development, TypeScript MCP server, Model Context Protocol development, SFCC tools development"
-                canonical="/development"
+                canonical="/development/"
                 ogType="article"
             />
             <BreadcrumbSchema items={[

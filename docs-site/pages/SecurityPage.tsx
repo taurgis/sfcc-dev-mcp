@@ -84,7 +84,7 @@ const SecurityPage: React.FC = () => {
         title="Security & Privacy"
         description="Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist."
         keywords="SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security"
-        canonical="/security"
+        canonical="/security/"
         ogType="article"
       />
       <BreadcrumbSchema items={[
@@ -341,20 +341,20 @@ const SecurityPage: React.FC = () => {
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Keep momentum: refine configuration or explore advanced tooling now that baseline security posture is set.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
           <a
-            href="/configuration"
+            href="/configuration/"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Configuration Guide
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
           </a>
           <a
-            href="/features"
+            href="/features/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Explore Features
           </a>
           <a
-            href="/examples"
+            href="/examples/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             See Examples

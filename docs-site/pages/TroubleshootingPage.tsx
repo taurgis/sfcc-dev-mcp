@@ -36,7 +36,7 @@ const TroubleshootingPage: React.FC = () => {
                 title="Troubleshooting & Debugging"
                 description="Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips."
                 keywords="SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues"
-                canonical="/troubleshooting"
+                canonical="/troubleshooting/"
                 ogType="article"
             />
             <BreadcrumbSchema items={[
@@ -503,11 +503,11 @@ sed 's/client-secret":"[^"]*"/client-secret":"***"/g' dw-safe.json > dw-final.js
                     <PageSubtitle className="text-base text-gray-600">Now that you've resolved your issues, explore the full capabilities.</PageSubtitle>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/configuration" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
+                    <a href="/configuration/" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
                         Configuration Guide
                         <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
                     </a>
-                    <a href="/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
+                    <a href="/tools/" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
                         Available Tools
                     </a>
                 </div>

@@ -60,7 +60,7 @@ const AIInterfacesPage: React.FC = () => {
         title="AI Interface Integration"
         description="Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server."
         keywords="Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools"
-        canonical="/ai-interfaces"
+        canonical="/ai-interfaces/"
         ogType="article"
       />
       <BreadcrumbSchema items={[
@@ -174,11 +174,11 @@ const AIInterfacesPage: React.FC = () => {
                 </div>
                 <p className="text-lg text-gray-700 max-w-3xl mx-auto">Pick your next path—refine configuration or explore full capability surface.</p>
                 <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                  <a href="/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
+                  <a href="/configuration/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
                     Configuration Guide
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                   </a>
-                  <a href="/features" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
+                  <a href="/features/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
                     Explore Features
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
                   </a>
