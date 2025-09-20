@@ -1,0 +1,512 @@
+---
+description: "Test search_logs tool in full mode"
+tests:
+  # Basic functionality tests
+  - it: "should search for patterns in logs with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-default"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Found \\d+ matches for"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should search with custom limit parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-limit"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "ERROR"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Found 3 matches"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should filter by log level"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-level"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "ERROR"
+          logLevel: "error"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should search with specific date parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-date"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          date: "20250920"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should combine all parameters (pattern, logLevel, date, limit)"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-all-params"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Job"
+          logLevel: "info"
+          date: "20250920"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-all-params"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Edge cases and error handling tests
+  - it: "should handle pattern with no matches gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-no-matches"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "nonexistentpattern123456789"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-no-matches"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No matches found"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle empty pattern with error"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-empty-pattern"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-empty-pattern"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:pattern must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle missing pattern parameter with error"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-missing-pattern"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-missing-pattern"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:pattern must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle invalid logLevel parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-invalid-level"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          logLevel: "invalid_level"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-invalid-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid log level"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle zero limit parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-zero-limit"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-zero-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Invalid limit"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle negative limit parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-negative-limit"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          limit: -5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-negative-limit"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(Error|Invalid).*limit"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should handle invalid date format"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-invalid-date"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          date: "invalid-date"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-invalid-date"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No matches found"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # Content validation tests
+  - it: "should return search results with proper log entry format"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-format"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "ERROR"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-format"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Found \\d+ matches.*ERROR.*\\[error-blade.*\\d{4}-\\d{2}-\\d{2}"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should return log entries with timestamp and log file information"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-timestamp"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Job"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-timestamp"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\\[\\w+-blade.*\\].*\\d{4}-\\d{2}-\\d{2}.*\\d{2}:\\d{2}:\\d{2}"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Search pattern specificity tests
+  - it: "should search for specific error patterns"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-specific-error"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Custom cartridge error"
+          logLevel: "error"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-specific-error"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should search for job-related entries"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-job-entries"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "SystemJobThread"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-job-entries"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should search for customer-related entries"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-customer"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Customer"
+          logLevel: "info"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-customer"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Performance tests
+  - it: "should handle large result sets efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-large-results"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Sites"
+          limit: 50
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-large-results"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  - it: "should perform complex pattern searches efficiently"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-complex-pattern"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "PipelineCallServlet.*Order"
+          limit: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-complex-pattern"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2500ms"
+
+  # Integration with other log parameters
+  - it: "should validate all supported log levels"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-debug-level"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "debug"
+          logLevel: "debug"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-debug-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should validate warn log level filtering"
+    request:
+      jsonrpc: "2.0"
+      id: "search-logs-warn-level"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "warning"
+          logLevel: "warn"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-logs-warn-level"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
