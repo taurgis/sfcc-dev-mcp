@@ -17,13 +17,13 @@ const SEO: React.FC<SEOProps> = ({
   description = 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance.',
   keywords = 'SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development',
   canonical,
-  ogImage = 'https://sfcc-dev-mcp.rhino-inquisitor.com/explain-product-pricing-methods.png',
+  ogImage = 'https://sfcc-mcp-dev.rhino-inquisitor.com/explain-product-pricing-methods.png',
   ogType = 'website',
   twitterCard = 'summary_large_image',
   structuredData,
   noindex = false
 }) => {
-  const baseUrl = 'https://sfcc-dev-mcp.rhino-inquisitor.com';
+  const baseUrl = 'https://sfcc-mcp-dev.rhino-inquisitor.com';
   const fullCanonical = canonical ? `${baseUrl}${canonical}` : baseUrl;
   const fullTitle = title === 'SFCC Development MCP Server' ? title : `${title} | SFCC Development MCP Server`;
 

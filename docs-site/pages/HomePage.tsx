@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
     "@type": "WebPage",
     "name": "SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools",
     "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation access, log analysis, and development best practices.",
-    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/",
     "mainEntity": {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",
@@ -72,7 +72,7 @@ const HomePage: React.FC = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://sfcc-dev-mcp.rhino-inquisitor.com/"
+        "item": "https://sfcc-mcp-dev.rhino-inquisitor.com/"
       }]
     }
   };

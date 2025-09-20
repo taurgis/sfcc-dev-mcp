@@ -71,7 +71,7 @@ const SecurityPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/security",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/security",
     "mainEntity": {
       "@type": "Guide",
       "name": "SFCC MCP Security Guide"

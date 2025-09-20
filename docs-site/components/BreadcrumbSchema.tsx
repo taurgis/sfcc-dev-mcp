@@ -10,7 +10,7 @@ interface BreadcrumbSchemaProps {
 }
 
 const BreadcrumbSchema: React.FC<BreadcrumbSchemaProps> = ({ items }) => {
-  const baseUrl = 'https://sfcc-dev-mcp.rhino-inquisitor.com';
+  const baseUrl = 'https://sfcc-mcp-dev.rhino-inquisitor.com';
   
   const breadcrumbList = {
     "@context": "https://schema.org",

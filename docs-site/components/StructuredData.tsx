@@ -15,9 +15,9 @@ const StructuredData: React.FC<StructuredDataProps> = ({ structuredData }) => {
       "applicationSubCategory": "Development Tools",
       "operatingSystem": "Node.js",
       "description": "A Model Context Protocol server for Salesforce B2C Commerce Cloud development with AI-powered documentation access, log analysis, and development best practices.",
-      "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/",
+      "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/",
       "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp",
-      "installUrl": "https://sfcc-dev-mcp.rhino-inquisitor.com/configuration",
+      "installUrl": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration",
       "softwareVersion": "1.0.0",
       "datePublished": "2025-01-01",
       "dateModified": "2025-09-20",
@@ -42,7 +42,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ structuredData }) => {
         "Best Practices Guides",
         "AI Assistant Integration"
       ],
-      "screenshot": "https://sfcc-dev-mcp.rhino-inquisitor.com/explain-product-pricing-methods.png",
+      "screenshot": "https://sfcc-mcp-dev.rhino-inquisitor.com/explain-product-pricing-methods.png",
       "offers": {
         "@type": "Offer",
         "price": "0",

@@ -41,7 +41,7 @@ const ToolsPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/tools",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/tools",
     "mainEntity": {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",

@@ -25,7 +25,14 @@ const FeaturesPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/features",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/features",
+    "about": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "SFCC Development MCP Server",
+        "applicationCategory": "DeveloperApplication"
+      }
+    ],
     "mainEntity": {
       "@type": "SoftwareApplication",
       "name": "SFCC Development MCP Server",

@@ -34,7 +34,7 @@ const AIInterfacesPage: React.FC = () => {
     },
     "datePublished": "2025-01-01",
     "dateModified": "2025-09-20",
-    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/ai-interfaces",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces",
     "about": [
       {
         "@type": "SoftwareApplication",

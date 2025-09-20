@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const baseUrl = 'https://sfcc-dev-mcp.rhino-inquisitor.com';
+const baseUrl = 'https://sfcc-mcp-dev.rhino-inquisitor.com';
 const currentDate = new Date().toISOString().split('T')[0];
 
 // Define all pages with their priorities and change frequencies
