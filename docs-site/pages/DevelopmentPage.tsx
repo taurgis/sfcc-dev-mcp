@@ -1,34 +1,48 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 
 const DevelopmentPage: React.FC = () => {
+    const developmentStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Development Guide - SFCC Development MCP Server",
+        "description": "Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features.",
+        "author": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "datePublished": "2025-01-01",
+        "dateModified": "2025-09-20",
+        "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/development",
+        "mainEntity": {
+            "@type": "Guide",
+            "name": "SFCC MCP Development Guide"
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto px-6 py-12">
-            <Head>
-                <title>Development Guide - SFCC Development MCP Server</title>
-                <meta name="description" content="Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features." />
-                <meta name="keywords" content="SFCC Development MCP Server, SFCC MCP development, TypeScript MCP server, Model Context Protocol development, SFCC tools development" />
-                <meta name="robots" content="index, follow" />
-                
-                {/* Open Graph tags */}
-                <meta property="og:title" content="SFCC Development MCP Server - Development Guide" />
-                <meta property="og:description" content="Contribute to SFCC Development MCP Server development. Complete guide to architecture, setup, and extending the SFCC development tools." />
-                <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/development" />
-                <meta property="og:type" content="website" />
-                
-                {/* Twitter Card tags */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="SFCC Development MCP Server - Development Guide" />
-                <meta name="twitter:description" content="Contribute to SFCC Development MCP Server development. Complete guide to architecture, setup, and extending the SFCC development tools." />
-                
-                {/* Canonical URL */}
-                <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/development" />
-                
-                {/* Character encoding */}
-                <meta charSet="utf-8" />
-            </Head>
+            <SEO 
+                title="Development Guide"
+                description="Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features."
+                keywords="SFCC Development MCP Server, SFCC MCP development, TypeScript MCP server, Model Context Protocol development, SFCC tools development"
+                canonical="/development"
+                ogType="article"
+            />
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "/" },
+                { name: "Development", url: "/development" }
+            ]} />
+            <StructuredData data={developmentStructuredData} />
+            
             <H1 id="development-guide">👨‍💻 Development Guide</H1>
             <PageSubtitle>Contributing to the SFCC Development MCP Server project</PageSubtitle>
 

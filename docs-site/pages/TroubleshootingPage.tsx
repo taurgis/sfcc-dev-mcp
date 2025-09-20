@@ -1,36 +1,50 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import Collapsible from '../components/Collapsible';
 import Badge from '../components/Badge';
 
 const TroubleshootingPage: React.FC = () => {
+    const troubleshootingStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Troubleshooting & Debugging - SFCC Development MCP Server",
+        "description": "Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips.",
+        "author": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "datePublished": "2025-01-01",
+        "dateModified": "2025-09-20",
+        "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/troubleshooting",
+        "mainEntity": {
+            "@type": "Guide",
+            "name": "SFCC MCP Troubleshooting Guide"
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto px-6 py-12">
-             <Head>
-                <title>Troubleshooting & Debugging - SFCC Development MCP Server</title>
-                <meta name="description" content="Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips." />
-                <meta name="keywords" content="SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues" />
-                <meta name="robots" content="index, follow" />
-                
-                {/* Open Graph tags */}
-                <meta property="og:title" content="SFCC Development MCP Server Troubleshooting Guide" />
-                <meta property="og:description" content="Comprehensive troubleshooting guide for SFCC Development MCP Server. Solutions for authentication, connectivity, and AI integration issues." />
-                <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting" />
-                <meta property="og:type" content="website" />
-                
-                {/* Twitter Card tags */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="SFCC Development MCP Server Troubleshooting Guide" />
-                <meta name="twitter:description" content="Comprehensive troubleshooting guide for SFCC Development MCP Server. Solutions for authentication, connectivity, and AI integration issues." />
-                
-                {/* Canonical URL */}
-                <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting" />
-                
-                {/* Character encoding */}
-                <meta charSet="utf-8" />
-            </Head>
+            <SEO 
+                title="Troubleshooting & Debugging"
+                description="Common issues and solutions for the SFCC Development MCP Server. Includes authentication problems, network connectivity, AI interface integration, and debugging tips."
+                keywords="SFCC troubleshooting, Commerce Cloud debugging, MCP server issues, SFCC authentication problems, OCAPI troubleshooting, WebDAV issues"
+                canonical="/troubleshooting"
+                ogType="article"
+            />
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "/" },
+                { name: "Troubleshooting", url: "/troubleshooting" }
+            ]} />
+            <StructuredData data={troubleshootingStructuredData} />
+            
             <H1 id="troubleshooting">🐛 Troubleshooting & Debugging</H1>
             <PageSubtitle>Quick solutions to get you back to developing SFCC features with AI assistance.</PageSubtitle>
 

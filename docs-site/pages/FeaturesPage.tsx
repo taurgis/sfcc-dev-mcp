@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import { Collapsible } from '../components/Collapsible';
 
@@ -8,31 +10,51 @@ const badge = (label: string) => (
 );
 
 const FeaturesPage: React.FC = () => {
+  const featuresStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Features & Capabilities - SFCC Development MCP Server",
+    "description": "Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-09-20",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/features",
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "featureList": [
+        "SFCC API Documentation Access",
+        "Real-time Log Analysis", 
+        "System Object Exploration",
+        "Cartridge Generation",
+        "Best Practices Guides",
+        "AI Assistant Integration"
+      ]
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
-      <Head>
-        <title>Features & Capabilities - SFCC Development MCP Server</title>
-        <meta name="description" content="Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools." />
-        <meta name="keywords" content="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="SFCC Development MCP Server Features & Capabilities" />
-        <meta property="og:description" content="Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/features" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="SFCC Development MCP Server Features & Capabilities" />
-        <meta name="twitter:description" content="Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/features" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="Features & Capabilities"
+        description="Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools."
+        keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features"
+        canonical="/features"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Features", url: "/features" }
+      ]} />
+      <StructuredData structuredData={featuresStructuredData} />
+      
       <header className="mb-14 text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>

@@ -150,17 +150,35 @@ sfcc-dev-mcp/
 │   └── [other dw_* namespaces]  # Complete SFCC API documentation
 ├── docs-site/                   # React documentation website
 │   ├── App.tsx                  # Main React application component
+│   ├── main.tsx                 # React application entry point
 │   ├── index.html               # HTML template with SEO and structured data
-│   ├── index.tsx                # React application entry point
+│   ├── constants.tsx            # Application constants and configuration
+│   ├── metadata.json            # Site metadata configuration
+│   ├── types.ts                 # TypeScript type definitions
 │   ├── package.json             # Node.js dependencies and scripts
 │   ├── vite.config.ts           # Vite build configuration
 │   ├── tailwind.config.js       # Tailwind CSS configuration
 │   ├── postcss.config.js        # PostCSS configuration
 │   ├── tsconfig.json            # TypeScript configuration
+│   ├── README.md                # Documentation site specific README
 │   ├── components/              # Reusable React components
+│   │   ├── Badge.tsx            # Badge component for status/categories
 │   │   ├── CodeBlock.tsx        # Syntax highlighted code blocks
-│   │   ├── Navigation.tsx       # Site navigation component
-│   │   └── Typography.tsx       # Typography components (H1, H2, etc.)
+│   │   ├── Collapsible.tsx      # Collapsible content sections
+│   │   ├── ConfigBuilder.tsx    # Configuration builder component
+│   │   ├── ConfigHero.tsx       # Configuration page hero section
+│   │   ├── ConfigModeTabs.tsx   # Configuration mode tab switcher
+│   │   ├── Layout.tsx           # Main layout wrapper component
+│   │   ├── NewcomerCTA.tsx      # Call-to-action for new users
+│   │   ├── NextStepsStrip.tsx   # Next steps guidance component
+│   │   ├── OnThisPage.tsx       # Table of contents component
+│   │   ├── Search.tsx           # Search functionality component
+│   │   ├── Sidebar.tsx          # Site navigation sidebar
+│   │   ├── ToolCard.tsx         # Tool display card component
+│   │   ├── ToolFilters.tsx      # Tool filtering controls
+│   │   ├── Typography.tsx       # Typography components (H1, H2, etc.)
+│   │   ├── VersionBadge.tsx     # Version display badge
+│   │   └── icons.tsx            # Icon components library
 │   ├── pages/                   # Page components for routing
 │   │   ├── HomePage.tsx         # Homepage with quick start guide
 │   │   ├── AIInterfacesPage.tsx # AI interface setup guides
@@ -168,18 +186,34 @@ sfcc-dev-mcp/
 │   │   ├── DevelopmentPage.tsx  # Development guidelines
 │   │   ├── ExamplesPage.tsx     # Usage examples
 │   │   ├── FeaturesPage.tsx     # Feature documentation
-│   │   ├── InstallationPage.tsx # Installation instructions
 │   │   ├── SecurityPage.tsx     # Security considerations
 │   │   ├── ToolsPage.tsx        # Available tools documentation
 │   │   └── TroubleshootingPage.tsx # Troubleshooting guide
-│   ├── hooks/                   # React hooks
-│   │   └── useSEO.tsx           # Dynamic SEO hook for per-page metadata
+│   ├── src/                     # Source assets and generated files
+│   │   ├── generated-search-index.ts # Generated search index
+│   │   └── styles/              # CSS and styling files
 │   ├── utils/                   # Utility functions
+│   │   ├── search.ts            # Search functionality utilities
+│   │   └── toolsData.ts         # Tools data management
+│   ├── scripts/                 # Build and utility scripts
+│   │   ├── generate-search-index.js # Search index generation script
+│   │   ├── generate-sitemap.js  # Sitemap generation script
+│   │   └── search-dev.js        # Development search utilities
 │   ├── public/                  # Static assets
+│   │   ├── 404.html             # Custom 404 error page
 │   │   ├── robots.txt           # Search engine crawling instructions
 │   │   ├── sitemap.xml          # Site map for search engines
+│   │   ├── llms.txt             # LLM-specific instructions
 │   │   ├── favicon.ico          # Website favicon
-│   │   └── [favicon variants]   # Various favicon formats
+│   │   ├── favicon-16x16.png    # 16x16 favicon variant
+│   │   ├── favicon-32x32.png    # 32x32 favicon variant
+│   │   ├── apple-touch-icon.png # Apple touch icon
+│   │   ├── android-chrome-192x192.png # Android Chrome icon 192x192
+│   │   ├── android-chrome-512x512.png # Android Chrome icon 512x512
+│   │   ├── site.webmanifest     # Web app manifest
+│   │   ├── index.css            # Global CSS styles
+│   │   ├── explain-product-pricing-methods.png # Demo screenshot with MCP
+│   │   └── explain-product-pricing-methods-no-mcp.png # Demo screenshot without MCP
 │   ├── dist/                    # Built website output (Vite build)
 │   └── node_modules/            # Node.js dependencies
 ├── ai-instructions/             # AI instruction files for different platforms

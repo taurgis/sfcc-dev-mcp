@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
 import { InlineCode } from '../components/CodeBlock';
 
@@ -54,31 +56,43 @@ const ModeFeatureList: React.FC<{ color: 'green' | 'blue'; items: Array<{ icon: 
 };
 
 const SecurityPage: React.FC = () => {
+  const securityStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Security & Privacy - SFCC Development MCP Server",
+    "description": "Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-09-20",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/security",
+    "mainEntity": {
+      "@type": "Guide",
+      "name": "SFCC MCP Security Guide"
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
-      <Head>
-        <title>Security & Privacy - SFCC Development MCP Server</title>
-        <meta name="description" content="Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist." />
-        <meta name="keywords" content="SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="SFCC Development MCP Server - Security & Privacy Guide" />
-        <meta property="og:description" content="Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/security" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="SFCC Development MCP Server - Security & Privacy Guide" />
-        <meta name="twitter:description" content="Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/security" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="Security & Privacy"
+        description="Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist."
+        keywords="SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security"
+        canonical="/security"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Security", url: "/security" }
+      ]} />
+      <StructuredData structuredData={securityStructuredData} />
+      
       {/* Hero */}
       <header className="text-center mb-16">
         <Pill>Security & Privacy</Pill>

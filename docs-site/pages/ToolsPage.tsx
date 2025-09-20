@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle } from '../components/Typography';
 import ToolFilters from '../components/ToolFilters';
 import ToolCard from '../components/ToolCard';
@@ -24,31 +26,45 @@ const ToolsPage: React.FC = () => {
     );
   });
 
+  const toolsStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Available Tools & APIs - SFCC Development MCP Server",
+    "description": "Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-09-20",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/tools",
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "description": "Interactive API reference and tools catalog"
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-      <Head>
-        <title>Available Tools & APIs - SFCC Development MCP Server</title>
-        <meta name="description" content="Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions." />
-        <meta name="keywords" content="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="SFCC Development MCP Server - Tools & APIs Reference" />
-        <meta property="og:description" content="Browse, filter and search all MCP tools with instant example prompts to accelerate development." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/tools" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="SFCC Development MCP Server - Tools & APIs Reference" />
-        <meta name="twitter:description" content="Browse, filter and search all MCP tools with instant example prompts to accelerate development." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/tools" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="Available Tools & APIs"
+        description="Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions."
+        keywords="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices"
+        canonical="/tools"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Tools", url: "/tools" }
+      ]} />
+      <StructuredData data={toolsStructuredData} />
+      
       {/* Hero */}
       <div className="text-center mb-14">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">

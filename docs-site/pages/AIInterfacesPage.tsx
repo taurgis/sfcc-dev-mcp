@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import NewcomerCTA from '../components/NewcomerCTA';
@@ -17,31 +19,56 @@ const SectionCard: React.FC<React.PropsWithChildren<{ className?: string }>> = (
 );
 
 const AIInterfacesPage: React.FC = () => {
+  const aiInterfacesStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "AI Interface Integration - SFCC Development MCP Server",
+    "description": "Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-09-20",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/ai-interfaces",
+    "about": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Claude Desktop",
+        "applicationCategory": "DeveloperApplication"
+      },
+      {
+        "@type": "SoftwareApplication", 
+        "name": "GitHub Copilot",
+        "applicationCategory": "DeveloperApplication"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Cursor",
+        "applicationCategory": "DeveloperApplication"
+      }
+    ]
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
-      <Head>
-        <title>AI Interface Integration - SFCC Development MCP Server</title>
-        <meta name="description" content="Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server." />
-        <meta name="keywords" content="Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="AI Interface Integration - SFCC Development MCP Server" />
-        <meta property="og:description" content="Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="AI Interface Integration - SFCC Development MCP Server" />
-        <meta name="twitter:description" content="Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="AI Interface Integration"
+        description="Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server."
+        keywords="Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools"
+        canonical="/ai-interfaces"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "AI Interfaces", url: "/ai-interfaces" }
+      ]} />
+      <StructuredData structuredData={aiInterfacesStructuredData} />
+      
       {/* Hero */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -54,7 +81,7 @@ const AIInterfacesPage: React.FC = () => {
           in documentation-only mode then unlock full log analysis & system exploration with credentials.
         </PageSubtitle>
       </div>
-      
+
       {/* Newcomer CTA */}
       <NewcomerCTA className="mb-20" />
 

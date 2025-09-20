@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { PageSubtitle, H2, H3 } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import ConfigHero from '../components/ConfigHero';
@@ -8,31 +10,39 @@ import ConfigBuilder from '../components/ConfigBuilder';
 import Collapsible from '../components/Collapsible';
 
 const ConfigurationPage: React.FC = () => {
+  const configurationStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Configuration Guide - SFCC Development MCP Server",
+    "description": "Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-09-20",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/configuration"
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
-      <Head>
-        <title>Configuration Guide - SFCC Development MCP Server</title>
-        <meta name="description" content="Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices." />
-        <meta name="keywords" content="SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="SFCC Development MCP Server Configuration Guide" />
-        <meta property="og:description" content="Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/configuration" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="SFCC Development MCP Server Configuration Guide" />
-        <meta name="twitter:description" content="Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/configuration" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="Configuration Guide"
+        description="Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices."
+        keywords="SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment"
+        canonical="/configuration"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Configuration", url: "/configuration" }
+      ]} />
+      <StructuredData structuredData={configurationStructuredData} />
+      
       <ConfigHero />
       <div className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
           <div className="text-center mb-10">

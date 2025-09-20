@@ -1,5 +1,7 @@
 import React from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle } from '../components/Typography';
 
@@ -56,31 +58,41 @@ const StepsList: React.FC<{ steps: Array<{ label: string; tool?: string; mode?: 
 );
 
 const ExamplesPage: React.FC = () => {
+    const examplesStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Examples & Workflows - SFCC Development MCP Server",
+        "description": "Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks.",
+        "author": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "datePublished": "2025-01-01",
+        "dateModified": "2025-09-20",
+        "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/examples",
+        "educationalLevel": "intermediate",
+        "learningResourceType": "tutorial"
+    };
+
     return (
         <div className="max-w-6xl mx-auto px-6 py-8">
-            <Head>
-                <title>Examples & Workflows - SFCC Development MCP Server</title>
-                <meta name="description" content="Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs." />
-                <meta name="keywords" content="SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples" />
-                <meta name="robots" content="index, follow" />
-                
-                {/* Open Graph tags */}
-                <meta property="og:title" content="SFCC Development Examples - Prompt-First Workflows" />
-                <meta property="og:description" content="Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects." />
-                <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/examples" />
-                <meta property="og:type" content="website" />
-                
-                {/* Twitter Card tags */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="SFCC Development Examples - Prompt-First Workflows" />
-                <meta name="twitter:description" content="Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects." />
-                
-                {/* Canonical URL */}
-                <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/examples" />
-                
-                {/* Character encoding */}
-                <meta charSet="utf-8" />
-            </Head>
+            <SEO 
+                title="Examples & Workflows"
+                description="Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs."
+                keywords="SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples"
+                canonical="/examples"
+                ogType="article"
+            />
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "/" },
+                { name: "Examples", url: "/examples" }
+            ]} />
+            <StructuredData data={examplesStructuredData} />
+            
             <div className="text-center mb-14">
                 <H1 id="examples">💡 Prompt-First Examples</H1>
                 <PageSubtitle>

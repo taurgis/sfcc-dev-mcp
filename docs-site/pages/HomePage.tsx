@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Head } from 'vite-react-ssg';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import NewcomerCTA from '../components/NewcomerCTA';
@@ -50,31 +52,45 @@ const HomePage: React.FC = () => {
     setIsZooming2(false);
   }, []);
 
+  const homePageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools",
+    "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation access, log analysis, and development best practices.",
+    "url": "https://sfcc-dev-mcp.rhino-inquisitor.com/",
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "description": "A comprehensive MCP server providing AI assistants with direct access to SFCC development tools, documentation, and debugging capabilities.",
+      "operatingSystem": "Node.js",
+      "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp"
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://sfcc-dev-mcp.rhino-inquisitor.com/"
+      }]
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
-      <Head>
-        <title>SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools</title>
-        <meta name="description" content="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance." />
-        <meta name="keywords" content="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices" />
-        <meta name="robots" content="index, follow" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="SFCC Development MCP Server - AI-Powered Commerce Cloud Development" />
-        <meta property="og:description" content="Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices." />
-        <meta property="og:url" content="https://sfcc-mcp-dev.rhino-inquisitor.com/" />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="SFCC Development MCP Server - AI-Powered Commerce Cloud Development" />
-        <meta name="twitter:description" content="Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices." />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://sfcc-mcp-dev.rhino-inquisitor.com/" />
-        
-        {/* Character encoding */}
-        <meta charSet="utf-8" />
-      </Head>
+      <SEO 
+        title="SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools"
+        description="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance."
+        keywords="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices"
+        canonical="/"
+        ogType="website"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" }
+      ]} />
+      <StructuredData structuredData={homePageStructuredData} />
+      
       {/* Hero Section */}
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
