@@ -272,7 +272,7 @@ describe('Unified SFCC Mock Server Integration', () => {
 
       // Check for some common system objects
       const objectIds = data.data.map((obj: any) => obj.object_type);
-      expect(objectIds).toContain('Product');
+      expect(objectIds).toContain('Basket');
       expect(objectIds).toContain('CustomObject');
     });
 

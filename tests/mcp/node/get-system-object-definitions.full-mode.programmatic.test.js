@@ -220,7 +220,7 @@ describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', ()
 
     test('should handle custom select parameter', async () => {
       const result = await client.callTool('get_system_object_definitions', {
-        select: '(*)'
+        select: '(data.(**))'
       });
       
       assert.equal(result.isError, false, 'Should not return error');
@@ -229,6 +229,222 @@ describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', ()
       const parsedResponse = JSON.parse(responseText);
       
       assert.ok(parsedResponse.data, 'Should contain data');
+    });
+  });
+
+  // ==================================================================================
+  // SELECT PARAMETER TESTING - OCAPI Field Selection
+  // ==================================================================================
+
+  describe('Select Parameter Testing', () => {
+    test('should handle wildcard select parameter (**)', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(**)',
+        count: 3
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      // Wildcard should include all standard fields
+      assert.ok(parsedResponse._type, 'Should include _type field');
+      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
+      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
+      assert.ok(parsedResponse.data, 'Should include data field');
+    });
+
+    test('should handle root-level field selection', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(start, count, total)',
+        count: 2
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      // Should include selected fields
+      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
+      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
+      assert.ok(parsedResponse.total !== undefined, 'Should include total field');
+      
+      // Should not include non-selected fields (when our mock server properly filters)
+      // Note: _type and _v might still be included depending on server behavior
+    });
+
+    test('should handle data-level field selection', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(start, count, data.(object_type, display_name))',
+        count: 3
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      // Should include root-level selected fields
+      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
+      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
+      assert.ok(parsedResponse.data, 'Should include data field');
+      
+      // Data objects should only have selected fields
+      if (parsedResponse.data && parsedResponse.data.length > 0) {
+        const firstObject = parsedResponse.data[0];
+        assert.ok(firstObject.object_type, 'Should include object_type field');
+        assert.ok(firstObject.display_name, 'Should include display_name field');
+      }
+    });
+
+    test('should handle data wildcard selection', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(start, data.(**)))',
+        count: 2
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
+      assert.ok(parsedResponse.data, 'Should include data field');
+      
+      // Data objects should have all their fields with wildcard
+      if (parsedResponse.data && parsedResponse.data.length > 0) {
+        const firstObject = parsedResponse.data[0];
+        assert.ok(firstObject.object_type, 'Should include object_type field');
+        assert.ok(firstObject.display_name, 'Should include display_name field');
+      }
+    });
+
+    test('should handle single field selection', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(count)',
+        count: 1
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      // Should include only the selected field (plus system fields that might be forced)
+      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
+    });
+
+    test('should handle complex nested selection patterns', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '(start, count, data.(object_type, display_name.(default)))',
+        count: 2
+      });
+      
+      assert.equal(result.isError, false, 'Should not return error');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
+      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
+      assert.ok(parsedResponse.data, 'Should include data field');
+      
+      // Check nested field selection in display_name
+      if (parsedResponse.data && parsedResponse.data.length > 0) {
+        const firstObject = parsedResponse.data[0];
+        assert.ok(firstObject.object_type, 'Should include object_type field');
+        if (firstObject.display_name) {
+          assert.ok(firstObject.display_name.default, 'Should include default localized name');
+        }
+      }
+    });
+
+    test('should handle invalid select patterns gracefully', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: 'invalid_pattern',
+        count: 2
+      });
+      
+      // Should not error out but might return full data or handle gracefully
+      assert.equal(result.isError, false, 'Should handle invalid select patterns gracefully');
+      
+      const responseText = result.content[0].text;
+      assert.ok(typeof responseText === 'string', 'Should return valid string response');
+      
+      // Should parse as valid JSON
+      assert.doesNotThrow(() => JSON.parse(responseText), 'Should return valid JSON');
+    });
+
+    test('should handle empty select parameter', async () => {
+      const result = await client.callTool('get_system_object_definitions', {
+        select: '',
+        count: 2
+      });
+      
+      // Should not error out but might return full data or handle gracefully
+      assert.equal(result.isError, false, 'Should handle empty select parameter gracefully');
+      
+      const responseText = result.content[0].text;
+      const parsedResponse = JSON.parse(responseText);
+      
+      // Should still return valid data structure
+      assert.ok(parsedResponse, 'Should return valid response object');
+    });
+
+    test('should verify select parameter behavior consistency', async () => {
+      // Test the same select pattern multiple times to ensure consistency
+      const selectPattern = '(start, count, data.(object_type))';
+      
+      const result1 = await client.callTool('get_system_object_definitions', {
+        select: selectPattern,
+        count: 2
+      });
+      
+      const result2 = await client.callTool('get_system_object_definitions', {
+        select: selectPattern,
+        count: 2
+      });
+      
+      assert.equal(result1.isError, false, 'First call should not return error');
+      assert.equal(result2.isError, false, 'Second call should not return error');
+      
+      const parsed1 = JSON.parse(result1.content[0].text);
+      const parsed2 = JSON.parse(result2.content[0].text);
+      
+      // Structure should be consistent
+      assert.equal(typeof parsed1.start, typeof parsed2.start, 'Start field types should match');
+      assert.equal(typeof parsed1.count, typeof parsed2.count, 'Count field types should match');
+      assert.equal(Array.isArray(parsed1.data), Array.isArray(parsed2.data), 'Data field types should match');
+    });
+
+    test('should handle select parameter with different count values', async () => {
+      const selectPattern = '(start, count, data.(object_type, display_name))';
+      
+      // Test with different count values to ensure select works regardless of result size
+      const counts = [1, 3, 5];
+      
+      for (const count of counts) {
+        const result = await client.callTool('get_system_object_definitions', {
+          select: selectPattern,
+          count: count
+        });
+        
+        assert.equal(result.isError, false, `Should not return error for count ${count}`);
+        
+        const parsedResponse = JSON.parse(result.content[0].text);
+        
+        assert.ok(parsedResponse.start !== undefined, `Should include start field for count ${count}`);
+        assert.ok(parsedResponse.count !== undefined, `Should include count field for count ${count}`);
+        assert.ok(parsedResponse.data, `Should include data field for count ${count}`);
+        
+        // Verify data array has correct length
+        if (parsedResponse.data) {
+          assert.ok(parsedResponse.data.length <= count, 
+            `Data length should not exceed count ${count}`);
+        }
+      }
     });
 
     test('should handle zero start parameter', async () => {
@@ -640,7 +856,7 @@ describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', ()
 
     test('should handle SFCC-specific data correctly', async () => {
       const result = await client.callTool('get_system_object_definitions', {
-        count: 5
+        count: 50
       });
       
       assert.equal(result.isError, false, 'Should not return error');

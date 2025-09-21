@@ -493,7 +493,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         },
         select: {
           type: 'string',
-          description: "The property selector (e.g., '(**)' for all properties)",
+          description: "Property selector using OCAPI select syntax. Controls which fields are returned in the response. Examples: '(**)' for all properties, '(start, total)' for pagination info only, '(data.(object_type))' for only object_type in data array, '(data.(object_type, display_name))' for specific fields in data array, '(start, data.(**))' for pagination info plus all data properties. Use parentheses to group field selections and dot notation to traverse object hierarchies.",
           default: '(**)',
         },
       },

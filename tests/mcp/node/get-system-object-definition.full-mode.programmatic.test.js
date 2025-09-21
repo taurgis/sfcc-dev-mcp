@@ -237,7 +237,7 @@ describe('get_system_object_definition Tool - Full Mode Programmatic Tests', () 
       
       // Step 3: Analyze each system object in detail - ensure we test Customer which is queryable
       const analysisResults = [];
-      const testObjects = [...systemObjects.slice(0, 2), 'Customer']; // Include Customer explicitly
+      const testObjects = ['Product', 'Category', 'Customer']; // Use objects with actual definition files
       
       for (const obj of testObjects) {
         const objectType = typeof obj === 'string' ? obj : obj.object_type;
