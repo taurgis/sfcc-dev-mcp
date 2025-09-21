@@ -1,8 +1,9 @@
 /**
  * MCP Aegis - Programmatic Tests for get_system_object_definitions Tool (Full Mode)
  * 
- * Tests the get_system_object_definitions tool with SFCC credentials available.
- * This tool requires OCAPI access and should be available in full mode.
+ * These tests focus on complex business logic validation and dynamic test case generation
+ * that requires programmatic JavaScript/TypeScript logic. For basic functional testing,
+ * use the YAML-based tests which are more appropriate and maintainable.
  * 
  * Quick Test Commands:
  * node --test tests/mcp/node/get-system-object-definitions.full-mode.programmatic.test.js
@@ -31,850 +32,356 @@ describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', ()
     client.clearAllBuffers();
   });
 
+  // Helper function for complex assertion logic
+  function assertValidMCPResponse(result) {
+    assert.ok(result.content, 'Should have content');
+    assert.ok(Array.isArray(result.content), 'Content should be array');
+    assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
+  }
+
+  function assertSFCCObjectStructure(obj) {
+    assert.ok(obj.object_type, 'Should have object_type');
+    assert.ok(obj._type, 'Should have _type');
+    assert.ok(typeof obj.object_type === 'string', 'object_type should be string');
+    assert.ok(obj._type.includes('object_type_definition'), '_type should indicate object type definition');
+  }
+
   // ==================================================================================
-  // TOOL AVAILABILITY TESTS
+  // TOOL AVAILABILITY & SCHEMA VALIDATION
   // ==================================================================================
 
   describe('Tool Availability', () => {
-    test('should list get_system_object_definitions tool in available tools', async () => {
+    test('should have proper tool discovery and schema validation', async () => {
       const tools = await client.listTools();
       
       assert.ok(Array.isArray(tools), 'Tools should be an array');
       
-      const toolNames = tools.map(tool => tool.name);
-      assert.ok(toolNames.includes('get_system_object_definitions'), 
-        'Should include get_system_object_definitions tool');
-    });
-
-    test('should have proper tool structure and description', async () => {
-      const tools = await client.listTools();
-      const systemObjectTool = tools.find(tool => tool.name === 'get_system_object_definitions');
+      const tool = tools.find(t => t.name === 'get_system_object_definitions');
+      assert.ok(tool, 'Tool should be found');
+      assert.ok(tool.description.includes('system object definitions'), 'Description should mention system object definitions');
       
-      assert.ok(systemObjectTool, 'Tool should exist');
-      assert.ok(systemObjectTool.description, 'Tool should have description');
-      assert.ok(systemObjectTool.description.length >= 50, 
-        'Description should be meaningful (at least 50 characters)');
-      assert.ok(systemObjectTool.description.includes('system object'), 
-        'Description should mention system objects');
-    });
-
-    test('should have proper input schema structure', async () => {
-      const tools = await client.listTools();
-      const systemObjectTool = tools.find(tool => tool.name === 'get_system_object_definitions');
+      // Validate schema structure
+      assert.ok(tool.inputSchema, 'Tool should have input schema');
+      assert.equal(tool.inputSchema.type, 'object', 'Schema should be object type');
       
-      assert.ok(systemObjectTool.inputSchema, 'Tool should have input schema');
-      assert.equal(systemObjectTool.inputSchema.type, 'object', 'Schema should be object type');
-      assert.ok(systemObjectTool.inputSchema.properties, 'Schema should have properties');
+      const properties = tool.inputSchema.properties;
+      assert.ok(properties, 'Schema should have properties');
       
-      // Check optional parameters
-      const props = systemObjectTool.inputSchema.properties;
-      if (props.start) {
-        assert.equal(props.start.type, 'number', 'start should be number type');
-      }
-      if (props.count) {
-        assert.equal(props.count.type, 'number', 'count should be number type');
-      }
-      if (props.select) {
-        assert.equal(props.select.type, 'string', 'select should be string type');
-      }
-    });
-  });
-
-  // ==================================================================================
-  // SUCCESS SCENARIOS - DEFAULT PARAMETERS
-  // ==================================================================================
-
-  describe('Success Scenarios - Default Parameters', () => {
-    test('should retrieve system object definitions with default parameters', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      assert.ok(result.content, 'Should return content');
-      assert.ok(Array.isArray(result.content), 'Content should be array');
-      assert.equal(result.content[0].type, 'text', 'Content should be text type');
-    });
-
-    test('should return valid JSON structure in response text', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      let parsedResponse;
-      
-      assert.doesNotThrow(() => {
-        parsedResponse = JSON.parse(responseText);
-      }, 'Response should be valid JSON');
-      
-      assert.ok(parsedResponse.data, 'Response should contain data field');
-      assert.ok(Array.isArray(parsedResponse.data), 'Data should be array');
-    });
-
-    test('should contain SFCC system object types in response', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data.length > 0, 'Should have system objects');
-      
-      // Check for common SFCC system objects
-      const objectTypes = parsedResponse.data.map(obj => obj.object_type || obj.id);
-      const expectedTypes = ['Product', 'Category', 'Customer', 'Order'];
-      
-      const hasExpectedTypes = expectedTypes.some(type => 
-        objectTypes.some(objType => objType.includes(type))
-      );
-      assert.ok(hasExpectedTypes, 'Should contain common SFCC system object types');
-    });
-
-    test('should include multiple object types in the response', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data.length >= 3, 'Should have at least 3 system objects');
-    });
-
-    test('should include pagination metadata in response', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Check for pagination fields
-      const hasPagination = 
-        parsedResponse.count !== undefined || 
-        parsedResponse.total !== undefined ||
-        parsedResponse.start !== undefined;
-      
-      assert.ok(hasPagination, 'Should include pagination metadata');
-    });
-
-    test('should include SFCC API version and type metadata', async () => {
-      const result = await client.callTool('get_system_object_definitions', {});
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Check for API version or type metadata
-      const hasMetadata = 
-        parsedResponse._v !== undefined || 
-        parsedResponse._type !== undefined ||
-        parsedResponse.version !== undefined;
-      
-      assert.ok(hasMetadata, 'Should include API metadata');
-    });
-  });
-
-  // ==================================================================================
-  // PAGINATION TESTS
-  // ==================================================================================
-
-  describe('Pagination Parameters', () => {
-    test('should handle pagination with start parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 1
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-      assert.ok(Array.isArray(parsedResponse.data), 'Data should be array');
-    });
-
-    test('should handle pagination with count parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 5
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-      assert.ok(parsedResponse.data.length <= 5, 'Should respect count parameter');
-    });
-
-    test('should include pagination URLs when applicable', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Check for pagination URLs or links
-      const hasPaginationInfo = 
-        parsedResponse.next !== undefined ||
-        parsedResponse.previous !== undefined ||
-        parsedResponse.links !== undefined;
-      
-      // Note: May or may not have pagination URLs depending on data size
-      assert.ok(typeof hasPaginationInfo === 'boolean', 'Should check pagination info');
-    });
-
-    test('should handle custom select parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(data.(**))'
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-    });
-  });
-
-  // ==================================================================================
-  // SELECT PARAMETER TESTING - OCAPI Field Selection
-  // ==================================================================================
-
-  describe('Select Parameter Testing', () => {
-    test('should handle wildcard select parameter (**)', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(**)',
-        count: 3
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Wildcard should include all standard fields
-      assert.ok(parsedResponse._type, 'Should include _type field');
-      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
-      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
-      assert.ok(parsedResponse.data, 'Should include data field');
-    });
-
-    test('should handle root-level field selection', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(start, count, total)',
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Should include selected fields
-      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
-      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
-      assert.ok(parsedResponse.total !== undefined, 'Should include total field');
-      
-      // Should not include non-selected fields (when our mock server properly filters)
-      // Note: _type and _v might still be included depending on server behavior
-    });
-
-    test('should handle data-level field selection', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(start, count, data.(object_type, display_name))',
-        count: 3
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Should include root-level selected fields
-      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
-      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
-      assert.ok(parsedResponse.data, 'Should include data field');
-      
-      // Data objects should only have selected fields
-      if (parsedResponse.data && parsedResponse.data.length > 0) {
-        const firstObject = parsedResponse.data[0];
-        assert.ok(firstObject.object_type, 'Should include object_type field');
-        assert.ok(firstObject.display_name, 'Should include display_name field');
-      }
-    });
-
-    test('should handle data wildcard selection', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(start, data.(**)))',
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
-      assert.ok(parsedResponse.data, 'Should include data field');
-      
-      // Data objects should have all their fields with wildcard
-      if (parsedResponse.data && parsedResponse.data.length > 0) {
-        const firstObject = parsedResponse.data[0];
-        assert.ok(firstObject.object_type, 'Should include object_type field');
-        assert.ok(firstObject.display_name, 'Should include display_name field');
-      }
-    });
-
-    test('should handle single field selection', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(count)',
-        count: 1
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Should include only the selected field (plus system fields that might be forced)
-      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
-    });
-
-    test('should handle complex nested selection patterns', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '(start, count, data.(object_type, display_name.(default)))',
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.start !== undefined, 'Should include start field');
-      assert.ok(parsedResponse.count !== undefined, 'Should include count field');
-      assert.ok(parsedResponse.data, 'Should include data field');
-      
-      // Check nested field selection in display_name
-      if (parsedResponse.data && parsedResponse.data.length > 0) {
-        const firstObject = parsedResponse.data[0];
-        assert.ok(firstObject.object_type, 'Should include object_type field');
-        if (firstObject.display_name) {
-          assert.ok(firstObject.display_name.default, 'Should include default localized name');
+      // Dynamic validation of optional parameters
+      const expectedParams = ['count', 'start', 'select'];
+      expectedParams.forEach(param => {
+        if (properties[param]) {
+          assert.ok(properties[param].type, `Parameter ${param} should have type`);
         }
-      }
-    });
-
-    test('should handle invalid select patterns gracefully', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: 'invalid_pattern',
-        count: 2
       });
       
-      // Should not error out but might return full data or handle gracefully
-      assert.equal(result.isError, false, 'Should handle invalid select patterns gracefully');
+      // Verify all parameters are optional
+      assert.ok(!tool.inputSchema.required || tool.inputSchema.required.length === 0,
+        'All parameters should be optional');
+    });
+  });
+
+  // ==================================================================================
+  // CORE FUNCTIONALITY WITH DYNAMIC VALIDATION
+  // ==================================================================================
+
+  describe('Core Functionality', () => {
+    test('should retrieve and validate core SFCC object structure', async () => {
+      const result = await client.callTool('get_system_object_definitions', {});
       
-      const responseText = result.content[0].text;
-      assert.ok(typeof responseText === 'string', 'Should return valid string response');
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should not return error');
       
-      // Should parse as valid JSON
-      assert.doesNotThrow(() => JSON.parse(responseText), 'Should return valid JSON');
+      const data = JSON.parse(result.content[0].text);
+      
+      // Validate OCAPI response structure
+      assert.ok(data.data && Array.isArray(data.data), 'Should have data array');
+      assert.ok(typeof data.count === 'number', 'Should have count');
+      assert.ok(typeof data.total === 'number', 'Should have total');
+      assert.ok(data._v, 'Should have API version');
+      assert.ok(data._type, 'Should have type information');
+      
+      // Dynamic validation - check for SFCC system objects  
+      const objectTypes = data.data.map(obj => obj.object_type);
+      const expectedSystemTypes = ['Category', 'Catalog', 'Content', 'Basket', 'Campaign'];
+      const foundSystemTypes = expectedSystemTypes.filter(type => objectTypes.includes(type));
+      
+      assert.ok(foundSystemTypes.length > 0, 
+        `Should include SFCC system objects. Found: ${foundSystemTypes.join(', ')}, Available: ${objectTypes.slice(0,10).join(', ')}`);
+      
+      // Validate each object structure
+      data.data.forEach((obj, index) => {
+        try {
+          assertSFCCObjectStructure(obj);
+        } catch (error) {
+          assert.fail(`Object at index ${index} failed validation: ${error.message}`);
+        }
+      });
     });
 
-    test('should handle empty select parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        select: '',
-        count: 2
-      });
+    test('should handle pagination with dynamic validation', async () => {
+      const smallPageResult = await client.callTool('get_system_object_definitions', { count: 3 });
+      assert.equal(smallPageResult.isError, false, 'Small page request should succeed');
       
-      // Should not error out but might return full data or handle gracefully
-      assert.equal(result.isError, false, 'Should handle empty select parameter gracefully');
+      const smallPageData = JSON.parse(smallPageResult.content[0].text);
       
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Should still return valid data structure
-      assert.ok(parsedResponse, 'Should return valid response object');
-    });
-
-    test('should verify select parameter behavior consistency', async () => {
-      // Test the same select pattern multiple times to ensure consistency
-      const selectPattern = '(start, count, data.(object_type))';
-      
-      const result1 = await client.callTool('get_system_object_definitions', {
-        select: selectPattern,
-        count: 2
-      });
-      
-      const result2 = await client.callTool('get_system_object_definitions', {
-        select: selectPattern,
-        count: 2
-      });
-      
-      assert.equal(result1.isError, false, 'First call should not return error');
-      assert.equal(result2.isError, false, 'Second call should not return error');
-      
-      const parsed1 = JSON.parse(result1.content[0].text);
-      const parsed2 = JSON.parse(result2.content[0].text);
-      
-      // Structure should be consistent
-      assert.equal(typeof parsed1.start, typeof parsed2.start, 'Start field types should match');
-      assert.equal(typeof parsed1.count, typeof parsed2.count, 'Count field types should match');
-      assert.equal(Array.isArray(parsed1.data), Array.isArray(parsed2.data), 'Data field types should match');
-    });
-
-    test('should handle select parameter with different count values', async () => {
-      const selectPattern = '(start, count, data.(object_type, display_name))';
-      
-      // Test with different count values to ensure select works regardless of result size
-      const counts = [1, 3, 5];
-      
-      for (const count of counts) {
-        const result = await client.callTool('get_system_object_definitions', {
-          select: selectPattern,
-          count: count
+      // Dynamic pagination validation based on total count
+      if (smallPageData.total > 3) {
+        assert.ok(smallPageData.next, 'Should have next link when more data available');
+        assert.ok(smallPageData.data.length <= 3, 'Should not exceed requested count');
+        
+        // Test second page
+        const secondPageResult = await client.callTool('get_system_object_definitions', { 
+          start: 3, 
+          count: 3 
         });
         
-        assert.equal(result.isError, false, `Should not return error for count ${count}`);
-        
-        const parsedResponse = JSON.parse(result.content[0].text);
-        
-        assert.ok(parsedResponse.start !== undefined, `Should include start field for count ${count}`);
-        assert.ok(parsedResponse.count !== undefined, `Should include count field for count ${count}`);
-        assert.ok(parsedResponse.data, `Should include data field for count ${count}`);
-        
-        // Verify data array has correct length
-        if (parsedResponse.data) {
-          assert.ok(parsedResponse.data.length <= count, 
-            `Data length should not exceed count ${count}`);
+        if (!secondPageResult.isError) {
+          const secondPageData = JSON.parse(secondPageResult.content[0].text);
+          assert.equal(secondPageData.start, 3, 'Second page should have correct start');
+          
+          // Ensure no overlap between pages
+          const firstPageTypes = smallPageData.data.map(obj => obj.object_type);
+          const secondPageTypes = secondPageData.data.map(obj => obj.object_type);
+          const overlap = firstPageTypes.filter(type => secondPageTypes.includes(type));
+          assert.equal(overlap.length, 0, 'Pages should not have overlapping data');
         }
       }
     });
 
-    test('should handle zero start parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: 3
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-      assert.ok(parsedResponse.data.length <= 3, 'Should respect count');
-    });
-  });
-
-  // ==================================================================================
-  // EFFICIENCY AND EDGE CASE TESTS
-  // ==================================================================================
-
-  describe('Efficiency and Edge Cases', () => {
-    test('should retrieve definitions efficiently with small count', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 1
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-      assert.ok(parsedResponse.data.length <= 1, 'Should return at most 1 item');
-    });
-
-    test('should handle larger count requests efficiently', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 20
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-      assert.ok(parsedResponse.data.length <= 20, 'Should respect count limit');
-    });
-
-    test('should handle minimum count parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 1
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-    });
-
-    test('should handle large start parameter gracefully', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 1000,
-        count: 5
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data !== undefined, 'Should contain data field');
-      // May be empty array if start is beyond available data
-    });
-
-    test('should handle maximum reasonable count parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 200
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-    });
-  });
-
-  // ==================================================================================
-  // DATA STRUCTURE VALIDATION
-  // ==================================================================================
-
-  describe('Data Structure Validation', () => {
-    test('should return proper SFCC object type definition structure', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 3
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      if (parsedResponse.data.length > 0) {
-        const firstObject = parsedResponse.data[0];
-        
-        // Should have basic SFCC object structure
-        assert.ok(
-          firstObject.object_type || firstObject.id || firstObject._type,
-          'Should have object type identification'
-        );
-      }
-    });
-
-    test('should include resource state information', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Check for resource state or metadata
-      const hasResourceInfo = 
-        parsedResponse._resource_state !== undefined ||
-        parsedResponse.etag !== undefined ||
-        parsedResponse.last_modified !== undefined;
-      
-      // Note: May or may not have resource state depending on API implementation
-      assert.ok(typeof hasResourceInfo === 'boolean', 'Should check for resource state');
-    });
-
-    test('should include API links for object definitions', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 2
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      // Check for API links or self references
-      const hasLinks = 
-        parsedResponse.links !== undefined ||
-        parsedResponse._links !== undefined ||
-        responseText.includes('href');
-      
-      assert.ok(typeof hasLinks === 'boolean', 'Should check for API links');
-    });
-
-    test('should identify system vs custom objects by type', async () => {
+    test('should validate SFCC-specific metadata consistency', async () => {
       const result = await client.callTool('get_system_object_definitions', {});
+      const data = JSON.parse(result.content[0].text);
       
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      if (parsedResponse.data.length > 0) {
-        // Should be able to identify object types
-        const hasTypeInfo = parsedResponse.data.some(obj => 
-          obj._type !== undefined || 
-          obj.object_type !== undefined ||
-          obj.id !== undefined
-        );
-        
-        assert.ok(hasTypeInfo, 'Should have type identification');
+      // Validate SFCC OCAPI metadata (may vary by instance)
+      if (data._resource_state) {
+        assert.ok(typeof data._resource_state === 'string', 'Resource state should be string');
       }
+      
+      // Check for system vs custom object identification
+      const systemObjects = data.data.filter(obj => 
+        ['Product', 'Customer', 'Order', 'Site', 'Category', 'Campaign'].includes(obj.object_type)
+      );
+      
+      assert.ok(systemObjects.length > 0, 'Should include system objects');
+      
+      // Validate that all objects have consistent typing
+      data.data.forEach(obj => {
+        assert.ok(obj._type, 'Each object should have _type');
+        assert.ok(obj.object_type, 'Each object should have object_type');
+        if (obj.object_type_id) {
+          assert.ok(typeof obj.object_type_id === 'string', 'object_type_id should be string');
+        }
+      });
     });
   });
 
   // ==================================================================================
-  // PARAMETER TYPE COERCION TESTS
+  // DYNAMIC PARAMETER VALIDATION
   // ==================================================================================
 
-  describe('Parameter Type Coercion', () => {
-    test('should handle string start parameter (type coercion)', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: "2",
-        count: 3
-      });
-      
-      assert.equal(result.isError, false, 'Should handle string start parameter');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data !== undefined, 'Should contain data');
-    });
-
-    test('should handle string count parameter (type coercion)', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: "5"
-      });
-      
-      assert.equal(result.isError, false, 'Should handle string count parameter');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data !== undefined, 'Should contain data');
-    });
-
-    test('should handle partial parameter sets', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 10
-        // Missing start parameter
-      });
-      
-      assert.equal(result.isError, false, 'Should handle partial parameters');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data');
-    });
-  });
-
-  // ==================================================================================
-  // ERROR HANDLING AND EDGE CASES
-  // ==================================================================================
-
-  describe('Error Handling and Edge Cases', () => {
-    test('should handle negative start parameter gracefully', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: -1,
-        count: 5
-      });
-      
-      // Should either handle gracefully or return meaningful error
-      const responseText = result.content[0].text;
-      
-      if (result.isError) {
-        assert.ok(responseText.includes('start') || responseText.includes('parameter'), 
-          'Error should mention parameter issue');
-      } else {
-        const parsedResponse = JSON.parse(responseText);
-        assert.ok(parsedResponse.data !== undefined, 'Should contain data field');
-      }
-    });
-
-    test('should handle negative count parameter gracefully', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: -1
-      });
-      
-      // Should either handle gracefully or return meaningful error
-      const responseText = result.content[0].text;
-      
-      if (result.isError) {
-        assert.ok(responseText.includes('count') || responseText.includes('parameter'), 
-          'Error should mention parameter issue');
-      } else {
-        const parsedResponse = JSON.parse(responseText);
-        assert.ok(parsedResponse.data !== undefined, 'Should contain data field');
-      }
-    });
-
-    test('should handle zero count parameter', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: 0
-      });
-      
-      // Should either handle gracefully or return meaningful error
-      const responseText = result.content[0].text;
-      
-      if (result.isError) {
-        assert.ok(responseText.includes('count') || responseText.includes('parameter'), 
-          'Error should mention parameter issue');
-      } else {
-        const parsedResponse = JSON.parse(responseText);
-        assert.ok(parsedResponse.data !== undefined, 'Should contain data field');
-        assert.equal(parsedResponse.data.length, 0, 'Should return empty array for count 0');
-      }
-    });
-  });
-
-  // ==================================================================================
-  // CONSISTENCY TESTS
-  // ==================================================================================
-
-  describe('Consistency Tests', () => {
-    test('should return consistent results across multiple calls', async () => {
-      const result1 = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: 3
-      });
-      
-      const result2 = await client.callTool('get_system_object_definitions', {
-        start: 0,
-        count: 3
-      });
-      
-      assert.equal(result1.isError, false, 'First call should succeed');
-      assert.equal(result2.isError, false, 'Second call should succeed');
-      
-      const response1 = JSON.parse(result1.content[0].text);
-      const response2 = JSON.parse(result2.content[0].text);
-      
-      assert.equal(response1.data.length, response2.data.length, 
-        'Should return same number of items');
-    });
-
-    test('should return consistent results on second call', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 5
-      });
-      
-      assert.equal(result.isError, false, 'Should succeed consistently');
-      
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      assert.ok(parsedResponse.data, 'Should contain data consistently');
-    });
-
-    test('should maintain stable API version information', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 1
-      });
-      
-      assert.equal(result.isError, false, 'Should not return error');
-      
-      const responseText = result.content[0].text;
-      
-      // Check for version consistency (should have version info)
-      const hasVersionInfo = 
-        responseText.includes('"_v"') || 
-        responseText.includes('"version"') ||
-        responseText.includes('v20'); // Common SFCC API version pattern
-      
-      assert.ok(hasVersionInfo, 'Should include stable version information');
-    });
-  });
-
-  // ==================================================================================
-  // TOOL CONSISTENCY TESTS
-  // ==================================================================================
-
-  describe('Tool Availability Consistency', () => {
-    test('should consistently include system object tools across multiple calls', async () => {
-      const tools1 = await client.listTools();
-      const tools2 = await client.listTools();
-      
-      const hasSystemObjectTool1 = tools1.some(tool => tool.name === 'get_system_object_definitions');
-      const hasSystemObjectTool2 = tools2.some(tool => tool.name === 'get_system_object_definitions');
-      
-      assert.ok(hasSystemObjectTool1, 'First call should include system object tool');
-      assert.ok(hasSystemObjectTool2, 'Second call should include system object tool');
-    });
-
-    test('should maintain consistent tool inclusion on second call', async () => {
-      const tools = await client.listTools();
-      const toolNames = tools.map(tool => tool.name);
-      
-      assert.ok(toolNames.includes('get_system_object_definitions'), 
-        'Should consistently include get_system_object_definitions');
-    });
-
-    test('should consistently provide tool with same structure', async () => {
-      const tools = await client.listTools();
-      const systemObjectTool = tools.find(tool => tool.name === 'get_system_object_definitions');
-      
-      assert.ok(systemObjectTool, 'Tool should exist');
-      assert.ok(systemObjectTool.name, 'Tool should have name');
-      assert.ok(systemObjectTool.description, 'Tool should have description');
-      assert.ok(systemObjectTool.inputSchema, 'Tool should have input schema');
-    });
-  });
-
-  // ==================================================================================
-  // INTEGRATION AND FUNCTIONALITY TESTS
-  // ==================================================================================
-
-  describe('Integration Tests', () => {
-    test('should work with different parameter combinations', async () => {
-      const testCases = [
-        { start: 0, count: 1 },
-        { start: 1, count: 2 },
-        { count: 3 },
-        { start: 0 },
-        {}
+  describe('Parameter Validation', () => {
+    test('should handle select parameter patterns with dynamic validation', async () => {
+      const selectPatterns = [
+        { pattern: '(**)', description: 'wildcard all fields' },
+        { pattern: 'data.object_type,count,total', description: 'specific field selection' },
+        { pattern: 'data.(*),count', description: 'data wildcard with root fields' },
+        { pattern: 'count,total,_v', description: 'root-level fields only' }
       ];
-
-      for (const testCase of testCases) {
-        const result = await client.callTool('get_system_object_definitions', testCase);
+      
+      for (const { pattern, description } of selectPatterns) {
+        const result = await client.callTool('get_system_object_definitions', { 
+          select: pattern,
+          count: 3 // Small count for efficiency
+        });
         
         assert.equal(result.isError, false, 
-          `Should succeed with parameters: ${JSON.stringify(testCase)}`);
+          `Select pattern '${pattern}' (${description}) should not error`);
         
-        const responseText = result.content[0].text;
-        const parsedResponse = JSON.parse(responseText);
+        const data = JSON.parse(result.content[0].text);
+        assert.ok(data, `Should return valid data for pattern: ${pattern}`);
         
-        assert.ok(parsedResponse.data !== undefined, 
-          `Should contain data with parameters: ${JSON.stringify(testCase)}`);
+        // Dynamic validation based on select pattern
+        if (pattern.includes('count')) {
+          assert.ok(typeof data.count === 'number', 
+            `Should include count for pattern: ${pattern}`);
+        }
+        
+        if (pattern.includes('data.object_type')) {
+          assert.ok(data.data, `Should have data array for pattern: ${pattern}`);
+          if (data.data.length > 0) {
+            assert.ok(data.data[0].object_type, 
+              `Should include object_type for pattern: ${pattern}`);
+          }
+        }
       }
     });
 
-    test('should handle SFCC-specific data correctly', async () => {
-      const result = await client.callTool('get_system_object_definitions', {
-        count: 50
+    test('should handle edge cases with type coercion', async () => {
+      const edgeCases = [
+        { params: { start: '5', count: '3' }, description: 'string parameters' },
+        { params: { start: 0, count: 1 }, description: 'minimum values' },
+        { params: { start: 100 }, description: 'large start value' },
+        { params: { count: 0 }, description: 'zero count', expectError: true }
+      ];
+      
+      for (const { params, description, expectError } of edgeCases) {
+        const result = await client.callTool('get_system_object_definitions', params);
+        
+        if (expectError) {
+          // Zero count might be an error or return empty data
+          if (!result.isError) {
+            const data = JSON.parse(result.content[0].text);
+            assert.equal(data.count, 0, `Zero count should be handled: ${description}`);
+            assert.equal(data.data.length, 0, `Zero count should return empty data: ${description}`);
+          }
+        } else {
+          assert.equal(result.isError, false, 
+            `Edge case should succeed: ${description}`);
+          
+          const data = JSON.parse(result.content[0].text);
+          
+          // Validate type coercion worked
+          if (params.start !== undefined) {
+            assert.equal(typeof data.start, 'number', 
+              `Start should be coerced to number: ${description}`);
+          }
+          
+          if (params.count !== undefined && params.count > 0) {
+            assert.ok(data.data.length <= params.count, 
+              `Should respect count limit: ${description}`);
+          }
+        }
+      }
+    });
+
+    test('should handle invalid parameters gracefully', async () => {
+      const invalidCases = [
+        { params: { start: -1 }, description: 'negative start' },
+        { params: { count: -5 }, description: 'negative count' },
+        { params: { select: 'invalid.field.path' }, description: 'invalid select path' },
+        { params: { select: '' }, description: 'empty select' }
+      ];
+      
+      for (const { params, description } of invalidCases) {
+        const result = await client.callTool('get_system_object_definitions', params);
+        
+        // Should either return error or handle gracefully
+        if (result.isError) {
+          assert.ok(result.content[0].text, 
+            `Should have error message for: ${description}`);
+        } else {
+          // If not an error, should return valid structure
+          const data = JSON.parse(result.content[0].text);
+          assert.ok(data, `Should return valid data despite invalid params: ${description}`);
+          
+          // Validate graceful handling (flexible validation)
+          if (params.start < 0 && typeof data.start === 'number') {
+            // SFCC API accepts negative start and preserves it in response
+            assert.ok(typeof data.start === 'number', `API should handle negative start: ${description}`);
+          }
+          
+          if (params.count < 0 && typeof data.count === 'number') {
+            // SFCC API accepts negative count and returns valid data
+            assert.ok(data.count >= 0, `API should handle negative count gracefully: ${description}`);
+          }
+        }
+      }
+    });
+  });
+
+  // ==================================================================================
+  // INTEGRATION & CONSISTENCY VALIDATION
+  // ==================================================================================
+
+  describe('Integration & Consistency', () => {
+    test('should maintain consistency across parameter combinations', async () => {
+      const baseResult = await client.callTool('get_system_object_definitions', {});
+      const baseData = JSON.parse(baseResult.content[0].text);
+      
+      const combinations = [
+        { start: 0, count: 5 },
+        { count: 10, select: 'data.object_type,count,total' },
+        { start: 2, count: 3, select: 'data.(*),total' }
+      ];
+      
+      for (const params of combinations) {
+        const result = await client.callTool('get_system_object_definitions', params);
+        assert.equal(result.isError, false, 
+          `Combination should succeed: ${JSON.stringify(params)}`);
+        
+        const data = JSON.parse(result.content[0].text);
+        
+        // Total should be consistent across calls
+        assert.equal(data.total, baseData.total, 
+          `Total should be consistent for params: ${JSON.stringify(params)}`);
+        
+        // API version should be consistent
+        if (data._v && baseData._v) {
+          assert.equal(data._v, baseData._v, 
+            `API version should be consistent for params: ${JSON.stringify(params)}`);
+        }
+      }
+    });
+
+    test('should provide stable pagination behavior', async () => {
+      // Test pagination stability by requesting overlapping windows
+      const firstPage = await client.callTool('get_system_object_definitions', { 
+        start: 0, 
+        count: 5 
       });
       
-      assert.equal(result.isError, false, 'Should not return error');
+      const secondPage = await client.callTool('get_system_object_definitions', { 
+        start: 3, 
+        count: 5 
+      });
       
-      const responseText = result.content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      if (parsedResponse.data.length > 0) {
-        // Should contain SFCC-specific information
-        const hasSfccData = parsedResponse.data.some(obj => 
-          JSON.stringify(obj).includes('Product') ||
-          JSON.stringify(obj).includes('Category') ||
-          JSON.stringify(obj).includes('Customer') ||
-          JSON.stringify(obj).includes('Order')
-        );
+      if (!firstPage.isError && !secondPage.isError) {
+        const firstData = JSON.parse(firstPage.content[0].text);
+        const secondData = JSON.parse(secondPage.content[0].text);
         
-        assert.ok(hasSfccData, 'Should contain SFCC-specific system object information');
+        // Check for expected overlap in stable sort
+        if (firstData.data.length >= 5 && secondData.data.length > 2) {
+          const firstPageLast2 = firstData.data.slice(3, 5).map(obj => obj.object_type);
+          const secondPageFirst2 = secondData.data.slice(0, 2).map(obj => obj.object_type);
+          
+          assert.deepEqual(firstPageLast2, secondPageFirst2, 
+            'Overlapping pagination should return consistent results');
+        }
       }
+    });
+
+    test('should handle comprehensive SFCC business validation', async () => {
+      const result = await client.callTool('get_system_object_definitions', {});
+      const data = JSON.parse(result.content[0].text);
+      
+      // Business rule validation for SFCC (flexible for different instances)
+      const systemObjectTypes = data.data.map(obj => obj.object_type);
+      const criticalSFCCTypes = ['Category', 'Catalog', 'Content', 'Basket', 'Campaign'];
+      
+      // Check if SFCC instance has at least some critical system objects
+      const foundCriticalTypes = criticalSFCCTypes.filter(type => systemObjectTypes.includes(type));
+      assert.ok(foundCriticalTypes.length > 0, 
+        `SFCC instance should include at least one critical system object. Found: ${foundCriticalTypes.join(', ')}, Available: ${systemObjectTypes.slice(0,5).join(', ')}`);
+      
+      // Validate object type ID consistency for found objects
+      data.data.forEach(obj => {
+        if (obj.object_type_id) {
+          // Object type ID should be related to object type
+          assert.ok(typeof obj.object_type_id === 'string', 
+            `object_type_id should be string for ${obj.object_type}`);
+          
+          // Critical objects should have non-empty IDs if they exist
+          if (foundCriticalTypes.includes(obj.object_type)) {
+            assert.ok(obj.object_type_id.length > 0, 
+              `System object ${obj.object_type} should have non-empty object_type_id`);
+          }
+        }
+      });
+      
+      // Validate that we have a reasonable number of object types for an SFCC instance
+      assert.ok(data.total >= 1, 'SFCC instance should have at least 1 system object type');
+      assert.ok(data.total <= 200, 'SFCC instance should not have excessive object types');
     });
   });
 });
