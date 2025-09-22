@@ -99,7 +99,7 @@ jobs:
 
     - name: Upload coverage reports (Node.js 20 only)
       if: matrix.node-version == 20
-      uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v3
+      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v3
       with:
         fail_ci_if_error: false
         verbose: true
