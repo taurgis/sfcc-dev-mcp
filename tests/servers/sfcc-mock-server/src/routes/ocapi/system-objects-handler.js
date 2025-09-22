@@ -7,6 +7,7 @@
 
 const express = require('express');
 const OCAPIUtils = require('./ocapi-utils');
+const OCAPIErrorUtils = require('./ocapi-error-utils');
 
 class SystemObjectsHandler {
     constructor(config, dataLoader) {
@@ -269,40 +270,106 @@ class SystemObjectsHandler {
      * Handle system object attribute group search
      */
     async handleSearchSystemObjectAttributeGroups(req, res) {
-        const { objectType } = req.params;
-        const searchRequest = req.body;
-        
-        // Try to load specific attribute groups with correct naming
-        let mockData = this.dataLoader.loadOcapiData(`system-object-attribute-groups-${objectType.toLowerCase()}.json`);
-        
-        if (!mockData) {
-            // Create fallback data with proper SFCC format
-            mockData = {
-                "_v": "24.4",
-                "_type": "attribute_groups",
-                "count": 0,
-                "data": [],
-                "next": null,
-                "previous": null,
-                "start": 0,
-                "total": 0
+        try {
+            const { objectType } = req.params;
+            const searchRequest = req.body;
+
+            // 1. Validate object type
+            const objectTypeError = OCAPIErrorUtils.validateObjectType(objectType);
+            if (objectTypeError) {
+                return OCAPIErrorUtils.sendErrorResponse(res, objectTypeError);
+            }
+
+            // 2. Check for object types that don't support attribute groups (based on real API testing)
+            const unsupportedObjectTypes = ['Customer', 'Site', 'Inventory'];
+            if (unsupportedObjectTypes.includes(objectType)) {
+                const notFoundError = OCAPIErrorUtils.createObjectTypeNotFound(objectType);
+                return OCAPIErrorUtils.sendErrorResponse(res, notFoundError);
+            }
+
+            // 3. Validate search request structure
+            const searchRequestError = OCAPIErrorUtils.validateSearchRequest(searchRequest);
+            if (searchRequestError) {
+                return OCAPIErrorUtils.sendErrorResponse(res, searchRequestError);
+            }
+
+            // 4. Validate pagination parameters
+            const paginationError = OCAPIErrorUtils.validatePagination(searchRequest.start, searchRequest.count);
+            if (paginationError) {
+                return OCAPIErrorUtils.sendErrorResponse(res, paginationError);
+            }
+
+            // 5. Validate specific query types
+            if (searchRequest.query.text_query) {
+                const textQueryError = OCAPIErrorUtils.validateTextQuery(searchRequest.query.text_query);
+                if (textQueryError) {
+                    return OCAPIErrorUtils.sendErrorResponse(res, textQueryError);
+                }
+            }
+
+            if (searchRequest.query.term_query) {
+                const termQueryError = OCAPIErrorUtils.validateTermQuery(searchRequest.query.term_query);
+                if (termQueryError) {
+                    return OCAPIErrorUtils.sendErrorResponse(res, termQueryError);
+                }
+            }
+
+            // 6. Simulate occasional server errors (1% chance)
+            if (Math.random() < 0.01) {
+                const serverError = OCAPIErrorUtils.createInternalServerError(
+                    "Service temporarily unavailable. Please try again later."
+                );
+                return OCAPIErrorUtils.sendErrorResponse(res, serverError);
+            }
+
+            // Try to load specific attribute groups with correct naming
+            let mockData = this.dataLoader.loadOcapiData(`system-object-attribute-groups-${objectType.toLowerCase()}.json`);
+            
+            if (!mockData) {
+                // Create fallback data with proper SFCC format (matching real API structure)
+                mockData = {
+                    "_v": "23.2",
+                    "_type": "object_attribute_group_search_result",
+                    "count": 0,
+                    "hits": [],
+                    "query": {"match_all_query": {"_type": "match_all_query"}},
+                    "start": 0,
+                    "total": 0
+                };
+            }
+
+            // Apply search and pagination
+            let results = mockData.hits || [];
+            
+            // Apply pagination
+            const start = searchRequest.start || 0;
+            const count = searchRequest.count || 200;
+            const paginatedResults = results.slice(start, start + count);
+
+            // Build query response to match real API
+            const queryResponse = OCAPIUtils.buildQueryResponse(searchRequest.query);
+
+            // Return response matching real SFCC API format
+            const response = {
+                "_v": mockData._v || "23.2",
+                "_type": "object_attribute_group_search_result",
+                "count": paginatedResults.length,
+                "hits": paginatedResults,
+                "query": queryResponse,
+                "start": start,
+                "total": mockData.total || results.length
             };
+
+            res.json(response);
+
+        } catch (error) {
+            // Handle unexpected errors
+            console.error('Unexpected error in handleSearchSystemObjectAttributeGroups:', error);
+            const serverError = OCAPIErrorUtils.createInternalServerError(
+                "An unexpected error occurred while processing the request."
+            );
+            return OCAPIErrorUtils.sendErrorResponse(res, serverError);
         }
-
-        // Apply search and pagination
-        let results = mockData.data || [];
-        
-        // Apply pagination
-        const start = searchRequest.start || 0;
-        const count = searchRequest.count || 200;
-        const paginatedResults = results.slice(start, start + count);
-
-        res.json({
-            ...mockData,
-            count: paginatedResults.length,
-            start,
-            data: paginatedResults
-        });
     }
 
     /**

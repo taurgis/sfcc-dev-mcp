@@ -1,7 +1,7 @@
 {
   "_v": "23.2",
   "_type": "object_attribute_group_search_result",
-  "count": 5,
+  "count": 8,
   "hits": [
     {
       "_type": "object_attribute_group",
@@ -12,26 +12,44 @@
     {
       "_type": "object_attribute_group",
       "_resource_state": "34dce900d8eb50d95d97fcc0fd74449e78720a0da5a6804e561f347d8fdb5227",
-      "id": "SFRA",
-      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/SFRA"
+      "id": "SFRA Unified Feature Cartridge",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/SFRA%20Unified%20Feature%20Cartridge"
     },
     {
       "_type": "object_attribute_group",
       "_resource_state": "0d4f2e59140361592a0e6998fdd68bacc4f06e4fb77cb25fef07142f8289fb0e",
-      "id": "Storefront",
-      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/Storefront"
+      "id": "Storefront Configs",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/Storefront%20Configs"
     },
     {
       "_type": "object_attribute_group",
       "_resource_state": "07d4d8544eb98d9036cfd6343d55206374c44f0438c1beb22a88f0ad6cc1089c",
-      "id": "System",
-      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/System"
+      "id": "fastforward",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/fastforward"
     },
     {
       "_type": "object_attribute_group",
       "_resource_state": "bbcd6304068fcf391c849bb37952598bebed1bd55bafbe211e2a6539b4b522a9",
-      "id": "Integration",
-      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/Integration"
+      "id": "fastforward_cquotient",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/fastforward_cquotient"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "efb6bd1843b9484576c8ffaf9447bc7d0bdee5bb6b0e9231d54804dbff5a11fa",
+      "id": "ffGPT",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/ffGPT"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "ed156d5f2de1fbbea7fa8350da7b2424feb7e54ac4e338d50fd6fec992df2c6f",
+      "id": "google",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/google"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "ec6e9f8a42c38f4a6b003b1e93b879c62bc6cd2ee639ef482509c55a3d579959",
+      "id": "managedruntime",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_groups/managedruntime"
     }
   ],
   "query": {

@@ -1,0 +1,32 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 3,
+  "hits": [
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "256cec6da337c7b993ba0de0994a172eb411c100943c06b8d5656c915f1e2062",
+      "id": "adyen",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order/attribute_groups/adyen"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "6c7374d3c12695b8144a566072c295a002e671b23c240a45ebb7e72d65310847",
+      "id": "ccv",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order/attribute_groups/ccv"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "27a8a78cd8e1d604af912bce266d1c55d9ceae76513f18a221b2d27451ef6657",
+      "id": "tracking",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order/attribute_groups/tracking"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 3
+}
