@@ -1,0 +1,171 @@
+{
+  "_v": "23.2",
+  "_type": "preference_value_search_result",
+  "count": 3,
+  "hits": [
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "system1-resource-state",
+        "creation_date": "2024-01-15T10:30:00.000Z",
+        "description": {
+          "default": "Global system configuration for payment processing"
+        },
+        "display_name": {
+          "default": "System Payment Gateway URL"
+        },
+        "effective_id": "c_systemPaymentGatewayUrl",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "systemPaymentGatewayUrl",
+        "key": false,
+        "last_modified": "2024-01-15T10:30:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/systemPaymentGatewayUrl",
+        "localizable": false,
+        "mandatory": true,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "string",
+        "visible": true
+      },
+      "description": {
+        "default": "Global system configuration for payment processing"
+      },
+      "display_name": {
+        "default": "System Payment Gateway URL"
+      },
+      "id": "systemPaymentGatewayUrl",
+      "site_values": {
+        "RefArch": "https://payments.example.com/api",
+        "RefArchGlobal": "https://payments-global.example.com/api",
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "string"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "system2-resource-state",
+        "creation_date": "2024-01-15T10:30:00.000Z",
+        "description": {
+          "default": "Enable debug logging for system operations"
+        },
+        "display_name": {
+          "default": "System Debug Enabled"
+        },
+        "effective_id": "c_systemDebugEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "systemDebugEnabled",
+        "key": false,
+        "last_modified": "2024-01-15T10:30:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/systemDebugEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable debug logging for system operations"
+      },
+      "display_name": {
+        "default": "System Debug Enabled"
+      },
+      "id": "systemDebugEnabled",
+      "site_values": {
+        "RefArch": false,
+        "RefArchGlobal": true,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "system3-resource-state",
+        "creation_date": "2024-01-15T10:30:00.000Z",
+        "description": {
+          "default": "Maximum number of concurrent system operations"
+        },
+        "display_name": {
+          "default": "System Max Concurrent Operations"
+        },
+        "effective_id": "c_systemMaxConcurrentOps",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "systemMaxConcurrentOps",
+        "key": false,
+        "last_modified": "2024-01-15T10:30:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/systemMaxConcurrentOps",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "int",
+        "visible": true
+      },
+      "description": {
+        "default": "Maximum number of concurrent system operations"
+      },
+      "display_name": {
+        "default": "System Max Concurrent Operations"
+      },
+      "id": "systemMaxConcurrentOps",
+      "site_values": {
+        "RefArch": 10,
+        "RefArchGlobal": 50,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "int"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "select": "(**)",
+  "start": 0,
+  "total": 3
+}

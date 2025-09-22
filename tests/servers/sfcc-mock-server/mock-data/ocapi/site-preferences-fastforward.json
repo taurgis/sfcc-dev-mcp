@@ -1,0 +1,123 @@
+{
+  "_v": "23.2",
+  "_type": "preference_value_search_result",
+  "count": 2,
+  "hits": [
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "3a0e7b1f995f68fb1ad3a0a15ab3e1d744879da35d819fab7725ac56de0bac12",
+        "creation_date": "2024-02-26T19:35:27.000Z",
+        "description": {
+          "default": "The custom attributes that are searchable in the FastForward Business Manager modules."
+        },
+        "display_name": {
+          "default": "FastForward: Category Search Custom Attributes"
+        },
+        "effective_id": "c_fastforward_categorySearchCustomAttributes",
+        "externally_defined": false,
+        "externally_managed": false,
+        "field_height": 10,
+        "id": "fastforward_categorySearchCustomAttributes",
+        "key": false,
+        "last_modified": "2024-02-26T19:35:27.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/fastforward_categorySearchCustomAttributes",
+        "localizable": false,
+        "mandatory": false,
+        "min_length": 0,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "text",
+        "visible": false
+      },
+      "description": {
+        "default": "The custom attributes that are searchable in the FastForward Business Manager modules."
+      },
+      "display_name": {
+        "default": "FastForward: Category Search Custom Attributes"
+      },
+      "id": "fastforward_categorySearchCustomAttributes",
+      "site_values": {
+        "RefArch": null,
+        "RefArchGlobal": "[{\"id\":\"catBannerID\",\"type\":\"string\"},{\"id\":\"customCSSFile\",\"type\":\"image\"},{\"id\":\"enableCompare\",\"type\":\"boolean\"},{\"id\":\"alternativeUrl\",\"type\":\"html\"}]",
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "text"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "a8fe5c4af162e8019daab09c5a0f32c1f57bf46db00a3cb4ba4f7d930a8c9121",
+        "creation_date": "2024-02-26T19:35:27.000Z",
+        "description": {
+          "default": "The custom attributes that are searchable in the FastForward Business Manager modules."
+        },
+        "display_name": {
+          "default": "FastForward: Product Search Custom Attributes"
+        },
+        "effective_id": "c_fastforward_productSearchCustomAttributes",
+        "externally_defined": false,
+        "externally_managed": false,
+        "field_height": 10,
+        "id": "fastforward_productSearchCustomAttributes",
+        "key": false,
+        "last_modified": "2024-02-26T19:35:27.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/fastforward_productSearchCustomAttributes",
+        "localizable": false,
+        "mandatory": false,
+        "min_length": 0,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "text",
+        "visible": false
+      },
+      "description": {
+        "default": "The custom attributes that are searchable in the FastForward Business Manager modules."
+      },
+      "display_name": {
+        "default": "FastForward: Product Search Custom Attributes"
+      },
+      "id": "fastforward_productSearchCustomAttributes",
+      "site_values": {
+        "RefArch": null,
+        "RefArchGlobal": "[{\"id\":\"batteryType\",\"type\":\"string\"},{\"id\":\"bootType\",\"type\":\"enum_of_string\"},{\"id\":\"batteryLife\",\"type\":\"string\"},{\"id\":\"Wool\",\"type\":\"string\"}]",
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "text"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "select": "(**)",
+  "start": 0,
+  "total": 2
+}

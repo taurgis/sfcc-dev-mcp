@@ -5,23 +5,263 @@
   "hits": [
     {
       "_type": "preference_value",
-      "id": "ccvCardsAuthoriseEnabled"
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "250db50d76a5e4bf869062a6ed5aab18d77aed015a880e4f0f5b8e86cc8e071d",
+        "creation_date": "2025-03-06T07:14:22.000Z",
+        "description": {
+          "default": "Enable or disable CCV card authorization"
+        },
+        "display_name": {
+          "default": "CCV Cards Authorise Enabled"
+        },
+        "effective_id": "c_ccvCardsAuthoriseEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "ccvCardsAuthoriseEnabled",
+        "key": false,
+        "last_modified": "2025-03-06T07:14:22.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/ccvCardsAuthoriseEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable or disable CCV card authorization"
+      },
+      "display_name": {
+        "default": "CCV Cards Authorise Enabled"
+      },
+      "id": "ccvCardsAuthoriseEnabled",
+      "site_values": {
+        "RefArch": true,
+        "RefArchGlobal": true,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
     },
     {
       "_type": "preference_value",
-      "id": "ccvStoreCardsInVaultEnabled"
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "34dce900d8eb50d95d97fcc0fd74449e78720a0da5a6804e561f347d8fdb5227",
+        "creation_date": "2025-03-06T07:14:22.000Z",
+        "description": {
+          "default": "Enable storing cards in vault for CCV"
+        },
+        "display_name": {
+          "default": "CCV Store Cards In Vault Enabled"
+        },
+        "effective_id": "c_ccvStoreCardsInVaultEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "ccvStoreCardsInVaultEnabled",
+        "key": false,
+        "last_modified": "2025-03-06T07:14:22.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/ccvStoreCardsInVaultEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable storing cards in vault for CCV"
+      },
+      "display_name": {
+        "default": "CCV Store Cards In Vault Enabled"
+      },
+      "id": "ccvStoreCardsInVaultEnabled",
+      "site_values": {
+        "RefArch": false,
+        "RefArchGlobal": true,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
     },
     {
       "_type": "preference_value",
-      "id": "ccvAutoRefundEnabled"
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "bbcd6304068fcf391c849bb37952598bebed1bd55bafbe211e2a6539b4b522a9",
+        "creation_date": "2025-03-06T07:14:22.000Z",
+        "description": {
+          "default": "Enable automatic refunds for CCV payments"
+        },
+        "display_name": {
+          "default": "CCV Auto Refund Enabled"
+        },
+        "effective_id": "c_ccvAutoRefundEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "ccvAutoRefundEnabled",
+        "key": false,
+        "last_modified": "2025-03-06T07:14:22.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/ccvAutoRefundEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable automatic refunds for CCV payments"
+      },
+      "display_name": {
+        "default": "CCV Auto Refund Enabled"
+      },
+      "id": "ccvAutoRefundEnabled",
+      "site_values": {
+        "RefArch": false,
+        "RefArchGlobal": false,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
     },
     {
       "_type": "preference_value",
-      "id": "ccvScaReadyEnabled"
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "efb6bd1843b9484576c8ffaf9447bc7d0bdee5bb6b0e9231d54804dbff5a11fa",
+        "creation_date": "2025-03-06T07:14:22.000Z",
+        "description": {
+          "default": "Enable SCA ready processing for CCV"
+        },
+        "display_name": {
+          "default": "CCV SCA Ready Enabled"
+        },
+        "effective_id": "c_ccvScaReadyEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "ccvScaReadyEnabled",
+        "key": false,
+        "last_modified": "2025-03-06T07:14:22.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/ccvScaReadyEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable SCA ready processing for CCV"
+      },
+      "display_name": {
+        "default": "CCV SCA Ready Enabled"
+      },
+      "id": "ccvScaReadyEnabled",
+      "site_values": {
+        "RefArch": true,
+        "RefArchGlobal": true,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
     },
     {
       "_type": "preference_value",
-      "id": "ccv3DSExemption"
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "ed156d5f2de1fbbea7fa8350da7b2424feb7e54ac4e338d50fd6fec992df2c6f",
+        "creation_date": "2025-03-06T07:14:22.000Z",
+        "description": {
+          "default": "Configuration for CCV 3DS exemption handling"
+        },
+        "display_name": {
+          "default": "CCV 3DS Exemption"
+        },
+        "effective_id": "c_ccv3DSExemption",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "ccv3DSExemption",
+        "key": false,
+        "last_modified": "2025-03-06T07:14:22.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/ccv3DSExemption",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "string",
+        "visible": true
+      },
+      "description": {
+        "default": "Configuration for CCV 3DS exemption handling"
+      },
+      "display_name": {
+        "default": "CCV 3DS Exemption"
+      },
+      "id": "ccv3DSExemption",
+      "site_values": {
+        "RefArch": "none",
+        "RefArchGlobal": "low_value",
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "string"
     }
   ],
   "query": {
@@ -29,6 +269,7 @@
       "_type": "match_all_query"
     }
   },
+  "select": "(**)",
   "start": 0,
   "total": 5
 }
