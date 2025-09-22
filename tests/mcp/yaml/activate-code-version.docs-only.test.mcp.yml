@@ -1,0 +1,153 @@
+# ==================================================================================
+# SFCC MCP Server - activate_code_version Tool YAML Tests (Docs-Only Mode)
+# Validates that code version activation tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/activate-code-version.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis query activate_code_version '{"codeVersionId": "test"}' --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "activate_code_version tool docs-only mode tests - Tool unavailability validation"
+
+tests:
+  # ==================================================================================
+  # TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+  # ==================================================================================
+  - it: "should NOT list activate_code_version tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # ==================================================================================
+  - it: "should return authentication error when calling activate_code_version in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-default"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should return consistent error message for authentication failure"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-consistent"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "another_test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-consistent"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*OCAPI[\\s\\S]*not configured[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION IN ERROR SCENARIOS
+  # ==================================================================================
+  - it: "should return authentication error even with missing parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "param-validation-first"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "param-validation-first"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # ERROR RESPONSE VALIDATION
+  # ==================================================================================
+  - it: "should return proper error structure in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "error-structure"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "structure_test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE TESTS FOR ERROR RESPONSES
+  # ==================================================================================
+  - it: "should fail fast when credentials not available"
+    request:
+      jsonrpc: "2.0"
+      id: "fail-fast"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "fast_fail"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "fail-fast"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "500ms"

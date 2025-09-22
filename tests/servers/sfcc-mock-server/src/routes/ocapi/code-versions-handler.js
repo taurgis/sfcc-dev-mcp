@@ -35,31 +35,27 @@ class CodeVersionsHandler {
         if (!mockData) {
             // Create fallback data with proper SFCC format
             mockData = {
-                "_v": "24.4",
-                "_type": "code_versions",
-                "count": 2,
+                "_v": "23.2",
+                "_type": "code_version_result",
+                "count": 1,
                 "data": [
                     {
                         "_type": "code_version",
-                        "id": "version1",
+                        "id": "SFRA_FALLBACK_VERSION",
                         "active": true,
                         "activation_time": new Date().toISOString(),
                         "last_modification_time": new Date().toISOString(),
-                        "total_size": 12345678,
+                        "rollback": false,
+                        "compatibility_mode": "22.7",
                         "cartridges": [
-                            { "name": "app_storefront_base" }
+                            "app_storefront_base",
+                            "bm_app_storefront_base",
+                            "modules"
                         ],
-                        "_links": {
-                            "self": {
-                                "href": "https://{{hostname}}/s/-/dw/data/v24_4/code_versions/version1"
-                            }
-                        }
+                        "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/SFRA_FALLBACK_VERSION"
                     }
                 ],
-                "next": null,
-                "previous": null,
-                "start": 0,
-                "total": 2
+                "total": 1
             };
         }
 

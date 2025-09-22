@@ -379,37 +379,67 @@ class SystemObjectsHandler {
         const { objectType } = req.params;
         const searchRequest = req.body;
         
+        // Validate object type parameter
+        if (!objectType || objectType.trim() === '') {
+            const error = OCAPIErrorUtils.createInvalidRequest(
+                "objectType must be a non-empty string",
+                "objectType"
+            );
+            return OCAPIErrorUtils.sendErrorResponse(res, error);
+        }
+
+        // Validate search request structure
+        const validationError = this.validateSearchRequest(searchRequest);
+        if (validationError) {
+            return OCAPIErrorUtils.sendErrorResponse(res, validationError);
+        }
+
+        // Define known custom object types (case-insensitive)
+        const knownCustomObjects = ['customapi', 'versionhistory', 'globalsettings'];
+        const objectTypeLower = objectType.toLowerCase();
+        
         // Try to load specific custom object attribute definitions
-        let mockData = this.dataLoader.loadOcapiData(`custom-object-attributes-${objectType.toLowerCase()}.json`);
+        let mockData = this.dataLoader.loadOcapiData(`custom-object-attributes-${objectTypeLower}.json`);
         
         if (!mockData) {
-            // Create fallback data with proper SFCC format
+            // Check if this is a known custom object type with no data vs unknown object type
+            if (!knownCustomObjects.includes(objectTypeLower)) {
+                // Return 404 for unknown custom object types (like real SFCC API)
+                const error = OCAPIErrorUtils.createObjectTypeNotFound(objectType);
+                return OCAPIErrorUtils.sendErrorResponse(res, error);
+            }
+            
+            // Create fallback data with proper SFCC format for known objects with no data
             mockData = {
-                "_v": "24.4",
+                "_v": "23.2",
                 "_type": "object_attribute_definition_search_result",
                 "count": 0,
-                "data": [],
-                "next": null,
-                "previous": null,
+                "hits": [],
+                "query": searchRequest.query || {"match_all_query": {}},
                 "start": 0,
-                "total": 0,
-                "query": searchRequest.query || {"match_all_query": {}}
+                "total": 0
             };
         }
 
         // Apply search and pagination
-        let results = mockData.data || [];
+        let results = mockData.hits || [];
         
         // Apply pagination
         const start = searchRequest.start || 0;
         const count = searchRequest.count || 200;
         const paginatedResults = results.slice(start, start + count);
 
+        // Build query response to match real API
+        const queryResponse = OCAPIUtils.buildQueryResponse(searchRequest.query);
+
         res.json({
-            ...mockData,
-            count: paginatedResults.length,
-            start,
-            data: paginatedResults
+            "_v": mockData._v,
+            "_type": mockData._type,
+            "count": paginatedResults.length,
+            "hits": paginatedResults,
+            "query": queryResponse,
+            "start": start,
+            "total": mockData.total
         });
     }
 
@@ -464,6 +494,71 @@ class SystemObjectsHandler {
                 }
             ]
         };
+    }
+
+    /**
+     * Validate search request structure and parameters
+     */
+    validateSearchRequest(searchRequest) {
+        // Must have a query property
+        if (!searchRequest.query) {
+            return OCAPIErrorUtils.createPropertyConstraintViolation("$.query", "search_request");
+        }
+
+        // Validate count parameter
+        if (searchRequest.count !== undefined) {
+            if (typeof searchRequest.count !== 'number' || searchRequest.count < 0) {
+                return OCAPIErrorUtils.createInvalidRequest("count must be a positive number", "count");
+            }
+        }
+
+        // Validate start parameter  
+        if (searchRequest.start !== undefined) {
+            if (typeof searchRequest.start !== 'number' || searchRequest.start < 0) {
+                return OCAPIErrorUtils.createInvalidRequest("start must be a positive number", "start");
+            }
+        }
+
+        // Validate query object
+        const query = searchRequest.query;
+        const queryTypes = ['text_query', 'term_query', 'filtered_query', 'bool_query', 'match_all_query'];
+        const hasValidQueryType = queryTypes.some(type => query[type]);
+        
+        if (!hasValidQueryType) {
+            return OCAPIErrorUtils.createInvalidRequest(
+                "Search query must contain at least one of: text_query, term_query, filtered_query, bool_query, match_all_query"
+            );
+        }
+
+        // Validate text_query
+        if (query.text_query) {
+            const textQuery = query.text_query;
+            if (!textQuery.fields || !Array.isArray(textQuery.fields) || textQuery.fields.length === 0) {
+                return OCAPIErrorUtils.createInvalidRequest("text_query.fields must be a non-empty array");
+            }
+            if (!textQuery.search_phrase || typeof textQuery.search_phrase !== 'string' || textQuery.search_phrase.trim() === '') {
+                return OCAPIErrorUtils.createInvalidRequest("text_query.search_phrase must be a non-empty string");
+            }
+        }
+
+        // Validate term_query
+        if (query.term_query) {
+            const termQuery = query.term_query;
+            if (!termQuery.fields || !Array.isArray(termQuery.fields) || termQuery.fields.length === 0) {
+                return OCAPIErrorUtils.createInvalidRequest("term_query.fields must be a non-empty array");
+            }
+            if (!termQuery.values || !Array.isArray(termQuery.values) || termQuery.values.length === 0) {
+                return OCAPIErrorUtils.createInvalidRequest("term_query.values must be a non-empty array");
+            }
+            if (termQuery.operator) {
+                const validOperators = ['is', 'one_of', 'not_one_of', 'is_null', 'is_not_null'];
+                if (!validOperators.includes(termQuery.operator)) {
+                    return OCAPIErrorUtils.createEnumConstraintViolation(termQuery.operator);
+                }
+            }
+        }
+
+        return null; // No validation errors
     }
 
     /**

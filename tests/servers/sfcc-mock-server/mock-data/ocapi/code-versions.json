@@ -5,53 +5,82 @@
   "data": [
     {
       "_type": "code_version",
-      "activation_time": "2025-09-16T18:28:57Z",
+      "activation_time": "2025-09-18T13:41:28Z",
       "active": true,
       "cartridges": [
         "app_storefront_base",
         "bm_app_storefront_base",
-        "bm_tools",
-        "int_stripe_core",
+        "bm_fastforward_backinstock",
+        "bm_fastforward_base",
+        "bm_fastforward_configurator",
+        "bm_fastforward_configurator_pd",
+        "bm_fastforward_customer_insights",
+        "bm_fastforward_google",
+        "bm_fastforward_gpt",
+        "bm_fastforward_insights",
+        "bm_fastforward_managed_runtime",
+        "bm_fastforward_reviews",
+        "bm_fastforward_starter_kit",
+        "bm_fastforward_starter_kit_pd",
+        "bm_fastforward_store_manager",
+        "bm_fastforward_tools",
+        "chance",
+        "date-fns",
+        "fast-xml-parser",
+        "google",
+        "jsPDF",
+        "lodash",
         "modules",
+        "moment",
+        "openai",
+        "plugin_backinstock",
         "plugin_demo_mcp",
-        "plugin_mcp_example"
+        "plugin_demo_mcp_2",
+        "plugin_fastforward_configurator",
+        "plugin_fastforward_starter_kit",
+        "plugin_mcp_example",
+        "plugin_openai",
+        "plugin_testlibraries",
+        "ramda",
+        "rhinodb",
+        "salesforce-managed-runtime"
       ],
       "compatibility_mode": "22.7",
       "id": "SFRA_AP_01_24_2024",
-      "last_modification_time": "2025-09-16T18:30:36Z",
+      "last_modification_time": "2025-09-18T13:18:21Z",
       "rollback": false,
-      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/SFRA_AP_01_24_2024"
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/SFRA_AP_01_24_2024"
     },
     {
       "_type": "code_version",
       "active": false,
       "cartridges": [
-        "app_storefront_base",
-        "bm_tools",
-        "int_adyen_overlay",
-        "int_stripe_core"
+        "bm_fastforward_base",
+        "bm_fastforward_configurator",
+        "bm_fastforward_configurator_pd",
+        "plugin_fastforward_configurator"
       ],
       "compatibility_mode": "22.7",
-      "id": "version2",
-      "last_modification_time": "2023-10-14T15:45:00.000Z",
+      "id": "SFRA_AP_01_24_2024 ",
+      "last_modification_time": "2025-03-05T14:55:22Z",
       "rollback": false,
-      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/version2"
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/SFRA_AP_01_24_2024 "
     },
     {
       "_type": "code_version",
-      "activation_time": "2025-09-16T18:28:18Z",
+      "activation_time": "2025-09-18T13:41:07Z",
       "active": false,
       "cartridges": [
-        "app_storefront_base",
-        "bm_tools",
-        "plugin_giftcertificate",
-        "modules"
+        "bm_fastforward_base",
+        "bm_fastforward_configurator", 
+        "bm_fastforward_configurator_pd",
+        "plugin_fastforward_configurator"
       ],
       "compatibility_mode": "22.7",
-      "id": "version3",
-      "last_modification_time": "2023-10-13T09:20:00.000Z",
+      "id": "version1",
+      "last_modification_time": "2025-03-05T14:12:00Z",
       "rollback": true,
-      "web_dav_url": "https://development-na01-sandbox.demandware.net/on/demandware.servlet/webdav/Sites/Cartridges/version3"
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/version1"
     }
   ],
   "total": 3

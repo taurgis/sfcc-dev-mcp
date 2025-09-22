@@ -48,6 +48,18 @@ class OCAPIErrorUtils {
     }
 
     /**
+     * Create EnumConstraintViolationException (400)
+     */
+    static createEnumConstraintViolation(enumValue, document = "search_request") {
+        return this.createFaultResponse(
+            "EnumConstraintViolationException",
+            `An error occurred while decoding the request. There's an unknown enum value '${enumValue}' in document '${document}'.`,
+            { document, enumValue },
+            400
+        );
+    }
+
+    /**
      * Create InvalidRequestException (400)
      */
     static createInvalidRequest(message, field = null) {

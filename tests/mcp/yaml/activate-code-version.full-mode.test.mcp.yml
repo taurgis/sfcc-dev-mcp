@@ -1,0 +1,185 @@
+# ==================================================================================
+# SFCC MCP Server - activate_code_version Tool YAML Tests (Full Mode)
+# Tests code version activation functionality with SFCC credentials
+# This tool provides code version activation for deployment management
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/activate-code-version.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query activate_code_version '{"codeVersionId": "test"}' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "activate_code_version tool full mode tests - Core functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY TESTS
+  # ==================================================================================
+  - it: "should list activate_code_version tool in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-availability-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-availability-full"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"
+
+  - it: "should have correct tool definition in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-definition-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-definition-full"
+        result:
+          tools: "match:arrayContains:name:activate_code_version"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # BASIC FUNCTIONALITY TESTS
+  # ==================================================================================
+  - it: "should activate code version with valid ID"
+    request:
+      jsonrpc: "2.0"
+      id: "activate-valid"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test_version"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "activate-valid"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION TESTS
+  # ==================================================================================
+  - it: "should require codeVersionId parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-param"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:codeVersionId must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should validate codeVersionId parameter type"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-param-type"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-param-type"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:codeVersionId must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # RESPONSE CONTENT VALIDATION
+  # ==================================================================================
+  - it: "should return properly formatted JSON response"
+    request:
+      jsonrpc: "2.0"
+      id: "json-response"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test_response"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-response"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*\\{[\\s\\S]*\\}[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include activation metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "activation-metadata"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "metadata_test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "activation-metadata"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*(?:id)[\\s\\S]*(?:active)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE TESTS
+  # ==================================================================================
+  - it: "should complete activation within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-test"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "performance_test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-test"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "3000ms"
