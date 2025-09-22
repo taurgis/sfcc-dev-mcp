@@ -883,19 +883,40 @@ class FunctionalMonitor {
 
 ## Test Execution Commands
 
+**CRITICAL**: Use the correct test commands for this SFCC Dev MCP project:
+
 ```bash
-# Run with Node.js test runner
-node --test "tests/**/*.programmatic.test.js"
+# Run individual MCP programmatic test (CORRECT for this project)
+node --test tests/mcp/node/specific-test.programmatic.test.js
 
-# Run with Jest
-npx jest --testMatch="**/*.programmatic.test.js"
+# Run all MCP programmatic tests (CORRECT for this project)  
+npm run test:mcp:node
 
-# Run with Mocha
-npx mocha "tests/**/*.programmatic.test.js" --require test/helpers/mcp-setup.js
+# Run all MCP tests (YAML + programmatic) (CORRECT for this project)
+npm run test:mcp:all
 
-# Watch mode for development
-node --test --watch "tests/**/*.programmatic.test.js"
+# ❌ WRONG: Don't use npm test with individual files for MCP tests
+# npm test -- tests/mcp/node/specific-test.programmatic.test.js  # This runs Jest!
+
+# ❌ WRONG: Don't use Jest for MCP programmatic tests  
+# npx jest --testMatch="**/*.programmatic.test.js"  # Jest doesn't handle MCP tests
+
+# Watch mode for development (Node.js test runner)
+node --test --watch tests/mcp/node/*.programmatic.test.js
+
+# Jest is used for unit tests only (src/ directory)
+jest base-handler.test.ts
+
+# Complete test suite (Jest + MCP tests)
+npm test
 ```
+
+**Package.json Script Reference for this project:**
+- `npm run test:mcp:node` → `node --test tests/mcp/node/*.programmatic.test.js`
+- `npm run test:mcp:yaml` → Aegis YAML tests (docs-only mode)
+- `npm run test:mcp:yaml:full` → Aegis YAML tests (full mode)
+- `npm run test:mcp:all` → All MCP tests (YAML + programmatic)
+- `npm test` → Jest unit tests + MCP tests
 
 ---
 

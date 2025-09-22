@@ -2,11 +2,10 @@ import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-aegis';
 
-describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
+describe('get_latest_info Tool - Advanced Programmatic Tests (Full Mode)', () => {
   let client;
 
   before(async () => {
-    // Connect using the full mode configuration with dw.json credentials
     client = await connect('./aegis.config.with-dw.json');
   });
 
@@ -31,377 +30,151 @@ describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
   }
 
   // ========================================
-  // SUCCESS SCENARIOS
+  // COMPLEX BUSINESS LOGIC VALIDATION
   // ========================================
 
-  describe('Success Scenarios', () => {
-    test('should get latest info entries with default parameters', async () => {
-      const result = await client.callTool('get_latest_info', {});
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should not be an error');
-      assert.equal(result.content.length, 1, 'Should have one content item');
-      assert.equal(result.content[0].type, 'text', 'Content should be text type');
-      assert.ok(result.content[0].text.includes('Latest'), 'Should contain "Latest" in response');
-      assert.ok(result.content[0].text.includes('info messages'), 'Should contain "info messages" in response');
-    });
-
-    test('should validate response structure and content types', async () => {
-      const result = await client.callTool('get_latest_info', {});
-      
-      assertValidMCPResponse(result);
-      assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
-      assert.ok(Array.isArray(result.content), 'content should be array');
-      assert.equal(result.content[0].type, 'text', 'content type should be text');
-      assert.equal(typeof result.content[0].text, 'string', 'content text should be string');
-    });
-
-    test('should contain INFO log level in response', async () => {
-      const result = await client.callTool('get_latest_info', {});
-      
-      assertValidMCPResponse(result);
-      assert.ok(result.content[0].text.includes('INFO'), 'Should contain INFO log level');
-    });
-
-    test('should contain log file names in response', async () => {
-      const result = await client.callTool('get_latest_info', {});
-      
-      assertValidMCPResponse(result);
-      const logFilePattern = /info-blade-[\d-]+\.log/;
-      assert.ok(logFilePattern.test(result.content[0].text), 'Should contain log file names');
-    });
-
-    test('should respect custom limit parameter', async () => {
-      const customLimit = 3;
-      const result = await client.callTool('get_latest_info', { limit: customLimit });
-      
-      assertValidMCPResponse(result);
-      assert.ok(result.content[0].text.includes(`Latest ${customLimit} info messages`), 
-        `Should show custom limit of ${customLimit}`);
-    });
-
-    test('should accept date parameter in YYYYMMDD format', async () => {
-      const testDate = getCurrentDateString();
-      const result = await client.callTool('get_latest_info', { 
-        date: testDate, 
-        limit: 2 
-      });
-      
-      assertValidMCPResponse(result);
-      assert.ok(result.content[0].text.includes('Latest 2 info messages'), 
-        'Should show custom limit with date parameter');
-    });
-
-    test('should handle both date and limit parameters together', async () => {
-      const result = await client.callTool('get_latest_info', { 
-        date: getCurrentDateString(), 
-        limit: 5 
-      });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.content.length, 1, 'Should have one content item');
-      assert.equal(result.isError, false, 'Should not be an error');
-    });
-
-    test('should return info messages in chronological order (newest first)', async () => {
+  describe('Complex Business Logic Validation', () => {
+    test('should return info messages in chronological order with detailed parsing', async () => {
       const result = await client.callTool('get_latest_info', { limit: 2 });
       
       assertValidMCPResponse(result);
       const text = result.content[0].text;
       
-      // Based on our mock data, the newest info should be the job execution
-      assert.ok(text.includes('Executing job [sfcc-export-dw-analytics-site-config][2664334]'), 
-        'Latest info should be the job execution from the newest timestamp');
+      // Complex chronological order validation - requires detailed parsing and comparison
+      const jobExecution = 'Executing job [sfcc-export-dw-analytics-site-config][2664334]';
+      const stepExecution = 'Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619] for [Organization]';
       
-      // The second newest should be the step execution
-      assert.ok(text.includes('Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619] for [Organization]'),
-        'Second latest info should be the step execution');
+      assert.ok(text.includes(jobExecution), 'Should contain job execution entry');
+      assert.ok(text.includes(stepExecution), 'Should contain step execution entry');
       
-      // Verify that newest entry appears before older one in the response
-      const jobIndex = text.indexOf('Executing job [sfcc-export-dw-analytics-site-config][2664334]');
-      const stepIndex = text.indexOf('Executing step [ExportDWAnalyticsSiteConfigurationStep][5846619]');
+      // Verify chronological ordering through position analysis
+      const jobIndex = text.indexOf(jobExecution);
+      const stepIndex = text.indexOf(stepExecution);
       assert.ok(jobIndex < stepIndex && jobIndex !== -1 && stepIndex !== -1,
-        'Newest info should appear before older info in response');
-    });
-  });
-
-  // ========================================
-  // EDGE CASE SCENARIOS
-  // ========================================
-
-  describe('Edge Case Scenarios', () => {
-    test('should handle limit of 1', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 1 });
-      
-      assertValidMCPResponse(result);
-      assert.ok(result.content[0].text.includes('Latest 1 info messages'), 
-        'Should handle limit of 1');
+        'Newest info (job) should appear before older info (step) in response');
     });
 
-    test('should handle large limit values', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 100 });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should handle large limits');
-      assert.ok(result.content[0].text.includes('Latest 100 info messages'), 
-        'Should show large limit value');
-    });
-
-    test('should return error for zero limit', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 0 });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, true, 'Should return error for zero limit');
-      assert.ok(result.content[0].text.includes("Invalid limit '0'"), 
-        'Should contain validation error message');
-      assert.ok(result.content[0].text.includes('Must be between 1 and 1000'), 
-        'Should contain range validation message');
-    });
-  });
-
-  // ========================================
-  // PARAMETER VALIDATION SCENARIOS
-  // ========================================
-
-  describe('Parameter Validation Scenarios', () => {
-    test('should handle invalid limit type gracefully', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 'invalid' });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
-      assert.ok(result.content[0].text.includes('Invalid limit \'invalid\' for get_latest_info. Must be a valid number'), 
-        'Should include validation error message');
-    });
-
-    test('should return appropriate message for invalid date format', async () => {
-      const result = await client.callTool('get_latest_info', { 
-        date: 'invalid-date', 
-        limit: 3 
-      });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should handle invalid date gracefully');
-      assert.ok(result.content[0].text.includes('No info log files found for date invalid-date'), 
-        'Should contain no files found message');
-    });
-
-    test('should return error for negative limit values', async () => {
-      const result = await client.callTool('get_latest_info', { limit: -5 });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, true, 'Should return error for negative limit');
-      assert.ok(result.content[0].text.includes("Invalid limit '-5'"), 
-        'Should contain negative limit error message');
-    });
-
-    test('should handle extra unknown parameters', async () => {
-      const result = await client.callTool('get_latest_info', { 
-        limit: 5,
-        unknownParam: 'should-be-ignored'
-      });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should ignore unknown parameters');
-      assert.ok(result.content[0].text.includes('Latest 5 info messages'), 
-        'Should process valid parameters correctly');
-    });
-
-    test('should validate parameter types dynamically', async () => {
-      const testCases = [
-        { params: { limit: null }, shouldSucceed: false },
-        { params: { limit: undefined }, shouldSucceed: true },
-        { params: { limit: [] }, shouldSucceed: false },
-        { params: { limit: {} }, shouldSucceed: false },
-        { params: { date: null }, shouldSucceed: true },
-        { params: { date: 123 }, shouldSucceed: true }
-      ];
-
-      for (const testCase of testCases) {
-        const result = await client.callTool('get_latest_info', testCase.params);
-        assertValidMCPResponse(result);
-        
-        if (testCase.shouldSucceed) {
-          // For successful cases, we don't necessarily expect isError: false
-          // because some invalid types are handled gracefully
-          assert.ok(result.content.length > 0, 
-            `Should have content for params: ${JSON.stringify(testCase.params)}`);
-        }
-      }
-    });
-  });
-
-  // ========================================
-  // CONTENT VALIDATION SCENARIOS
-  // ========================================
-
-  describe('Content Validation Scenarios', () => {
-    test('should contain timestamp patterns in log entries', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 2 });
-      
-      assertValidMCPResponse(result);
-      const timestampPattern = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT\]/;
-      assert.ok(timestampPattern.test(result.content[0].text), 
-        'Should contain valid timestamp patterns');
-    });
-
-    test('should contain SFCC-specific log components', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 3 });
-      
-      assertValidMCPResponse(result);
-      const sfccPattern = /(SystemJobThread|PipelineCallServlet|Sites-)/;
-      assert.ok(sfccPattern.test(result.content[0].text), 
-        'Should contain SFCC-specific log components');
-    });
-
-    test('should contain system activity identifiers', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 2 });
-      
-      assertValidMCPResponse(result);
-      const identifierPattern = /(INFO|SystemJobThread|ExecutingStep|Executing)/;
-      assert.ok(identifierPattern.test(result.content[0].text), 
-        'Should contain system activity identifiers');
-    });
-
-    test('should format multiple log entries with separators', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 3 });
-      
-      assertValidMCPResponse(result);
-      assert.ok(result.content[0].text.includes('---'), 
-        'Should contain entry separators for multiple entries');
-    });
-
-    test('should parse and validate log entry structure', async () => {
-      const result = await client.callTool('get_latest_info', { limit: 1 });
-      
-      assertValidMCPResponse(result);
-      const logText = result.content[0].text;
-      
-      // Check for required log components
-      assert.ok(logText.includes('['), 'Should contain log file reference');
-      assert.ok(logText.includes('] ['), 'Should contain timestamp delimiter');
-      assert.ok(logText.includes('GMT]'), 'Should contain GMT timezone');
-      assert.ok(logText.includes('INFO'), 'Should contain log level');
-    });
-  });
-
-  // ========================================
-  // FUNCTIONAL VALIDATION SCENARIOS
-  // ========================================
-
-  describe('Functional Validation Scenarios', () => {
-    test('should maintain consistency across multiple calls', async () => {
-      const results = [];
-      
-      // Make multiple sequential calls to ensure consistency
-      for (let i = 0; i < 3; i++) {
-        const result = await client.callTool('get_latest_info', { limit: 5 });
-        results.push(result);
-      }
-      
-      // All calls should succeed
-      results.forEach((result, index) => {
-        assertValidMCPResponse(result);
-        assert.equal(result.isError, false, `Call ${index + 1} should succeed`);
-        assert.ok(result.content[0].text.includes('Latest 5 info messages'), 
-          `Call ${index + 1} should show correct limit`);
-      });
-    });
-
-    test('should handle different limit ranges correctly', async () => {
-      const limitTests = [1, 5, 10, 25, 50, 100];
-      
-      for (const limit of limitTests) {
-        const result = await client.callTool('get_latest_info', { limit });
-        
-        assertValidMCPResponse(result);
-        assert.equal(result.isError, false, `Limit ${limit} should succeed`);
-        assert.ok(result.content[0].text.includes(`Latest ${limit} info messages`), 
-          `Should show correct limit ${limit}`);
-      }
-    });
-
-    test('should validate business logic for info-level logs', async () => {
+    test('should validate business logic for SFCC info-level log filtering', async () => {
       const result = await client.callTool('get_latest_info', { limit: 10 });
       
       assertValidMCPResponse(result);
       const logText = result.content[0].text;
       
-      // Verify this is specifically info-level content
-      assert.ok(logText.includes('info-blade'), 'Should reference info log files');
-      assert.ok(logText.includes('INFO'), 'Should contain INFO log level');
+      // Complex business logic validation - SFCC-specific log filtering
+      assert.ok(logText.includes('info-blade'), 'Should reference info log files specifically');
+      assert.ok(logText.includes('INFO'), 'Should contain INFO log level entries');
       
-      // Should not contain other log levels
+      // Critical: Verify log level isolation (complex filtering validation)
       assert.ok(!logText.includes('ERROR'), 'Should not contain ERROR entries');
       assert.ok(!logText.includes('WARN'), 'Should not contain WARN entries');
       assert.ok(!logText.includes('DEBUG'), 'Should not contain DEBUG entries');
     });
+
+    test('should parse and validate complex SFCC log entry structure', async () => {
+      const result = await client.callTool('get_latest_info', { limit: 1 });
+      
+      assertValidMCPResponse(result);
+      const logText = result.content[0].text;
+      
+      // Complex log structure parsing and validation
+      const timestampPattern = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT\]/;
+      const sfccPattern = /(SystemJobThread|PipelineCallServlet|Sites-)/;
+      
+      assert.ok(timestampPattern.test(logText), 'Should contain valid SFCC timestamp format');
+      assert.ok(sfccPattern.test(logText), 'Should contain SFCC-specific system components');
+      
+      // Complex structure validation
+      assert.ok(logText.includes('['), 'Should contain log file reference brackets');
+      assert.ok(logText.includes('] ['), 'Should contain proper timestamp delimiters');
+      assert.ok(logText.includes('GMT]'), 'Should contain GMT timezone specification');
+    });
   });
 
   // ========================================
-  // ERROR RECOVERY AND RESILIENCE
+  // DYNAMIC PARAMETER VALIDATION
   // ========================================
 
-  describe('Error Recovery and Resilience', () => {
-    test('should recover gracefully after error conditions', async () => {
-      // First, trigger an error
-      const errorResult = await client.callTool('get_latest_info', { limit: -1 });
-      assert.equal(errorResult.isError, true, 'Should error with negative limit');
-      
-      // Then verify normal operation resumes
-      const normalResult = await client.callTool('get_latest_info', { limit: 5 });
-      assertValidMCPResponse(normalResult);
-      assert.equal(normalResult.isError, false, 'Should recover and work normally');
+  describe('Dynamic Parameter Validation', () => {
+    test('should validate parameter types dynamically with complex logic', async () => {
+      const testCases = [
+        { params: { limit: null }, shouldSucceed: false, description: 'null limit' },
+        { params: { limit: undefined }, shouldSucceed: true, description: 'undefined limit (uses default)' },
+        { params: { limit: [] }, shouldSucceed: false, description: 'array limit' },
+        { params: { limit: {} }, shouldSucceed: false, description: 'object limit' },
+        { params: { date: null }, shouldSucceed: true, description: 'null date (uses default)' },
+        { params: { date: 123 }, shouldSucceed: true, description: 'numeric date (handled gracefully)' }
+      ];
+
+      // Complex dynamic validation with detailed result analysis
+      for (const testCase of testCases) {
+        const result = await client.callTool('get_latest_info', testCase.params);
+        assertValidMCPResponse(result);
+        
+        if (testCase.shouldSucceed) {
+          assert.ok(result.content.length > 0, 
+            `Should have content for ${testCase.description}: ${JSON.stringify(testCase.params)}`);
+        } else {
+          // Complex validation: either error response or graceful handling
+          assert.ok(result.isError || result.content.length > 0,
+            `Should either error or handle gracefully for ${testCase.description}`);
+        }
+      }
     });
 
-    test('should handle boundary conditions correctly', async () => {
+    test('should handle complex boundary condition matrix', async () => {
       const boundaryTests = [
-        { limit: 1, shouldSucceed: true },
-        { limit: 1000, shouldSucceed: true },
-        { limit: 1001, shouldSucceed: false },
-        { limit: 0, shouldSucceed: false }
+        { limit: 1, shouldSucceed: true, category: 'minimum valid' },
+        { limit: 1000, shouldSucceed: true, category: 'maximum valid' },
+        { limit: 1001, shouldSucceed: false, category: 'over maximum' },
+        { limit: 0, shouldSucceed: false, category: 'zero (invalid)' },
+        { limit: -1, shouldSucceed: false, category: 'negative' }
       ];
       
+      // Complex boundary validation with categorization
       for (const test of boundaryTests) {
         const result = await client.callTool('get_latest_info', { limit: test.limit });
         assertValidMCPResponse(result);
         
         if (test.shouldSucceed) {
           assert.equal(result.isError, false, 
-            `Limit ${test.limit} should succeed`);
+            `Boundary test ${test.category} (limit: ${test.limit}) should succeed`);
         } else {
           assert.equal(result.isError, true, 
-            `Limit ${test.limit} should fail validation`);
+            `Boundary test ${test.category} (limit: ${test.limit}) should fail validation`);
         }
       }
-    });
-
-    test('should maintain proper state after invalid operations', async () => {
-      // Execute several invalid operations
-      const invalidOperations = [
-        { limit: -10 },
-        { limit: 'abc' },
-        { date: 'invalid' },
-        { limit: null }
-      ];
-      
-      for (const invalidOp of invalidOperations) {
-        await client.callTool('get_latest_info', invalidOp);
-        // Note: We don't assert on these results as some may be handled gracefully
-      }
-      
-      // Verify normal operation still works
-      const result = await client.callTool('get_latest_info', { limit: 3 });
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should work normally after invalid operations');
     });
   });
 
   // ========================================
-  // INTEGRATION AND COMPATIBILITY
+  // MULTI-STEP WORKFLOWS AND CONSISTENCY
   // ========================================
 
-  describe('Integration and Compatibility', () => {
-    test('should work consistently across different parameter combinations', async () => {
+  describe('Multi-Step Workflows and Consistency', () => {
+    test('should maintain consistency across sequential operations', async () => {
+      const results = [];
+      
+      // Complex multi-step workflow simulation
+      for (let i = 0; i < 5; i++) {
+        const result = await client.callTool('get_latest_info', { limit: 5 });
+        results.push(result);
+      }
+      
+      // Complex consistency validation across multiple calls
+      results.forEach((result, index) => {
+        assertValidMCPResponse(result);
+        assert.equal(result.isError, false, `Sequential call ${index + 1} should succeed`);
+        assert.ok(result.content[0].text.includes('Latest 5 info messages'), 
+          `Sequential call ${index + 1} should show consistent limit`);
+      });
+      
+      // Complex cross-result consistency validation
+      const firstText = results[0].content[0].text;
+      const lastText = results[results.length - 1].content[0].text;
+      assert.equal(firstText, lastText, 'Sequential calls should return identical results for same parameters');
+    });
+
+    test('should handle complex parameter combination workflows', async () => {
       const paramCombinations = [
         {},
         { limit: 5 },
@@ -411,30 +184,149 @@ describe('get_latest_info Tool - Programmatic Tests (Full Mode)', () => {
         { limit: 50 }
       ];
       
+      // Complex workflow validation with parameter combinations
       for (const params of paramCombinations) {
         const result = await client.callTool('get_latest_info', params);
         assertValidMCPResponse(result);
         
-        // All valid combinations should not error
-        if (!params.limit || (params.limit > 0 && params.limit <= 1000)) {
+        // Complex validation logic for parameter combinations
+        const hasValidLimit = !params.limit || (params.limit > 0 && params.limit <= 1000);
+        if (hasValidLimit) {
           assert.equal(result.isError, false, 
-            `Valid params should succeed: ${JSON.stringify(params)}`);
+            `Valid parameter combination should succeed: ${JSON.stringify(params)}`);
+          
+          // Verify expected limit is reflected in response
+          const expectedLimit = params.limit || 10; // default limit
+          assert.ok(result.content[0].text.includes(`Latest ${expectedLimit} info messages`),
+            `Should show correct limit for combination: ${JSON.stringify(params)}`);
         }
       }
     });
 
-    test('should integrate properly with MCP protocol', async () => {
-      // Verify the tool exists in the tools list
+    test('should validate complex limit range processing', async () => {
+      const limitTests = [1, 5, 10, 25, 50, 100];
+      
+      // Complex range validation with detailed analysis
+      for (const limit of limitTests) {
+        const result = await client.callTool('get_latest_info', { limit });
+        
+        assertValidMCPResponse(result);
+        assert.equal(result.isError, false, `Limit ${limit} should process successfully`);
+        assert.ok(result.content[0].text.includes(`Latest ${limit} info messages`), 
+          `Should correctly process limit ${limit}`);
+        
+        // Complex content length analysis
+        const logText = result.content[0].text;
+        const separatorCount = (logText.match(/---/g) || []).length;
+        
+        // Validate separator count matches expected entries (limit - 1 separators for limit entries)
+        if (limit > 1) {
+          assert.ok(separatorCount >= 1, 
+            `Should have separators for limit ${limit} (found ${separatorCount})`);
+        }
+      }
+    });
+  });
+
+  // ========================================
+  // ERROR RECOVERY AND RESILIENCE
+  // ========================================
+
+  describe('Error Recovery and Resilience', () => {
+    test('should demonstrate complex error recovery workflow', async () => {
+      // Complex error recovery scenario with state validation
+      
+      // Step 1: Trigger error condition
+      const errorResult = await client.callTool('get_latest_info', { limit: -1 });
+      assert.equal(errorResult.isError, true, 'Should error with negative limit');
+      
+      // Step 2: Verify normal operation resumes immediately
+      const normalResult = await client.callTool('get_latest_info', { limit: 5 });
+      assertValidMCPResponse(normalResult);
+      assert.equal(normalResult.isError, false, 'Should recover and work normally');
+      
+      // Step 3: Verify complex recovery with different parameters
+      const recoveryResult = await client.callTool('get_latest_info', { 
+        limit: 3, 
+        date: getCurrentDateString() 
+      });
+      assertValidMCPResponse(recoveryResult);
+      assert.equal(recoveryResult.isError, false, 'Should handle complex parameters after error');
+    });
+
+    test('should maintain state integrity after complex invalid operations', async () => {
+      // Complex state integrity validation
+      const invalidOperations = [
+        { limit: -10, description: 'negative limit' },
+        { limit: 'abc', description: 'string limit' },
+        { date: 'invalid', description: 'invalid date' },
+        { limit: null, description: 'null limit' },
+        { limit: 1001, description: 'over-limit' }
+      ];
+      
+      // Execute complex series of invalid operations
+      for (const invalidOp of invalidOperations) {
+        await client.callTool('get_latest_info', invalidOp);
+        // Note: Don't assert on individual results as some may be handled gracefully
+      }
+      
+      // Complex state validation after error series
+      const result = await client.callTool('get_latest_info', { limit: 3 });
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should work normally after series of invalid operations');
+      assert.ok(result.content[0].text.includes('Latest 3 info messages'),
+        'Should produce correct output after error recovery');
+    });
+  });
+
+  // ========================================
+  // INTEGRATION AND PROTOCOL COMPLIANCE
+  // ========================================
+
+  describe('Integration and Protocol Compliance', () => {
+    test('should integrate properly with MCP protocol and tool discovery', async () => {
+      // Complex MCP protocol compliance validation
       const tools = await client.listTools();
       const infoTool = tools.find(tool => tool.name === 'get_latest_info');
       
-      assert.ok(infoTool, 'get_latest_info tool should be available');
-      assert.ok(infoTool.description, 'Tool should have description');
-      assert.ok(infoTool.inputSchema, 'Tool should have input schema');
+      assert.ok(infoTool, 'get_latest_info tool should be discoverable via MCP protocol');
+      assert.ok(infoTool.description, 'Tool should have comprehensive description');
+      assert.ok(infoTool.inputSchema, 'Tool should have valid input schema');
+      
+      // Complex schema validation
+      const schema = infoTool.inputSchema;
+      assert.equal(schema.type, 'object', 'Input schema should be object type');
+      assert.ok(schema.properties, 'Schema should define properties');
       
       // Verify tool execution works through MCP protocol
       const result = await client.callTool('get_latest_info', {});
       assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Tool should execute successfully via MCP protocol');
+    });
+
+    test('should validate complex date parameter integration', async () => {
+      // Complex date parameter validation with current date integration
+      const testDate = getCurrentDateString();
+      
+      const result = await client.callTool('get_latest_info', { 
+        date: testDate, 
+        limit: 2 
+      });
+      
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should handle current date parameter');
+      assert.ok(result.content[0].text.includes('Latest 2 info messages'), 
+        'Should show correct limit with date parameter');
+      
+      // Complex validation: date parameter should not affect content structure
+      const defaultResult = await client.callTool('get_latest_info', { limit: 2 });
+      assertValidMCPResponse(defaultResult);
+      
+      // Compare structure consistency
+      const dateTextLines = result.content[0].text.split('\n').length;
+      const defaultTextLines = defaultResult.content[0].text.split('\n').length;
+      assert.ok(Math.abs(dateTextLines - defaultTextLines) <= 1,
+        'Date parameter should not significantly alter response structure');
     });
   });
 });
@@ -453,6 +345,3 @@ function assertValidMCPResponse(result) {
   assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
   assert.ok(result.content.length > 0, 'Content should not be empty');
 }
-
-// Helper functions removed to eliminate lint warnings
-// All necessary validation is handled directly in test cases

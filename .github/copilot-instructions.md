@@ -478,6 +478,8 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory with proper service mocking
+- **MCP Test Execution**: Use `node --test` for individual MCP programmatic tests, NOT `npm test -- file.js` (which runs Jest)
+- **Test Types**: Jest for unit tests (`src/` directory), Node.js test runner for MCP programmatic tests (`tests/mcp/node/`), Aegis for YAML tests (`tests/mcp/yaml/`)
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
 - **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
@@ -504,6 +506,32 @@ npx aegis query --config ./aegis.config.docs-only.json search_sfra_documentation
 npx aegis query --config ./aegis.config.docs-only.json generate_cartridge_structure '{"cartridgeName": "test_cartridge", "targetPath": "/tmp/test"}'
 ```
 
+#### **Test Execution Commands**
+
+**CRITICAL: Use correct test commands based on test type:**
+
+```bash
+# For individual MCP programmatic tests (Node.js tests)
+node --test tests/mcp/node/specific-test.programmatic.test.js
+
+# For MCP YAML tests (docs-only mode)  
+npm run test:mcp:yaml
+
+# For MCP YAML tests (full mode)
+npm run test:mcp:yaml:full
+
+# For all MCP tests
+npm run test:mcp:all
+
+# For Jest unit tests only
+jest
+
+# For complete test suite (Jest + MCP tests)
+npm test
+```
+
+**Do NOT use `npm test -- individual-file.js` for MCP tests** - this runs Jest which doesn't handle MCP test files. Always use `node --test` for individual programmatic MCP tests.
+
 #### **Configuration Files**
 
 - **`aegis.config.docs-only.json`**: For testing documentation-only mode (no SFCC credentials required)
@@ -523,6 +551,24 @@ npx aegis query --config ./aegis.config.docs-only.json get_best_practice_guide '
 
 # Test SFCC class searches
 npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+```
+
+#### **Running Individual Tests**
+
+```bash
+# Run specific MCP programmatic test
+node --test tests/mcp/node/get-latest-debug.full-mode.programmatic.test.js
+
+# Run specific Jest unit test  
+jest base-handler.test.ts
+
+# Run all MCP programmatic tests
+npm run test:mcp:node
+
+# Run all tests of one type
+npm run test:mcp:yaml        # YAML tests (docs-only)
+npm run test:mcp:yaml:full   # YAML tests (full mode)
+jest                         # All Jest unit tests
 ```
 
 #### **Debugging Tool Responses**

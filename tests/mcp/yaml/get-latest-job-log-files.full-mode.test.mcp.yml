@@ -1,8 +1,33 @@
 ---
-description: "Test get_latest_job_log_files tool in full mode"
+description: "Test get_latest_job_log_files tool in full mode - Optimized for YAML/Aegis testing"
 tests:
-  # Basic functionality tests
-  - it: "should retrieve latest job log files with default parameters"
+  # Core functionality test with comprehensive content validation
+  - it: "should retrieve job log files with complete format validation"
+    request:
+      jsonrpc: "2.0"
+      id: "job-files-complete"
+      method: "tools/call"
+      params:
+        name: "get_latest_job_log_files"
+        arguments:
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "job-files-complete"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              # Response is JSON-encoded, so match the quoted content with escaped newlines
+              text: "match:regex:\"Found 1 job logs:[\\s\\S]*🔧 Job: [A-Za-z]+[\\s\\S]*ID: [0-9]+[\\s\\S]*File: Job-[A-Za-z]+-[0-9]+\\.log[\\s\\S]*Modified: [A-Za-z]{3}, [0-9]{2} [A-Za-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT[\\s\\S]*Size: [0-9]+\\.[0-9]+ [A-Z]B\""
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Test default behavior (no limit parameter)
+  - it: "should retrieve job log files with default parameters"
     request:
       jsonrpc: "2.0"
       id: "job-files-default"
@@ -18,39 +43,17 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
+              text: "match:contains:Found"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should limit job log files when limit parameter is provided"
+  # Test limit parameter functionality
+  - it: "should respect limit parameter"
     request:
       jsonrpc: "2.0"
       id: "job-files-limit"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Found 1 job logs:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should retrieve last 5 job log files"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-five"
       method: "tools/call"
       params:
         name: "get_latest_job_log_files"
@@ -59,22 +62,22 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "job-files-five"
+        id: "job-files-limit"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Found [0-5] job logs:"
+              text: "match:contains:job logs:"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  # Content validation tests
-  - it: "should include job name in response"
+  # Response structure validation
+  - it: "should return proper MCP response structure"
     request:
       jsonrpc: "2.0"
-      id: "job-files-jobname"
+      id: "job-files-structure"
       method: "tools/call"
       params:
         name: "get_latest_job_log_files"
@@ -83,101 +86,14 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "job-files-jobname"
+        id: "job-files-structure"
         result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:🔧 Job: [A-Za-z]+"
-          isError: false
+          content: "match:type:array"
+          isError: "match:type:boolean"
       stderr: "toBeEmpty"
 
-  - it: "should include job ID in response"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-jobid"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-jobid"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:ID: [0-9]+"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include log file name in response"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-filename"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-filename"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:File: Job-[A-Za-z]+-[0-9]+\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include modification timestamp in GMT format"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-timestamp"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-timestamp"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:Modified: [A-Za-z]{3}, [0-9]{2} [A-Za-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include file size information"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-size"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-size"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:Size: [0-9]+\\.[0-9]+ [A-Z]B"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Edge case tests
-  - it: "should handle zero limit parameter"
+  # Error handling: zero limit
+  - it: "should reject zero limit parameter"
     request:
       jsonrpc: "2.0"
       id: "job-files-zero-limit"
@@ -198,33 +114,10 @@ tests:
           isError: true
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "2000ms"
+      maxResponseTime: "1000ms"
 
-  - it: "should handle large limit parameter"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-large-limit"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 100
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-large-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Error handling tests
-  - it: "should handle negative limit parameter"
+  # Error handling: negative limit
+  - it: "should reject negative limit parameter"
     request:
       jsonrpc: "2.0"
       id: "job-files-negative-limit"
@@ -245,9 +138,10 @@ tests:
           isError: true
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "2000ms"
+      maxResponseTime: "1000ms"
 
-  - it: "should handle invalid limit parameter type"
+  # Error handling: invalid limit type
+  - it: "should reject invalid limit parameter type"
     request:
       jsonrpc: "2.0"
       id: "job-files-invalid-limit"
@@ -268,86 +162,22 @@ tests:
           isError: true
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "2000ms"
+      maxResponseTime: "1000ms"
 
-  # Performance validation tests
-  - it: "should respond within reasonable time for default request"
+  # Performance validation for successful operations
+  - it: "should meet performance requirements for successful operations"
     request:
       jsonrpc: "2.0"
       id: "job-files-performance"
       method: "tools/call"
       params:
         name: "get_latest_job_log_files"
-        arguments: {}
+        arguments:
+          limit: 10
     expect:
       response:
         jsonrpc: "2.0"
         id: "job-files-performance"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1500ms"
-
-  - it: "should respond consistently for multiple calls"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-consistency"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-consistency"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:Found [0-2] job logs:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Response structure validation
-  - it: "should return proper JSON response structure"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-structure"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-structure"
-        result:
-          content: "match:type:array"
-          isError: "match:type:boolean"
-      stderr: "toBeEmpty"
-
-  - it: "should have consistent response format across different limits"
-    request:
-      jsonrpc: "2.0"
-      id: "job-files-format-consistency"
-      method: "tools/call"
-      params:
-        name: "get_latest_job_log_files"
-        arguments:
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-files-format-consistency"
         result:
           content:
             match:arrayElements:

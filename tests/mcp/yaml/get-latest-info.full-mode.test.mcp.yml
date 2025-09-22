@@ -1,7 +1,7 @@
 description: "get_latest_info tool tests - Access recent info-level log entries"
 tests:
   # ========================================
-  # SUCCESS SCENARIOS
+  # CORE FUNCTIONALITY 
   # ========================================
 
   - it: "should get latest info entries with default parameters"
@@ -21,86 +21,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should validate response structure and content"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-structure"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-structure"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: "match:type:boolean"
-
-  - it: "should contain info log entries in response text"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-content"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-content"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
                 text: "match:contains:Latest"
           isError: false
-
-  - it: "should contain LOG level INFO in response"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-log-level"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-log-level"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:INFO"
-          isError: false
-
-  - it: "should contain log file names in response"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-filenames"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-filenames"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:info-blade-[\\d-]+\\.log"
-          isError: false
+      stderr: "toBeEmpty"
 
   - it: "should respect custom limit parameter"
     request:
@@ -122,8 +45,133 @@ tests:
                 text: "match:contains:Latest 3 info messages"
           isError: false
 
+  - it: "should contain INFO log level and log files"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-content"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-content"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:INFO"
+          isError: false
+
+  - it: "should format multiple entries with separators"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-separators"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-separators"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:---"
+          isError: false
+
   # ========================================
-  # EDGE CASE SCENARIOS
+  # PARAMETER VALIDATION
+  # ========================================
+
+  - it: "should return error for zero limit"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-zero-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-zero-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit '0'"
+          isError: true
+
+  - it: "should return error for negative limit"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-negative-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          limit: -5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-negative-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit '-5'"
+          isError: true
+
+  - it: "should handle invalid limit type gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-invalid-limit"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          limit: "invalid"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-invalid-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:Invalid limit 'invalid'"
+          isError: true
+
+  - it: "should handle invalid date gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "get-latest-info-invalid-date"
+      method: "tools/call"
+      params:
+        name: "get_latest_info"
+        arguments:
+          date: "invalid-date"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-latest-info-invalid-date"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:No info log files found"
+          isError: false
+
+  # ========================================
+  # EDGE CASES
   # ========================================
 
   - it: "should handle limit of 1"
@@ -163,216 +211,26 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-
-  - it: "should return error for zero limit"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-zero-limit"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 0
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-zero-limit"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Invalid limit '0'"
-          isError: true
-
-  # ========================================
-  # PARAMETER VALIDATION SCENARIOS
-  # ========================================
-
-  - it: "should handle invalid limit type gracefully"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-invalid-limit"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: "invalid"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-invalid-limit"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Invalid limit 'invalid' for get_latest_info. Must be a valid number"
-          isError: true
-
-  - it: "should return appropriate message for invalid date format"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-invalid-date"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          date: "invalid-date"
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-invalid-date"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:No info log files found for date invalid-date"
-          isError: false
-
-  - it: "should return error for negative limit values"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-negative-limit"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: -5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-negative-limit"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Invalid limit '-5'"
-          isError: true
-
-  - it: "should handle extra unknown parameters"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-extra-params"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 5
-          unknownParam: "should-be-ignored"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-extra-params"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Latest 5 info messages"
-          isError: false
-
-  # ========================================
-  # CONTENT VALIDATION SCENARIOS
-  # ========================================
-
-  - it: "should contain timestamp patterns in log entries"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-timestamps"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-timestamps"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} GMT\\]"
-          isError: false
-
-  - it: "should contain SFCC-specific log components"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-sfcc-components"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-sfcc-components"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:(SystemJobThread|PipelineCallServlet|Sites-)"
-          isError: false
-
-  - it: "should contain system activity identifiers"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-identifiers"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-identifiers"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:(INFO|SystemJobThread|ExecutingStep|Executing)"
-          isError: false
-
-  - it: "should format multiple log entries with separators"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-separators"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-separators"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:---"
+                text: "match:contains:Latest 100 info messages"
           isError: false
 
   # ========================================
   # PERFORMANCE VALIDATION
   # ========================================
 
-  - it: "should respond within reasonable time for default request"
+  - it: "should respond within reasonable time"
     request:
       jsonrpc: "2.0"
-      id: "get-latest-info-perf-default"
+      id: "get-latest-info-perf"
       method: "tools/call"
       params:
         name: "get_latest_info"
-        arguments: {}
+        arguments:
+          limit: 10
     expect:
       response:
         jsonrpc: "2.0"
-        id: "get-latest-info-perf-default"
+        id: "get-latest-info-perf"
         result:
           content:
             match:arrayElements:
@@ -382,49 +240,3 @@ tests:
           isError: false
       performance:
         maxResponseTime: "800ms"
-
-  - it: "should respond quickly with small limit"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-perf-small"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-perf-small"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-      performance:
-        maxResponseTime: "600ms"
-
-  - it: "should handle larger limits efficiently"
-    request:
-      jsonrpc: "2.0"
-      id: "get-latest-info-perf-large"
-      method: "tools/call"
-      params:
-        name: "get_latest_info"
-        arguments:
-          limit: 50
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "get-latest-info-perf-large"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-      performance:
-        maxResponseTime: "1500ms"

@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
       {/* Desktop header - hidden on mobile since we have it in Layout */}
       <div className="hidden lg:block mb-8">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-slate-800">SFCC Dev</h1>
+          <span className="text-2xl font-bold text-slate-800">SFCC Dev</span>
           <span className="text-2xl font-light text-orange-500">MCP</span>
         </div>
         <div className="flex justify-start">
