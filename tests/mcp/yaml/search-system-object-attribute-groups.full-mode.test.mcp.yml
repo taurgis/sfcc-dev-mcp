@@ -1,0 +1,612 @@
+# ==================================================================================
+# SFCC MCP Server - search_system_object_attribute_groups Tool YAML Tests (Full Mode)
+# Streamlined smoke testing and declarative validation for core functionality
+# Complex business logic, edge cases, and workflows are covered in programmatic tests
+# 
+# Available System Objects for Attribute Group Testing:
+# - Product (35 groups: ChannelIntegration, ExternalSearch, Order, PXL3_Hoesjes, etc.)
+# - SitePreferences (8 groups: CCV, SFRA Unified Feature Cartridge, Storefront Configs, etc.)
+# - Customer, Order, Category, etc. (varying group counts)
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/search-system-object-attribute-groups.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query search_system_object_attribute_groups '{"objectType": "Product", "searchRequest": {"query": {"match_all_query": {}}, "count": 3}}' --config "aegis.config.with-dw.json"
+# aegis query search_system_object_attribute_groups '{"objectType": "SitePreferences", "searchRequest": {"query": {"match_all_query": {}}, "count": 3}}' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "search_system_object_attribute_groups tool smoke tests - Basic functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY VALIDATION
+  # ==================================================================================
+  - it: "should have search_system_object_attribute_groups tool available with proper schema"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_system_object_attribute_groups"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # CORE FUNCTIONALITY VALIDATION - Product Object Type
+  # ==================================================================================
+  - it: "should successfully search Product attribute groups with match_all_query and return valid structure"
+    request:
+      jsonrpc: "2.0"
+      id: "product-match-all-success"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-match-all-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return valid JSON structure with attribute group data for Product"
+    request:
+      jsonrpc: "2.0"
+      id: "product-structure"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_group_search_result\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include pagination metadata and query echo in Product search response"
+    request:
+      jsonrpc: "2.0"
+      id: "product-pagination"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-pagination"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:\"query\""
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return attribute groups with id and link fields for Product"
+    request:
+      jsonrpc: "2.0"
+      id: "product-hits-structure"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-hits-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"hits\"[\\s\\S]*\"id\"[\\s\\S]*\"link\"[\\s\\S]*object_attribute_group[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # SITE PREFERENCES FUNCTIONALITY - Essential for Site Preference Discovery
+  # ==================================================================================
+  - it: "should successfully search SitePreferences attribute groups (for site preference discovery)"
+    request:
+      jsonrpc: "2.0"
+      id: "siteprefs-success"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "SitePreferences"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "siteprefs-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return SitePreferences groups containing expected groups like CCV or Storefront"
+    request:
+      jsonrpc: "2.0"
+      id: "siteprefs-content"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "SitePreferences"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "siteprefs-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"id\".*\"(?:CCV|Storefront|SFRA)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TEXT SEARCH FUNCTIONALITY VALIDATION
+  # ==================================================================================
+  - it: "should support text_query search on id field"
+    request:
+      jsonrpc: "2.0"
+      id: "text-search-id"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id"]
+                search_phrase: "Order"
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "text-search-id"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should include the text_query in response echo for text search"
+    request:
+      jsonrpc: "2.0"
+      id: "text-search-echo"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "External"
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "text-search-echo"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"text_query\"[\\s\\S]*\"fields\"[\\s\\S]*\"search_phrase\"[\\s\\S]*\"External\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PAGINATION AND SORTING VALIDATION
+  # ==================================================================================
+  - it: "should support custom count parameter for pagination"
+    request:
+      jsonrpc: "2.0"
+      id: "custom-count"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "custom-count"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"count\":\\s*2[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should support start parameter for pagination offset"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-start"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            start: 2
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-start"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"start\":\\s*2[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should support sorting by id field in ascending order"
+    request:
+      jsonrpc: "2.0"
+      id: "sorting-id-asc"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            sorts:
+              - field: "id"
+                sort_order: "asc"
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sorting-id-asc"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION AND ERROR HANDLING
+  # ==================================================================================
+  - it: "should reject missing objectType parameter with validation error"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-object-type"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should reject empty objectType parameter with validation error"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-object-type"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: ""
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle missing searchRequest parameter by defaulting to match_all_query (mock server behavior)"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-search-request"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-search-request"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid objectType with OCAPI 404 error"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-object-type"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "InvalidObjectType"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ObjectTypeNotFoundException"
+          isError: true
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should include specific error message for invalid object type"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-object-type-message"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "NonExistentObject"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-object-type-message"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*No object type with ID[\\s\\S]*NonExistentObject[\\s\\S]*could be found[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # QUERY TYPE VALIDATION
+  # ==================================================================================
+  - it: "should support bool_query with must conditions"
+    request:
+      jsonrpc: "2.0"
+      id: "bool-query-must"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              bool_query:
+                must:
+                  - text_query:
+                      fields: ["id"]
+                      search_phrase: "Channel"
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "bool-query-must"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should support term_query with exact matching"
+    request:
+      jsonrpc: "2.0"
+      id: "term-query-exact"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              term_query:
+                fields: ["id"]
+                operator: "is"
+                values: ["Order"]
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "term-query-exact"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE VALIDATION
+  # ==================================================================================
+  - it: "should complete match_all_query search within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-match-all"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-match-all"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "1500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should complete text search within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-text-search"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "SitePreferences"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "Config"
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-text-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:object_attribute_group_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # COMPREHENSIVE FEATURE VALIDATION
+  # ==================================================================================
+  - it: "should support comprehensive search with all parameters (sorting, pagination, selection)"
+    request:
+      jsonrpc: "2.0"
+      id: "comprehensive-search"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            sorts:
+              - field: "id"
+                sort_order: "desc"
+            start: 0
+            count: 4
+            select: "(**)"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "comprehensive-search"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*object_attribute_group_search_result[\\s\\S]*count.*4[\\s\\S]*"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"

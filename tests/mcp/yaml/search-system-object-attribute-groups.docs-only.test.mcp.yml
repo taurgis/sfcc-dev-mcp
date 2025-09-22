@@ -1,0 +1,278 @@
+# ==================================================================================
+# SFCC MCP Server - search_system_object_attribute_groups Tool YAML Tests (Docs-Only Mode)
+# Tests that system object attribute group tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+# However, the tool can still be called and should return authentication error
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/search-system-object-attribute-groups.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/search-system-object-attribute-groups.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"
+# aegis query search_system_object_attribute_groups '{"objectType": "Product", "searchRequest": {"query": {"match_all_query": {}}, "count": 3}}' --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "search_system_object_attribute_groups tool tests - Docs-only mode tool availability and authentication errors"
+
+# ==================================================================================
+# TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+# ==================================================================================
+tests:
+  - it: "should NOT list search_system_object_attribute_groups tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:search_system_object_attribute_groups"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+# ==================================================================================
+
+  - it: "should return authentication error when calling search_system_object_attribute_groups in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-product"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-product"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for SitePreferences object type"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-siteprefs"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "SitePreferences"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-siteprefs"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:credentials are provided"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for Customer object type"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-customer"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Customer"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id"]
+                search_phrase: "PersonalInfo"
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-customer"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:full mode"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for any object type with complex query"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-complex"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Order"
+          searchRequest:
+            query:
+              bool_query:
+                must:
+                  - text_query:
+                      fields: ["id", "display_name"]
+                      search_phrase: "Billing"
+            sorts:
+              - field: "id"
+                sort_order: "asc"
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-complex"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # BEHAVIOR VALIDATION IN DOCS-ONLY MODE
+  # ==================================================================================
+
+  - it: "should return authentication error even for missing objectType parameter in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "validation-missing-object-type"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validation-missing-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error even for empty objectType parameter in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "validation-empty-object-type"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: ""
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validation-empty-object-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:credentials are provided"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error even for missing searchRequest parameter in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "validation-missing-search-request"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "validation-missing-search-request"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:full mode"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE VALIDATION IN DOCS-ONLY MODE
+  # ==================================================================================
+
+  - it: "should return authentication errors quickly in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-auth-error"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-auth-error"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "400ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle authentication errors quickly even with missing parameters in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-validation"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_groups"
+        arguments:
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id"]
+                search_phrase: "test"
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-validation"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "300ms"
+      stderr: "toBeEmpty"
