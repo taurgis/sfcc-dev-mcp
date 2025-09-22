@@ -496,14 +496,17 @@ The **MCP Aegis** (`npx aegis query`) is the primary tool for testing and debugg
 #### **Basic Aegis Usage**
 
 ```bash
-# Test a tool with the documentation-only configuration
-npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[json-arguments]'
+# Test a tool with the documentation-only configuration (new pipe format)
+npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
 
-# Example: Search SFRA documentation
-npx aegis query --config ./aegis.config.docs-only.json search_sfra_documentation '{"query": "render"}'
+# Traditional JSON format (still supported)
+npx aegis query --config ./aegis.config.docs-only.json --method "tools/call" --params '{"name": "search_sfcc_classes", "arguments": {"query": "catalog"}}'
 
-# Example: Generate cartridge structure
-npx aegis query --config ./aegis.config.docs-only.json generate_cartridge_structure '{"cartridgeName": "test_cartridge", "targetPath": "/tmp/test"}'
+# Example: Search SFRA documentation (pipe format)
+npx aegis query search_sfra_documentation 'query:render' --config ./aegis.config.docs-only.json
+
+# Example: Generate cartridge structure (pipe format)
+npx aegis query generate_cartridge_structure 'cartridgeName:test_cartridge|targetPath:/tmp/test' --config ./aegis.config.docs-only.json
 ```
 
 #### **Test Execution Commands**
@@ -541,16 +544,22 @@ npm test
 
 ```bash
 # List all available tools
-npx aegis query --config ./aegis.config.docs-only.json --method tools/list
+npx aegis query --config ./aegis.config.docs-only.json
 
-# Get tool schema information
+# Tool calls with pipe format (new, recommended)
+npx aegis query get_sfcc_class_info 'className:dw.catalog.Product' --config ./aegis.config.docs-only.json
+
+# Tool calls with traditional JSON format (still supported)
 npx aegis query --config ./aegis.config.docs-only.json --method tools/call --params '{"name": "get_sfcc_class_info", "arguments": {"className": "dw.catalog.Product"}}'
 
-# Test best practice guides
-npx aegis query --config ./aegis.config.docs-only.json get_best_practice_guide '{"guideName": "cartridge_creation"}'
+# Test best practice guides (pipe format)
+npx aegis query get_best_practice_guide 'guideName:cartridge_creation' --config ./aegis.config.docs-only.json
 
-# Test SFCC class searches
-npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+# Test SFCC class searches (pipe format)
+npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
+
+# Complex parameters with pipe format using dot notation
+npx aegis query search_system_object_attribute_definitions 'objectType:Product|searchRequest.query.match_all_query:{}|searchRequest.count:50' --config ./aegis.config.docs-only.json
 ```
 
 #### **Running Individual Tests**
@@ -576,14 +585,17 @@ jest                         # All Jest unit tests
 When developing or debugging tools, use aegis to inspect actual response formats:
 
 ```bash
-# Capture full response structure for test validation
-npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | head -50
+# Capture full response structure for test validation (pipe format)
+npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json | head -50
 
-# Test error handling
-npx aegis query --config ./aegis.config.docs-only.json [tool-name] '{"invalid": "parameters"}'
+# Traditional method format (still supported)
+npx aegis query --config ./aegis.config.docs-only.json --method "tools/call" --params '{"name": "[tool-name]", "arguments": [args]}' | head -50
 
-# Verify JSON response structure
-npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | jq '.'
+# Test error handling (pipe format)
+npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
+
+# Verify JSON response structure (pipe format)
+npx aegis query get_sfcc_class_info 'className:dw.catalog.Product' --config ./aegis.config.docs-only.json | jq '.'
 ```
 
 #### **Development Workflow Integration**
@@ -602,13 +614,13 @@ npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | jq
 
 1. **Query the tool with sample arguments** to see actual response format:
    ```bash
-   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+   npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
    ```
 
 2. **Test edge cases** (empty results, errors) to understand all response variations:
    ```bash
-   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
-   npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": ""}'
+   npx aegis query search_sfcc_classes 'query:zzznothingfound' --config ./aegis.config.docs-only.json
+   npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
    ```
 
 3. **Document the actual response structure** before writing test expectations:
@@ -641,16 +653,16 @@ npx aegis query --config ./aegis.config.docs-only.json [tool-name] '[args]' | jq
 ##### **Response Format Discovery Examples:**
 
 ```bash
-# Discover structure for class search
-npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "catalog"}'
+# Discover structure for class search (pipe format)
+npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
 # Result: ["dw.catalog.Catalog", "dw.catalog.Product", ...] (simple array)
 
-# Discover empty result format  
-npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": "zzznothingfound"}'
+# Discover empty result format (pipe format)
+npx aegis query search_sfcc_classes 'query:zzznothingfound' --config ./aegis.config.docs-only.json
 # Result: [] (empty array)
 
-# Discover error response format
-npx aegis query --config ./aegis.config.docs-only.json search_sfcc_classes '{"query": ""}'
+# Discover error response format (pipe format)
+npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
 # Result: {"content": [{"type": "text", "text": "Error: ..."}], "isError": true}
 ```
 
@@ -734,11 +746,20 @@ For complex testing scenarios requiring programmatic logic and integration with 
 # List all available tools
 aegis query --config ./aegis.config.docs-only.json
 
-# Test specific tool with arguments
-aegis query tool_name '{"param": "value"}' --config ./aegis.config.docs-only.json
+# Test specific tool with arguments - Multiple formats supported:
+
+# Pipe format (recommended for CLI)
+aegis query read_file 'path:test.txt' --config ./aegis.config.docs-only.json
+aegis query calculator 'operation:add|a:5|b:3' --config ./aegis.config.docs-only.json
+
+# JSON format (complex structures)
+aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config ./aegis.config.docs-only.json
+
+# Method syntax with pipe format
+aegis query --method tools/call --params 'name:read_file|arguments.path:test.txt' --config ./aegis.config.docs-only.json
 
 # Debug with verbose output
-aegis query tool_name '{"param": "value"}' --config ./aegis.config.docs-only.json --verbose
+aegis query read_file 'path:test.txt' --config ./aegis.config.docs-only.json --verbose
 ```
 
 **For AI Agents**: Both AGENTS.md files are specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. Choose YAML-based testing for declarative scenarios or programmatic testing for complex logic requirements. Both approaches can be directly applied to validate this SFCC Dev MCP server's functionality.

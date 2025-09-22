@@ -166,6 +166,9 @@ function parseArgs() {
             case '--no-cors':
                 options.enableCors = false;
                 break;
+            case '--enable-random-errors':
+                options.enableRandomErrors = true;
+                break;
             case '--port':
                 if (i + 1 < args.length) {
                     options.port = parseInt(args[i + 1]);
@@ -225,6 +228,7 @@ function printHelp() {
     console.log('  --no-webdav            Disable WebDAV functionality');
     console.log('  --no-ocapi             Disable OCAPI functionality');
     console.log('  --no-cors              Disable CORS headers');
+    console.log('  --enable-random-errors Enable random 500 errors (1% chance) for error handling testing');
     console.log('  --mock-data <path>     Custom path to mock data directory');
     console.log('  --help                 Show this help message');
     console.log('');

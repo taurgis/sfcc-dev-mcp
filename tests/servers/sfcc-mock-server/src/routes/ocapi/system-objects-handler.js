@@ -314,8 +314,8 @@ class SystemObjectsHandler {
                 }
             }
 
-            // 6. Simulate occasional server errors (1% chance)
-            if (Math.random() < 0.01) {
+            // 6. Simulate occasional server errors (1% chance) - only if randomErrors is enabled
+            if (this.config.features.randomErrors && Math.random() < 0.01) {
                 const serverError = OCAPIErrorUtils.createInternalServerError(
                     "Service temporarily unavailable. Please try again later."
                 );

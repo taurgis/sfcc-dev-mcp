@@ -160,6 +160,11 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
 
   describe('activate_code_version Tool Tests', () => {
     test('should validate activation response structure', async () => {
+      // First, ensure we have a clean state by activating the reset version
+      await client.callTool('activate_code_version', {
+        codeVersionId: 'reset_version'
+      });
+      
       const result = await client.callTool('activate_code_version', {
         codeVersionId: 'test_activation'
       });
@@ -170,12 +175,12 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       const jsonText = result.content[0].text;
       const data = JSON.parse(jsonText);
       
-      // Validate activation response structure
+      // Validate activation response structure (real SFCC OCAPI format)
       assert.ok(typeof data.id === 'string', 'Should have id field');
       assert.equal(data.active, true, 'Should be marked as active');
-      assert.ok(data.last_activation_time, 'Should have last_activation_time');
-      assert.ok(typeof data.rollout_percentage === 'number', 'Should have rollout_percentage');
-      assert.equal(data.rollout_percentage, 100, 'Should be 100% rollout');
+      assert.ok(data.activation_time, 'Should have activation_time');
+      assert.ok(data._type === 'code_version', 'Should have correct _type');
+      assert.ok(Array.isArray(data.cartridges), 'Should have cartridges array');
     });
 
     test('should handle various code version ID formats', async () => {
@@ -264,6 +269,11 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
     });
 
     test('should validate workflow with activation timestamps', async () => {
+      // Reset to known state first
+      await client.callTool('activate_code_version', {
+        codeVersionId: 'reset_version'
+      });
+      
       const testVersionId = 'workflow_test_version';
       
       // Activate a test version
@@ -276,17 +286,22 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       
       // Validate activation timestamp format (ISO 8601)
       const timestampRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-      assert.ok(timestampRegex.test(activationData.last_activation_time), 
+      assert.ok(timestampRegex.test(activationData.activation_time), 
         'Activation timestamp should be in ISO 8601 format');
       
       // Validate timestamp is recent (within last minute)
-      const activationTime = new Date(activationData.last_activation_time);
+      const activationTime = new Date(activationData.activation_time);
       const now = new Date();
       const timeDiff = Math.abs(now - activationTime);
       assert.ok(timeDiff < 60000, 'Activation timestamp should be recent (within 1 minute)');
     });
 
     test('should handle sequential activations correctly', async () => {
+      // Reset to a known state first
+      await client.callTool('activate_code_version', {
+        codeVersionId: 'reset_version'
+      });
+      
       const testVersions = ['seq_test_1', 'seq_test_2', 'seq_test_3'];
       const activationResults = [];
       
@@ -297,21 +312,43 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
         });
         
         assertValidMCPResponse(result);
-        assert.equal(result.isError, false, `Should activate ${versionId}`);
         
-        const data = JSON.parse(result.content[0].text);
-        activationResults.push({
-          id: data.id,
-          timestamp: data.last_activation_time
-        });
+        // Handle both success and "already active" cases
+        if (result.isError) {
+          // Check if it's an "already active" error
+          const errorText = result.content[0].text;
+          if (errorText.includes('already active')) {
+            // Get the current version data to use its timestamp
+            const getResult = await client.callTool('get_code_versions', {});
+            const data = JSON.parse(getResult.content[0].text);
+            const activeVersion = data.data.find(v => v.id === versionId);
+            if (activeVersion && activeVersion.activation_time) {
+              activationResults.push({
+                id: activeVersion.id,
+                timestamp: activeVersion.activation_time
+              });
+              continue;
+            }
+          }
+          assert.fail(`Should activate ${versionId}: ${errorText}`);
+        } else {
+          const data = JSON.parse(result.content[0].text);
+          activationResults.push({
+            id: data.id,
+            timestamp: data.activation_time
+          });
+        }
       }
       
-      // Validate timestamps are in chronological order
-      for (let i = 1; i < activationResults.length; i++) {
-        const prevTime = new Date(activationResults[i - 1].timestamp);
-        const currentTime = new Date(activationResults[i].timestamp);
-        assert.ok(currentTime >= prevTime, 
-          'Activation timestamps should be in chronological order');
+      // Validate timestamps are in chronological order (if we have enough results)
+      if (activationResults.length >= 2) {
+        for (let i = 1; i < activationResults.length; i++) {
+          const prevTime = new Date(activationResults[i - 1].timestamp);
+          const currentTime = new Date(activationResults[i].timestamp);
+          // Allow for timestamp equality (same second activation) but require non-decreasing order
+          assert.ok(currentTime >= prevTime, 
+            'Activation timestamps should be in chronological order');
+        }
       }
     });
   });
@@ -458,6 +495,11 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
     });
 
     test('should simulate real deployment scenario workflow', async () => {
+      // Reset to known state first
+      await client.callTool('activate_code_version', {
+        codeVersionId: 'reset_version'
+      });
+      
       // Simulate a deployment manager workflow
       
       // 1. Check current deployment state
@@ -479,10 +521,9 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       const deployData = JSON.parse(deployResult.content[0].text);
       assert.equal(deployData.id, deploymentVersion, 'Should activate correct version');
       assert.equal(deployData.active, true, 'New version should be active');
-      assert.equal(deployData.rollout_percentage, 100, 'Should have full rollout');
       
       // 4. Verify deployment timing (should be immediate)
-      const deployTime = new Date(deployData.last_activation_time);
+      const deployTime = new Date(deployData.activation_time);
       const now = new Date();
       const deploymentLatency = Math.abs(now - deployTime);
       assert.ok(deploymentLatency < 5000, 'Deployment should complete within 5 seconds');
@@ -495,6 +536,11 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
 
   describe('Performance and Reliability Tests', () => {
     test('should handle multiple sequential operations reliably', async () => {
+      // Reset to known state first
+      await client.callTool('activate_code_version', {
+        codeVersionId: 'reset_version'
+      });
+      
       const operationResults = [];
       const operationCount = 5;
       

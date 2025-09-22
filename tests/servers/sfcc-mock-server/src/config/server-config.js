@@ -32,7 +32,8 @@ class ServerConfig {
             webdav: options.enableWebdav !== false, // enabled by default
             ocapi: options.enableOcapi !== false,   // enabled by default
             cors: options.enableCors !== false,     // enabled by default
-            logging: options.enableLogging !== false // enabled by default
+            logging: options.enableLogging !== false, // enabled by default
+            randomErrors: options.enableRandomErrors === true // disabled by default for reliable tests
         };
     }
 

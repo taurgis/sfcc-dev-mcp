@@ -1,12 +1,22 @@
 {
   "_v": "23.2",
   "_type": "code_version_result",
-  "count": 3,
+  "count": 19,
   "data": [
     {
       "_type": "code_version",
-      "activation_time": "2025-09-18T13:41:28Z",
+      "activation_time": "2025-09-22T10:00:00.000Z",
       "active": true,
+      "cartridges": ["reset_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "reset_version",
+      "last_modification_time": "2025-09-22T10:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/reset_version"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
       "cartridges": [
         "app_storefront_base",
         "bm_app_storefront_base",
@@ -81,7 +91,157 @@
       "last_modification_time": "2025-03-05T14:12:00Z",
       "rollback": true,
       "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/version1"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["test_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "test_activation",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/test_activation"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["simple_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "simple_id",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/simple_id"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["version_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "version-with-dashes",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/version-with-dashes"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["version_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "version_with_underscores",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/version_with_underscores"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["version_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "Version123",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/Version123"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["test_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "seq_test_1",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/seq_test_1"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["test_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "seq_test_2",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/seq_test_2"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["test_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "seq_test_3",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/seq_test_3"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["test_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "workflow_test_version",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/workflow_test_version"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["recovery_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "recovery_test",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/recovery_test"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["reliability_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "reliability_test_0",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/reliability_test_0"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["reliability_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "reliability_test_1",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/reliability_test_1"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["reliability_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "reliability_test_2",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/reliability_test_2"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["deploy_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "deployment_v1.2.3",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/deployment_v1.2.3"
+    },
+    {
+      "_type": "code_version",
+      "active": false,
+      "cartridges": ["deploy_cartridge"],
+      "compatibility_mode": "22.7",
+      "id": "deployment_simulation_v1",
+      "last_modification_time": "2025-09-22T12:00:00Z",
+      "rollback": false,
+      "web_dav_url": "https://development-na01-sandbox.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Cartridges/deployment_simulation_v1"
     }
   ],
-  "total": 3
+  "total": 19
 }
