@@ -10,13 +10,58 @@ MCP Aegis now supports **CLI-friendly pipe-separated parameter format** alongsid
 
 ```bash
 # 🆕 Pipe format (CLI-friendly): key:value|other:123
-aegis query calculator 'operation:add|a:5|b:3' --config "config.json"
+npx aegis query calculator 'operation:add|a:5|b:3' --config "config.json"
 
 # Traditional JSON (still supported): {"key":"value","other":123}
-aegis query calculator '{"operation": "add", "a": 5, "b": 3}' --config "config.json"
+npx aegis query calculator '{"operation": "add", "a": 5, "b": 3}' --config "config.json"
 ```
 
 **Benefits**: ✅ No shell escaping ✅ Readable syntax ✅ Type inference ✅ Nested objects via dot notation ✅ Backward compatible
+
+## 🥇 GOLDEN RULE: Always Discover Response Formats First
+
+**CRITICAL**: Before writing ANY YAML test, you MUST use `aegis query` to discover actual response formats for both success and failure scenarios. Never assume response structure.
+
+### Test Development Workflow (Discovery-First)
+
+**Step 1: Discovery Commands (Mandatory)**
+```bash
+# Test successful execution
+npx aegis query [tool_name] '[valid_params]' --config "config.json"
+
+# Test failure scenarios  
+npx aegis query [tool_name] '[invalid_params]' --config "config.json"
+npx aegis query [tool_name] '' --config "config.json"  # Empty/missing params
+```
+
+**Step 2: Document Findings & Write Tests**
+```yaml
+# Document discovery results as comments
+# Discovery: npx aegis query search_sfcc_classes 'query:catalog'
+# Success: ["dw.catalog.Product", "dw.catalog.Catalog"] (simple array)
+# Empty: [] (empty array)
+# Error: {"content": [{"type": "text", "text": "Error: ..."}], "isError": true}
+
+- it: "should return class array"
+  expect:
+    response:
+      result:
+        text: "match:regex:\\[[\\s\\S]*\\]"     # Based on actual format
+        text: "match:contains:dw.catalog"      # Contains expected content
+```
+
+**Step 3: Common Discovery Patterns**
+```bash
+# Examples with expected patterns:
+npx aegis query list_tools --config "config.json"
+# → ["tool1", "tool2"] → YAML: text: "match:regex:\\[[\\s\\S]*\\]"
+
+npx aegis query search_nothing 'query:zzznothingfound' --config "config.json"  
+# → [] → YAML: text: "match:regex:^\\[\\s*\\]$"
+
+npx aegis query invalid_tool 'bad:params' --config "config.json"
+# → {"content": [...], "isError": true} → YAML: text: "match:contains:Error"
+```
 
 ## Configuration & Basic Usage
 
@@ -64,8 +109,14 @@ tests:
 
 ### Execute Tests
 ```bash
-aegis "tests/**/*.test.mcp.yml" --config "config.json"
-aegis "tests/*.yml" --config "config.json" --verbose --filter "tools"
+# 🥇 GOLDEN RULE: ALWAYS discover response formats first!
+# Before writing any test, run these discovery commands:
+npx aegis query [tool_name] '[success_params]' --config "config.json"
+npx aegis query [tool_name] '[failure_params]' --config "config.json"
+
+# Then run your tests based on discovered formats
+npx aegis "tests/**/*.test.mcp.yml" --config "config.json"
+npx aegis "tests/*.yml" --config "config.json" --verbose --filter "tools"
 ```
 
 ## Parameter Formats: Pipe vs JSON
@@ -73,24 +124,24 @@ aegis "tests/*.yml" --config "config.json" --verbose --filter "tools"
 ### Pipe Format (Recommended for CLI)
 ```bash
 # Simple: No parameters
-aegis query get_code_versions --config "config.json"
+npx aegis query get_code_versions --config "config.json"
 
 # Simple: key:value|other:123
-aegis query read_file 'path:test.txt' --config "config.json"
+npx aegis query read_file 'path:test.txt' --config "config.json"
 
 # Nested via dot notation: config.host:localhost|config.port:8080
-aegis query api_client 'config.host:localhost|config.port:8080|timeout:30' --config "config.json"
+npx aegis query api_client 'config.host:localhost|config.port:8080|timeout:30' --config "config.json"
 
 # Method syntax: name:tool|arguments.key:value
-aegis query --method tools/call --params 'name:read_file|arguments.path:test.txt' --config "config.json"
+npx aegis query --method tools/call --params 'name:read_file|arguments.path:test.txt' --config "config.json"
 ```
 
 ### JSON Format (Complex Structures)
 ```bash
-aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config "config.json"
+npx aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config "config.json"
 ```
 
-**Note**: For tools with no parameters, omit arguments entirely rather than using `'{}'` - use `aegis query tool_name --config "config.json"` instead of `aegis query tool_name '{}' --config "config.json"`.
+**Note**: For tools with no parameters, omit arguments entirely rather than using `'{}'` - use `npx aegis query tool_name --config "config.json"` instead of `npx aegis query tool_name '{}' --config "config.json"`.
 
 ## Complete Pattern Matching Reference (35+)
 
@@ -337,28 +388,29 @@ result:
 ### Test Execution
 ```bash
 # Basic testing
-aegis "tests/**/*.test.mcp.yml" --config "config.json"
+npx aegis "tests/**/*.test.mcp.yml" --config "config.json"
 
 # Debug modes & filtering
-aegis "tests/*.yml" --config "config.json" --verbose --debug --timing
-aegis "tests/*.yml" --config "config.json" --errors-only --filter "tools"
-aegis "tests/*.yml" --config "config.json" --filter "should validate" --json
+npx aegis "tests/*.yml" --config "config.json" --verbose --debug --timing
+npx aegis "tests/*.yml" --config "config.json" --errors-only --filter "tools"
+npx aegis "tests/*.yml" --config "config.json" --filter "should validate" --json
 ```
 
 ### Interactive Tool Testing (Dual Format Support)
 ```bash
 # List all tools
-aegis query --config "config.json"
+npx aegis query --config "config.json"
 
-# Pipe format (recommended for CLI)
-aegis query read_file 'path:test.txt|encoding:utf8' --config "config.json"
-aegis query calculator 'operation:add|a:5|b:3' --config "config.json"
+# Pipe format (recommended) - ALWAYS test success AND failure
+npx aegis query read_file 'path:test.txt' --config "config.json"        # Success case
+npx aegis query read_file 'path:nonexistent.txt' --config "config.json" # Failure case
 
-# JSON format (complex structures)
-aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config "config.json"
+# JSON format for complex structures
+npx aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config "config.json"
 
-# Method syntax with pipe format
-aegis query --method tools/call --params 'name:read_file|arguments.path:test.txt' --config "config.json"
+# Discovery examples for edge cases
+npx aegis query search_tool 'query:' --config "config.json"           # Empty input
+npx aegis query search_tool 'query:zzznothingfound' --config "config.json" # No results
 ```
 
 ### Performance Testing Guidelines
@@ -526,22 +578,44 @@ expect:
 
 ## Quick Debugging Workflow
 
-### 1. Common Issues & Solutions
+### 🥇 Discovery-First Development (Essential)
+
+**Before ANY test writing, run discovery commands:**
+```bash
+# Success case
+npx aegis query [tool_name] '[valid_params]' --config "config.json"
+# Failure case  
+npx aegis query [tool_name] '[invalid_params]' --config "config.json"
+```
+
+### Common Issues & Solutions
 
 #### Server Won't Start
 ```bash
-aegis "test.yml" --config "config.json" --debug  # Check startup issues
+npx aegis "test.yml" --config "config.json" --debug  # Check startup issues
 # Increase startupTimeout if server is slow
 # Verify command/args in config are correct
 ```
 
 #### Pattern Not Matching
 ```yaml
-# Start simple, then add complexity
-- it: "debug actual response structure"
+# ❌ WRONG - Assuming structure without discovery
+- it: "should return tools object"
   expect:
     response:
-      result: "match:type:object"  # Start here
+      result:
+        tools: "match:arrayLength:3"      # Assumes 'tools' field exists
+        count: "match:type:number"        # Assumes 'count' field exists
+
+# ✅ CORRECT - Based on actual npx aegis query discovery
+# First run: npx aegis query list_tools --config "config.json"
+# Result: ["tool1", "tool2", "tool3"]  # Simple array, no wrapper object!
+- it: "should return tools array"
+  expect:
+    response:
+      result:
+        text: "match:regex:\\[[\\s\\S]*\\]"        # Match JSON array format
+        text: "match:contains:tool1"               # Check content exists
 ```
 
 #### Regex Patterns Failing
@@ -570,14 +644,14 @@ result:
 ### 2. Test Filtering for Focus Development
 ```bash
 # Filter by suite/test description (case-insensitive)
-aegis "tests/**/*.yml" --config "config.json" --filter "Tools validation"
-aegis "tests/**/*.yml" --config "config.json" --filter "should handle errors"
+npx aegis "tests/**/*.yml" --config "config.json" --filter "Tools validation"
+npx aegis "tests/**/*.yml" --config "config.json" --filter "should handle errors"
 
 # Use regex patterns for advanced filtering  
-aegis "tests/**/*.yml" --config "config.json" --filter "/should (read|write|validate)/"
+npx aegis "tests/**/*.yml" --config "config.json" --filter "/should (read|write|validate)/"
 
 # Combine with debugging options
-aegis "tests/**/*.yml" --config "config.json" --filter "tools" --errors-only --timing
+npx aegis "tests/**/*.yml" --config "config.json" --filter "tools" --errors-only --timing
 ```
 
 ### 3. Pipe Format Quick Reference
@@ -593,6 +667,18 @@ aegis "tests/**/*.yml" --config "config.json" --filter "tools" --errors-only --t
 
 # JSON values within pipe: simple:value|complex:{"nested":"object"}
 'metadata:{"version":"1.0"}|tags:["test","demo"]|count:5'
+```
+
+### 3. Pipe Format Quick Reference
+```bash
+# Basic: key:value|other:123
+'path:test.txt|encoding:utf8'
+
+# Discovery examples:
+'query:catalog|limit:10'        # Success case
+'query:zzznothingfound'         # No results
+'query:'                        # Validation error
+'fileName:nonexistent.txt'      # File not found
 ```
 
 ### 4. Performance Testing Guidelines
@@ -660,6 +746,6 @@ match:arrayElements: # Validate ALL array elements
 ### Installation & Getting Started
 ```bash
 npm install -g mcp-aegis
-aegis init                    # Create sample config and tests
-aegis "tests/*.yml" --config "config.json"
+npx aegis init                    # Create sample config and tests
+npx aegis "tests/*.yml" --config "config.json"
 ```
