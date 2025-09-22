@@ -1,0 +1,168 @@
+# ==================================================================================
+# SFCC MCP Server - search_system_object_attribute_definitions Tool YAML Tests (Docs-Only Mode)
+# Validates that system object search tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/search-system-object-attribute-definitions.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis query search_system_object_attribute_definitions '{"objectType": "Product", "searchRequest": {"query": {"match_all_query": {}}}}' --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "search_system_object_attribute_definitions tool docs-only mode tests - Tool unavailability validation"
+
+tests:
+  # ==================================================================================
+  # TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+  # ==================================================================================
+  - it: "should NOT list search_system_object_attribute_definitions tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:search_system_object_attribute_definitions"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # ==================================================================================
+  - it: "should return authentication error when calling search_system_object_attribute_definitions in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-product"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_definitions"
+        arguments:
+          objectType: "Product"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-product"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for text query search requests"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-text-query"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_definitions"
+        arguments:
+          objectType: "Customer"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-text-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:credentials are provided"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for term query requests"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-term-query"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_definitions"
+        arguments:
+          objectType: "Order"
+          searchRequest:
+            query:
+              term_query:
+                fields: ["value_type"]
+                operator: "is"
+                values: ["string"]
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-term-query"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:full mode"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle malformed parameters with same authentication error"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-malformed"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_definitions"
+        arguments:
+          invalidParam: "test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-malformed"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # CONSISTENT ERROR RESPONSE VALIDATION
+  # ==================================================================================
+  - it: "should consistently return isError: true for all docs-only calls"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-error-flag"
+      method: "tools/call"
+      params:
+        name: "search_system_object_attribute_definitions"
+        arguments:
+          objectType: "Site"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-error-flag"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"

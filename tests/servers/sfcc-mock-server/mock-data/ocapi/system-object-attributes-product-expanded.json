@@ -1,0 +1,183 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_definition_search_result",
+  "count": 20,
+  "hits": [
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "47de03c012d48eee975077f45131088fe24f34660ecf4dc69de5737257836fda",
+      "id": "EAN",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/EAN"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "d9215260b911efb2f40c78cb1b9a7134feca85bf429a9462371db6a16d22e456",
+      "id": "ID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/ID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5d41eb23dc9228d397af90560aaa1b8b0ff825e6d8699a56977366d3534c5cc6",
+      "id": "UPC",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/UPC"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "461201495377a8c0e50340bbce3ce929cecfbb74022d1ba87ff3bfeb2501b295",
+      "id": "UUID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/UUID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "94d3911611a738b687448c2742b6b61216925f45e60627906e871da0d752f35b",
+      "id": "Wool",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/Wool"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "f3714641f6cd57c36db45c8976a743e21dafdb52d753ea67013ef9a9209488f3",
+      "id": "available",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/available"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5945247ee819586780982084e8099326c6cc04499492ff82f8603ecb224172d0",
+      "id": "availableForInStorePickup",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/availableForInStorePickup"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "835703bec9a082f3525872afaa1d371c985c70359812e1e4a751fb2d9b200df6",
+      "id": "baseImageGroup",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/baseImageGroup"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "67a18a0bbc59a1e4dd7e22d3fb6e1b624b9aacb68c4bb1cd18fe5dbe99d3e21b",
+      "id": "bottomType",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/bottomType"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "aa8ad7704c3818641e179362b17cdca0b56a411e0b0c2bbcd99689bc54193554",
+      "id": "brand",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/brand"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "503a227e5ed4449c29e36df3d093f000f5da55a8c3f15d50136e3a6371a0aa0a",
+      "id": "bundledProducts",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/bundledProducts"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "89b49b5c86e3e1b9b7bd6b84e8ea93f5a56e4e2e8f5b0d1b1a3b2c3d4e5f6789",
+      "id": "catalog",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/catalog"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "12345678901234567890123456789012345678901234567890123456789012345",
+      "id": "categories",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/categories"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
+      "id": "classificationCategory",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/classificationCategory"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "fedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcba",
+      "id": "color",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/color"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "1111111111111111111111111111111111111111111111111111111111111111",
+      "id": "creationDate",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/creationDate"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "2222222222222222222222222222222222222222222222222222222222222222",
+      "id": "custom",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/custom"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "3333333333333333333333333333333333333333333333333333333333333333",
+      "id": "description",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/description"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "4444444444444444444444444444444444444444444444444444444444444444",
+      "id": "imageGroups",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/imageGroups"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5555555555555555555555555555555555555555555555555555555555555555",
+      "id": "lastModified",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/lastModified"
+    }
+  ],
+  "next": {
+    "_type": "result_page",
+    "count": 5,
+    "start": 5
+  },
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 113,
+  "expandedData": {
+    "brand": {
+      "_type": "object_attribute_definition",
+      "_resource_state": "aa8ad7704c3818641e179362b17cdca0b56a411e0b0c2bbcd99689bc54193554",
+      "creation_date": "2024-02-19T10:18:31.000Z",
+      "display_name": {
+        "de": "Marke",
+        "de-DE": "Marke",
+        "it": "Marca",
+        "fr": "Marque",
+        "zh-CN": "品牌",
+        "es": "Marca",
+        "fr-CA": "Marque",
+        "it-IT": "Marca",
+        "default": "Brand",
+        "ja": "ブランド",
+        "fr-FR": "Marque",
+        "ja-JP": "ブランド",
+        "nl": "Merk"
+      },
+      "effective_id": "brand",
+      "externally_defined": false,
+      "externally_managed": false,
+      "field_length": 0,
+      "id": "brand",
+      "key": false,
+      "last_modified": "2024-02-19T10:22:33.000Z",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/brand",
+      "localizable": false,
+      "mandatory": false,
+      "min_length": 0,
+      "multi_value_type": false,
+      "order_required": false,
+      "queryable": true,
+      "read_only": false,
+      "requires_encoding": false,
+      "searchable": false,
+      "set_value_type": false,
+      "site_specific": false,
+      "system": true,
+      "value_type": "string",
+      "visible": true
+    }
+  }
+}

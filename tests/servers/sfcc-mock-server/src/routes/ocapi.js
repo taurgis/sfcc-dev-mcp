@@ -247,8 +247,18 @@ class OCAPIRouteHandler {
         const { objectType } = req.params;
         const searchRequest = req.body;
         
-        // Try to load specific attribute definitions
-        let mockData = this.dataLoader.loadOcapiData(`system-object-attributes-${objectType.toLowerCase()}.json`);
+        // Try to load specific attribute definitions based on select parameter
+        const isExpandedRequest = searchRequest.select === "(**)";
+        const mockDataFile = isExpandedRequest 
+            ? `system-object-attributes-${objectType.toLowerCase()}-expanded.json`
+            : `system-object-attributes-${objectType.toLowerCase()}.json`;
+        
+        let mockData = this.dataLoader.loadOcapiData(mockDataFile);
+        
+        // Fallback to basic data if expanded data doesn't exist
+        if (!mockData && isExpandedRequest) {
+            mockData = this.dataLoader.loadOcapiData(`system-object-attributes-${objectType.toLowerCase()}.json`);
+        }
         
         if (!mockData) {
             // Create fallback data with realistic SFCC format
@@ -269,9 +279,34 @@ class OCAPIRouteHandler {
         // Apply text search if provided
         if (searchRequest.query && searchRequest.query.text_query) {
             const searchTerm = searchRequest.query.text_query.search_phrase.toLowerCase();
-            results = results.filter(item => 
-                item.id.toLowerCase().includes(searchTerm)
-            );
+            const searchFields = searchRequest.query.text_query.fields || ["id"];
+            
+            results = results.filter(item => {
+                return searchFields.some(field => {
+                    if (field === "id" && item.id) {
+                        return item.id.toLowerCase().includes(searchTerm);
+                    }
+                    if (field === "display_name" && item.display_name) {
+                        // Check if any display_name value contains the search term
+                        const displayNames = Object.values(item.display_name || {});
+                        return displayNames.some(name => 
+                            String(name).toLowerCase().includes(searchTerm)
+                        );
+                    }
+                    if (field === "description" && item.description) {
+                        return String(item.description).toLowerCase().includes(searchTerm);
+                    }
+                    return false;
+                });
+            });
+        }
+        
+        // Handle select parameter for expanded data
+        if (isExpandedRequest && mockData.expandedData) {
+            results = results.map(item => {
+                const expandedItem = mockData.expandedData[item.id];
+                return expandedItem || item;
+            });
         }
         
         // Store total filtered results count
@@ -282,16 +317,42 @@ class OCAPIRouteHandler {
         const count = searchRequest.count || 200;
         const paginatedResults = results.slice(start, start + count);
 
+        // Build query response with proper _type fields to match real API
+        let queryResponse = searchRequest.query || {"match_all_query": {}};
+        if (queryResponse.match_all_query && !queryResponse.match_all_query._type) {
+            queryResponse = {
+                ...queryResponse,
+                match_all_query: {
+                    ...queryResponse.match_all_query,
+                    "_type": "match_all_query"
+                }
+            };
+        }
+        if (queryResponse.text_query && !queryResponse.text_query._type) {
+            queryResponse = {
+                ...queryResponse,
+                text_query: {
+                    ...queryResponse.text_query,
+                    "_type": "text_query"
+                }
+            };
+        }
+
         // Build response in SFCC format
         const response = {
             "_v": mockData._v || "23.2",
             "_type": "object_attribute_definition_search_result",
             "count": paginatedResults.length,
             "hits": paginatedResults,
-            "query": searchRequest.query || {"match_all_query": {}},
+            "query": queryResponse,
             "start": start,
             "total": totalFiltered
         };
+
+        // Add select parameter to response if it was provided
+        if (searchRequest.select) {
+            response.select = searchRequest.select;
+        }
 
         // Add next page link if there are more results
         if (start + count < totalFiltered) {
