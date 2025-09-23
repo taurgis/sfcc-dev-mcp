@@ -102,6 +102,7 @@ const ExamplesPage: React.FC = () => {
                     request, the tool usage behind the scenes, and the kind of response you should expect.
                 </PageSubtitle>
                 <p className="text-sm text-slate-500 max-w-2xl mx-auto">No repetition of feature marketing here—only concrete, minimal, high-signal examples.</p>
+                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
             </div>
 
             <SectionCard
@@ -420,6 +421,84 @@ Implementation Notes:
 
 Minimal Extraction Snippet:
 \`var c = p.custom;\nvar model = {\n  brand: p.brand,\n  color: c.color,\n  pickupEligible: !!c.availableForInStorePickup,\n  dims: ['dimHeight','dimWidth','dimDepth','dimWeight'].reduce(function(acc,k){var v=c[k]; if(v && !isNaN(v)) acc[k.replace('dim','').toLowerCase()]=Number(v); return acc;}, {}),\n  features: (c.digitalCameraFeatures && c.digitalCameraFeatures.toArray()) || [],\n  care: c.Wool,\n  fbActive: p.facebookEnabled\n};\nif (c.bootType) model.bootType = c.bootType.toArray();\nif (c.gameGenre) model.gameGenre = c.gameGenre.toArray();\`
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="site-preference-search"
+                title="Discover Site Preferences Safely"
+                icon="⚙️"
+                gradient="from-indigo-50 via-white to-purple-50"
+                subtitle="Locate configuration switches before you hardcode assumptions." >
+                <PromptBlock prompt="Find all site preferences in the checkout group related to tax or shipping so I can reference them defensively in code." intent="Configuration discovery" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'List groups (if unknown)', tool: 'search_system_object_attribute_groups {"objectType": "SitePreferences", "searchRequest": {"query": {"match_all_query": {}}}}', mode: 'full', note: 'Optional first pass – discover group IDs' },
+                    { label: 'Search preferences in group', tool: 'search_site_preferences {"groupId": "checkout", "searchRequest": {"query": {"text_query": {"fields": ["id","display_name","description"], "search_phrase": "tax"}}, "count": 50}}', mode: 'full' },
+                    { label: 'Broaden to shipping', tool: 'search_site_preferences {"groupId": "checkout", "searchRequest": {"query": {"text_query": {"fields": ["id","display_name","description"], "search_phrase": "ship"}}, "count": 50}}', mode: 'full' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Interpreting Results
+Each preference includes: id, display_name, value_type, (optionally) value definition.
+Security: Password-type preference values are masked by default.
+Usage Pattern:
+\`var prefs = Site.getCurrent().getPreferences().getCustom();\nvar enableAltTax = prefs.enableAlternativeTaxEngine;\nif (enableAltTax) { /* branch logic */ }\`
+Defensive Access Tips:
+1. Guard optional boolean flags with !! to normalize (e.g., !!prefs.enableGiftWrap)
+2. Never log preference values directly (especially STRING/LONG_TEXT types containing tokens)
+3. Document critical preference dependencies in controller/module JSDoc
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="custom-object-attributes"
+                title="Target Custom Object Attributes"
+                icon="🧱"
+                gradient="from-teal-50 via-white to-cyan-50"
+                subtitle="Search attributes precisely instead of browsing blindly." >
+                <PromptBlock prompt="For custom object type Global_String, list only searchable non-system attributes and show how to query one in script." intent="Metadata → usage" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Query searchable attributes', tool: 'search_custom_object_attribute_definitions {"objectType": "Global_String", "searchRequest": {"query": {"bool_query": {"must": [{"term_query": {"fields": ["searchable"], "operator": "is", "values": ["true"]}}]}}, "count": 100}}', mode: 'full' },
+                    { label: '(Optional) broaden if empty', note: 'Fallback: use match_all_query then client-side filter' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Usage Extraction
+Attribute Sample: altValueMapping (type=string, searchable=true)
+Script Access:
+\`var CustomObjectMgr = require('dw/object/CustomObjectMgr');\nvar co = CustomObjectMgr.getCustomObject('Global_String', key);\nvar mapped = co && co.custom.altValueMapping;\`
+Guidelines:
+- Null-check custom object fetch before dereferencing .custom
+- Prefer specific term_query filtering serverside rather than large client-side scans
+- If attribute becomes critical path, add defensive logging (category=MetadataAccess, level=debug) selectively (avoid value leakage)
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="micro-job-log-triage"
+                title="Micro Job Log Triage"
+                icon="🩺"
+                gradient="from-red-50 via-white to-rose-50"
+                subtitle="Fast 3-step health read of a job without noise." >
+                <PromptBlock prompt="Give me a 3-step minimal health read for the nightly InventorySync job and only call tools you truly need." intent="Minimal observation pipeline" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Confirm presence', tool: 'search_job_logs_by_name {"jobName": "InventorySync", "limit": 3 }', mode: 'full' },
+                    { label: 'Get recent entries (tail)', tool: 'get_job_log_entries {"jobName": "InventorySync", "limit": 40 }', mode: 'full', note: 'Mixed levels in single job file' },
+                    { label: 'Execution summary', tool: 'get_job_execution_summary {"jobName": "InventorySync"}', mode: 'full', note: 'Roll-up status + durations' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Minimal InventorySync Health Snapshot
+Outcome: SUCCESS (duration 2m14s, 0 errors, 3 warnings)
+Warnings Focus:
+• 2x RETRY: External API 429 backoffs (acceptable within thresholds)
+• 1x Deprecated attribute reference (non-blocking; schedule fix)
+Next Actions (Only If Persistent):
+1. Track retry ratio vs baseline (add metric instrumentation)
+2. Replace deprecated attribute before Q4 freeze
 `} />
                 </div>
             </SectionCard>

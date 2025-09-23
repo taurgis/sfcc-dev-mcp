@@ -16,7 +16,7 @@ const FeaturesPage: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "Features & Capabilities - SFCC Development MCP Server",
-    "description": "Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools.",
+  "description": "Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools.",
     "author": {
       "@type": "Person",
       "name": "Thomas Theunen"
@@ -55,8 +55,8 @@ const FeaturesPage: React.FC = () => {
       },
       "featureList": [
         "SFCC API Documentation Access",
-        "Real-time Log Analysis", 
-        "System Object Exploration",
+  "Real-time Log & Job Log Analysis", 
+  "System & Custom Object Exploration",
         "Cartridge Generation",
         "Best Practices Guides",
         "AI Assistant Integration"
@@ -68,7 +68,7 @@ const FeaturesPage: React.FC = () => {
     <div className="max-w-6xl mx-auto px-6 py-12">
       <SEO 
         title="Features & Capabilities"
-        description="Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools."
+  description="Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools."
         keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features"
         canonical="/features/"
         ogType="article"
@@ -96,7 +96,7 @@ const FeaturesPage: React.FC = () => {
           {badge('Best Practices')}
           {badge('Logs')}
           {badge('Jobs')}
-          {badge('System Objects')}
+    {badge('Objects')}
           {badge('Code Versions')}
           {badge('Security')}
         </div>
@@ -130,8 +130,8 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices & Hook References">
-            <p className="text-sm mb-2">Structured guidance for core development domains plus searchable hook reference tables.</p>
+    <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices, Guides & Hook References">
+      <p className="text-sm mb-2">Structured guidance for core development domains plus searchable OCAPI / SCAPI hook reference tables with extension point signatures.</p>
             <div className="grid sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-semibold mb-1">Guides</h4>
@@ -151,7 +151,7 @@ const FeaturesPage: React.FC = () => {
                   <li>Security hardening (OWASP)</li>
                   <li>Performance & scalability tactics</li>
                   <li>Search across all guides</li>
-                  <li>Hook reference tables</li>
+                  <li>Hook reference tables (OCAPI / SCAPI)</li>
                 </ul>
               </div>
             </div>
@@ -201,8 +201,8 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="logs" title="📊 Log Analysis & Job Debugging">
-          <p className="text-sm mb-2">Real-time visibility into runtime behaviour plus job execution insight.</p>
+        <Collapsible id="logs" title="📊 Log & Job Log Analysis">
+          <p className="text-sm mb-2">Real-time visibility into runtime behaviour plus deep job execution insight (multi-level logs in single files).</p>
           <div className="grid sm:grid-cols-2 gap-4 text-sm">
             <div>
               <h4 className="font-semibold mb-1">Runtime Logs</h4>
@@ -236,12 +236,12 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="system-objects" title="⚙️ System Objects & Data Model">
-          <p className="text-sm">Explore object schemas, attributes, and site preferences with advanced querying.</p>
+        <Collapsible id="system-objects" title="⚙️ System & Custom Objects / Data Model">
+          <p className="text-sm">Explore system & custom object schemas, attributes, groups and site preferences with advanced querying.</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             <li>List all system objects with metadata</li>
             <li>Attribute & group searches (boolean, text, sort)</li>
-            <li>Custom object attribute discovery</li>
+            <li>Custom object attribute discovery (targeted or match-all queries)</li>
             <li>Site preference group & value exploration</li>
           </ul>
           <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
@@ -301,7 +301,7 @@ const FeaturesPage: React.FC = () => {
         </Collapsible>
 
         <Collapsible id="ai-integration" title="🤖 AI Integration Rationale">
-          <p className="text-sm">Designed so assistants like GitHub Copilot, Claude, and Cursor can produce higher-quality SFCC code.</p>
+          <p className="text-sm">Designed so assistants like GitHub Copilot, Claude, and Cursor can produce higher-quality SFCC code with deterministic tool surfaces and enriched local context.</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             <li>Deterministic tool naming & argument shapes</li>
             <li>High-signal, low-noise responses (agent friendly)</li>

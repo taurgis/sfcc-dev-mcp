@@ -49,6 +49,7 @@ const TroubleshootingPage: React.FC = () => {
             
             <H1 id="troubleshooting">🐛 Troubleshooting & Debugging</H1>
             <PageSubtitle>Quick solutions to get you back to developing SFCC features with AI assistance.</PageSubtitle>
+            <p className="mt-2 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
 
             {/* Quick Diagnostics Checklist */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
@@ -120,8 +121,6 @@ npx sfcc-dev-mcp --version`} />
                 <div className="space-y-4">
                     <div>
                         <h4 className="font-semibold mb-2">Claude Desktop Configuration</h4>
-                        <p className="text-sm text-gray-600 mb-3">Most common: Wrong config file path or invalid JSON syntax</p>
-                        
                         <div className="bg-gray-50 rounded-lg p-4 mb-4">
                             <h5 className="font-medium mb-2">Config File Locations:</h5>
                             <ul className="text-sm space-y-1">
@@ -250,43 +249,87 @@ get_latest_error({ date: "12/18/2024" })`} />
                 </div>
             </Collapsible>
 
-            <Collapsible title="System Object Tools Failing" intent="warn" id="system-object-issues" className="mb-6">
-                <div className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold mb-2">OCAPI Configuration Required</h4>
-                        <p className="text-sm text-gray-600 mb-3">Business Manager → Open Commerce API Settings</p>
-                        <CodeBlock language="json" code={`{
-  "resource_id": "/system_object_definitions/*",
-  "methods": ["get"],
-  "read_attributes": "(**)",
-  "write_attributes": "(**)"
+            <Collapsible title="System & Custom Object / Site Preference Tools Failing" intent="warn" id="system-object-issues" className="mb-6">
+                                <div className="space-y-6">
+                                        <div>
+                                                <h4 className="font-semibold mb-2">Canonical Data API Resource Mapping (Matches Configuration Page)</h4>
+                                                <p className="text-sm text-gray-600 mb-3">Business Manager → Administration → Site Development → Open Commerce API Settings → Data API tab. Add (or verify) a client with the resources below. This is the <strong>source of truth</strong> for all metadata, search and code version tools.</p>
+                                                <CodeBlock language="json" code={`{
+    "_v": "23.2",
+    "clients": [{
+        "client_id": "YOUR_CLIENT_ID",
+        "resources": [
+            { "resource_id": "/system_object_definitions", "methods": ["get"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/system_object_definitions/*", "methods": ["get"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/system_object_definition_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/system_object_definitions/*/attribute_definition_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/system_object_definitions/*/attribute_group_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/custom_object_definitions/*/attribute_definition_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/site_preferences/preference_groups/*/*/preference_search", "methods": ["post"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/code_versions", "methods": ["get"], "read_attributes": "(**)", "write_attributes": "(**)" },
+            { "resource_id": "/code_versions/*", "methods": ["get", "patch"], "read_attributes": "(**)", "write_attributes": "(**)" }
+        ]
+    }]
 }`} />
-                    </div>
-
-                    <div>
-                        <h4 className="font-semibold mb-2">Client Scope Requirements</h4>
-                        <p className="text-sm text-gray-600 mb-2">API client needs proper scope in Account Manager:</p>
-                        <Badge variant="info">SALESFORCE_COMMERCE_API:CONFIGURE</Badge>
-                    </div>
-                </div>
+                                                <ul className="mt-4 text-xs text-gray-600 space-y-1 list-disc pl-5">
+                                                    <li><strong>Search endpoints use POST</strong> (definition_search / preference_search) – required for filtering & pagination tools.</li>
+                                                    <li><strong>(**)</strong> read/write attributes maximize introspection; narrow later for principle-of-least-privilege.</li>
+                                                    <li><strong>code_versions/* patch</strong> enables activation (switch active code version).</li>
+                                                    <li>Older examples using <InlineCode>/site_preferences/*</InlineCode> or <InlineCode>/custom_object_definitions/*</InlineCode> with only <InlineCode>get</InlineCode> are incomplete for search tools.</li>
+                                                    <li>Password-type site preference values remain masked—design constraint, not a permission issue.</li>
+                                                </ul>
+                                        </div>
+                                        <div>
+                                                <h4 className="font-semibold mb-2">Client Scope Requirements</h4>
+                                                <p className="text-sm text-gray-600 mb-2">Account Manager → API Client must include scopes:</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Badge variant="info">SALESFORCE_COMMERCE_API:CONFIGURE</Badge>
+                                                    <Badge variant="info">SALESFORCE_COMMERCE_API:READ_ONLY</Badge>
+                                                </div>
+                                        </div>
+                                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                                <h4 className="font-semibold text-yellow-800 mb-2">Empty Search Results?</h4>
+                                                <ul className="list-disc pl-5 text-xs space-y-1 text-yellow-800">
+                                                    <li>Confirm <InlineCode>definition_search</InlineCode> endpoints are present (POST) – not just wildcard GET.</li>
+                                                    <li>Remove filters: use <InlineCode>match_all_query</InlineCode> then refine client-side.</li>
+                                                    <li>Check attribute group existence with <InlineCode>search_system_object_attribute_groups</InlineCode>.</li>
+                                                    <li>Validate client_id matches dw.json entry (no trailing spaces).</li>
+                                                    <li>Rare replication lag? Wait 1–2 minutes after BM changes.</li>
+                                                </ul>
+                                        </div>
+                                </div>
             </Collapsible>
 
             <Collapsible title="Job Log Tools Issues" intent="info" id="job-log-issues" className="mb-6">
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div>
                         <h4 className="font-semibold mb-2">Job Log Access</h4>
-                        <p className="text-sm text-gray-600 mb-3">Job logs are stored in deeper folder structure: <InlineCode>/Logs/jobs/[job-name-id]/</InlineCode></p>
-                        <CodeBlock language="bash" code={`# Test job log access
+                        <p className="text-sm text-gray-600 mb-3">Job logs are stored in deeper folder structure: <InlineCode>/Logs/jobs/[job-name-id]/</InlineCode> (all levels in a single file).</p>
+                        <CodeBlock language="bash" code={`# Test job log access root
 curl -u "username:password" \\
   https://your-instance.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.servlet/webdav/Sites/Logs/jobs/`} />
                     </div>
-
                     <div>
-                        <h4 className="font-semibold mb-2">Job Execution Required</h4>
-                        <p className="text-sm text-gray-600">Job logs only exist after jobs have been executed. Run a job in Business Manager first.</p>
+                        <h4 className="font-semibold mb-2">Minimal Health Flow</h4>
+                        <CodeBlock language="bash" code={`# 1. Name filter (fast existence check)
+aegis query search_job_logs_by_name 'jobName:MyJob|limit:3'
+# 2. Tail entries
+aegis query get_job_log_entries 'jobName:MyJob|limit:40'
+# 3. Summary
+aegis query get_job_execution_summary 'jobName:MyJob'`} />
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-2">No Logs Returned?</h4>
+                        <ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
+                          <li>Confirm job executed recently</li>
+                          <li>Check filename prefix (Job-)</li>
+                          <li>Limit too small (increase to 100)</li>
+                          <li>WebDAV credential mismatch</li>
+                        </ul>
                     </div>
                 </div>
             </Collapsible>
+
             <H2 id="ai-interfaces">🤖 AI Interface Setup</H2>
 
             <Collapsible title="GitHub Copilot Integration" intent="info" id="github-copilot-setup" className="mb-6">
@@ -480,13 +523,18 @@ sed 's/client-secret":"[^"]*"/client-secret":"***"/g' dw-safe.json > dw-final.js
                             </tr>
                             <tr>
                                 <td className="border border-gray-300 px-4 py-2"><Badge variant="warning" size="sm">403</Badge></td>
-                                <td className="border border-gray-300 px-4 py-2">Insufficient permissions</td>
-                                <td className="border border-gray-300 px-4 py-2">Check Business Manager user role</td>
+                                <td className="border border-gray-300 px-4 py-2">Insufficient permissions / missing OCAPI resource</td>
+                                <td className="border border-gray-300 px-4 py-2">Add required resource entry & redeploy settings</td>
                             </tr>
                             <tr>
                                 <td className="border border-gray-300 px-4 py-2"><Badge variant="warning" size="sm">404</Badge></td>
                                 <td className="border border-gray-300 px-4 py-2">Resource not found</td>
                                 <td className="border border-gray-300 px-4 py-2">Verify URLs and paths</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 px-4 py-2"><Badge variant="info" size="sm">409</Badge></td>
+                                <td className="border border-gray-300 px-4 py-2">Concurrent code version activation</td>
+                                <td className="border border-gray-300 px-4 py-2">Retry after ensuring no parallel activation</td>
                             </tr>
                             <tr>
                                 <td className="border border-gray-300 px-4 py-2"><Badge variant="info" size="sm">429</Badge></td>

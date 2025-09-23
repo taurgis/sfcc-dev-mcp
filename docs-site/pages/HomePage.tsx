@@ -194,7 +194,7 @@ const HomePage: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 text-center">
               💡 <strong>Want more features?</strong> Add SFCC credentials via <InlineCode>--dw-json</InlineCode> for 
-              real-time log analysis, system object exploration, and advanced debugging tools.
+              real-time log analysis, system & custom object exploration, and advanced debugging tools.
             </p>
           </div>
       </div>
@@ -558,7 +558,7 @@ const HomePage: React.FC = () => {
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-gray-700">System object exploration</span>
+                <span className="text-gray-700">System & custom object exploration</span>
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -584,7 +584,7 @@ const HomePage: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           <div className="text-center">
             <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-3">
               <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -623,6 +623,15 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900">Cartridges</h3>
             <p className="text-sm text-gray-600">Auto generation</p>
+          </div>
+          <div className="text-center">
+            <div className="bg-yellow-100 rounded-full p-4 w-16 h-16 mx-auto mb-3">
+              <svg className="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-9a1 1 0 00-1-1H8a1 1 0 100 2h1v3a1 1 0 102 0v-3h1a1 1 0 001-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900">Job Logs</h3>
+            <p className="text-sm text-gray-600">Execution insights</p>
           </div>
         </div>
       </div>

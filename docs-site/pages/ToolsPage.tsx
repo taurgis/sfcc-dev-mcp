@@ -81,7 +81,7 @@ const ToolsPage: React.FC = () => {
         </div>
         <H1 id="available-tools" className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Interactive Tool Explorer</H1>
         <PageSubtitle className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          36 specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
+          36+ specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
         </PageSubtitle>
       </div>
 
@@ -117,6 +117,21 @@ const ToolsPage: React.FC = () => {
                   <a href={`#${tool.id}`} className="absolute inset-0" aria-label={`Jump to ${tool.name}`}></a>
                 </div>
               ))}
+              {/* Added Hook Reference Quick Action */}
+              <div className="relative rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-4 shadow-sm group">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-mono text-xs font-semibold text-amber-700">get_hook_reference</p>
+                  <button
+                    onClick={() => navigator.clipboard.writeText('Ask: "List available SCAPI hook extension points for product search"')}
+                    className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-700 px-2 py-0.5 rounded transition"
+                  >Copy</button>
+                </div>
+                <p className="text-[11px] text-amber-800 line-clamp-2 group-hover:line-clamp-none transition-all">
+                  Discover all available OCAPI or SCAPI hook extension points to select the correct customization surface.
+                </p>
+                <p className="mt-2 text-[11px] text-amber-600 italic">Ask: "List available SCAPI hook extension points for product search"</p>
+                <a href="#get_hook_reference" className="absolute inset-0" aria-label="Jump to get_hook_reference"></a>
+              </div>
             </div>
           )}
       </section>
@@ -150,7 +165,7 @@ const ToolsPage: React.FC = () => {
       {/* Getting Started Hint */}
       <div className="mt-20 bg-blue-50 border border-blue-200 rounded-xl p-6">
         <h3 className="text-sm font-semibold text-blue-800 mb-2">💡 Mode Recommendation</h3>
-        <p className="text-xs text-blue-800 leading-relaxed">Explore freely in Documentation Mode first. Add <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">--dw-json</code> later to unlock log analysis, system objects and code version management without changing any other configuration.</p>
+  <p className="text-xs text-blue-800 leading-relaxed">Explore freely in Documentation Mode first. Add <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">--dw-json</code> later to unlock log analysis, system & custom object exploration, job log insights, and code version management without changing any other configuration.</p>
       </div>
 
       {/* Next Steps */}

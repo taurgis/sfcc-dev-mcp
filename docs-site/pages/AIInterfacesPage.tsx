@@ -74,8 +74,9 @@ const AIInterfacesPage: React.FC = () => {
         </div>
         <H1 id="ai-interface-setup" className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Connect Your AI Assistants</H1>
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-          Unified setup guide for Claude Desktop, GitHub Copilot, Cursor and any MCP-compatible client. Start
-          in documentation-only mode then unlock full log analysis & system exploration with credentials.
+          Unified setup guide for Claude Desktop, GitHub Copilot, Cursor and any MCP-compatible client. Start in
+          documentation-only mode then unlock real-time log & job log analysis, system & custom object exploration,
+          and code version management with credentials.
         </PageSubtitle>
       </div>
 
@@ -106,7 +107,7 @@ const AIInterfacesPage: React.FC = () => {
                 <div className="bg-blue-100 rounded-full p-2"><svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg></div>
                 <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">--dw-json &lt;path&gt;</span>
               </div>
-              <p className="text-gray-700 text-sm">Add credentials for log analysis, system object exploration & code version management.</p>
+              <p className="text-gray-700 text-sm">Add credentials for real-time log & job log analysis, system & custom object exploration, site preference searches & code version management.</p>
             </div>
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center gap-3 mb-3">
@@ -220,9 +221,9 @@ const ModeTabs: React.FC = () => {
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
             <div className="grid md:grid-cols-3 gap-4">
-              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA, best practices." />
+              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA docs & best practices." />
               <BenefitCard title="Fast Onboarding" color="green" text="Great for new devs or quick reference sessions." />
-              <BenefitCard title="Safe & Local" color="purple" text="No credentials needed!" />
+              <BenefitCard title="Safe & Local" color="purple" text="No credentials needed (no logs / objects)." />
             </div>
           </div>
           <p className="text-xs text-gray-500">Upgrade any time by adding <InlineCode>--dw-json</InlineCode>.</p>
@@ -242,13 +243,13 @@ const ModeTabs: React.FC = () => {
             <div className="grid md:grid-cols-3 gap-4">
               <BenefitCard title="Live Logs" color="blue" text="Real-time error, warn, info & debug analysis." />
               <BenefitCard title="Job Insights" color="green" text="Job log discovery, execution summaries & step health." />
-              <BenefitCard title="Data Model" color="purple" text="System objects, custom attributes & preferences." />
+              <BenefitCard title="Data Model" color="purple" text="System & custom objects, attributes & site preferences." />
               <BenefitCard title="Code Versions" color="orange" text="List & activate versions for deployment fixes." />
               <BenefitCard title="Deeper Reasoning" color="indigo" text="More context = better AI architectural guidance." />
               <BenefitCard title="Unified Workflow" color="rose" text="Docs + analysis in one consistent interface." />
             </div>
           </div>
-          <p className="text-xs text-gray-500">Credentials never leave your machine—local, this MCP server runs on your system.</p>
+          <p className="text-xs text-gray-500">Credentials never leave your machine—this MCP server runs locally and only calls your sandbox APIs.</p>
         </div>
       )}
     </div>
@@ -304,16 +305,21 @@ const AssistantTabs: React.FC = () => {
   const prompts: Record<Assistant, string[]> = {
     claude: [
       'List available SFCC documentation tools',
-      'Analyze recent error logs',
-      'Generate cartridge structure named demo_cartridge'
+      'Analyze recent error logs then summarize likely root cause',
+      'Generate cartridge structure named demo_cartridge',
+      'Show hook reference entries for SCAPI extension points'
     ],
     copilot: [
       'Show methods on dw.catalog.Product',
-      'Create SFRA controller for Product-Show'
+      'Create SFRA controller for Product-Show',
+      'Search job logs for failed step exceptions',
+      'List custom attributes on Product object'
     ],
     cursor: [
       'Suggest performance improvements for this controller',
-      'Apply security patterns to this hook'
+      'Apply security patterns to this hook',
+      'Search SFRA docs for middleware guidance',
+      'Summarize latest job execution health'
     ]
   };
 
@@ -585,7 +591,7 @@ const InstructionFilesTabs: React.FC = () => {
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <h5 className="font-semibold text-blue-700 mb-2 text-sm">🔧 MCP Tool Awareness</h5>
-              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of all 36 MCP tools and their optimal usage patterns</p>
+              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of 36+ MCP tools (docs, SFRA, best practices, logs, job logs, objects, code versions)</p>
             </div>
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
               <h5 className="font-semibold text-purple-700 mb-2 text-sm">⚡ Faster Development</h5>

@@ -102,6 +102,7 @@ const SecurityPage: React.FC = () => {
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
           Opinionated local-only design: minimal credential footprint, scoped API access, defensive parsing. Use this page as a <strong>practical hardening checklist</strong>, not a marketing overview.
         </PageSubtitle>
+        <p className="mt-4 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
       </header>
 
       {/* Quick Essentials */}
@@ -157,10 +158,11 @@ const SecurityPage: React.FC = () => {
               color="blue"
               items={[
                 { icon: '🔑', label: 'Credential parity', detail: 'Same auth data you already use locally' },
-                { icon: '📂', label: 'Read‑only log + model insight', detail: 'Tail/range only – no mutation endpoints' },
-                { icon: '🧭', label: 'Data model discovery', detail: 'System objects & site preferences (metadata focus)' },
-                { icon: '🚦', label: 'Explicit version activation', detail: 'Only on direct command; never implicit' },
-                { icon: '⚙', label: 'Adjustable OCAPI scope', detail: 'Grant incrementally; remove when done' }
+                { icon: '🪵', label: 'Runtime + job logs', detail: 'Tail, search, summarize – read-only WebDAV access' },
+                { icon: '🧭', label: 'System & custom object metadata', detail: 'OCAPI Data API – attribute & group definitions' },
+                { icon: '⚙️', label: 'Site preference discovery', detail: 'Group-scoped search with masked password values' },
+                { icon: '🚦', label: 'Explicit code version activation', detail: 'Never automatic; requires targeted command' },
+                { icon: '🪄', label: 'Cartridge generation + docs', detail: 'Same as docs mode plus live capabilities' }
               ]}
             />
             <div className="mt-5 text-[11px] text-blue-700 font-medium bg-white/60 rounded-md px-3 py-2 border border-blue-200">
@@ -308,9 +310,9 @@ const SecurityPage: React.FC = () => {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { title: 'Log Processing', items: ['Tail/range reads only', 'Pattern search server-side constrained', 'Aggregation sanitizes obvious secrets'] },
-            { title: 'Preference Values', items: ['Password types masked by default', 'No attempt to unmask', 'Search limited to specified groups'] },
-            { title: 'System Objects', items: ['Attribute metadata only', 'No PII enrichment routines', 'Developer chooses query breadth'] }
+            { title: 'Log Processing', items: ['Tail/range reads only (≈200KB)', 'Pattern search constrained by limit', 'Analyzer strips obvious secret tokens'] },
+            { title: 'Preference Values', items: ['Password types masked (no bypass)', 'Group-limited search scope', 'No storage of raw values'] },
+            { title: 'System & Custom Objects', items: ['Metadata only (ids, flags, counts)', 'No record-level PII retrieval', 'You control query breadth'] }
           ].map(card => (
             <div key={card.title} className="rounded-xl bg-white border border-gray-200 p-5">
               <h3 className="font-semibold text-sm mb-2">{card.title}</h3>
