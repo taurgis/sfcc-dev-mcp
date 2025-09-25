@@ -68,8 +68,8 @@ const TroubleshootingPage: React.FC = () => {
                     </div>
                     <div>
                         <h3 className="font-semibold text-blue-800 mb-2">Quick Test</h3>
-                        <CodeBlock language="bash" code="npx sfcc-dev-mcp --debug" />
-                        <p className="text-xs text-blue-700 mt-1">Should start without errors.</p>
+                        <CodeBlock language="bash" code="npx -y sfcc-dev-mcp --debug" />
+                        <p className="text-xs text-blue-700 mt-1">Should start without errors. (<code>-y</code> skips the npx install confirmation so AI clients/scripts don't hang.)</p>
                     </div>
                 </div>
             </div>
@@ -103,7 +103,7 @@ nvm alias default 24
 nvm use 12.22.6
 
 # Verify MCP still works with npx
-npx sfcc-dev-mcp --version`} />
+npx -y sfcc-dev-mcp --version`} />
                             <p className="text-xs text-orange-600 mt-2">
                                 <strong>Why this works:</strong> npx uses the default Node version for global packages, 
                                 while your terminal session can use a different version for project compilation.
@@ -133,7 +133,7 @@ ls -la dw.json
 npm install -g sfcc-dev-mcp
 
 # Or use npx (recommended)
-npx sfcc-dev-mcp --version`} />
+npx -y sfcc-dev-mcp --version`} />
                     </div>
                 </div>
             </Collapsible>
@@ -166,7 +166,7 @@ npx sfcc-dev-mcp --version`} />
 python -m json.tool claude_desktop_config.json
 
 # Test server manually
-npx sfcc-dev-mcp --debug`} />
+npx -y sfcc-dev-mcp --debug`} />
                         </div>
                     </div>
                 </div>
@@ -406,13 +406,13 @@ find .cursor -name "*.md" -o -name "*.mdc"`} />
                     <div>
                         <h4 className="font-semibold mb-2">Debug Mode Commands</h4>
                         <CodeBlock language="bash" code={`# Enable debug mode
-npx sfcc-dev-mcp --debug --dw-json /Users/username/sfcc-project/dw.json
+npx -y sfcc-dev-mcp --debug --dw-json /Users/username/sfcc-project/dw.json
 
 # Documentation-only debug mode
-npx sfcc-dev-mcp --debug
+npx -y sfcc-dev-mcp --debug
 
 # Disable debug explicitly
-npx sfcc-dev-mcp --debug false --dw-json /Users/username/sfcc-project/dw.json`} />
+npx -y sfcc-dev-mcp --debug false --dw-json /Users/username/sfcc-project/dw.json`} />
                     </div>
 
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -470,13 +470,13 @@ Get-Content -Wait "$env:TEMP\\sfcc-mcp-logs\\sfcc-mcp-error.log"`} />
                     <div>
                         <h4 className="font-semibold mb-2">Basic Functionality Tests</h4>
                         <CodeBlock language="bash" code={`# Test documentation-only mode
-npx sfcc-dev-mcp
+npx -y sfcc-dev-mcp
 
 # Test with debug mode
-npx sfcc-dev-mcp --debug
+npx -y sfcc-dev-mcp --debug
 
 # Test with SFCC credentials
-npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug`} />
+npx -y sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug`} />
                     </div>
 
                     <div>

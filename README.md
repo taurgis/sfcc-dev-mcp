@@ -114,12 +114,13 @@ Choose your preferred AI assistant:
 ## 📦 Installation
 
 ### Using npx (Recommended)
+> Tip: Add `-y` (or `--yes`) to suppress the interactive prompt npx shows before downloading a package. This prevents AI clients (Claude Desktop, Copilot, Cursor) from hanging waiting for confirmation.
 ```bash
 # Test the server
-npx sfcc-dev-mcp
+npx -y sfcc-dev-mcp
 
 # Use with your configuration
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ```
 
 ### Global Installation
@@ -133,10 +134,10 @@ sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ### Enable Debug Logging
 ```bash
 # Enable debug mode for detailed logging
-npx sfcc-dev-mcp --debug
+npx -y sfcc-dev-mcp --debug
 
 # Or with configuration file
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
 ```
 
 ### Log File Locations
