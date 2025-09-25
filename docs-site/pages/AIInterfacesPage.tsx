@@ -5,6 +5,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
+import LightCodeContainer from '../components/LightCodeContainer';
 import NewcomerCTA from '../components/NewcomerCTA';
 import { SITE_DATES } from '../constants';
 
@@ -214,10 +215,9 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Documentation Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Docs Mode)</h3>
-            {/* Updated: removed dark background for non-dark mode design */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md">
+            <LightCodeContainer>
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp"]\n    }\n  }\n}`} />
-            </div>
+            </LightCodeContainer>
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
@@ -234,10 +234,9 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Full Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Full Mode)</h3>
-            {/* Updated: light accent instead of dark */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md mb-4">
+            <LightCodeContainer className="mb-4">
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": [\n         "sfcc-dev-mcp", \n         "--dw-json", \n         "/Users/username/sfcc-project/dw.json", \n         "--debug", \n         "false"\n      ]\n    }\n  }\n}`} />
-            </div>
+            </LightCodeContainer>
             <p className="text-sm text-gray-600">Set <InlineCode>--debug true</InlineCode> temporarily when diagnosing tool responses.</p>
           </div>
           <div>
@@ -356,10 +355,9 @@ const AssistantTabs: React.FC = () => {
       <div className="space-y-10 animate-fade-in" role="tabpanel">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration</h3>
-          {/* Updated: light accent instead of dark */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md mb-6">
+          <LightCodeContainer className="mb-6">
             {renderSnippet(active)}
-          </div>
+          </LightCodeContainer>
           
           <div className="flex justify-center mb-6">
             <div className="flex flex-wrap gap-3 justify-center">

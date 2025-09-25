@@ -5,6 +5,7 @@ import BreadcrumbSchema from '../components/BreadcrumbSchema';
 import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
+import LightCodeContainer from '../components/LightCodeContainer';
 import NewcomerCTA from '../components/NewcomerCTA';
 
 const HomePage: React.FC = () => {
@@ -140,8 +141,7 @@ const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Add to your AI client:</h3>
-              {/* Updated: Use light blue accent background instead of pure white */}
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md">
+              <LightCodeContainer>
                 <CodeBlock language="json" code={`{
   "mcpServers": {
     "sfcc-dev": {
@@ -150,7 +150,7 @@ const HomePage: React.FC = () => {
     }
   }
 }`} />
-              </div>
+              </LightCodeContainer>
             </div>
             
             <div className="space-y-4">
