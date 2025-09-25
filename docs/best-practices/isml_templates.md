@@ -219,18 +219,115 @@ Break complex templates into reusable components:
 </div>
 ```
 
-### 3. Remote Includes for Dynamic Content
+### 3. Remote Includes vs Local Includes (Advanced Fragment Architecture)
 
-Use remote includes for cacheable dynamic sections:
+Remote includes are NOT just an alternative syntax – they change request boundaries, data scoping, caching strategy, security posture, and performance characteristics. Choose them only when a fragment truly needs an independent cache policy or isolation.
 
+| Attribute | Local Include `<isinclude template="...">` | Remote Include `<isinclude url="...">` |
+|-----------|---------------------------------------------|-------------------------------------------|
+| Processing | Single request on Application Server | Parent request + secondary request orchestrated by Web Adapter |
+| Data Scope | Full access to parent `pdict` & variables | Isolated – only URL query params available |
+| Cache Policy | Inherits parent (lowest TTL wins) | Independent TTL per fragment |
+| Typical Use | Reusable markup, product tile partials | Mini-cart, personalized promo slot, dynamic inventory widget |
+| Overhead | Minimal | Extra HTTP round trip per include |
+| Security | Inherits parent auth state | New unauthenticated request – must add explicit protection |
+| Failure Mode | Template error breaks page render | Fragment timeout can delay full page assembly |
+
+#### 3.1 When to Use Which
+Use a local include unless ALL are true:
+1. Fragment volatility differs meaningfully from page shell
+2. Output can be parameterized via simple query params
+3. Performance gain from separate caching outweighs added request
+4. Security implications are understood and mitigated
+
+#### 3.2 Implementing a Remote Include
+Template example (mini-cart header icon kept uncached while page shell cached hours):
 ```html
-<!-- Main cached page includes dynamic mini-cart -->
-<div class="header-cart">
-    <isinclude url="${URLUtils.url('Cart-MiniCartShow')}" />
+<div class="header-cart" data-component="mini-cart">
+    <isinclude url="${URLUtils.url('Cart-MiniCart')}" />
+    <!-- Controller route name MUST match exactly -->
 </div>
 ```
 
-## Essential ISML Tags & Usage
+Controller (excerpt):
+```javascript
+var server = require('server');
+var cache = require('*/cartridge/scripts/middleware/cache');
+
+server.get('MiniCart',
+    server.middleware.include, // Gatekeeper: only valid inside remote include flow
+    cache.applyShortPromotionSensitiveCache, // Or cache.disableCaching() equivalent for uncached
+    function (req, res, next) {
+        // Build isolated model – no parent pdict access
+        res.render('components/header/miniCart');
+        next();
+    }
+);
+
+module.exports = server.exports();
+```
+
+#### 3.3 Passing Data
+All context must be URL params:
+```html
+<isinclude url="${URLUtils.url('Page-Include', 'cid', 'footer-content-asset')}" />
+```
+Avoid over-parameterization – each unique full URL becomes a distinct cache entry (cache fragmentation risk).
+
+#### 3.4 Caching Strategy Patterns
+| Scenario | Page Shell TTL | Remote Include TTL | Rationale |
+|----------|----------------|--------------------|-----------|
+| Marketing landing + live inventory badge | 12h | 5m | Keep inventory fresh without invalidating hero layout |
+| Category grid + personalized banner | 4h | 15m | Personalized offers rotate more often than navigation |
+| PDP + mini-cart | 2h | 0 (uncached) | Basket state must reflect current session |
+
+Keep total remote includes per page conservative (<20 recommended) to avoid waterfall latency.
+
+#### 3.5 Performance Anti-Patterns
+| Anti-Pattern | Why It’s Harmful | Better Alternative |
+|--------------|------------------|--------------------|
+| One remote include per product tile in a grid | N extra HTTP requests, destroys cache efficiency | Single parent render with local includes |
+| Adding position/index params that change per render | Creates unique cache keys, low hit ratio | Omit non-functional varying params |
+| Deep nesting (include inside include chain) | Hard to debug, compounding latency | Flatten architecture – coalesce related fragments |
+
+#### 3.6 Security Criticals
+Remote include endpoints are effectively public unless you add authentication middleware (e.g., `userLoggedIn.validateLoggedIn`). NEVER expose PII or account state in an unprotected include.
+
+Always start chain with:
+```javascript
+server.get('SensitiveFragment',
+  server.middleware.include,
+  userLoggedIn.validateLoggedIn, // if user-specific
+  function (req, res, next) { ... }
+);
+```
+
+#### 3.7 Observability & Debugging
+Use extended request IDs in logs: `reqId-depth-index` (e.g., `AbC123-1-02`). Search logs to isolate slow fragment origins.
+
+#### 3.8 Checklist
+```text
+[ ] Justified different cache TTL
+[ ] URL params minimal & non-sensitive
+[ ] server.middleware.include first
+[ ] Additional auth middleware if user data
+[ ] Explicit cache middleware (or disabled)
+[ ] Fragment count on page < 20
+[ ] No nested chains beyond depth 2
+```
+
+If you cannot satisfy most checklist items, prefer a local include.
+
+#### 3.9 When NOT to Use Remote Includes
+- Pure presentational partials (icons, button groups)
+- Iterative children of a paginated list
+- Form bodies that rely on parent controller’s validation context
+- Anything requiring access to parent `pdict` objects without trivial serialization
+
+---
+
+### 4. Essential ISML Tags & Usage
+Renumbered after expanded section.
 
 ### Conditional Logic
 
