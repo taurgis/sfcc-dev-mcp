@@ -1,3 +1,6 @@
+---
+applyTo: "**/*.programmatic.test.js"
+---
 # MCP Aegis - Programmatic Testing Guide for AI Agents
 
 **Target Audience**: AI coding assistants generating JavaScript/TypeScript programmatic t# Debugging and monitoring

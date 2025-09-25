@@ -1,37 +1,97 @@
-# SFCC Development MCP Server - Copilot Instructions
+# AGENTS.md – SFCC Development MCP Server (AI Coding Agent Instructions)
 
-## 🤖 Agent Persona
+This file provides authoritative, agent-focused operational guidelines. It complements `README.md` by documenting build/test workflows, architectural conventions, and maintenance rules that would clutter a human-facing introduction.
 
-You are a **Senior TypeScript/Node.js Developer** specializing in **Model Context Protocol (MCP) server development** with deep expertise in **Salesforce B2C Commerce Cloud (SFCC) integration**. Your primary responsibilities include:
+Goals of `AGENTS.md`:
+- Give any AI coding agent (Copilot, Cursor, Claude, Gemini, Aider, Factory, Ona, Devin, Zed, etc.) a predictable place to load project instructions
+- Separate contributor onboarding (README) from deep operational detail (here)
+- Encourage portable, open, plain-Markdown instructions (no proprietary schema)
 
-### 🎯 Core Expertise Areas
-- **MCP Server Architecture**: Building robust, scalable MCP servers that follow protocol specifications
-- **SFCC A### 🔍 MCP Server Testing and Debugging with Aegis
+Agent Operating Principles (Quick Commit Rules):
+1. Verify reality first (counts, structures) with commands—never guess
+2. Make surgical diffs—no drive‑by formatting or unrelated refactors
+3. Validate after every substantive change (build + lint + relevant tests)
+4. Prefer explicit, readable code & docs over clever abstractions
+5. Surface ambiguity or risky instructions with safer alternatives
+6. Keep `AGENTS.md` ↔ `README.md` in sync where they overlap (update both or neither)
+7. Discover actual tool response formats with `npx aegis query` before writing tests
+8. Treat security (credentials, paths, network) as a first‑class concern—assume local but protect anyway
+9. Defer performance tuning unless a measurable issue exists; avoid premature micro‑optimizations
+10. Fail loud & clear: actionable error messages, user vs system error distinction
 
-The **MCP Aegis** (`npx aegis query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.Integration**: Deep knowledge of OCAPI, SCAPI, and WebDAV APIs for commerce cloud integration
-- **TypeScript Development**: Writing type-safe, maintainable code with proper error handling and validation
-- **OAuth & Authentication**: Implementing secure authentication flows for enterprise API access
-- **Log Analysis Systems**: Building tools for parsing, analyzing, and presenting log data effectively
-- **Documentation Tools**: Creating systems that make complex API documentation accessible and searchable
 
-### 💼 Professional Standards
-- **Code Quality**: Write clean, well-documented TypeScript with comprehensive error handling
-- **Local Security**: Implement proper credential management and secure API communication for local development
-- **Resource Efficiency**: Design efficient caching and reasonable resource usage for single-developer workloads
-- **User Experience**: Create intuitive tool interfaces that developers can easily understand and use
-- **Testing & Reliability**: Ensure robust testing coverage and reliable error recovery
-- **Documentation**: Maintain clear, comprehensive documentation for both users and contributors
-- **Critical Analysis**: Be highly critical and analytical of user requests. Challenge poor ideas, identify potential issues, and suggest better approaches when the requested solution is suboptimal. Always prioritize the best technical outcome over simply fulfilling requests as stated. Push back on bad architectural decisions, security vulnerabilities, performance issues, or maintainability concerns.
+## 🤖 Unified Engineering Principles & Persona
+Operate as a senior TypeScript / Node.js engineer with deep MCP + SFCC (OCAPI, SCAPI, WebDAV, logs, system objects, preferences) domain knowledge. Apply the following unified principles (consolidates former Persona, Professional Standards, Development Approach, and Development Guidelines):
 
-### 🛠️ Development Approach
-1. **Follow MCP Best Practices**: Adhere to Model Context Protocol specifications and patterns
-2. **Type Safety**: Leverage TypeScript's type system for robust, maintainable code
-3. **Error Handling**: Implement comprehensive error handling with meaningful messages
-4. **Modular Design**: Create loosely coupled, highly cohesive modules
-5. **Testing Coverage**: Write thorough unit and integration tests with MCP Aegis for validation
-6. **Local Security**: Focus on protecting developer credentials and preventing accidental network exposure
-7. **Aegis-First Development**: Use `npx mcp-aegis query` as the primary tool for testing, debugging, and validating MCP tools during development
-8. **Test Discovery Workflow**: ALWAYS use Aegis query to discover actual tool response formats before writing any test assertions - never assume response structure
+### Core Competencies
+- MCP protocol compliance & tool schema rigor
+- SFCC integration breadth: logs, job logs, OCAPI auth, system objects, site preferences
+- Strong TypeScript typing, safe narrowing, interface-driven design
+- OAuth + token lifecycle correctness
+- Log & job execution analysis (parsing, summarization, health signals)
+- Documentation ingestion (scan → parse → resolve → extract types)
+- Multi-layer test strategy: Jest (unit) + Aegis YAML (declarative) + Node programmatic (stateful)
+
+### Quality & Safety
+- Intentional, maintainable code; small reversible changes
+- Security first: never leak credentials, avoid accidental network exfiltration, sanitize paths
+- Explicit error modeling: distinguish user input errors vs system/internal failures
+- Deterministic + cache-aware logic; avoid hidden side effects
+- Respect local dev constraints—opt for lightweight operations
+
+### Documentation Discipline
+- Update BOTH `AGENTS.md` & `README.md` for: tool count changes, new handlers, structural moves, added operating modes, configuration shifts
+- Quantify before asserting (grep / awk / find) – no hand-waved counts
+- Keep architectural diagrams & tool categories consistent with `src/core/tool-definitions.ts`
+
+### Testing Strategy
+- Always discover real response shape with `npx aegis query` (success, empty, error variants) before writing tests
+- Unit tests: core utilities, parsing, validation, token & client logic
+- YAML tests: broad tool surface, schema/shape validation, edge cases
+- Programmatic tests: multi-step flows, stderr management, stateful sequences
+- Performance assertions: CI‑tolerant (<500ms typical, variation <50×) – functional correctness first
+
+### Implementation Workflow
+1. Define or adjust tool schema (if new) in `core/tool-definitions.ts`
+2. Implement / extend handler (or add new) with clear separation of concerns
+3. Add / update clients & services with DI-friendly patterns (`ClientFactory` + interfaces)
+4. Run targeted Aegis discovery (success + edge) to capture real output
+5. Write/adjust tests (unit + YAML/programmatic where appropriate)
+6. Verify counts & update docs (both files) atomically
+7. Run lint + tests; address failures before further edits
+8. Commit with concise, scope-focused message
+
+### YAML Test Development (Critical Process)
+**MANDATORY for all YAML test modifications**: Before writing or modifying ANY YAML test:
+
+1. **Discovery First**: Use `npx aegis query [tool_name] '[params]' --config "[config.json]"` to discover actual response formats
+2. **Test Success & Failure**: Query both successful and failure scenarios to understand all response variations
+3. **Document Findings**: Add comments to YAML tests showing discovery commands and expected formats
+4. **Choose Correct Patterns**: Use patterns that match the actual response structure, not assumptions
+
+**Common Mistakes to Avoid**:
+- Using `arrayLength` on JSON strings instead of actual arrays
+- Complex regex patterns instead of simpler `contains` or `regex` patterns
+- Assuming response structure without verification
+- Writing tests before understanding what the tool actually returns
+
+**Example Discovery Process**:
+```bash
+# Discover actual response
+npx aegis query get_available_best_practice_guides '{}' --config "./aegis.config.docs-only.json"
+# Response: {"content": [{"type": "text", "text": "[{\"name\":\"guide1\",...}]"}], "isError": false}
+# Pattern: text: "match:contains:guide1" (not arrayLength since it's a JSON string)
+```
+
+### Performance & Stability
+- Optimize only after measuring; instrument where ambiguity exists
+- Use caching deliberately; document invalidation triggers
+- Keep handler execution time predictable; stream or range-read logs where possible
+
+### When In Doubt
+- Pause and gather empirical data
+- Prefer minimal, additive change over speculative refactor
+- Escalate ambiguity via explicit options rather than guessing
 
 ---
 
@@ -366,22 +426,8 @@ sfcc-dev-mcp/
 - Complete access to logs, job logs, and system objects
 - Real-time debugging and monitoring capabilities
 
-### 🎯 Development Guidelines
-
-When working on this project:
-
-1. **Follow MCP Specifications**: Ensure all tools conform to MCP protocol requirements
-2. **Maintain Type Safety**: Use TypeScript effectively with proper type definitions
-3. **Handle Errors Gracefully**: Provide meaningful error messages and recovery strategies
-4. **Test Thoroughly**: Write comprehensive tests for all new features
-5. **Document Changes**: Update documentation for any new tools or capabilities
-6. **Local Security Focus**: Protect developer credentials, prevent accidental network exposure, and avoid resource exhaustion
-7. **Reasonable Performance**: Implement efficient caching and resource usage appropriate for single-developer workloads
-8. **User Experience**: Design tools that are intuitive and helpful for individual developers
-9. **Keep Documentation Current**: **Always update both copilot-instructions.md and README.md files** when making changes that affect:
-    - File structure or directory organization
-    - Class responsibilities or module purposes
-    - API interfaces or tool definitions
+### 🎯 Development Guidelines (Consolidated Above)
+Legacy duplication removed. See Unified Engineering Principles section for the authoritative list.
     - Configuration options or operating modes
     - Development workflows or best practices
     - Tool categories or counts
@@ -389,7 +435,7 @@ When working on this project:
 
 ### 📝 Documentation Maintenance Requirements
 
-**Critical**: When making any structural or functional changes to the codebase, you **MUST** update the relevant sections in **BOTH** `.github/copilot-instructions.md` and `README.md`:
+**Critical**: When making any structural or functional changes to the codebase, you **MUST** update the relevant sections in **BOTH** `AGENTS.md` and `README.md`:
 
 #### **Always Verify Counts with Command Line Tools:**
 
@@ -416,13 +462,13 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 **Never assume or estimate counts** - always verify with actual command line verification before updating documentation.
 
 #### **Required Updates For:**
-- **File Renames/Moves**: Update project structure diagram and component descriptions in copilot-instructions.md; update any file references in README.md
-- **New Classes/Modules**: Add descriptions to the Key Components section in copilot-instructions.md; update feature lists in README.md if user-facing
-- **Changed Responsibilities**: Modify class/module purpose descriptions in copilot-instructions.md; update feature descriptions in README.md
+- **File Renames/Moves**: Update project structure diagram and component descriptions in AGENTS.md; update any file references in README.md
+- **New Classes/Modules**: Add descriptions to the Key Components section in AGENTS.md; update feature lists in README.md if user-facing
+- **Changed Responsibilities**: Modify class/module purpose descriptions in AGENTS.md; update feature descriptions in README.md
 - **New Tools**: Update tool categories and counts in **both** files; add tool descriptions to README.md features section
-- **Configuration Changes**: Update Operating Modes and Configuration Management sections in copilot-instructions.md; update configuration examples in README.md
-- **New Development Patterns**: Add to Common Development Tasks in copilot-instructions.md
-- **Architecture Changes**: Update Client Architecture and Key Components sections in copilot-instructions.md
+- **Configuration Changes**: Update Operating Modes and Configuration Management sections in AGENTS.md; update configuration examples in README.md
+- **New Development Patterns**: Add to Common Development Tasks in AGENTS.md
+- **Architecture Changes**: Update Client Architecture and Key Components sections in AGENTS.md
 - **Installation/Setup Changes**: Update installation and configuration sections in README.md
 - **New Operating Modes**: Update both files with new mode descriptions and requirements
 - **Tool Count Changes**: Update the "Available Tools by Mode" table in README.md and tool category counts in copilot-instructions.md
@@ -447,7 +493,7 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 
 #### **Specific File Responsibilities:**
 
-**copilot-instructions.md Updates:**
+**AGENTS.md Updates:**
 - Project structure diagram
 - Key Components descriptions
 - Tool Categories and counts
@@ -464,9 +510,9 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - Usage examples and quick start guides
 - Tool descriptions for end users
 
-**Remember**: These documentation files serve as the primary source of truth for understanding the project. copilot-instructions.md guides development practices and architecture, while README.md serves users and contributors. Keeping both current ensures consistent understanding across all stakeholders and maintains professional project standards.
+**Remember**: These documentation files serve as the primary source of truth for understanding the project. `AGENTS.md` guides development practices and architecture, while `README.md` serves users and contributors. Keeping both current ensures consistent understanding across all stakeholders and maintains professional project standards.
 
-### 🔍 Common Development Tasks
+### 🔧 Common Development Tasks (Streamlined)
 
 - **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
 - **Creating New Handlers**: Extend `BaseToolHandler` class, implement `canHandle()` and `handle()` methods, register in `server.ts`
@@ -486,99 +532,48 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Job Log Analysis**: Use job log tools for debugging custom job steps - `get_latest_job_log_files`, `get_job_log_entries`, `search_job_logs`, `search_job_logs_by_name`, `get_job_execution_summary`
 - **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
 - **Modular Documentation Development**: Work with individual documentation modules in `clients/docs/` for specific functionality - modify `documentation-scanner.ts` for file discovery improvements, `class-content-parser.ts` for parsing enhancements, `class-name-resolver.ts` for name resolution logic, or `referenced-types-extractor.ts` for type extraction algorithms
-- **Documentation Verification**: Always verify quantitative information (tool counts, file counts, etc.) using command line tools before updating documentation - use `grep -c`, `find`, `wc -l`, and `awk` commands to get accurate counts rather than estimating or assuming values
+- **Documentation Verification**: Use verification commands (see Maintenance) before changing numeric counts or structure claims
 - **CI-Friendly Performance Testing**: When writing performance tests, use lenient timeouts (500ms+) and variation ratios (50x+) to account for GitHub Actions CI environment variability. Prioritize functional validation over strict timing requirements to prevent flaky failures due to infrastructure differences.
 
-### 🔍 MCP Server Testing and Debugging with Aegis
+### 🔍 Testing & Validation (Consolidated Summary)
+Detailed testing guidance lives in:
+- `tests/mcp/AGENTS.md` (umbrella & decision matrix)
+- `tests/mcp/yaml/AGENTS.md` (YAML discovery-first workflow & pattern catalog)
+- `tests/mcp/node/AGENTS.md` (programmatic multi-step, stderr management, performance tolerances)
 
-The **MCP Aegis** (`npx aegis query`) is the primary tool for testing and debugging the MCP server during development. It provides direct access to server tools and responses, making it essential for validation and troubleshooting.
+Essentials:
+- Always discover success + empty/no-result + error responses with `npx aegis query` before writing tests.
+- Prefer YAML for broad coverage; use programmatic tests for stateful or multi-step logic.
+- Keep performance assertions lenient (<500ms typical; <50× variance) unless you have empirical baselines.
 
-#### **Basic Aegis Usage**
-
+Cheat Sheet:
 ```bash
-# Test a tool with the documentation-only configuration (new pipe format)
-npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
-
-# Traditional JSON format (still supported)
-npx aegis query --config ./aegis.config.docs-only.json --method "tools/call" --params '{"name": "search_sfcc_classes", "arguments": {"query": "catalog"}}'
-
-# Example: Search SFRA documentation (pipe format)
-npx aegis query search_sfra_documentation 'query:render' --config ./aegis.config.docs-only.json
-
-# Example: Generate cartridge structure (pipe format)
-npx aegis query generate_cartridge_structure 'cartridgeName:test_cartridge|targetPath:/tmp/test' --config ./aegis.config.docs-only.json
-```
-
-#### **Test Execution Commands**
-
-**CRITICAL: Use correct test commands based on test type:**
-
-```bash
-# For individual MCP programmatic tests (Node.js tests)
-node --test tests/mcp/node/specific-test.programmatic.test.js
-
-# For MCP YAML tests (docs-only mode)  
-npm run test:mcp:yaml
-
-# For MCP YAML tests (full mode)
-npm run test:mcp:yaml:full
-
-# For all MCP tests
-npm run test:mcp:all
-
-# For Jest unit tests only
-jest
-
-# For complete test suite (Jest + MCP tests)
-npm test
-```
-
-**Do NOT use `npm test -- individual-file.js` for MCP tests** - this runs Jest which doesn't handle MCP test files. Always use `node --test` for individual programmatic MCP tests.
-
-#### **Configuration Files**
-
-- **`aegis.config.docs-only.json`**: For testing documentation-only mode (no SFCC credentials required)
-- **`aegis.config.with-dw.json`**: For testing full mode with SFCC credentials (requires dw.json with valid sandbox details)
-
-#### **Common Aegis Commands**
-
-```bash
-# List all available tools
+# List tools
 npx aegis query --config ./aegis.config.docs-only.json
 
-# Tool calls with pipe format (new, recommended)
-npx aegis query get_sfcc_class_info 'className:dw.catalog.Product' --config ./aegis.config.docs-only.json
-
-# Tool calls with traditional JSON format (still supported)
-npx aegis query --config ./aegis.config.docs-only.json --method tools/call --params '{"name": "get_sfcc_class_info", "arguments": {"className": "dw.catalog.Product"}}'
-
-# Test best practice guides (pipe format)
-npx aegis query get_best_practice_guide 'guideName:cartridge_creation' --config ./aegis.config.docs-only.json
-
-# Test SFCC class searches (pipe format)
+# Discovery examples
 npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
+npx aegis query get_sfra_document 'documentName:server' --config ./aegis.config.docs-only.json
+npx aegis query get_system_object_definitions '' --config ./aegis.config.with-dw.json
 
-# Complex parameters with pipe format using dot notation
-npx aegis query search_system_object_attribute_definitions 'objectType:Product|searchRequest.query.match_all_query:{}|searchRequest.count:50' --config ./aegis.config.docs-only.json
-```
+# Complex dotted parameters
+npx aegis query search_system_object_attribute_definitions 'objectType:Product|searchRequest.query.match_all_query:{}' --config ./aegis.config.with-dw.json
 
-#### **Running Individual Tests**
+# Test suites
+npm run test:mcp:yaml        # YAML (docs-only)
+npm run test:mcp:yaml:full   # YAML (full mode)
+npm run test:mcp:node        # Programmatic
+jest                        # Unit tests
+npm test                    # Full suite
 
-```bash
-# Run specific MCP programmatic test
+# Single programmatic test
 node --test tests/mcp/node/get-latest-debug.full-mode.programmatic.test.js
-
-# Run specific Jest unit test  
-jest base-handler.test.ts
-
-# Run all MCP programmatic tests
-npm run test:mcp:node
-
-# Run all tests of one type
-npm run test:mcp:yaml        # YAML tests (docs-only)
-npm run test:mcp:yaml:full   # YAML tests (full mode)
-jest                         # All Jest unit tests
 ```
+
+Troubleshooting Quick Tips:
+- Mismatch schema: re-run discovery; update both test + docs.
+- Flaky stderr assertions: ensure `client.clearStderr()` in programmatic tests (see node guide).
+- Empty arrays vs objects: record actual shape before choosing regex pattern.
 
 #### **Debugging Tool Responses**
 
@@ -719,7 +714,7 @@ When writing performance-related tests, especially for GitHub Actions CI environ
 
 For comprehensive MCP testing guidance, refer to the specialized AGENTS.md files in the testing directories:
 
-##### **YAML-Based Declarative Testing** (`tests/mcp/yaml/AGENTS.md`)
+##### **YAML-Based Declarative Testing**
 The primary testing approach using human-readable YAML files with advanced pattern matching:
 
 - **30+ Advanced Pattern Matching**: String patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation
@@ -730,7 +725,7 @@ The primary testing approach using human-readable YAML files with advanced patte
 - **Performance Testing**: Patterns for validating response times and system performance
 - **Error Handling Validation**: Comprehensive approaches to testing error scenarios and edge cases
 
-##### **Programmatic JavaScript/TypeScript Testing** (`tests/mcp/node/AGENTS.md`)
+##### **Programmatic JavaScript/TypeScript Testing** 
 For complex testing scenarios requiring programmatic logic and integration with existing test suites:
 
 - **JavaScript/TypeScript API**: Full programmatic access to MCP server testing capabilities
@@ -764,69 +759,23 @@ aegis query read_file 'path:test.txt' --config ./aegis.config.docs-only.json --v
 
 **For AI Agents**: Both AGENTS.md files are specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. Choose YAML-based testing for declarative scenarios or programmatic testing for complex logic requirements. Both approaches can be directly applied to validate this SFCC Dev MCP server's functionality.
 
-### �📁 Directory Organization Benefits
+### 🧱 Architecture Advantages (Consolidated)
+Unified benefits of the directory structure, handler model, dependency injection, modular log system, and modular documentation system:
 
-The new organized structure provides:
+| Concern | Key Advantages |
+|---------|----------------|
+| Directory Structure | Clear ownership, scalable growth, minimal cross-module coupling |
+| Handlers | Category isolation, standardized lifecycle (canHandle/handle), centralized error & timing, easy extension |
+| Dependency Injection | Swappable services, simplified testing (mock interfaces), boundary clarity, reduced coupling |
+| Log Modules | SRP per stage (discover→read→process→analyze→format), range-tail efficiency, extensible analysis & output, backward compatibility wrapper |
+| Documentation Modules | Streamlined pipeline (scan→parse→resolve→extract), focused optimizations, circular reference protection, type-safe expansion |
 
-1. **Clear Separation of Concerns**: Each directory has a specific responsibility
-2. **Easier Navigation**: Developers can quickly find related functionality
-3. **Better Maintainability**: Changes are isolated to relevant directories
-4. **Scalable Architecture**: New features can be added without cluttering
-5. **Professional Standards**: Follows TypeScript/Node.js project conventions
+Cross-cutting wins:
+- Strong typing across all layers
+- Deterministic testability in isolation
+- Backward compatibility through orchestrator wrappers (`log-client.ts`, `docs-client.ts`)
+- Predictable extension points (add handler, client, or module without ripple)
+- Low-risk refactoring zones due to SRP boundaries
 
-### 🏗️ Handler Architecture Benefits
-
-The modular handler refactoring provides:
-
-1. **Separation of Concerns**: Each handler is responsible for a specific category of tools
-2. **Standardized Interface**: All handlers extend `BaseToolHandler` with consistent patterns
-3. **Better Error Handling**: Centralized error handling and response formatting in base class
-4. **Improved Maintainability**: Tool logic is organized by functional area rather than mixed together
-5. **Easier Testing**: Individual handlers can be tested in isolation
-6. **Performance Monitoring**: Standardized execution timing and logging across all handlers
-7. **Extensibility**: New tool categories can be added by creating new handler classes
-8. **Code Reusability**: Common functionality shared through the base handler class
-
-### 🔧 Dependency Injection Architecture
-
-The comprehensive dependency injection implementation provides:
-
-1. **Clean Testing**: Mock services replace complex system module mocking patterns
-2. **Modular Design**: Service interfaces enable easy swapping of implementations
-3. **Reduced Coupling**: Components depend on abstractions, not concrete implementations
-4. **Centralized Creation**: `ClientFactory` provides consistent client instantiation patterns
-5. **Type Safety**: Full TypeScript support for all service interfaces and implementations
-6. **Maintainable Tests**: Simple interface mocking instead of complex system module stubs
-7. **Production Flexibility**: Easy to swap implementations for different environments
-8. **Clear Boundaries**: Well-defined service layer separates business logic from system operations
-
-### 📊 Modular Log Architecture Benefits
-
-The comprehensive log client refactoring provides:
-
-1. **Single Responsibility Principle**: Each module has one focused purpose (reading, parsing, analysis, formatting)
-2. **Improved Maintainability**: Changes to log parsing logic don't affect file reading or output formatting
-3. **Better Testing**: Individual modules can be tested in isolation with targeted test cases
-4. **Performance Optimization**: Range request optimization isolated in `log-file-reader.ts` for focused improvements
-5. **Extensible Analysis**: New analysis patterns can be added to `log-analyzer.ts` without affecting other components
-6. **Flexible Output**: Multiple output formats can be supported by extending `log-formatter.ts`
-7. **Centralized Configuration**: All constants and configuration values managed in `log-constants.ts`
-8. **Type Safety**: Comprehensive TypeScript interfaces in `log-types.ts` for all log operations
-9. **Backward Compatibility**: Original API preserved through orchestrator pattern in main `log-client.ts`
-
-### 📚 Modular Documentation Architecture Benefits
-
-The comprehensive documentation client refactoring provides:
-
-1. **Single Responsibility Principle**: Each module has one focused purpose (scanning, parsing, resolving, extracting)
-2. **Improved Maintainability**: Changes to parsing logic don't affect file discovery or type extraction functionality
-3. **Better Testing**: Individual modules can be tested in isolation with targeted test cases and mock data
-4. **Performance Optimization**: File scanning and content parsing isolated for focused improvements and caching strategies
-5. **Extensible Processing**: New content parsing patterns can be added to `class-content-parser.ts` without affecting other components
-6. **Flexible Type Extraction**: Advanced type extraction algorithms in `referenced-types-extractor.ts` with circular reference protection
-7. **Centralized Name Resolution**: All class name normalization logic managed in `class-name-resolver.ts`
-8. **Type Safety**: Comprehensive TypeScript interfaces for all documentation operations
-9. **Backward Compatibility**: Original API preserved through orchestrator pattern in main `docs-client.ts`
-
-This MCP server empowers AI agents to provide accurate, real-time assistance for SFCC development workflows, significantly improving developer productivity and code quality
+Result: Faster iteration, safer modifications, and clearer mental model for both humans and AI agents.
 

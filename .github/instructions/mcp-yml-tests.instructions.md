@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.test.mcp.yml"
+---
+
 # MCP Aegis - YAML Testing Guide for AI Agents
 
 **Target**: AI assistants generating declarative YAML test files for Model Context Protocol servers.
