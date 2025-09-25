@@ -438,43 +438,6 @@ Use SEQUENTIALLY when:
 - Following a logical investigation path
 ```
 
-### 🧩 Context-Aware Tool Selection
-
-#### **User Skill Level Indicators**
-```markdown
-Beginner Indicators:
-- "How do I start with SFCC?"
-- "What is a cartridge?"
-- "I'm new to Commerce Cloud"
-→ Start with: get_available_best_practice_guides
-
-Intermediate Indicators:
-- "How do I implement [specific feature]?"
-- "What's the best way to [specific task]?"
-→ Start with: get_best_practice_guide + search_sfcc_classes
-
-Advanced Indicators:
-- "I'm getting error [specific error]"
-- "Performance issues with [specific component]"
-- "Custom attribute schema for [specific object]"
-→ Start with: Direct debugging/analysis tools
-```
-
-#### **Problem Urgency Detection**
-```markdown
-HIGH URGENCY (production issues):
-- "site is down", "customers can't checkout", "critical error"
-→ Immediate: summarize_logs + get_latest_error + search_logs
-
-MEDIUM URGENCY (development blockers):
-- "can't figure out", "not working", "getting errors"
-→ Start with: get_latest_error + relevant documentation tools
-
-LOW URGENCY (learning/planning):
-- "how to", "best practice", "planning to implement"
-→ Start with: best practice guides + documentation tools
-```
-
 ### 🎭 Response Crafting Guidelines
 
 #### **When Using Documentation Tools**
@@ -504,34 +467,6 @@ Always Include:
 - Recommended investigation steps
 - Related system components to check
 - Preventive measures
-```
-
-### 🚀 Tool Performance Optimization
-
-#### **Caching Awareness**
-```markdown
-These tools have intelligent caching:
-- All documentation tools (cache duration: 1 hour)
-- System object definitions (cache duration: 30 minutes)
-- Best practice guides (cache duration: 24 hours)
-
-These tools are always fresh:
-- All log analysis tools
-- Site preferences (live data)
-- Error analysis tools
-```
-
-#### **Rate Limiting Considerations**
-```markdown
-High-frequency safe tools:
-- Documentation tools
-- Best practice guides
-- SFRA documentation
-
-Use sparingly in rapid succession:
-- Log analysis tools
-- System object queries with credentials
-- Site preference searches
 ```
 
 ### 🎯 Success Metrics for Tool Usage

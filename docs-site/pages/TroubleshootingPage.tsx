@@ -88,6 +88,27 @@ node --version
 
 # Update if needed
 nvm install 18 && nvm use 18`} />
+                        
+                        <div className="bg-orange-50 border-l-4 border-orange-400 p-4 mt-4">
+                            <h5 className="font-semibold text-orange-800 mb-2">Working with Older SFRA/SiteGenesis Projects</h5>
+                            <p className="text-sm text-orange-700 mb-3">
+                                When working with older SFRA or SiteGenesis projects that require Node.js 8, 12, or 16, 
+                                you need to set a higher Node.js version as the <strong>default</strong> for MCP to work. 
+                                Simply switching via <InlineCode>nvm use</InlineCode> is not sufficient.
+                            </p>
+                            <CodeBlock language="bash" code={`# Set Node 24 as default for MCP compatibility
+nvm alias default 24
+
+# For project work, switch to older version as needed
+nvm use 12.22.6
+
+# Verify MCP still works with npx
+npx sfcc-dev-mcp --version`} />
+                            <p className="text-xs text-orange-600 mt-2">
+                                <strong>Why this works:</strong> npx uses the default Node version for global packages, 
+                                while your terminal session can use a different version for project compilation.
+                            </p>
+                        </div>
                     </div>
                     
                     <div>
