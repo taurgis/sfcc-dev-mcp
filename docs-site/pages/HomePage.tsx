@@ -140,7 +140,8 @@ const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Add to your AI client:</h3>
-              <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+              {/* Updated: Use light blue accent background instead of pure white */}
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md">
                 <CodeBlock language="json" code={`{
   "mcpServers": {
     "sfcc-dev": {

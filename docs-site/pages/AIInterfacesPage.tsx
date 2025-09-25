@@ -214,7 +214,8 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Documentation Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Docs Mode)</h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            {/* Updated: removed dark background for non-dark mode design */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md">
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp"]\n    }\n  }\n}`} />
             </div>
           </div>
@@ -233,7 +234,8 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Full Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Full Mode)</h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-4">
+            {/* Updated: light accent instead of dark */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md mb-4">
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": [\n         "sfcc-dev-mcp", \n         "--dw-json", \n         "/Users/username/sfcc-project/dw.json", \n         "--debug", \n         "false"\n      ]\n    }\n  }\n}`} />
             </div>
             <p className="text-sm text-gray-600">Set <InlineCode>--debug true</InlineCode> temporarily when diagnosing tool responses.</p>
@@ -354,7 +356,8 @@ const AssistantTabs: React.FC = () => {
       <div className="space-y-10 animate-fade-in" role="tabpanel">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration</h3>
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-6">
+          {/* Updated: light accent instead of dark */}
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-md mb-6">
             {renderSnippet(active)}
           </div>
           
