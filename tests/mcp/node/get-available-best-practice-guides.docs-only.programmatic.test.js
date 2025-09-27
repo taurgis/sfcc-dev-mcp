@@ -9,7 +9,7 @@
  * - Success: { content: [{ type: "text", text: "[{\"name\":\"guide_name\",\"title\":\"Guide Title\",\"description\":\"...\"}]" }], isError: false }
  * - Always successful: No isError field or error conditions in docs-only mode
  * - Ignores extra parameters: Gracefully handles unexpected parameters
- * - Comprehensive: Returns 12 best practice guides across SFCC development areas
+ * - Comprehensive: Returns 13 best practice guides across SFCC development areas
  */
 
 import { test, describe, before, after, beforeEach } from 'node:test';
@@ -33,6 +33,7 @@ class BestPracticeAnalyzer {
       'sfra_controllers',
       'sfra_models',
       'sfra_client_side_js',
+      'sfra_scss',
       'performance',
       'security'
     ];
@@ -44,6 +45,7 @@ class BestPracticeAnalyzer {
       'ocapi_hooks',
       'scapi_hooks',
       'sfra_client_side_js',
+      'sfra_scss',
       'security',
       'performance'
     ];
@@ -51,7 +53,7 @@ class BestPracticeAnalyzer {
     // Guide categories for validation
     this.guideCategories = {
       core: ['cartridge_creation', 'isml_templates', 'job_framework'],
-  sfra: ['sfra_controllers', 'sfra_models', 'sfra_client_side_js'],
+      sfra: ['sfra_controllers', 'sfra_models', 'sfra_client_side_js', 'sfra_scss'],
       api_hooks: ['ocapi_hooks', 'scapi_hooks', 'scapi_custom_endpoint'],
       services: ['localserviceregistry'],
       quality: ['performance', 'security']
@@ -175,8 +177,8 @@ class BestPracticeAnalyzer {
   validateCompleteness(analysis) {
     const issues = [];
 
-    if (analysis.totalGuides < 12) {
-      issues.push(`Guide count too low: ${analysis.totalGuides} (expected 12+)`);
+    if (analysis.totalGuides < 13) {
+      issues.push(`Guide count too low: ${analysis.totalGuides} (expected 13+)`);
     }
 
     if (analysis.missingGuides.length > 0) {
@@ -309,7 +311,7 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
       assert.equal(issues.length, 0, `Content issues found: ${issues.join('; ')}`);
       
       // Verify substantial guide count
-      assert.ok(analysis.totalGuides >= 12, 
+      assert.ok(analysis.totalGuides >= 13, 
         `Should have substantial guide count (got ${analysis.totalGuides})`);
     });
 
@@ -403,6 +405,7 @@ describe('get_available_best_practice_guides Programmatic Tests', () => {
         'sfra_controllers', 
         'sfra_models',
         'sfra_client_side_js',
+        'sfra_scss',
         'ocapi_hooks',
         'scapi_hooks',
         'security',

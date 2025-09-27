@@ -123,8 +123,8 @@ export const BEST_PRACTICES_TOOLS = [
       properties: {
         guideName: {
           type: 'string',
-          enum: ['cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models', 'scapi_custom_endpoint', 'performance', 'security'],
-          description: 'The guide name (e.g., \'cartridge_creation\', \'isml_templates\', \'job_framework\', \'localserviceregistry\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'sfra_models\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
+          enum: ['cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models', 'sfra_client_side_js', 'sfra_scss', 'scapi_custom_endpoint', 'performance', 'security'],
+          description: 'The guide name (e.g., \'cartridge_creation\', \'isml_templates\', \'job_framework\', \'localserviceregistry\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'sfra_models\', \'sfra_client_side_js\', \'sfra_scss\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
         },
       },
       required: ['guideName'],

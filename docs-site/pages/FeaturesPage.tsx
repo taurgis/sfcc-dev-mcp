@@ -131,7 +131,7 @@ const FeaturesPage: React.FC = () => {
         </Collapsible>
 
     <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices, Guides & Hook References">
-      <p className="text-sm mb-2">Structured guidance for core development domains plus searchable OCAPI / SCAPI hook reference tables with extension point signatures.</p>
+      <p className="text-sm mb-2">Structured guidance across 13 core development domains plus searchable OCAPI / SCAPI hook reference tables with extension point signatures.</p>
             <div className="grid sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-semibold mb-1">Guides</h4>
@@ -142,6 +142,7 @@ const FeaturesPage: React.FC = () => {
                   <li>LocalServiceRegistry integrations</li>
                   <li>SFRA controllers & models</li>
                   <li>SFRA client-side JavaScript architecture</li>
+                  <li>SFRA SCSS theming & override discipline</li>
                   <li>Custom SCAPI endpoints</li>
                 </ul>
               </div>

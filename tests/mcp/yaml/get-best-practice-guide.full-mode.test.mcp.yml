@@ -146,6 +146,26 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
+  - it: "should return SFRA SCSS guide"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-scss-1"
+      method: "tools/call"
+      params:
+        name: "get_best_practice_guide"
+        arguments:
+          guideName: "sfra_scss"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-scss-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:SFRA SCSS"
+          isError: false
+      stderr: "toBeEmpty"
+
   # Test OCAPI hooks guide
   - it: "should return OCAPI hooks guide"
     request:

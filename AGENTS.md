@@ -195,6 +195,7 @@ sfcc-dev-mcp/
 │   │   ├── sfra_controllers.md
 │   │   ├── sfra_models.md        # SFRA models best practices
 │   │   ├── sfra_client_side_js.md # SFRA client-side JavaScript patterns
+│   │   ├── sfra_scss.md           # SFRA SCSS override and theming guidance
 │   │   ├── scapi_custom_endpoint.md
 │   │   ├── performance.md
 │   │   └── security.md

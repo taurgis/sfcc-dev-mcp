@@ -640,26 +640,6 @@ Lint Heuristic: flag hard-coded English by searching for regex `"[A-Za-z]{3,}\s`
 
 The following index was generated from the SFRA base cartridge (`app_storefront_base/cartridge/client/default/js`). It lists **override / extension candidates** you can decorate in custom cartridges using the `paths` alias (e.g. `require('base/product/detail')`). Total discovered JavaScript modules: **56**.
 
-### Summary by Category
-| Category (folder) | File Count | Notes |
-|-------------------|-----------:|-------|
-| components        | 17 | Core UI primitives, validation, accessibility, utilities |
-| checkout          | 7  | Step orchestration, form handling, address/billing/shipping logic |
-| product           | 3  | PDP + Quick View composition helpers |
-| addressBook       | 2  | Customer address book UI (root + subfolder) |
-| cart              | 2  | Cart page interactions (root + namespaced) |
-| contactUs         | 2  | Contact form handling |
-| login             | 2  | Login page logic (root + namespaced) |
-| orderHistory      | 2  | Account order history interactions |
-| paymentInstruments| 2  | Wallet / card management |
-| profile           | 2  | Account profile management |
-| search            | 2  | Search results page logic |
-| storeLocator      | 2  | Store locator page + component |
-| thirdParty        | 1  | Bootstrap integration loader |
-| (root miscellaneous) | 10 | High-level orchestrators & standalone feature scripts |
-
-> Root-level scripts include: `addressBook.js`, `campaignBanner.js`, `carousel.js`, `cart.js`, `checkout.js`, `checkoutRegistration.js`, `contactUs.js`, `einsteinCarousel.js`, `login.js`, `main.js`, `mobileGridLookBook.js`, `orderHistory.js`, `paymentInstruments.js`, `productDetail.js`, `productTile.js`, `profile.js`, `search.js`, `storeLocator.js`, `util.js` (some paired with namespaced variants shown below).
-
 ### Full File Listing (Relative Paths)
 ```
 addressBook.js
@@ -733,22 +713,6 @@ util.js
 - If a base module only needs minor event binding, prefer **decorating after require** instead of rewriting the file path.
 - Avoid duplicating large functions just to change a selector—refactor into a helper inside custom cartridge and call original logic you copied responsibly.
 - Do not modify vendored third-party code directly—wrap or extend.
-
-### Version Drift Consideration
-Track upstream changes: keep a manifest (JSON or markdown) mapping each overridden base file → custom counterpart. During SFRA upgrades re-diff the upstream file to detect conflicts.
-
-Suggested manifest format example:
-```json
-[
-    { "base": "product/detail.js", "custom": "app_custom_mybrand/product/detail.js", "lastSynced": "2025-09-27", "notes": "Notify Me button override" }
-]
-```
-
-Automate diff check (concept):
-```bash
-diff -u base/cartridge/client/default/js/product/detail.js \
-         app_custom_mybrand/cartridge/client/default/js/product/detail.js || echo "DIFF FOUND"
-```
 
 ### Quick Start Template for an Override
 ```javascript

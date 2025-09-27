@@ -181,6 +181,26 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
+  - it: "should surface SFRA SCSS override guidance"
+    request:
+      jsonrpc: "2.0"
+      id: "search-scss-1"
+      method: "tools/call"
+      params:
+        name: "search_best_practices"
+        arguments:
+          query: "scss"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-scss-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:sfra_scss"
+          isError: false
+      stderr: "toBeEmpty"
+
   - it: "should find job framework references"
     request:
       jsonrpc: "2.0"
