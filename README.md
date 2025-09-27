@@ -8,7 +8,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
-- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more  
+- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
 - **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
@@ -61,7 +61,7 @@ Create a `dw.json` file with your SFCC credentials:
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
-- Best practices guides (4 tools) 
+- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
 - Cartridge generation (1 tool)
 

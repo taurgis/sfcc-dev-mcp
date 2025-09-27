@@ -26,12 +26,12 @@ class SearchResultsAnalyzer {
     this.knownGuides = [
       'cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry',
       'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models',
-      'scapi_custom_endpoint', 'performance', 'security'
+      'sfra_client_side_js', 'scapi_custom_endpoint', 'performance', 'security'
     ];
     
     this.searchTermPatterns = {
       validation: {
-        expectedGuides: ['isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'security'],
+  expectedGuides: ['isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_client_side_js', 'security'],
         requiredTerms: ['validation', 'validate', 'check', 'verify'],
         contextTerms: ['form', 'input', 'parameter', 'data', 'error']
       },
@@ -41,7 +41,7 @@ class SearchResultsAnalyzer {
         contextTerms: ['CSRF', 'XSS', 'authorization', 'authentication', 'cryptography']
       },
       performance: {
-        expectedGuides: ['performance', 'sfra_controllers', 'cartridge_creation'],
+  expectedGuides: ['performance', 'sfra_controllers', 'sfra_client_side_js', 'cartridge_creation'],
         requiredTerms: ['performance', 'optimize', 'cache', 'memory', 'speed'],
         contextTerms: ['monitoring', 'metrics', 'throughput', 'latency', 'scalability']
       },

@@ -194,6 +194,7 @@ sfcc-dev-mcp/
 │   │   ├── scapi_hooks.md
 │   │   ├── sfra_controllers.md
 │   │   ├── sfra_models.md        # SFRA models best practices
+│   │   ├── sfra_client_side_js.md # SFRA client-side JavaScript patterns
 │   │   ├── scapi_custom_endpoint.md
 │   │   ├── performance.md
 │   │   └── security.md
@@ -351,7 +352,7 @@ sfcc-dev-mcp/
 - **LogClient** (`log-client.ts`): Backward compatibility wrapper that re-exports the modular log system
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
-- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, SFRA client-side JavaScript architecture (AJAX flows, validation, accessibility), custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
 - **CartridgeGenerationClient** (`cartridge-generation-client.ts`): Generates complete cartridge structures with clean dependency injection for file system and path operations
 
 #### **Configuration Management** (`config/`)
@@ -380,6 +381,7 @@ sfcc-dev-mcp/
 2. **Best Practices Guides** (4 tools)
    - Curated development guidelines
    - Security and performance recommendations
+   - SFRA client-side JavaScript architecture (AJAX, validation, accessibility)
    - Hook reference tables and examples
 
 3. **Enhanced SFRA Documentation Tools** (5 tools)

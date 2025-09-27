@@ -161,6 +161,26 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
+  - it: "should surface SFRA client-side JavaScript guidance"
+    request:
+      jsonrpc: "2.0"
+      id: "search-client-js-1"
+      method: "tools/call"
+      params:
+        name: "search_best_practices"
+        arguments:
+          query: "javascript"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-client-js-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:sfra_client_side_js"
+          isError: false
+      stderr: "toBeEmpty"
+
   - it: "should find job framework references"
     request:
       jsonrpc: "2.0"

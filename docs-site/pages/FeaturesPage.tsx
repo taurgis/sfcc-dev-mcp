@@ -141,6 +141,7 @@ const FeaturesPage: React.FC = () => {
                   <li>Job framework patterns</li>
                   <li>LocalServiceRegistry integrations</li>
                   <li>SFRA controllers & models</li>
+                  <li>SFRA client-side JavaScript architecture</li>
                   <li>Custom SCAPI endpoints</li>
                 </ul>
               </div>

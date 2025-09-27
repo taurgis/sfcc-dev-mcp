@@ -67,7 +67,7 @@ export const tools: ToolMeta[] = [
 
   // Best Practices
   { id: 'get-available-best-practice-guides', name: 'get_available_best_practice_guides', category: 'Best Practices', mode: 'both', description: 'List all best practice guides.', examples: ['List available best practice guides'] },
-  { id: 'get-best-practice-guide', name: 'get_best_practice_guide', category: 'Best Practices', mode: 'both', description: 'Full best practice guide content.', params: [p('guideName','Guide name (cartridge_creation, security, performance, etc.)')], examples: ['Open the performance best practice guide'], tags: ['guides'] },
+  { id: 'get-best-practice-guide', name: 'get_best_practice_guide', category: 'Best Practices', mode: 'both', description: 'Full best practice guide content.', params: [p('guideName','Guide name (cartridge_creation, sfra_client_side_js, security, performance, etc.)')], examples: ['Open the performance best practice guide'], tags: ['guides'] },
   { id: 'search-best-practices', name: 'search_best_practices', category: 'Best Practices', mode: 'both', description: 'Search within all best practice guides.', params: [p('query','Search term')], examples: ['Search best practices for caching'], tags: ['search'] },
   { id: 'get-hook-reference', name: 'get_hook_reference', category: 'Best Practices', mode: 'both', description: 'Hook reference tables for OCAPI or SCAPI.', params: [p('guideName','ocapi_hooks | scapi_hooks')], examples: ['List SCAPI hooks for product'] },
 

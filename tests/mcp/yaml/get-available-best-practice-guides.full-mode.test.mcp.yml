@@ -473,7 +473,7 @@ tests:
 # ==================================================================================
 # COMPREHENSIVE GUIDE ENUMERATION
 # ==================================================================================
-  - it: "should include expected total number of guides (11 guides minimum)"
+  - it: "should include expected total number of guides (12 guides minimum)"
     request:
       jsonrpc: "2.0"
       id: "guide-count-1"
@@ -488,7 +488,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\""
+              text: "match:regex:\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -686,6 +686,25 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
+  - it: "should include sfra_client_side_js guide"
+    request:
+      jsonrpc: "2.0"
+      id: "guide-exists-sfra-client-js-1"
+      method: "tools/call"
+      params:
+        name: "get_available_best_practice_guides"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "guide-exists-sfra-client-js-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:sfra_client_side_js"
+          isError: false
+      stderr: "toBeEmpty"
+
   - it: "should include performance guide"
     request:
       jsonrpc: "2.0"
@@ -724,7 +743,7 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should include exactly 11 current guides (comprehensive existence check)"
+  - it: "should include exactly 12 current guides (comprehensive existence check)"
     request:
       jsonrpc: "2.0"
       id: "all-guides-exist-1"
@@ -739,7 +758,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:cartridge_creation[\\s\\S]*isml_templates[\\s\\S]*job_framework[\\s\\S]*localserviceregistry[\\s\\S]*ocapi_hooks[\\s\\S]*scapi_hooks[\\s\\S]*scapi_custom_endpoint[\\s\\S]*sfra_controllers[\\s\\S]*sfra_models[\\s\\S]*performance[\\s\\S]*security"
+              text: "match:regex:cartridge_creation[\\s\\S]*isml_templates[\\s\\S]*job_framework[\\s\\S]*localserviceregistry[\\s\\S]*ocapi_hooks[\\s\\S]*scapi_hooks[\\s\\S]*scapi_custom_endpoint[\\s\\S]*sfra_controllers[\\s\\S]*sfra_models[\\s\\S]*sfra_client_side_js[\\s\\S]*performance[\\s\\S]*security"
           isError: false
       stderr: "toBeEmpty"
 

@@ -88,6 +88,11 @@ export class SFCCBestPracticesClient {
         description: 'Best practices for developing SFRA models in Salesforce B2C Commerce Cloud',
       },
       {
+        name: 'sfra_client_side_js',
+        title: 'SFRA Client-Side JavaScript Best Practices',
+        description: 'Comprehensive patterns for architecting, extending, validating, and optimizing client-side JavaScript in SFRA storefronts using jQuery',
+      },
+      {
         name: 'performance',
         title: 'Performance and Stability Best Practices',
         description: 'Comprehensive performance optimization strategies, coding standards, and stability guidelines for SFCC development including caching, index-friendly APIs, and job development',

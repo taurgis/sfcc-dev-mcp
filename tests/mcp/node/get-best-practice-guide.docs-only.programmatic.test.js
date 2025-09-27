@@ -326,6 +326,19 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
         guideData.content.includes('Security'), 'Should contain security concepts');
     });
 
+    test('should retrieve SFRA client-side JavaScript guide', async () => {
+      const result = await client.callTool('get_best_practice_guide', {
+        guideName: 'sfra_client_side_js'
+      });
+
+      const guideData = assertGuideContent(result);
+      assert.ok(guideData.title.toLowerCase().includes('client-side javascript') ||
+        guideData.description.toLowerCase().includes('client-side javascript'),
+        'Guide should reference client-side JavaScript in title or description');
+      assert.ok(/ajax|assets\.js|debounce|event delegation/i.test(guideData.content),
+        'Guide content should include client-side patterns like AJAX or assets.js');
+    });
+
     test('should handle invalid guide name gracefully', async () => {
       const result = await client.callTool('get_best_practice_guide', {
         guideName: 'nonexistent_guide'
@@ -357,6 +370,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
       'performance',
       'sfra_controllers',
       'sfra_models',
+      'sfra_client_side_js',
       'ocapi_hooks',
       'scapi_hooks',
       'scapi_custom_endpoint',
@@ -402,7 +416,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
     });
 
     test('should validate technical accuracy across guide types', async () => {
-      const techGuides = ['security', 'sfra_controllers', 'cartridge_creation'];
+      const techGuides = ['security', 'sfra_controllers', 'sfra_client_side_js', 'cartridge_creation'];
       
       for (const guideName of techGuides) {
         const result = await client.callTool('get_best_practice_guide', {
@@ -426,7 +440,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
         }
 
         // Code examples validation
-        if (['sfra_controllers', 'cartridge_creation'].includes(guideName)) {
+  if (['sfra_controllers', 'sfra_client_side_js', 'cartridge_creation'].includes(guideName)) {
           assert.ok(analysis.codeExamples.codeBlockCount > 0, 
             `${guideName} should have code examples`);
           assert.ok(analysis.codeExamples.hasJavaScript, 
@@ -586,10 +600,11 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
     test('should validate comprehensive development workflow coverage', async () => {
       // Simulate a complete development workflow
       const workflowGuides = [
-        'cartridge_creation',  // Project setup
-        'sfra_controllers',   // Implementation
-        'security',           // Security review
-        'performance'         // Optimization
+        'cartridge_creation',        // Project setup
+        'sfra_controllers',          // Server-side implementation
+        'sfra_client_side_js',       // Client-side enhancements
+        'security',                  // Security review
+        'performance'                // Optimization
       ];
 
       const workflowAnalysis = new Map();
@@ -627,7 +642,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
 
   describe('Content Quality and Accessibility', () => {
     test('should validate readability across all guides', async () => {
-      const testGuides = ['cartridge_creation', 'security', 'sfra_controllers'];
+      const testGuides = ['cartridge_creation', 'security', 'sfra_controllers', 'sfra_client_side_js'];
       
       for (const guideName of testGuides) {
         const result = await client.callTool('get_best_practice_guide', {
@@ -655,7 +670,8 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
       const technicalGuides = {
         'security': ['CSRF', 'XSS', 'authentication', 'encryption'],
         'performance': ['performance', 'optimization'], // Simplified expectations
-        'sfra_controllers': ['server.get', 'middleware', 'ISML']
+        'sfra_controllers': ['server.get', 'middleware', 'ISML'],
+        'sfra_client_side_js': ['ajax', 'assets.js', 'debounce', 'validation']
       };
 
       for (const [guideName, expectedTopics] of Object.entries(technicalGuides)) {
