@@ -179,11 +179,7 @@ The sorting rule used to order the products in the results of this query,
 
 **Type:** List (Read Only)
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main
- services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an
- exception. Contact your customer success representative for more information.
- 
- Returns a list of inventory IDs that were specified in the search query or an empty list if no inventory ID set.
+Returns a list of inventory IDs that were specified in the search query or an empty list if no inventory ID set.
 
 ### orderableProductsOnly
 
@@ -351,11 +347,7 @@ The sorting rule explicitly set on this model to be used
 
 **Type:** StoreInventoryFilter
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main
- services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an
- exception. Contact your customer success representative for more information.
- 
- Returns the StoreInventoryFilter, which was specified for this search.
+Returns the StoreInventoryFilter, which was specified for this search.
 
 ### suggestedSearchPhrase
 
@@ -431,7 +423,7 @@ Returns the sorting rule used to order the products in the results of this query
 
 **Signature:** `getInventoryIDs() : List`
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is.
+Returns a list of inventory IDs that were specified in the search query or an empty list if no inventory ID set.
 
 ### getOrderableProductsOnly
 
@@ -545,7 +537,7 @@ Returns the sorting rule explicitly set on this model to be used to order the pr
 
 **Signature:** `getStoreInventoryFilter() : StoreInventoryFilter`
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is.
+Returns the StoreInventoryFilter, which was specified for this search.
 
 ### getSuggestedSearchPhrase
 
@@ -647,7 +639,7 @@ Set a flag indicating whether no-hits search should be tracked for predictive in
 
 **Signature:** `setInventoryListIDs(inventoryListIDs : List) : void`
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is.
+Specifies multiple inventory list IDs used for the search query.
 
 ### setOrderableProductsOnly
 
@@ -737,7 +729,7 @@ Sets the sorting rule to be used to order the products in the results of this qu
 
 **Signature:** `setStoreInventoryFilter(storeInventoryFilter : StoreInventoryFilter) : void`
 
-Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is.
+Filters the search result by one or more inventory list IDs provided by the class StoreInventoryFilter which supports a semantic URL parameter like zip, city, store ...
 
 ### urlForCategory
 
@@ -953,7 +945,7 @@ a SortingRule or null.
 
 **Signature:** `getInventoryIDs() : List`
 
-**Description:** Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an exception. Contact your customer success representative for more information. Returns a list of inventory IDs that were specified in the search query or an empty list if no inventory ID set.
+**Description:** Returns a list of inventory IDs that were specified in the search query or an empty list if no inventory ID set.
 
 **Returns:**
 
@@ -1209,15 +1201,11 @@ a SortingRule or null.
 
 **Signature:** `getStoreInventoryFilter() : StoreInventoryFilter`
 
-**Description:** Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an exception. Contact your customer success representative for more information. Returns the StoreInventoryFilter, which was specified for this search.
+**Description:** Returns the StoreInventoryFilter, which was specified for this search.
 
 **Returns:**
 
 the StoreInventoryFilter, which was specified for this search.
-
-**Throws:**
-
-UnsupportedOperationException - in case the API is used without enablement
 
 ---
 
@@ -1434,7 +1422,7 @@ the searchStatus object with search status code and description of search result
 
 **Signature:** `setInventoryListIDs(inventoryListIDs : List) : void`
 
-**Description:** Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an exception. Contact your customer success representative for more information. Specifies multiple inventory list IDs used for the search query. The method supports up to MAXIMUM_INVENTORY_LIST_IDS inventory IDs. If more than MAXIMUM_INVENTORY_LIST_IDS inventory IDs used the method throws an IllegalArgumentException.
+**Description:** Specifies multiple inventory list IDs used for the search query. The method supports up to MAXIMUM_INVENTORY_LIST_IDS inventory IDs. If more than MAXIMUM_INVENTORY_LIST_IDS inventory IDs used the method throws an IllegalArgumentException.
 
 **Parameters:**
 
@@ -1443,7 +1431,6 @@ the searchStatus object with search status code and description of search result
 **Throws:**
 
 IllegalArgumentException - if more than MAXIMUM_INVENTORY_LIST_IDS inventory IDs used
-UnsupportedOperationException - in case the API is used without enablement
 
 ---
 
@@ -1644,7 +1631,7 @@ This method is subject to removal. Use setSortingRule(SortingRule) instead.
 
 **Signature:** `setStoreInventoryFilter(storeInventoryFilter : StoreInventoryFilter) : void`
 
-**Description:** Important Note: This API is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an exception. Contact your customer success representative for more information. Filters the search result by one or more inventory list IDs provided by the class StoreInventoryFilter which supports a semantic URL parameter like zip, city, store ... and a list of StoreInventoryFilterValue which maps the semantic inventory list id value like Burlington, Boston, ... to a real inventory list id like 'Burlington -> inventory1', 'Boston -> inventory2'. The search will filter the result by the real inventory list id(s) but will use the semantic URL parameter and semantic inventory list id values for URL generation via all URLRefine and URLRelax methods e.g. for urlRefineCategory(URL, String), urlRelaxPrice(URL), SearchModel.urlRefineAttribute(String, String, String). Example custom URL: city=Burlington|Boston var storeFilter = new dw.catalog.StoreInventoryFilter("city", new dw.util.ArrayList( new dw.catalog.StoreInventoryFilterValue("Burlington","inventory_store_store9"), new dw.catalog.StoreInventoryFilterValue("Boston","inventory_store_store8") )); searchModel.setStoreInventoryFilter(filter)
+**Description:** Filters the search result by one or more inventory list IDs provided by the class StoreInventoryFilter which supports a semantic URL parameter like zip, city, store ... and a list of StoreInventoryFilterValue which maps the semantic inventory list id value like Burlington, Boston, ... to a real inventory list id like 'Burlington -> inventory1', 'Boston -> inventory2'. The search will filter the result by the real inventory list id(s) but will use the semantic URL parameter and semantic inventory list id values for URL generation via all URLRefine and URLRelax methods e.g. for urlRefineCategory(URL, String), urlRelaxPrice(URL), SearchModel.urlRefineAttribute(String, String, String). Example custom URL: city=Burlington|Boston var storeFilter = new dw.catalog.StoreInventoryFilter("city", new dw.util.ArrayList( new dw.catalog.StoreInventoryFilterValue("Burlington","inventory_store_store9"), new dw.catalog.StoreInventoryFilterValue("Boston","inventory_store_store8") )); searchModel.setStoreInventoryFilter(filter)
 
 **Parameters:**
 
@@ -1653,7 +1640,6 @@ This method is subject to removal. Use setSortingRule(SortingRule) instead.
 **Throws:**
 
 IllegalArgumentException - if more than MAXIMUM_STORE_INVENTORY_FILTER_VALUES filter values used
-UnsupportedOperationException - in case the API is used without enablement
 
 ---
 
