@@ -4,7 +4,7 @@ This document describes the MCP (Model Context Protocol) tests for the SFCC Deve
 
 ## Overview
 
-The project includes comprehensive MCP tests using both **YAML** and **Node.js** approaches with the [mcp-conductor](https://conductor.rhino-inquisitor.com/) testing library. The tests verify both **documentation-only mode** and **full mode with credentials**.
+The project includes comprehensive MCP tests using both **YAML** and **Node.js** approaches with the [mcp-aegis](https://aegis.rhino-inquisitor.com/) testing library. The tests verify both **documentation-only mode** and **full mode with credentials**.
 
 ## Test Structure
 
@@ -26,12 +26,12 @@ tests/mcp/
 ## Configuration Files
 
 ### Documentation-Only Mode
-- **File**: `conductor.config.docs-only.json`
+- **File**: `aegis.config.docs-only.json`
 - **Command**: `node dist/index.js` (no credentials)
 - **Tools**: 15 tools (documentation, best practices, SFRA, cartridge generation)
 
 ### Full Mode with Credentials  
-- **File**: `conductor.config.with-dw.json`
+- **File**: `aegis.config.with-dw.json`
 - **Command**: `node dist/index.js --dw-json ./tests/mcp/test-fixtures/dw.json`
 - **Tools**: 36 tools (includes log analysis, system objects, job logs, code versions)
 
@@ -46,7 +46,7 @@ npm run test:mcp:yaml
 npm run test:mcp:yaml:full
 
 # Manual execution with specific config
-conductor 'tests/mcp/yaml/*.test.mcp.yml' --config './conductor.config.docs-only.json'
+aegis 'tests/mcp/yaml/*.test.mcp.yml' --config './aegis.config.docs-only.json'
 ```
 
 ### Node.js Programmatic Testing
@@ -203,7 +203,7 @@ To test full functionality:
 ### Enable Verbose Output
 ```bash
 # YAML tests with debugging
-conductor 'tests/mcp/yaml/*.test.mcp.yml' --config './conductor.config.docs-only.json' --verbose --debug
+aegis 'tests/mcp/yaml/*.test.mcp.yml' --config './aegis.config.docs-only.json' --verbose --debug
 
 # Check server logs
 npm run dev -- --debug true
@@ -211,23 +211,23 @@ npm run dev -- --debug true
 
 ### Common Issues
 - **Build Required**: Always run `npm run build` before testing
-- **Tool Count Mismatches**: Verify tool counts with `npx conductor query`  
+- **Tool Count Mismatches**: Verify tool counts with `npx aegis query`  
 - **Connection Failures**: Expected in full mode with test credentials
-- **Path Issues**: Use absolute paths in conductor config files
+- **Path Issues**: Use absolute paths in aegis config files
 
 ## Contributing
 
 When adding new tools or modifying existing ones:
 
 1. **Update test files** to include new tools
-2. **Verify tool counts** using `npx conductor query`
+2. **Verify tool counts** using `npx aegis query`
 3. **Test both modes** to ensure proper tool availability
 4. **Update documentation** with new tool descriptions
 5. **Run full test suite** before committing
 
 ## Resources
 
-- **[MCP Conductor Documentation](https://conductor.rhino-inquisitor.com/)**: Complete testing framework guide
+- **[MCP Aegis Documentation](https://aegis.rhino-inquisitor.com/)**: Complete testing framework guide
 - **[YAML Testing Guide](./yaml/AGENTS.md)**: Declarative testing patterns
 - **[Node.js Testing Guide](./node/AGENTS.md)**: Programmatic testing patterns
 - **[MCP Protocol Specification](https://modelcontextprotocol.io/)**: Protocol standards

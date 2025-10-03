@@ -1,43 +1,77 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { PageSubtitle, H2, H3 } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
 import ConfigHero from '../components/ConfigHero';
 import ConfigModeTabs from '../components/ConfigModeTabs';
 import ConfigBuilder from '../components/ConfigBuilder';
+import { SITE_DATES } from '../constants';
 import Collapsible from '../components/Collapsible';
 
 const ConfigurationPage: React.FC = () => {
-  useSEO({
-    title: 'Configuration Guide - SFCC Development MCP Server',
-    description: 'Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, and security best practices.',
-    keywords: 'SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration',
-    ogTitle: 'SFCC Development MCP Server Configuration Guide',
-    ogDescription: 'Comprehensive configuration guide for SFCC Development MCP Server with authentication, security, and environment setup.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration'
-  });
+  const configurationStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Configuration Guide - SFCC Development MCP Server",
+  "description": "Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, security best practices, and how to enable logs, job logs, system & custom objects, site preferences, and code versions.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/configuration/",
+    "about": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "SFCC Development MCP Server",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Node.js",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    ]
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <SEO 
+        title="Configuration Guide"
+  description="Complete configuration guide for SFCC Development MCP Server. Learn dw.json setup, environment variables, operating modes, authentication, security best practices, and how to enable logs, job logs, system & custom objects, site preferences, and code versions."
+        keywords="SFCC MCP configuration, dw.json setup, SFCC authentication, OCAPI credentials, WebDAV configuration, Commerce Cloud API setup, SFCC development environment"
+        canonical="/configuration/"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Configuration", url: "/configuration/" }
+      ]} />
+      <StructuredData structuredData={configurationStructuredData} />
+      
       <ConfigHero />
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
           <div className="text-center mb-10">
             <H2 id="quick-start" className="text-3xl font-bold mb-3">🚀 Quick Start</H2>
             <p className="text-gray-700 max-w-3xl mx-auto text-lg">Pick a mode, generate <InlineCode>dw.json</InlineCode>, run the server. Minimal friction, fast feedback.</p>
           </div>
           <ConfigModeTabs />
-        </div>
       </div>
-      <div className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-8 shadow-xl">
+      <div className="mb-20 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl p-8 shadow-xl border border-emerald-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
               <H2 id="interactive-config" className="text-2xl font-bold mb-2">🧪 Interactive dw.json Builder</H2>
-              <p className="text-sm text-gray-600 max-w-xl">Start minimal (only hostname + basic auth for logs). Enable advanced fields when you need Data API (system objects, site prefs) or code version tooling.</p>
+              <p className="text-sm text-gray-600 max-w-xl">Start minimal (only <InlineCode>hostname</InlineCode> + <InlineCode>username/password</InlineCode> for runtime & job logs). Add Data API credentials when you need system & custom objects, site preferences or code version tooling.</p>
             </div>
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 max-w-sm">
               <p className="font-semibold mb-1">Tips</p>
@@ -49,7 +83,6 @@ const ConfigurationPage: React.FC = () => {
             </div>
           </div>
           <ConfigBuilder />
-        </div>
       </div>
       <div className="space-y-20 mb-20">
         <div className="space-y-16">
@@ -58,7 +91,7 @@ const ConfigurationPage: React.FC = () => {
               <span className="inline-block bg-yellow-100 text-yellow-700 text-[11px] font-semibold px-3 py-1 rounded-full tracking-wide uppercase">Optional – Enables Data API Tools</span>
               <h2 id="data-api-configuration" className="text-2xl font-bold text-gray-900">🔧 Data API Configuration</h2>
             </div>
-            <p className="text-gray-600 mb-6 text-sm">Needed for system object definitions, site preferences & code version tools. Skip if you only need logs + docs.</p>
+            <p className="text-gray-600 mb-6 text-sm">Required for system object definitions, custom object attribute searches, site preferences & code version tools. Not required for runtime logs or job log analysis (basic auth only). Skip entirely if you only need docs + log visibility.</p>
             <div className="space-y-6">
             <Collapsible id="api-client" title="Step 1: Create API Client (Account Manager)" intent="info" defaultOpen>
               <ol className="list-decimal list-inside space-y-1">
@@ -77,13 +110,13 @@ const ConfigurationPage: React.FC = () => {
               <CodeBlock language="json" code={`{\n  \"_v\": \"23.2\",\n  \"clients\": [{\n    \"client_id\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    \"resources\": [\n      { \"resource_id\": \"/system_object_definitions\", \"methods\": [\"get\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/system_object_definitions/*\", \"methods\": [\"get\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/system_object_definition_search\", \"methods\": [\"post\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/system_object_definitions/*/attribute_definition_search\", \"methods\": [\"post\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/system_object_definitions/*/attribute_group_search\", \"methods\": [\"post\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/custom_object_definitions/*/attribute_definition_search\", \"methods\": [\"post\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/site_preferences/preference_groups/*/*/preference_search\", \"methods\": [\"post\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/code_versions\", \"methods\": [\"get\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" },\n      { \"resource_id\": \"/code_versions/*\", \"methods\": [\"get\", \"patch\"], \"read_attributes\": \"(**)\", \"write_attributes\": \"(**)\" }\n    ]\n  }]\n}\n`} />
               <ul className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg p-4 mt-4 space-y-1">
                 <li><strong>Client ID</strong> must match your credentials</li>
-                <li>Allow <InlineCode>get</InlineCode>/<InlineCode>post</InlineCode> for search + retrieval</li>
+                <li>Allow <InlineCode>get</InlineCode>/<InlineCode>post</InlineCode> for search + retrieval (and <InlineCode>patch</InlineCode> for code version activation)</li>
                 <li><InlineCode>(**)</InlineCode> attributes needed for broad introspection</li>
               </ul>
             </Collapsible>
             <Collapsible id="update-config" title="Step 3: Update dw.json" intent="plain">
               <CodeBlock language="json" code={`{\n  \"hostname\": \"your-instance.sandbox.us01.dx.commercecloud.salesforce.com\",\n  \"username\": \"your-username\",\n  \"password\": \"your-password\",\n  \"client-id\": \"your-ocapi-client-id\",\n  \"client-secret\": \"your-ocapi-client-secret\"\n}`} />
-              <p className="text-[11px] text-gray-500 -mt-3">Add only <InlineCode>client-id</InlineCode>/<InlineCode>client-secret</InlineCode> when you need Data API tooling.</p>
+              <p className="text-[11px] text-gray-500 -mt-3">Add <InlineCode>client-id</InlineCode>/<InlineCode>client-secret</InlineCode> only when you need Data API tooling (system & custom objects, site preferences, code versions). Omit for docs + log visibility only.</p>
             </Collapsible>
             <Collapsible id="data-api-troubleshooting" title="Troubleshooting Data API Access" intent="danger">
               <ul className="list-disc pl-5 text-sm space-y-2">
@@ -94,6 +127,7 @@ const ConfigurationPage: React.FC = () => {
               <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug true`} />
             </Collapsible>
             </div>
+            <p className="text-[11px] text-gray-500 mt-2">Total surface: 36+ specialized tools spanning documentation, best practices, SFRA, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
           </section>
           <section id="security" className="scroll-mt-24 space-y-6">
             <div className="mb-4 space-y-2">
@@ -107,7 +141,7 @@ const ConfigurationPage: React.FC = () => {
               </div>
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h4 className="font-semibold text-sm mb-3">Environment Overrides</h4>
-                <CodeBlock language="bash" code={`export SFCC_CLIENT_SECRET=\"your-secret\"\nexport SFCC_PASSWORD=\"your-password\n\nnpx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json"`} />
+                <CodeBlock language="bash" code={`export SFCC_CLIENT_SECRET=\"your-secret\"\nexport SFCC_PASSWORD=\"your-password\"\n\nnpx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json`} />
               </div>
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h4 className="font-semibold text-sm mb-3">Permissions</h4>
@@ -143,13 +177,13 @@ const ConfigurationPage: React.FC = () => {
                     </tr>
                     <tr>
                       <td className="px-3 py-2 font-mono text-xs">username/password</td>
-                      <td className="px-3 py-2 text-xs">Logs, WebDAV</td>
-                      <td className="px-3 py-2 text-xs">WebDAV auth</td>
+                      <td className="px-3 py-2 text-xs">Logs & Job Logs (WebDAV)</td>
+                      <td className="px-3 py-2 text-xs">WebDAV auth (runtime + job log files)</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 font-mono text-xs">client-id/secret</td>
-                      <td className="px-3 py-2 text-xs">System objects, versions</td>
-                      <td className="px-3 py-2 text-xs">OCAPI auth</td>
+                      <td className="px-3 py-2 text-xs">System & custom objects, site prefs, code versions</td>
+                      <td className="px-3 py-2 text-xs">OCAPI Data API + code version management</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 font-mono text-xs">code-version</td>
@@ -198,12 +232,17 @@ const ConfigurationPage: React.FC = () => {
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 text-xs font-medium">Log Analysis</td>
+                      <td className="px-3 py-2 text-xs font-medium">Log Analysis (runtime)</td>
                       <td className="px-3 py-2 text-xs">—</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 text-xs font-medium">System Objects</td>
+                      <td className="px-3 py-2 text-xs font-medium">Job Logs</td>
+                      <td className="px-3 py-2 text-xs">—</td>
+                      <td className="px-3 py-2 text-xs">✔</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 text-xs font-medium">System & Custom Objects / Site Prefs</td>
                       <td className="px-3 py-2 text-xs">—</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>
@@ -260,13 +299,13 @@ const ConfigurationPage: React.FC = () => {
           <PageSubtitle className="text-base text-gray-600">Pick your next path—feature surface or concrete tool list.</PageSubtitle>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/#/features" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
+          <NavLink to="/features/" className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline">
             Features Overview
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a href="/#/tools" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
+          </NavLink>
+          <NavLink to="/tools/" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline">
             Available Tools
-          </a>
+          </NavLink>
         </div>
       </div>
     </div>

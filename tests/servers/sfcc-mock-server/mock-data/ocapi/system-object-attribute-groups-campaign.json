@@ -1,0 +1,13 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 0,
+  "hits": [],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 0
+}

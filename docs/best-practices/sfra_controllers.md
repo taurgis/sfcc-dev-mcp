@@ -225,6 +225,45 @@ server.post('AjaxSubmit', csrfProtection.validateAjaxRequest, function (req, res
 });
 ```
 
+#### CRITICAL: CSRF Middleware Automation
+
+**❌ COMMON MISTAKE**: Manually adding CSRF tokens to viewData
+
+```javascript
+// ❌ WRONG - Don't do this in SFRA controllers!
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        csrf: res.getViewData().csrf,    // ❌ Redundant
+        // OR
+        csrf: {
+            tokenName: req.csrf.tokenName,  // ❌ Redundant
+            token: req.csrf.token           // ❌ Redundant  
+        }
+    });
+});
+```
+
+**✅ CORRECT APPROACH**: Let middleware handle it automatically
+
+```javascript
+// ✅ CORRECT - Middleware automatically adds CSRF to pdict
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        // No need to manually add CSRF - middleware does this
+        pageTitle: 'My Form',
+        otherData: 'value'
+    });
+    // pdict.csrf.tokenName and pdict.csrf.token are automatically available
+    next();
+});
+```
+
+**How CSRF Middleware Works in SFRA:**
+- `csrfProtection.generateToken` automatically adds `csrf.tokenName` and `csrf.token` to viewData
+- Templates access tokens directly via `${pdict.csrf.tokenName}` and `${pdict.csrf.token}`
+- `csrfProtection.validateRequest` and `validateAjaxRequest` handle validation automatically
+- **Never manually add CSRF data to viewData** - it's redundant and can cause issues
+
 ### User Authentication (`userLoggedIn.js`)
 
 Middlewares for protecting routes that require authentication:
@@ -369,6 +408,118 @@ function customMiddleware(req, res, next) {
 }
 ```
 
+## Remote Include Architecture (Controller Perspective)
+
+Remote includes bridge controller design, caching, and security. Each `<isinclude url="...">` triggers a secondary request whose lifecycle is independent of the parent page.
+
+### 1. Execution Model Recap
+1. Parent controller builds main page (may be fully cached)
+2. Application Server streams HTML with remote include placeholders
+3. Web Adapter detects placeholders → performs new HTTP requests to each include URL
+4. Include controller runs with `req.includeRequest === true`
+5. Web Adapter stitches fragment responses into final payload
+
+### 2. Mandatory Middleware Ordering
+Always begin remote include routes with the gatekeeper:
+```javascript
+server.get('MiniCart',
+  server.middleware.include,  // Ensures only include-origin requests allowed
+  /* cache or auth middleware here */
+  function (req, res, next) {
+     // Build fragment model – NO parent pdict access
+     res.render('components/header/miniCart');
+     return next();
+  }
+);
+```
+
+Add authentication right AFTER the gatekeeper if user‑specific:
+```javascript
+server.get('AccountSummary',
+  server.middleware.include,
+  userLoggedIn.validateLoggedIn,
+  cache.applyShortPromotionSensitiveCache,
+  function (req, res, next) {
+     res.render('account/summary');
+     next();
+  }
+);
+```
+
+### 3. Data Passing Constraints
+Include controllers cannot see parent `pdict`. All inputs must be query parameters defined in the template:
+```isml
+<isinclude url="${URLUtils.url('PromoSlot-Include', 'slotId', 'hp_banner_1')}" />
+```
+Avoid volatile params that reduce cache hits (e.g., timestamps, indexes, random tokens).
+
+### 4. Caching Strategy Patterns
+| Fragment | Typical TTL | Notes |
+|----------|------------|-------|
+| MiniCart | 0 (uncached) | Basket must reflect real-time state |
+| Personalized Banner | 5–15m | Balance freshness vs recompute cost |
+| Static Navigation | 12–24h | Rarely changes; high CDN / app cache hit rate |
+| Inventory Badge | 1–5m | Short TTL isolates volatility |
+
+### 5. Performance Guardrails
+| Concern | Guidance |
+|---------|----------|
+| Count per page | Target < 20 (soft). Overuse causes waterfall latency. |
+| Nesting depth | Keep ≤ 2. Depth 3+ complicates tracing & raises miss amplification. |
+| Fragment size | Keep payload lean (<10KB ideal) – remote includes are for targeted data. |
+| Parallelism | Web Adapter fetches includes concurrently; slowest fragment = page delay. Optimize worst offender first. |
+
+### 6. Observability & Tracing
+Search logs by extended request ID pattern: `baseId-depth-index`.
+Example sequence: `Qx1Ab-0-00` (page) → `Qx1Ab-1-01` (first fragment) → `Qx1Ab-2-03` (nested fragment).
+
+Add structured logging:
+```javascript
+Logger.info('Include {0} depth={1} start', request.httpPath, request.requestID);
+```
+
+### 7. Security Checklist
+```text
+[ ] server.middleware.include first
+[ ] Auth middleware if user-specific data
+[ ] No PII in query params
+[ ] Explicit cache middleware (or intentional no-cache)
+[ ] Fragment output sanitized (no raw user input)
+[ ] Error handling returns safe minimal content
+```
+
+If any box unchecked → treat as deployment blocker.
+
+### 8. Anti‑Patterns & Refactors
+| Anti‑Pattern | Risk | Refactor |
+|--------------|------|----------|
+| Remote include per search result | N network calls, poor TTFB | Single controller renders list with local includes |
+| Passing large serialized JSON in query | URL length + logging exposure | Use lightweight ID → lookup inside fragment |
+| Relying on parent csrf/viewData | Undefined behavior, security gaps | Regenerate context in fragment |
+| Deep chain (>2 levels) | Hard to debug, compounded latency | Flatten – merge sibling fragments |
+
+### 9. Example: Structured Composite Page
+Home page shell (24h cache) + fragments:
+- `MiniCart` (0 TTL)
+- `PromoBanner` (15m)
+- `CategoryRefinements` (1h)
+Each can be independently invalidated without purging page shell cache.
+
+### 10. Decision Flow
+```text
+Need different TTL? ── no ─▶ Local include
+    │
+    yes
+Is data easily param encoded? ── no ─▶ Controller aggregation instead
+    │
+    yes
+Contains sensitive data? ── yes ─▶ Add auth middleware
+    │
+    (Proceed) Remote include
+```
+
+---
+
 ## Code Examples
 
 ### 1. Basic Controller: Hello World
@@ -466,8 +617,10 @@ var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 server.get('ShowForm', csrfProtection.generateToken, function (req, res, next) {
     //... logic to render form...
     res.render('myFormTemplate', {
-        csrf: res.getViewData().csrf // Pass token to template
+        // ✅ CORRECT: No need to manually pass CSRF - middleware handles this
+        formData: someData
     });
+    // CSRF token automatically available as pdict.csrf.tokenName and pdict.csrf.token
     next();
 });
 

@@ -1,0 +1,26 @@
+{
+  "_v": "23.2",
+  "_type": "object_type_definition",
+  "attribute_definition_count": 45,
+  "attribute_group_count": 8,
+  "content_object": false,
+  "creation_date": "2024-02-19T10:18:31.000Z",
+  "description": {
+    "default": "Object type representing customers."
+  },
+  "display_name": {
+    "de": "Kunde",
+    "default": "Customer",
+    "ja": "顧客",
+    "it": "Cliente",
+    "fr": "Client",
+    "zh-CN": "客户",
+    "es": "Cliente",
+    "nl": "Klant"
+  },
+  "last_modified": "2024-02-19T10:18:31.000Z",
+  "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Customer",
+  "object_type": "Customer",
+  "queryable": true,
+  "read_only": false
+}

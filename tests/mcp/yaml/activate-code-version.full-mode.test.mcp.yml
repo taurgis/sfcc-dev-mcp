@@ -1,0 +1,507 @@
+# ==================================================================================
+# SFCC MCP Server - activate_code_version Tool YAML Tests (Full Mode)
+# Tests code version activation functionality with SFCC credentials
+# This tool provides code version management for deployment troubleshooting
+#
+# Test Coverage:
+# - Tool availability and definition validation in full mode
+# - Parameter validation (required codeVersionId, empty/null handling)
+# - Error responses for non-existent and invalid code versions
+# - Response structure validation for both success and error cases
+# - Performance requirements (under 2000ms for OCAPI calls)
+# - Edge cases (long IDs, special characters)
+# - Consistency across different invalid inputs
+# - SFCC fault information parsing
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/activate-code-version.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query activate_code_version 'codeVersionId:test-version-001' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "activate_code_version tool full mode tests - Core functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY TESTS
+  # ==================================================================================
+  - it: "should list activate_code_version tool in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-availability-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-availability-full"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"
+
+  - it: "should have correct tool definition in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-definition-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-definition-full"
+        result:
+          tools: "match:arrayContains:name:activate_code_version"
+      stderr: "toBeEmpty"
+
+  - it: "should have proper tool schema definition"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-validation"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-validation"
+        result:
+          tools: "match:arrayContains:name:activate_code_version"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # SETUP - RESET TO KNOWN STATE
+  # ==================================================================================
+  - it: "should reset to known state before testing"
+    request:
+      jsonrpc: "2.0"
+      id: "reset-state"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "reset_version"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "reset-state"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # SUCCESSFUL ACTIVATION TESTS
+  # ==================================================================================
+  - it: "should successfully activate first test code version"
+    request:
+      jsonrpc: "2.0"
+      id: "activate-success-1"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test_activation"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "activate-success-1"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:\"id\": \"test_activation\""
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should successfully activate second test code version"
+    request:
+      jsonrpc: "2.0"
+      id: "activate-success-2"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "simple_id"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "activate-success-2"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:\"id\": \"simple_id\""
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should successfully activate third test code version with dashes"
+    request:
+      jsonrpc: "2.0"
+      id: "activate-success-3"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "version-with-dashes"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "activate-success-3"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:\"id\": \"version-with-dashes\""
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # RE-ACTIVATION FAILURE TEST
+  # ==================================================================================
+  - it: "should fail when attempting to re-activate currently active version"
+    request:
+      jsonrpc: "2.0"
+      id: "reactivate-failure"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "version-with-dashes"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "reactivate-failure"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:already active"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # RESET TO KNOWN STATE (Final)
+  # ==================================================================================
+  - it: "should reset back to reset_version to clean up test state"
+    request:
+      jsonrpc: "2.0"
+      id: "final-reset"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "reset_version"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "final-reset"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:\"id\": \"reset_version\""
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION TESTS
+  # ==================================================================================
+  - it: "should reject missing required parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-param"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:codeVersionId must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should reject empty codeVersionId"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-param"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:codeVersionId must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should reject null codeVersionId"
+    request:
+      jsonrpc: "2.0"
+      id: "null-param"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "null-param"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:codeVersionId must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # ==================================================================================
+  # BASIC FUNCTIONALITY TESTS (Using Non-Existent Code Version)
+  # ==================================================================================
+  - it: "should handle non-existent code version gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "non-existent-version"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-version-nonexistent"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "non-existent-version"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*404[\\s\\S]*not found[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should provide meaningful error for invalid code version ID"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-version-id"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "invalid@#$%^&*()"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-version-id"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*(404|not found|invalid)[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # RESPONSE STRUCTURE VALIDATION
+  # ==================================================================================
+  - it: "should return proper error response structure"
+    request:
+      jsonrpc: "2.0"
+      id: "error-structure"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-nonexistent"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should include SFCC fault information in error response"
+    request:
+      jsonrpc: "2.0"
+      id: "sfcc-fault-info"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-fault-info"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfcc-fault-info"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*(fault|InvalidParameterException|404)[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE TESTS
+  # ==================================================================================
+  - it: "should meet performance requirements for error responses"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-error"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-performance"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-error"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # EDGE CASE TESTS
+  # ==================================================================================
+  - it: "should handle very long code version ID"
+    request:
+      jsonrpc: "2.0"
+      id: "long-version-id"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-very-long-code-version-id-that-exceeds-normal-length-expectations-and-might-cause-issues"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "long-version-id"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*(404|not found)[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should handle special characters in code version ID"
+    request:
+      jsonrpc: "2.0"
+      id: "special-chars"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-version-with-spaces and-chars"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "special-chars"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*(404|not found)[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # CONSISTENCY TESTS
+  # ==================================================================================
+  - it: "should return consistent error format across different invalid inputs"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-errors-1"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-consistency-1"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-errors-1"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return consistent error format for different invalid version"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-errors-2"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-consistency-2"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-errors-2"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: true
+      stderr: "toBeEmpty"

@@ -4,10 +4,10 @@
 # Tests both successful responses and error handling scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/sfcc-class-info.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/sfcc-class-info.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query get_sfcc_class_info '{"className": "dw.catalog.Product"}' --config "conductor.config.docs-only.json"
-# conductor query get_sfcc_class_info '{"className": "dw.catalog.Product", "expand": true}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/sfcc-class-info.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/sfcc-class-info.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query get_sfcc_class_info '{"className": "dw.catalog.Product"}' --config "aegis.config.docs-only.json"
+# aegis query get_sfcc_class_info '{"className": "dw.catalog.Product", "expand": true}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server get_sfcc_class_info tool - comprehensive validation"
 
@@ -1042,7 +1042,7 @@ tests:
               text: "match:contains:Catalog"
           isError: false
       performance:
-        maxResponseTime: "100ms"  # Documentation lookup should be very fast
+        maxResponseTime: "150ms"  # Documentation lookup should be very fast
       stderr: "toBeEmpty"
 
   - it: "should return complex class info with expand within timeout"

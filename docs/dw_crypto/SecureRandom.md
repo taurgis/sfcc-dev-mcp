@@ -95,7 +95,7 @@ a randomly filled Bytes
 
 **Signature:** `nextInt() : Number`
 
-**Description:** Returns the next pseudorandom, uniformly distributed int value from this random number generator's sequence. The general contract of nextInt is that one int value is pseudorandomly generated and returned. All 232 possible int values are produced with (approximately) equal probability.
+**Description:** Returns the next pseudorandom, uniformly distributed int value from this random number generator's sequence. The general contract of nextInt is that one int value is pseudorandomly generated and returned. All 2^32 possible int values are produced with (approximately) equal probability.
 
 **Returns:**
 

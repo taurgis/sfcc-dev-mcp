@@ -1,21 +1,15 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import ToolFilters from '../components/ToolFilters';
 import ToolCard from '../components/ToolCard';
 import { tools, popularTools } from '../utils/toolsData';
+import { SITE_DATES } from '../constants';
 
 const ToolsPage: React.FC = () => {
-  useSEO({
-    title: 'Available Tools & APIs - SFCC Development MCP Server',
-    description: 'Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions.',
-    keywords: 'SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools',
-    ogTitle: 'SFCC Development MCP Server - Tools & APIs Reference',
-    ogDescription: 'Browse, filter and search all MCP tools with instant example prompts to accelerate development.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools'
-  });
-
   const [activeCategory, setActiveCategory] = React.useState('All');
   const [search, setSearch] = React.useState('');
   const [showPopularExpanded, setShowPopularExpanded] = React.useState(true);
@@ -34,8 +28,52 @@ const ToolsPage: React.FC = () => {
     );
   });
 
+  const toolsStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Available Tools & APIs - SFCC Development MCP Server",
+    "description": "Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/tools/",
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "description": "Interactive API reference and tools catalog",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
+      <SEO 
+        title="Available Tools & APIs"
+        description="Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions."
+        keywords="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices"
+        canonical="/tools/"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Tools", url: "/tools/" }
+      ]} />
+      <StructuredData data={toolsStructuredData} />
+      
       {/* Hero */}
       <div className="text-center mb-14">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -43,14 +81,12 @@ const ToolsPage: React.FC = () => {
         </div>
         <H1 id="available-tools" className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Interactive Tool Explorer</H1>
         <PageSubtitle className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          36 specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
+          36+ specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
         </PageSubtitle>
       </div>
 
       {/* Quick Actions / Popular */}
-      <section className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 md:p-8 shadow-xl">
+      <section className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 shadow-xl border border-blue-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
               <h2 id="quick-actions" className="text-2xl font-bold text-gray-900 mb-1">🚀 Quick Actions</h2>
@@ -81,9 +117,23 @@ const ToolsPage: React.FC = () => {
                   <a href={`#${tool.id}`} className="absolute inset-0" aria-label={`Jump to ${tool.name}`}></a>
                 </div>
               ))}
+              {/* Added Hook Reference Quick Action */}
+              <div className="relative rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-4 shadow-sm group">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-mono text-xs font-semibold text-amber-700">get_hook_reference</p>
+                  <button
+                    onClick={() => navigator.clipboard.writeText('Ask: "List available SCAPI hook extension points for product search"')}
+                    className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-700 px-2 py-0.5 rounded transition"
+                  >Copy</button>
+                </div>
+                <p className="text-[11px] text-amber-800 line-clamp-2 group-hover:line-clamp-none transition-all">
+                  Discover all available OCAPI or SCAPI hook extension points to select the correct customization surface.
+                </p>
+                <p className="mt-2 text-[11px] text-amber-600 italic">Ask: "List available SCAPI hook extension points for product search"</p>
+                <a href="#get_hook_reference" className="absolute inset-0" aria-label="Jump to get_hook_reference"></a>
+              </div>
             </div>
           )}
-        </div>
       </section>
 
       {/* Filters */}
@@ -115,7 +165,7 @@ const ToolsPage: React.FC = () => {
       {/* Getting Started Hint */}
       <div className="mt-20 bg-blue-50 border border-blue-200 rounded-xl p-6">
         <h3 className="text-sm font-semibold text-blue-800 mb-2">💡 Mode Recommendation</h3>
-        <p className="text-xs text-blue-800 leading-relaxed">Explore freely in Documentation Mode first. Add <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">--dw-json</code> later to unlock log analysis, system objects and code version management without changing any other configuration.</p>
+  <p className="text-xs text-blue-800 leading-relaxed">Explore freely in Documentation Mode first. Add <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">--dw-json</code> later to unlock log analysis, system & custom object exploration, job log insights, and code version management without changing any other configuration.</p>
       </div>
 
       {/* Next Steps */}
@@ -123,19 +173,19 @@ const ToolsPage: React.FC = () => {
         <h2 id="next-steps" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">🔗 Next Steps</h2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Move from raw tool surface into practical flows or reinforce secure patterns before enabling full-mode capabilities.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-          <a
-            href="/#/examples"
+          <NavLink
+            to="/examples/"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a
-            href="/#/security"
+          </NavLink>
+          <NavLink
+            to="/security/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Security Guidance
-          </a>
+          </NavLink>
         </div>
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-4 text-left">
           <div className="rounded-xl border border-gray-200 bg-white p-5">

@@ -8,7 +8,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
-- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more  
+- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
 - **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
@@ -61,7 +61,7 @@ Create a `dw.json` file with your SFCC credentials:
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
-- Best practices guides (4 tools) 
+- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
 - Cartridge generation (1 tool)
 
@@ -95,7 +95,7 @@ This server is built around a **capability-gated, modular handler architecture**
 2. Implement domain logic in a client/service (avoid bloating handlers).
 3. Extend an existing handler or create a new one if it's a new category.
 4. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
-5. Discover actual response shape with `npx conductor query` before writing tests.
+5. Discover actual response shape with `npx mcp-aegis query` before writing tests.
 6. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
 7. Update documentation (Development Guide + README counts if changed).
 
@@ -114,12 +114,13 @@ Choose your preferred AI assistant:
 ## 📦 Installation
 
 ### Using npx (Recommended)
+> Tip: Add `-y` (or `--yes`) to suppress the interactive prompt npx shows before downloading a package. This prevents AI clients (Claude Desktop, Copilot, Cursor) from hanging waiting for confirmation.
 ```bash
 # Test the server
-npx sfcc-dev-mcp
+npx -y sfcc-dev-mcp
 
 # Use with your configuration
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ```
 
 ### Global Installation
@@ -133,10 +134,10 @@ sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ### Enable Debug Logging
 ```bash
 # Enable debug mode for detailed logging
-npx sfcc-dev-mcp --debug
+npx -y sfcc-dev-mcp --debug
 
 # Or with configuration file
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
 ```
 
 ### Log File Locations

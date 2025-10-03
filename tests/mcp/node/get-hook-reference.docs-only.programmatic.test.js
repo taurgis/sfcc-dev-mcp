@@ -1,7 +1,7 @@
 /**
  * Programmatic tests for get_hook_reference tool (docs-only mode)
  *
- * Response formats discovered via conductor query:
+ * Response formats discovered via aegis query:
  *  Success (ocapi_hooks): { content:[{type:'text', text:'[ {"category": ... } ]'}], isError:false }
  *  Success (scapi_hooks): similar but includes signature fields in JSON text
  *  Invalid guideName: content text is "[]" (empty JSON array), isError:false
@@ -19,7 +19,7 @@
 
 import { describe, test, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 
 function parseHookReference(result) {
@@ -55,7 +55,7 @@ describe('get_hook_reference.docs-only (programmatic)', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

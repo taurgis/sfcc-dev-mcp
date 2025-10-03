@@ -10,7 +10,7 @@ interface OnThisPageProps {
 const OnThisPage: React.FC<OnThisPageProps> = ({ items }) => {
   const [activeId, setActiveId] = useState<string>('');
   const location = useLocation();
-  const [initialPathHash, setInitialPathHash] = useState(window.location.hash);
+  const [initialPathHash, setInitialPathHash] = useState('');
 
   // Reset active ID when location changes
   useEffect(() => {
@@ -18,11 +18,15 @@ const OnThisPage: React.FC<OnThisPageProps> = ({ items }) => {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     if (items.length === 0) {
       setActiveId('');
       return;
     }
 
+    // Set initial path hash on client side only to prevent SSR hydration mismatch
     setInitialPathHash(window.location.hash);
 
     const observer = new IntersectionObserver(
@@ -67,7 +71,7 @@ const OnThisPage: React.FC<OnThisPageProps> = ({ items }) => {
           {items.map(item => (
             <li key={item.id}>
               <a
-                href={`${initialPathHash}#${item.id}`}
+                href={`#${item.id}`}
                 className={`block transition-colors ${
                   activeId === item.id
                     ? 'text-blue-600 font-medium border-l-2 border-blue-600 pl-2 -ml-2'

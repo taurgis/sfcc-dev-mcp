@@ -1,0 +1,224 @@
+{
+  "_v": "23.2",
+  "_type": "preference_value_search_result",
+  "count": 4,
+  "hits": [
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "sfra1-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Enable SFRA debug mode for development"
+        },
+        "display_name": {
+          "default": "SFRA Debug Mode"
+        },
+        "effective_id": "c_sfraDebugMode",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "sfraDebugMode",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/sfraDebugMode",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable SFRA debug mode for development"
+      },
+      "display_name": {
+        "default": "SFRA Debug Mode"
+      },
+      "id": "sfraDebugMode",
+      "site_values": {
+        "RefArch": false,
+        "RefArchGlobal": false,
+        "pxl_1": true,
+        "pxl_2": false,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "sfra2-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Custom middleware configurations for SFRA"
+        },
+        "display_name": {
+          "default": "SFRA Middleware Config"
+        },
+        "effective_id": "c_sfraMiddlewareConfig",
+        "externally_defined": false,
+        "externally_managed": false,
+        "field_height": 8,
+        "id": "sfraMiddlewareConfig",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/sfraMiddlewareConfig",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "text",
+        "visible": true
+      },
+      "description": {
+        "default": "Custom middleware configurations for SFRA"
+      },
+      "display_name": {
+        "default": "SFRA Middleware Config"
+      },
+      "id": "sfraMiddlewareConfig",
+      "site_values": {
+        "RefArch": "{\"cache\": true, \"csrf\": true, \"compression\": false}",
+        "RefArchGlobal": "{\"cache\": true, \"csrf\": true, \"compression\": true, \"logging\": \"debug\"}",
+        "pxl_1": "",
+        "pxl_2": "{\"cache\": false, \"csrf\": false}",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "text"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "sfra3-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Maximum SFRA cache timeout in seconds"
+        },
+        "display_name": {
+          "default": "SFRA Cache Timeout"
+        },
+        "effective_id": "c_sfraCacheTimeout",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "sfraCacheTimeout",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/sfraCacheTimeout",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "int",
+        "visible": true
+      },
+      "description": {
+        "default": "Maximum SFRA cache timeout in seconds"
+      },
+      "display_name": {
+        "default": "SFRA Cache Timeout"
+      },
+      "id": "sfraCacheTimeout",
+      "site_values": {
+        "RefArch": 3600,
+        "RefArchGlobal": 7200,
+        "pxl_1": 0,
+        "pxl_2": 1800,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "int"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "sfra4-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Configuration with null values to test edge cases"
+        },
+        "display_name": {
+          "default": "Edge Case Config"
+        },
+        "effective_id": "c_edgeCaseConfig",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "edgeCaseConfig",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/edgeCaseConfig",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "text",
+        "visible": false
+      },
+      "description": {
+        "default": "Configuration with null values to test edge cases"
+      },
+      "display_name": {
+        "default": "Edge Case Config"
+      },
+      "id": "edgeCaseConfig",
+      "site_values": {
+        "RefArch": null,
+        "RefArchGlobal": null,
+        "pxl_1": null,
+        "pxl_2": null,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "text"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "select": "(**)",
+  "start": 0,
+  "total": 4
+}

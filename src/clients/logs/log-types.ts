@@ -29,6 +29,7 @@ export interface LogEntry {
   entry: string;
   filename: string;
   order: number;
+  timestamp?: Date; // Extracted timestamp for chronological sorting
 }
 
 export interface ProcessedLogEntry {

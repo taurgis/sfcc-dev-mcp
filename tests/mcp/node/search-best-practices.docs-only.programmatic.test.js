@@ -6,7 +6,7 @@
  * search quality metrics, cross-guide relationship analysis, pattern recognition,
  * and comprehensive error categorization for the SFCC best practices search functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "[{"name":"guide_name","title":"Guide Title","matches":[...]}]" }], isError: false }
  * - Empty: { content: [{ type: "text", text: "[]" }], isError: false }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -15,7 +15,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 
 /**
@@ -26,12 +26,12 @@ class SearchResultsAnalyzer {
     this.knownGuides = [
       'cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry',
       'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models',
-      'scapi_custom_endpoint', 'performance', 'security'
+      'sfra_client_side_js', 'sfra_scss', 'scapi_custom_endpoint', 'performance', 'security'
     ];
     
     this.searchTermPatterns = {
       validation: {
-        expectedGuides: ['isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'security'],
+        expectedGuides: ['isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'security'],
         requiredTerms: ['validation', 'validate', 'check', 'verify'],
         contextTerms: ['form', 'input', 'parameter', 'data', 'error']
       },
@@ -41,7 +41,7 @@ class SearchResultsAnalyzer {
         contextTerms: ['CSRF', 'XSS', 'authorization', 'authentication', 'cryptography']
       },
       performance: {
-        expectedGuides: ['performance', 'sfra_controllers', 'cartridge_creation'],
+        expectedGuides: ['performance', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'cartridge_creation'],
         requiredTerms: ['performance', 'optimize', 'cache', 'memory', 'speed'],
         contextTerms: ['monitoring', 'metrics', 'throughput', 'latency', 'scalability']
       },
@@ -360,14 +360,15 @@ class QueryAnalyzer {
       technical: /\b(dw\.|server\.|middleware|controller|model|API|endpoint|hook)\b/i,
       security: /\b(security|auth|encrypt|CSRF|XSS|validation|sanitiz)\b/i,
       performance: /\b(performance|optimize|cache|memory|speed|monitoring)\b/i,
-      framework: /\b(SFRA|OCAPI|SCAPI|cartridge|ISML|template)\b/i,
+  framework: /\b(SFRA|OCAPI|SCAPI|cartridge|ISML|template|SCSS|SASS)\b/i,
       development: /\b(development|coding|implementation|best practice|guideline)\b/i
     };
     
     this.commonTerms = [
       'validation', 'security', 'performance', 'controller', 'middleware',
       'cartridge', 'template', 'hook', 'API', 'authentication', 'authorization',
-      'encryption', 'caching', 'transaction', 'error', 'configuration'
+      'encryption', 'caching', 'transaction', 'error', 'configuration',
+      'scss', 'styling'
     ];
   }
 
@@ -564,7 +565,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
   let queryAnalyzer;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
     searchAnalyzer = new SearchResultsAnalyzer();
     queryAnalyzer = new QueryAnalyzer();
   });
@@ -582,7 +583,7 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
 
   describe('Basic Search Functionality', () => {
     test('should handle common search terms with comprehensive analysis', async () => {
-      const searchTerms = ['validation', 'security', 'performance', 'controller', 'middleware'];
+  const searchTerms = ['validation', 'security', 'performance', 'controller', 'middleware', 'scss'];
       
       for (const term of searchTerms) {
         const result = await client.callTool('search_best_practices', { query: term });
@@ -600,6 +601,18 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
           // Some technical terms may not always be present in general searches
         }
       }
+    });
+
+    test('should surface SFRA SCSS guide for styling queries', async () => {
+      const result = await client.callTool('search_best_practices', { query: 'scss' });
+      const resultsArray = assertSearchResults(result);
+
+      assert.ok(resultsArray.some(r => r.guide === 'sfra_scss'), 'Should include sfra_scss guide in results');
+      const sfraScssGuide = resultsArray.find(r => r.guide === 'sfra_scss');
+      assert.ok(sfraScssGuide?.matches?.length > 0, 'SFRA SCSS guide should provide match excerpts');
+
+      const analysis = searchAnalyzer.analyzeResults('scss', resultsArray);
+      assert.ok(analysis.searchMeta.guidesFound.includes('sfra_scss'), 'Search metadata should track sfra_scss guide');
     });
 
     test('should demonstrate search result quality with detailed metrics', async () => {
@@ -792,7 +805,8 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
         'validation patterns',
         'security best practices',
         'performance optimization',
-        'SFRA controller architecture'
+        'SFRA controller architecture',
+        'SFRA SCSS best practices'
       ];
 
       for (const query of qualityTestQueries) {

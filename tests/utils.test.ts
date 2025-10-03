@@ -4,6 +4,7 @@ import {
   parseLogEntries,
   extractUniqueErrors,
   normalizeFilePath,
+  extractTimestampFromLogEntry,
 } from '../src/utils/utils';
 
 describe('utils.ts', () => {
@@ -399,6 +400,78 @@ describe('utils.ts', () => {
       expect(errors).toHaveLength(1000);
       expect(uniqueErrors).toHaveLength(10); // Limited to 10 unique errors
       expect(duration).toBeLessThan(1000); // Should complete within 1 second
+    });
+  });
+
+  describe('extractTimestampFromLogEntry', () => {
+    it('should extract timestamp from valid log entry', () => {
+      const logEntry = '[2025-08-19T10:30:00.000 GMT] ERROR Class - Test message';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getUTCFullYear()).toBe(2025);
+      expect(result?.getUTCMonth()).toBe(7); // 0-based months (August = 7)
+      expect(result?.getUTCDate()).toBe(19);
+      expect(result?.getUTCHours()).toBe(10);
+      expect(result?.getUTCMinutes()).toBe(30);
+    });
+
+    it('should handle different time values', () => {
+      const logEntry = '[2025-12-31T23:59:59.999 GMT] WARN Class - End of year';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getUTCFullYear()).toBe(2025);
+      expect(result?.getUTCMonth()).toBe(11); // December = 11
+      expect(result?.getUTCDate()).toBe(31);
+      expect(result?.getUTCHours()).toBe(23);
+      expect(result?.getUTCMinutes()).toBe(59);
+      expect(result?.getUTCSeconds()).toBe(59);
+      expect(result?.getUTCMilliseconds()).toBe(999);
+    });
+
+    it('should return null for entry without timestamp', () => {
+      const logEntry = 'ERROR Class - No timestamp here';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null for malformed timestamp', () => {
+      const logEntry = '[2025-13-45T25:70:70.000 GMT] ERROR Class - Invalid timestamp';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null for entry without GMT marker', () => {
+      const logEntry = '[2025-08-19T10:30:00.000] ERROR Class - No GMT marker';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle entries with continuation lines', () => {
+      const logEntry = '[2025-08-19T10:30:00.000 GMT] ERROR Class - Stack trace\n    at function1()\n    at function2()';
+      const result = extractTimestampFromLogEntry(logEntry);
+
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getUTCHours()).toBe(10);
+      expect(result?.getUTCMinutes()).toBe(30);
+    });
+
+    it('should handle edge case timestamps', () => {
+      // Test midnight
+      const midnightEntry = '[2025-01-01T00:00:00.000 GMT] INFO Class - Midnight';
+      const midnightResult = extractTimestampFromLogEntry(midnightEntry);
+      expect(midnightResult?.getUTCHours()).toBe(0);
+      expect(midnightResult?.getUTCMinutes()).toBe(0);
+
+      // Test leap year
+      const leapYearEntry = '[2024-02-29T12:00:00.000 GMT] INFO Class - Leap year';
+      const leapYearResult = extractTimestampFromLogEntry(leapYearEntry);
+      expect(leapYearResult?.getMonth()).toBe(1); // February
+      expect(leapYearResult?.getDate()).toBe(29);
     });
   });
 });

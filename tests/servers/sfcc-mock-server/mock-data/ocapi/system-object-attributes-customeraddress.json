@@ -1,0 +1,109 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_definition_search_result",
+  "count": 15,
+  "hits": [
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "3270518feb2ba23c77355a1690a5a9916acb509aa181e533b529de4abe2969f8",
+      "id": "ID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/ID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "3459bc3f84b37b9391714b05bbd8dedad7cac8edd3c243de0f0092549144240d",
+      "id": "UUID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/UUID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "45f36d21db7d180fb27087e13eec59e80562f51472378c4293284da7550787ee",
+      "id": "address1",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/address1"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "29d08491c3d2e65146b65fcfe44a64bf8ae7b538543d11d5bf6924c28965d9a0",
+      "id": "address2",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/address2"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "2cce8462628d664cf70c247d7d1cddd1f7dce24cd0e294db28162cdb62d8c291",
+      "id": "city",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/city"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "b15c7929905e11c4e1bf96a1de9c24f97645d5653c0a78efe916a3e1876be2ad",
+      "id": "companyName",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/companyName"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "c0eb64a92268d13fa32777eaec7f824dc5db27088a2d133442bd081e11480b0b",
+      "id": "countryCode",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/countryCode"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "f85a590a52c5d04bc7b61a4fc841d059e01e6dd2325761cf6d368a35b4b9b36b",
+      "id": "creationDate",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/creationDate"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5aa6c1f0af128dde7fa233ffa45187322f56d095a81a3348edcc8b0a21a0109a",
+      "id": "firstName",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/firstName"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "fe691db5c3021705fcf0b30de48afa4eeb8172bd80846f830bb77eae9a0469bd",
+      "id": "jobTitle",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/jobTitle"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "c404f51befa8a2a01b9775107d28b8067cebb1218bcaa135b616e8257a041e9e",
+      "id": "lastModified",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/lastModified"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "84205a32eaaed93d867d8425d65347144f7ae376af1a45802602640e7c99e9c6",
+      "id": "lastName",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/lastName"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "be89fc4879cca7a9fa426cac2e82a2d8829a11e0b4a59028482cb98cdf2d4567",
+      "id": "phone",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/phone"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "4c78d7cb9d9e36a4cb69794ec547c3df032f12ff757ec716683913c6fe69feea",
+      "id": "phone_country",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/phone_country"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "e61daf9d3e2beae465b19f3d6d46bd184bbc6d56b94bf5866b17311b06e6d51b",
+      "id": "postBox",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress/attribute_definitions/postBox"
+    }
+  ],
+  "next": {
+    "_type": "result_page",
+    "count": 15,
+    "start": 15
+  },
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 23
+}

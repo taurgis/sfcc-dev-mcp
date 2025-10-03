@@ -1,0 +1,224 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 35,
+  "hits": [
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "f5c17fdc7ebeaf9136d6fef12d76d68cf238abb98ccaa282e40a657b1a5fcfb6",
+      "id": "ChannelIntegration",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/ChannelIntegration"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "9787c54106885bf78ff45cd7f3a7f64a073d911485473db6289f4fb0252e345d",
+      "id": "ExternalSearch",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/ExternalSearch"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "01b32a52ad9a64e426f08a21c0d1c3732fa8f573399db8bcf8d68a49dbdea9b6",
+      "id": "Order",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/Order"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "3ad88093fb2451eb026a2c103b26018e9ab265391da20a39fb8bf3a8c5bb477d",
+      "id": "PXL3_Hoesjes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/PXL3_Hoesjes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "dc899d1d79f89a7a1845bc0fdea1e7b76b826f155f59807be55c0d8ce4763dc9",
+      "id": "PXL3_Oordopjes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/PXL3_Oordopjes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "d01dd2dca011264ffadd379d3c56151a7636dc1d6faf4ada51a081f2c72999eb",
+      "id": "PXL3_Opladers",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/PXL3_Opladers"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "cc17ba20294c83f5322e26ace9f60843de0c8dd55ff1bbfa4ad7b4e414595b47",
+      "id": "Presentation",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/Presentation"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "e0f82a956514fb4f24c601b1197248b2f21987bb339a7bddf14df5b7a309a1f9",
+      "id": "SearchRanking",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/SearchRanking"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "3495916efcfef9381c9630e7ac29f740c4ecd2c2e020692db7a8046838ee5a61",
+      "id": "SiteMap",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/SiteMap"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "e63730013e6fd915009e27898def794a844029e6fc2b96487bf00089b648d03a",
+      "id": "Store",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/Store"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "89c739821f23ba2e2c1e99d6fd1056228bda5046cc530cd045a2c307ce09d9a1",
+      "id": "WashingInstructions",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/WashingInstructions"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "0a8bf616f0b756ab850b50b8e6fff58906a4bbe5086a7361d889e01e9e9595b0",
+      "id": "backInStock",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/backInStock"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "750ad1eb7d39a27b5af165b0d09d37616867c379a5b737b2ff5831581a0c1937",
+      "id": "clothingAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/clothingAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "15add012dad5d62be8278d2962b188f59635c55b236538ed5a8f354e71b3ee73",
+      "id": "custom",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/custom"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "65e5cd4c2fd95724f96d8c1f838f9254d0f3a01c072e441dd73e518474458f2b",
+      "id": "electronicsDigitalCameraAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/electronicsDigitalCameraAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "37f492a3eb597f59395358cfb40eeb3a6294178dce09f8c377170e69daa30837",
+      "id": "electronicsDigitalMediaPlayerAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/electronicsDigitalMediaPlayerAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "fe9a646c9f866142f2d28011c26f65f90372ff7fc48067a77c57d54eb58c96a7",
+      "id": "electronicsDimensionsAndWeight",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/electronicsDimensionsAndWeight"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "dc186ea27a80c3369c603011027f46d2d34f7a43b60d44cf0bf1208346c40151",
+      "id": "electronicsGameRatings",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/electronicsGameRatings"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "8a3b2e949bdc9929ba41876929676f26e9b0527a5f30001273d09e9f2a53f89c",
+      "id": "electronicsGpsAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/electronicsGpsAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "0c9a9c20a3d1d3a3c5b6378c14551b2ce0f8352bad88de81ac357de2bb1d9145",
+      "id": "inStorePickup",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/inStorePickup"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "756e58068a70de9dd92c15babbb87e8c7b0856b6701f22a974cbf6f084bfaa3b",
+      "id": "mainAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mainAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "87361af2c433c890fe2afcd4bfb24056b763e8ddaa31e6e568a53336a7af78a7",
+      "id": "mainAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mainAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "eb2824b3e077e3bbc7c6626ebf4bcba9ca21b96f9804c4128e26120d898a0829",
+      "id": "mainAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mainAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "76beb3fafcfbddb4830c18b3382544456122a12c25d2fe5012ebc945a30b1b5d",
+      "id": "mainAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mainAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "37e37519eed074a1d4ca5f2be6914b8f32f19bea20475d7b63c6e684f63a2e37",
+      "id": "mainAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mainAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "e3f0676a3f0a5a212fbf171dd9f2d57b73c918ed27135f48a5e0a3d0b32dfb8a",
+      "id": "material",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/material"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "1810005767e31409c70ae256c98bd2570bf0a9664c82a464a9c097056251b949",
+      "id": "materialWashingInstructions",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/materialWashingInstructions"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "39d412aa0c6d48528b5efa0a5f639c9b20791744f69c3a18a3932e587071831d",
+      "id": "mensAccessoriesAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mensAccessoriesAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "f696e3513a04d3e4ea494165e9e69e6a9f4d3a0d22a0565921d5860c735c73f9",
+      "id": "mensClothingAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/mensClothingAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "747af7428d1f04dcfe79c2e22a34fe562277ad0f8b13dc4322708121233da7d8",
+      "id": "searchRefinements",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/searchRefinements"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "59811b6d815972e1403936b0fa5b6de7ca8101ebb27cb1dd83302eb1d9c8b0ff",
+      "id": "storefrontAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/storefrontAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "b29d3cb7452c7a6749ca009a024fe1b865d7642ebbf2a7392d5472e7641c5bcf",
+      "id": "storefrontAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/storefrontAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "0706cc287e8e9dda03acfc351d70b20e3eb4f9e26ba1f66929f7c68cc4b443d8",
+      "id": "storefrontAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/storefrontAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "7c529b5a59acfe0958ff98e98ce9a53c5045b1638edcce0abdf1ad7608a2ae8b",
+      "id": "womensAccessoriesAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/womensAccessoriesAttributes"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "436a1fc1e34643a96e42672f536b3f7802af3f512ec69ccdda05079af88f0277",
+      "id": "womensClothingAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_groups/womensClothingAttributes"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 35
+}

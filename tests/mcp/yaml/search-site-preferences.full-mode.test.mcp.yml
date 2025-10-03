@@ -1,0 +1,574 @@
+# ==================================================================================
+# SFCC MCP Server - search_site_preferences Tool YAML Tests (Full Mode)
+# Streamlined smoke testing and declarative validation for core functionality
+# Complex business logic, edge cases, and workflows are covered in programmatic tests
+# 
+# Available Preference Groups in Mock Server:
+# - Storefront (shopping cart, max items, welcome message, etc.)
+# - System (system-level preferences)
+# - SFRA (storefront reference architecture preferences)
+# - CCV (custom checkout validation preferences)
+# - FastForward (fast forward specific preferences)
+# - Integration (integration-specific preferences)
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/search-site-preferences.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query search_site_preferences '{"groupId": "Storefront", "instanceType": "sandbox", "searchRequest": {"query": {"match_all_query": {}}, "count": 3}}' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "search_site_preferences tool smoke tests - Basic functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY VALIDATION
+  # ==================================================================================
+  - it: "should have search_site_preferences tool available with proper schema"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:search_site_preferences"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # CORE FUNCTIONALITY VALIDATION - match_all_query
+  # ==================================================================================
+  - it: "should successfully search Storefront preferences with match_all_query and return valid structure"
+    request:
+      jsonrpc: "2.0"
+      id: "storefront-match-all-success"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "storefront-match-all-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return valid JSON structure with preference data in match_all_query response"
+    request:
+      jsonrpc: "2.0"
+      id: "storefront-structure"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "storefront-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"preference_value_search_result\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include query echo and pagination info in match_all_query response"
+    request:
+      jsonrpc: "2.0"
+      id: "storefront-metadata"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+            start: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "storefront-metadata"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"match_all_query\"[\\s\\S]*\"start\"[\\s\\S]*\"total\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return site preference data with attribute definitions and site values"
+    request:
+      jsonrpc: "2.0"
+      id: "storefront-content"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "storefront-content"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"attribute_definition\"[\\s\\S]*\"site_values\"[\\s\\S]*\"value_type\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # TEXT QUERY FUNCTIONALITY VALIDATION
+  # ==================================================================================
+  - it: "should successfully filter preferences with text_query"
+    request:
+      jsonrpc: "2.0"
+      id: "text-query-success"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "cart"
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "text-query-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"text_query\"[\\s\\S]*\"cart\"[\\s\\S]*"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return filtered results when searching for cart preferences"
+    request:
+      jsonrpc: "2.0"
+      id: "text-query-filtered"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "cart"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "text-query-filtered"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*(?:shoppingCartEnabled|maxCartItems)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # DIFFERENT PREFERENCE GROUPS VALIDATION
+  # ==================================================================================
+  - it: "should successfully search System preferences group"
+    request:
+      jsonrpc: "2.0"
+      id: "system-group-success"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "System"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "system-group-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should successfully search SFRA preferences group"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-group-success"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "SFRA"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-group-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # INSTANCE TYPE VALIDATION
+  # ==================================================================================
+  - it: "should accept different instance types (development)"
+    request:
+      jsonrpc: "2.0"
+      id: "instance-development"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "development"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "instance-development"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should accept staging instance type"
+    request:
+      jsonrpc: "2.0"
+      id: "instance-staging"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "staging"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "instance-staging"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PAGINATION VALIDATION
+  # ==================================================================================
+  - it: "should respect count parameter for result limiting"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-count"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-count"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s\\S]*1[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should respect start parameter for pagination"
+    request:
+      jsonrpc: "2.0"
+      id: "pagination-start"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            start: 1
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "pagination-start"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*:[\\s\\S]*1[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # ERROR HANDLING VALIDATION
+  # ==================================================================================
+  - it: "should return 404 error for non-existent preference group"
+    request:
+      jsonrpc: "2.0"
+      id: "error-nonexistent-group"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "NonExistentGroup"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-nonexistent-group"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:CustomPreferenceGroupNotFoundException"
+          isError: true
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid parameters gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "error-invalid-params"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: ""
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-invalid-params"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:groupId must be a non-empty string"
+          isError: true
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # ADVANCED QUERY VALIDATION
+  # ==================================================================================
+  - it: "should handle term_query with exact matches"
+    request:
+      jsonrpc: "2.0"
+      id: "term-query-success"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              term_query:
+                fields: ["value_type"]
+                operator: "is"
+                values: ["boolean"]
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "term-query-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "2000ms"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # OPTIONS VALIDATION
+  # ==================================================================================
+  - it: "should accept options parameter with maskPasswords"
+    request:
+      jsonrpc: "2.0"
+      id: "options-mask-passwords"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+          options:
+            maskPasswords: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "options-mask-passwords"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should accept options parameter with expand value"
+    request:
+      jsonrpc: "2.0"
+      id: "options-expand-value"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 1
+          options:
+            expand: "value"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "options-expand-value"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # SORTING VALIDATION
+  # ==================================================================================
+  - it: "should accept sorting parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "sorting-test"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            sorts:
+              - field: "id"
+                sort_order: "asc"
+            count: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sorting-test"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE VALIDATION
+  # ==================================================================================
+  - it: "should complete large requests within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-large-request"
+      method: "tools/call"
+      params:
+        name: "search_site_preferences"
+        arguments:
+          groupId: "Storefront"
+          instanceType: "sandbox"
+          searchRequest:
+            query:
+              match_all_query: {}
+            count: 50
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-large-request"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preference_value_search_result"
+          isError: false
+      performance:
+        maxResponseTime: "3000ms"
+      stderr: "toBeEmpty"

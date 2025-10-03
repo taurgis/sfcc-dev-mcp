@@ -1,7 +1,13 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
+import LightCodeContainer from '../components/LightCodeContainer';
+import NewcomerCTA from '../components/NewcomerCTA';
+import { SITE_DATES } from '../constants';
 
 // Small reusable bullet list with icon
 const Check: React.FC<{ color?: string; children: React.ReactNode }> = ({ color = 'text-green-500', children }) => (
@@ -16,18 +22,51 @@ const SectionCard: React.FC<React.PropsWithChildren<{ className?: string }>> = (
 );
 
 const AIInterfacesPage: React.FC = () => {
-  useSEO({
-    title: 'AI Interface Integration - SFCC Development MCP Server',
-    description: 'Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server.',
-    keywords: 'Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces',
-    ogTitle: 'AI Interface Integration - SFCC Development MCP Server',
-    ogDescription: 'Setup instructions for Claude, Copilot, Cursor and other MCP compatible AI interfaces.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces'
-  });
+  const aiInterfacesStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "AI Interface Integration - SFCC Development MCP Server",
+    "description": "Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/ai-interfaces/",
+    "about": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <SEO 
+        title="AI Interface Integration"
+        description="Integration guide for AI assistants (Claude Desktop, GitHub Copilot, Cursor, generic MCP clients) with SFCC Development MCP Server."
+        keywords="Claude Desktop MCP, GitHub Copilot, Cursor AI, MCP server integration, SFCC AI tools"
+        canonical="/ai-interfaces/"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "AI Interfaces", url: "/ai-interfaces/" }
+      ]} />
+      <StructuredData structuredData={aiInterfacesStructuredData} />
+      
       {/* Hero */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -36,28 +75,29 @@ const AIInterfacesPage: React.FC = () => {
         </div>
         <H1 id="ai-interface-setup" className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Connect Your AI Assistants</H1>
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-          Unified setup guide for Claude Desktop, GitHub Copilot, Cursor and any MCP-compatible client. Start
-          in documentation-only mode then unlock full log analysis & system exploration with credentials.
+          Unified setup guide for Claude Desktop, GitHub Copilot, Cursor and any MCP-compatible client. Start in
+          documentation-only mode then unlock real-time log & job log analysis, system & custom object exploration,
+          and code version management with credentials.
         </PageSubtitle>
       </div>
 
+      {/* Newcomer CTA */}
+      <NewcomerCTA className="mb-20" />
+
       {/* Quick Start (Tabbed) */}
-      <div id="quick-start" className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-        <SectionCard className="relative border-white/30 shadow-xl">
+      <div id="quick-start" className="mb-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-xl border border-blue-100 p-8">
           <div className="text-center mb-10">
             <H2 id="environment-modes" className="text-3xl font-bold mb-4">🚀 Environment Modes</H2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">Switch between zero-config documentation mode and full analytics mode with a single flag.</p>
           </div>
           {/* Tabs */}
           <ModeTabs />
-        </SectionCard>
       </div>
 
+ 
+
       {/* Configuration Options */}
-      <div id="configuration" className="relative mb-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl" />
-        <SectionCard className="relative border-gray-200">
+      <div id="configuration" className="mb-20 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200 p-8">
           <div className="text-center mb-10">
             <H2 id="configuration-flags" className="text-3xl font-bold mb-4">⚙️ Configuration Flags</H2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">Minimal surface area – just two flags control operating mode & diagnostics.</p>
@@ -68,7 +108,7 @@ const AIInterfacesPage: React.FC = () => {
                 <div className="bg-blue-100 rounded-full p-2"><svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg></div>
                 <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">--dw-json &lt;path&gt;</span>
               </div>
-              <p className="text-gray-700 text-sm">Add credentials for log analysis, system object exploration & code version management.</p>
+              <p className="text-gray-700 text-sm">Add credentials for real-time log & job log analysis, system & custom object exploration, site preference searches & code version management.</p>
             </div>
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center gap-3 mb-3">
@@ -78,7 +118,6 @@ const AIInterfacesPage: React.FC = () => {
               <p className="text-gray-700 text-sm">Enable verbose internal logging for troubleshooting & development.</p>
             </div>
           </div>
-        </SectionCard>
       </div>
 
       {/* Assistant Tabs Section */}
@@ -126,10 +165,7 @@ const AIInterfacesPage: React.FC = () => {
       </div>
 
       {/* Next Steps - HomePage style */}
-      <div id="next" className="mb-16">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl" />
-            <div className="relative bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-10 shadow-xl">
+      <div id="next" className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-10 shadow-xl border border-blue-100">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
@@ -137,18 +173,16 @@ const AIInterfacesPage: React.FC = () => {
                 </div>
                 <p className="text-lg text-gray-700 max-w-3xl mx-auto">Pick your next path—refine configuration or explore full capability surface.</p>
                 <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                  <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
+                  <NavLink to="/configuration/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white shadow hover:bg-blue-700 transition group no-underline hover:no-underline focus:no-underline">
                     Configuration Guide
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
-                  </a>
-                  <a href="/#/features" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
+                  </NavLink>
+                  <NavLink to="/features/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition group no-underline hover:no-underline focus:no-underline">
                     Explore Features
                     <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
-                  </a>
+                  </NavLink>
                 </div>
               </div>
-            </div>
-        </div>
       </div>
     </div>
   );
@@ -181,16 +215,16 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Documentation Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Docs Mode)</h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            <LightCodeContainer>
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp"]\n    }\n  }\n}`} />
-            </div>
+            </LightCodeContainer>
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
             <div className="grid md:grid-cols-3 gap-4">
-              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA, best practices." />
+              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA docs & best practices." />
               <BenefitCard title="Fast Onboarding" color="green" text="Great for new devs or quick reference sessions." />
-              <BenefitCard title="Safe & Local" color="purple" text="No credentials needed!" />
+              <BenefitCard title="Safe & Local" color="purple" text="No credentials needed (no logs / objects)." />
             </div>
           </div>
           <p className="text-xs text-gray-500">Upgrade any time by adding <InlineCode>--dw-json</InlineCode>.</p>
@@ -200,9 +234,9 @@ const ModeTabs: React.FC = () => {
         <div role="tabpanel" aria-label="Full Mode" className="space-y-8 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration (Full Mode)</h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-4">
+            <LightCodeContainer className="mb-4">
               <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": [\n         "sfcc-dev-mcp", \n         "--dw-json", \n         "/Users/username/sfcc-project/dw.json", \n         "--debug", \n         "false"\n      ]\n    }\n  }\n}`} />
-            </div>
+            </LightCodeContainer>
             <p className="text-sm text-gray-600">Set <InlineCode>--debug true</InlineCode> temporarily when diagnosing tool responses.</p>
           </div>
           <div>
@@ -210,13 +244,13 @@ const ModeTabs: React.FC = () => {
             <div className="grid md:grid-cols-3 gap-4">
               <BenefitCard title="Live Logs" color="blue" text="Real-time error, warn, info & debug analysis." />
               <BenefitCard title="Job Insights" color="green" text="Job log discovery, execution summaries & step health." />
-              <BenefitCard title="Data Model" color="purple" text="System objects, custom attributes & preferences." />
+              <BenefitCard title="Data Model" color="purple" text="System & custom objects, attributes & site preferences." />
               <BenefitCard title="Code Versions" color="orange" text="List & activate versions for deployment fixes." />
               <BenefitCard title="Deeper Reasoning" color="indigo" text="More context = better AI architectural guidance." />
               <BenefitCard title="Unified Workflow" color="rose" text="Docs + analysis in one consistent interface." />
             </div>
           </div>
-          <p className="text-xs text-gray-500">Credentials never leave your machine—local, this MCP server runs on your system.</p>
+          <p className="text-xs text-gray-500">Credentials never leave your machine—this MCP server runs locally and only calls your sandbox APIs.</p>
         </div>
       )}
     </div>
@@ -272,16 +306,21 @@ const AssistantTabs: React.FC = () => {
   const prompts: Record<Assistant, string[]> = {
     claude: [
       'List available SFCC documentation tools',
-      'Analyze recent error logs',
-      'Generate cartridge structure named demo_cartridge'
+      'Analyze recent error logs then summarize likely root cause',
+      'Generate cartridge structure named demo_cartridge',
+      'Show hook reference entries for SCAPI extension points'
     ],
     copilot: [
       'Show methods on dw.catalog.Product',
-      'Create SFRA controller for Product-Show'
+      'Create SFRA controller for Product-Show',
+      'Search job logs for failed step exceptions',
+      'List custom attributes on Product object'
     ],
     cursor: [
       'Suggest performance improvements for this controller',
-      'Apply security patterns to this hook'
+      'Apply security patterns to this hook',
+      'Search SFRA docs for middleware guidance',
+      'Summarize latest job execution health'
     ]
   };
 
@@ -316,9 +355,9 @@ const AssistantTabs: React.FC = () => {
       <div className="space-y-10 animate-fade-in" role="tabpanel">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuration</h3>
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg mb-6">
+          <LightCodeContainer className="mb-6">
             {renderSnippet(active)}
-          </div>
+          </LightCodeContainer>
           
           <div className="flex justify-center mb-6">
             <div className="flex flex-wrap gap-3 justify-center">
@@ -553,7 +592,7 @@ const InstructionFilesTabs: React.FC = () => {
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <h5 className="font-semibold text-blue-700 mb-2 text-sm">🔧 MCP Tool Awareness</h5>
-              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of all 36 MCP tools and their optimal usage patterns</p>
+              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of 36+ MCP tools (docs, SFRA, best practices, logs, job logs, objects, code versions)</p>
             </div>
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
               <h5 className="font-semibold text-purple-700 mb-2 text-sm">⚡ Faster Development</h5>

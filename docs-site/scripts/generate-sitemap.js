@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const baseUrl = 'https://sfcc-dev-mcp.rhino-inquisitor.com';
+const baseUrl = 'https://sfcc-mcp-dev.rhino-inquisitor.com';
 const currentDate = new Date().toISOString().split('T')[0];
 
 // Define all pages with their priorities and change frequencies
@@ -28,49 +28,49 @@ const pages = [
     description: 'SFCC Development MCP Server Homepage',
   },
   {
-    path: '/configuration',
+    path: '/configuration/',
     priority: '0.9',
     changefreq: 'monthly',
     description: 'Configuration Guide',
   },
   {
-    path: '/ai-interfaces',
+    path: '/ai-interfaces/',
     priority: '0.8',
     changefreq: 'monthly',
     description: 'AI Interface Setup Guide',
   },
   {
-    path: '/features',
+    path: '/features/',
     priority: '0.8',
     changefreq: 'monthly',
     description: 'Features Overview',
   },
   {
-    path: '/tools',
+    path: '/tools/',
     priority: '0.8',
     changefreq: 'monthly',
     description: 'Available Tools',
   },
   {
-    path: '/examples',
+    path: '/examples/',
     priority: '0.8',
     changefreq: 'monthly',
     description: 'Examples and Use Cases',
   },
   {
-    path: '/security',
+    path: '/security/',
     priority: '0.7',
     changefreq: 'monthly',
     description: 'Security Guidelines',
   },
   {
-    path: '/development',
+    path: '/development/',
     priority: '0.6',
     changefreq: 'monthly',
     description: 'Development Guide',
   },
   {
-    path: '/troubleshooting',
+    path: '/troubleshooting/',
     priority: '0.7',
     changefreq: 'monthly',
     description: 'Troubleshooting Guide',
@@ -88,8 +88,8 @@ function generateSitemap() {
 </urlset>`;
 
   const urls = pages.map(page => {
-    // For hash routing, all URLs should point to the base URL with hash fragment
-    const url = page.path === '/' ? baseUrl : `${baseUrl}/#${page.path}`;
+    // For SSG routing, URLs should point to clean paths without hash fragments
+    const url = page.path === '/' ? baseUrl : `${baseUrl}${page.path}`;
     return `    
     <!-- ${page.description} -->
     <url>

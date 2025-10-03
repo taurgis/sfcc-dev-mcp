@@ -1,0 +1,273 @@
+# ==================================================================================
+# SFCC MCP Server - get_code_versions Tool YAML Tests (Full Mode)
+# Tests code version retrieval functionality with SFCC credentials
+# This tool provides code version management for deployment troubleshooting
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/get-code-versions.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query get_code_versions '{}' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "get_code_versions tool full mode tests - Core functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY TESTS
+  # ==================================================================================
+  - it: "should list get_code_versions tool in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-availability-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-availability-full"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_code_versions"
+      stderr: "toBeEmpty"
+
+  - it: "should have correct tool definition in full mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-definition-full"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-definition-full"
+        result:
+          tools: "match:arrayContains:name:get_code_versions"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # BASIC FUNCTIONALITY TESTS
+  # ==================================================================================
+  - it: "should retrieve code versions with default parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "code-versions-default"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "code-versions-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*code_version_result[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION TESTS
+  # ==================================================================================
+  - it: "should accept empty arguments object"
+    request:
+      jsonrpc: "2.0"
+      id: "empty-args"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "empty-args"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should ignore extra parameters gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "extra-params"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments:
+          extraParam: "should be ignored"
+          anotherParam: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "extra-params"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # RESPONSE CONTENT VALIDATION
+  # ==================================================================================
+  - it: "should return properly formatted JSON content"
+    request:
+      jsonrpc: "2.0"
+      id: "json-format"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-format"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*\\{[\\s\\S]*\\}[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include essential code version fields"
+    request:
+      jsonrpc: "2.0"
+      id: "essential-fields"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "essential-fields"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*_type[\\s\\S]*code_version_result[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include data array with code version objects"
+    request:
+      jsonrpc: "2.0"
+      id: "data-array"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "data-array"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*data[\\s\\S]*\\[[\\s\\S]*\\][\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include code version metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "version-metadata"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "version-metadata"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:[\\s\\S]*(?:id)[\\s\\S]*(?:active)[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE TESTS
+  # ==================================================================================
+  - it: "should respond within acceptable time limit"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-test"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-test"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  - it: "should maintain consistent performance on repeat calls"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-consistency"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-consistency"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # ==================================================================================
+  # ERROR HANDLING TESTS (Edge Cases)
+  # ==================================================================================
+  - it: "should return validation error for null arguments"
+    request:
+      jsonrpc: "2.0"
+      id: "null-args"
+      method: "tools/call"
+      params:
+        name: "get_code_versions"
+        arguments: null
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "null-args"
+        error:
+          code: "match:type:number"
+          message: "match:type:string"
+      stderr: "toBeEmpty"

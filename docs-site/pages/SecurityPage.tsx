@@ -1,7 +1,11 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import { InlineCode } from '../components/CodeBlock';
+import { SITE_DATES } from '../constants';
 
 // Small utility card
 const Pill: React.FC<React.PropsWithChildren<{ color?: string }>> = ({ children, color = 'from-blue-600 to-purple-600' }) => (
@@ -15,11 +19,8 @@ const Bullet: React.FC<React.PropsWithChildren<{ icon?: string; className?: stri
   </li>
 );
 
-const SectionShell: React.FC<React.PropsWithChildren<{ gradient?: string; className?: string; border?: string }>> = ({ children, gradient = 'from-blue-50 via-indigo-50 to-purple-50', className = '', border = 'border-white/30' }) => (
-  <div className="relative mb-20 last:mb-0">
-    <div className={`absolute inset-0 bg-gradient-to-r ${gradient} rounded-2xl`} />
-    <div className={`relative bg-white/85 backdrop-blur-sm ${border} border rounded-2xl p-8 shadow-xl ${className}`}>{children}</div>
-  </div>
+const SectionShell: React.FC<React.PropsWithChildren<{ gradient?: string; className?: string; border?: string }>> = ({ children, gradient = 'from-blue-50 via-indigo-50 to-purple-50', className = '', border = 'border-blue-100' }) => (
+  <div className={`mb-20 last:mb-0 bg-gradient-to-r ${gradient} rounded-2xl p-8 shadow-xl ${border} border ${className}`}>{children}</div>
 );
 
 // Structured feature list rows for mode comparison
@@ -57,18 +58,43 @@ const ModeFeatureList: React.FC<{ color: 'green' | 'blue'; items: Array<{ icon: 
 };
 
 const SecurityPage: React.FC = () => {
-  useSEO({
-    title: 'Security & Privacy - SFCC Development MCP Server',
-    description: 'Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist.',
-    keywords: 'SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/security',
-    ogTitle: 'SFCC Development MCP Server - Security & Privacy Guide',
-    ogDescription: 'Action‑oriented security & privacy guide: credential handling, threat model, mitigations, secure configuration.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/security'
-  });
+  const securityStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Security & Privacy - SFCC Development MCP Server",
+    "description": "Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/security/",
+    "mainEntity": {
+      "@type": "Guide",
+      "name": "SFCC MCP Security Guide"
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      <SEO 
+        title="Security & Privacy"
+        description="Security guidelines and privacy considerations for SFCC Development MCP Server. Credential protection, threat mitigations, data handling and secure usage checklist."
+        keywords="SFCC MCP security, Commerce Cloud security, MCP server privacy, SFCC credential protection, development security, API security, local development security, SFCC authentication security"
+        canonical="/security/"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Security", url: "/security/" }
+      ]} />
+      <StructuredData structuredData={securityStructuredData} />
+      
       {/* Hero */}
       <header className="text-center mb-16">
         <Pill>Security & Privacy</Pill>
@@ -76,6 +102,7 @@ const SecurityPage: React.FC = () => {
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
           Opinionated local-only design: minimal credential footprint, scoped API access, defensive parsing. Use this page as a <strong>practical hardening checklist</strong>, not a marketing overview.
         </PageSubtitle>
+        <p className="mt-4 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
       </header>
 
       {/* Quick Essentials */}
@@ -131,10 +158,11 @@ const SecurityPage: React.FC = () => {
               color="blue"
               items={[
                 { icon: '🔑', label: 'Credential parity', detail: 'Same auth data you already use locally' },
-                { icon: '📂', label: 'Read‑only log + model insight', detail: 'Tail/range only – no mutation endpoints' },
-                { icon: '🧭', label: 'Data model discovery', detail: 'System objects & site preferences (metadata focus)' },
-                { icon: '🚦', label: 'Explicit version activation', detail: 'Only on direct command; never implicit' },
-                { icon: '⚙', label: 'Adjustable OCAPI scope', detail: 'Grant incrementally; remove when done' }
+                { icon: '🪵', label: 'Runtime + job logs', detail: 'Tail, search, summarize – read-only WebDAV access' },
+                { icon: '🧭', label: 'System & custom object metadata', detail: 'OCAPI Data API – attribute & group definitions' },
+                { icon: '⚙️', label: 'Site preference discovery', detail: 'Group-scoped search with masked password values' },
+                { icon: '🚦', label: 'Explicit code version activation', detail: 'Never automatic; requires targeted command' },
+                { icon: '🪄', label: 'Cartridge generation + docs', detail: 'Same as docs mode plus live capabilities' }
               ]}
             />
             <div className="mt-5 text-[11px] text-blue-700 font-medium bg-white/60 rounded-md px-3 py-2 border border-blue-200">
@@ -222,7 +250,7 @@ const SecurityPage: React.FC = () => {
       <SectionShell gradient="from-red-50 via-rose-50 to-orange-50" border="border-red-200">
         <div className="text-center mb-10">
           <H2 id="threat-model" className="text-3xl font-bold mb-3">🧪 Practical Threat Model (Local Context)</H2>
-          <p className="text-gray-700 max-w-3xl mx-auto text-lg">In a single‑developer local setup the incremental risk introduced by Full Mode is roughly equivalent to any normal use of <InlineCode>dw.json</InlineCode>. Core concerns remain <strong>credential scope creep</strong>, <strong>accidental sharing of log snippets containing business data</strong>, and <strong>copying sensitive preference values externally</strong>. <p>Below: built‑in mitigations vs. your ongoing hygiene tasks.</p></p>
+          <p className="text-gray-700 max-w-3xl mx-auto text-lg">In a single‑developer local setup the incremental risk introduced by Full Mode is roughly equivalent to any normal use of <InlineCode>dw.json</InlineCode>. Core concerns remain <strong>credential scope creep</strong>, <strong>accidental sharing of log snippets containing business data</strong>, and <strong>copying sensitive preference values externally</strong>. Below: built‑in mitigations vs. your ongoing hygiene tasks.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="rounded-xl bg-white p-6 border border-gray-200">
@@ -282,9 +310,9 @@ const SecurityPage: React.FC = () => {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { title: 'Log Processing', items: ['Tail/range reads only', 'Pattern search server-side constrained', 'Aggregation sanitizes obvious secrets'] },
-            { title: 'Preference Values', items: ['Password types masked by default', 'No attempt to unmask', 'Search limited to specified groups'] },
-            { title: 'System Objects', items: ['Attribute metadata only', 'No PII enrichment routines', 'Developer chooses query breadth'] }
+            { title: 'Log Processing', items: ['Tail/range reads only (≈200KB)', 'Pattern search constrained by limit', 'Analyzer strips obvious secret tokens'] },
+            { title: 'Preference Values', items: ['Password types masked (no bypass)', 'Group-limited search scope', 'No storage of raw values'] },
+            { title: 'System & Custom Objects', items: ['Metadata only (ids, flags, counts)', 'No record-level PII retrieval', 'You control query breadth'] }
           ].map(card => (
             <div key={card.title} className="rounded-xl bg-white border border-gray-200 p-5">
               <h3 className="font-semibold text-sm mb-2">{card.title}</h3>
@@ -316,25 +344,25 @@ const SecurityPage: React.FC = () => {
         <H2 id="next-steps-security" className="text-3xl font-bold mb-4">🔗 Next Steps</H2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Keep momentum: refine configuration or explore advanced tooling now that baseline security posture is set.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-          <a
-            href="/#/configuration"
+          <NavLink
+            to="/configuration/"
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Configuration Guide
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a
-            href="/#/features"
+          </NavLink>
+          <NavLink
+            to="/features/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Explore Features
-          </a>
-          <a
-            href="/#/examples"
+          </NavLink>
+          <NavLink
+            to="/examples/"
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             See Examples
-          </a>
+          </NavLink>
         </div>
       </section>
     </div>

@@ -1,0 +1,92 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_definition_search_result",
+  "count": 3,
+  "data": [
+    {
+      "_type": "object_attribute_definition",
+      "id": "customString",
+      "displayName": {
+        "default": "Custom String Field"
+      },
+      "description": {
+        "default": "A custom string field for storing additional data"
+      },
+      "value_type": "string",
+      "mandatory": false,
+      "max_length": 256,
+      "min_length": null,
+      "regular_expression": null,
+      "default_value": null,
+      "localizable": true,
+      "searchable": true,
+      "system": false,
+      "visible": true,
+      "_links": {
+        "self": {
+          "href": "https://{{hostname}}/s/-/dw/data/v23_2/custom_object_definitions/GlobalSettings/attribute_definitions/customString"
+        }
+      }
+    },
+    {
+      "_type": "object_attribute_definition",
+      "id": "customNumber",
+      "displayName": {
+        "default": "Custom Number Field"
+      },
+      "description": {
+        "default": "A custom number field for numeric values"
+      },
+      "value_type": "double",
+      "mandatory": false,
+      "max_length": null,
+      "min_length": null,
+      "regular_expression": null,
+      "scale": 2,
+      "max_value": 999999.99,
+      "min_value": 0.0,
+      "default_value": null,
+      "localizable": false,
+      "searchable": true,
+      "system": false,
+      "visible": true,
+      "_links": {
+        "self": {
+          "href": "https://{{hostname}}/s/-/dw/data/v23_2/custom_object_definitions/GlobalSettings/attribute_definitions/customNumber"
+        }
+      }
+    },
+    {
+      "_type": "object_attribute_definition",
+      "id": "customBoolean",
+      "displayName": {
+        "default": "Custom Boolean Field"
+      },
+      "description": {
+        "default": "A custom boolean field for true/false values"
+      },
+      "value_type": "boolean",
+      "mandatory": false,
+      "max_length": null,
+      "min_length": null,
+      "regular_expression": null,
+      "default_value": false,
+      "localizable": false,
+      "searchable": false,
+      "system": false,
+      "visible": true,
+      "_links": {
+        "self": {
+          "href": "https://{{hostname}}/s/-/dw/data/v23_2/custom_object_definitions/GlobalSettings/attribute_definitions/customBoolean"
+        }
+      }
+    }
+  ],
+  "next": null,
+  "previous": null,
+  "start": 0,
+  "total": 3,
+  "query": {
+    "match_all_query": {}
+  }
+}

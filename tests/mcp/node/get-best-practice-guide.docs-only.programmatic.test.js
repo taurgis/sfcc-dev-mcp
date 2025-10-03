@@ -6,7 +6,7 @@
  * cross-guide relationship testing, and advanced error categorization for the SFCC
  * best practice guide retrieval functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "{\"title\":\"...\",\"description\":\"...\",\"sections\":[...],\"content\":\"...\"}" }], isError: false }
  * - Error: { content: [{ type: "text", text: "Error: guideName must be a non-empty string" }], isError: true }
  * - Invalid guide: { content: [{ type: "text", text: "null" }], isError: false }
@@ -15,7 +15,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Content analysis utility for comprehensive guide validation
@@ -42,7 +42,15 @@ class ContentAnalyzer {
         /server\.get|server\.post/i,
         /SFRA|storefront reference architecture/i,
         /isml|template/i,
+        /scss|sass/i,
         /model|view/i
+      ],
+      sfra_scss: [
+        /@import\s+['"]~base\//i,
+        /\$[a-z0-9_-]+\s*:/i,
+        /@include|mixins?/i,
+        /BEM|\b[a-z0-9]+__(?:[a-z0-9-]+)|\b[a-z0-9]+--[a-z0-9-]+/i,
+        /prefers-reduced-motion|focus ring|wcag/i
       ],
       cartridge: [
         /cartridge path/i,
@@ -152,6 +160,11 @@ class ContentAnalyzer {
     const expectedPatterns = this.contentPatterns[guideName] || [];
     
     const matchedPatterns = expectedPatterns.filter(pattern => pattern.test(content));
+
+    let modernPattern = /dw\.crypto\.Cipher|server\.append|server\.prepend/i;
+    if (guideName === 'sfra_scss') {
+      modernPattern = /@include|prefers-reduced-motion|mixins?|@import\s+['"]~base\//i;
+    }
     
     return {
       guideName,
@@ -160,7 +173,7 @@ class ContentAnalyzer {
       accuracyScore: expectedPatterns.length > 0 ? 
         (matchedPatterns.length / expectedPatterns.length) : 1,
       hasDeprecatedReferences: /WeakCipher|WeakMac|WeakMessageDigest/i.test(content),
-      hasModernPractices: /dw\.crypto\.Cipher|server\.append|server\.prepend/i.test(content)
+      hasModernPractices: modernPattern.test(content)
     };
   }
 
@@ -168,6 +181,7 @@ class ContentAnalyzer {
     const title = (guideData.title || '').toLowerCase();
     if (title.includes('security')) return 'security';
     if (title.includes('performance')) return 'performance';
+    if (title.includes('scss') || title.includes('styling')) return 'sfra_scss';
     if (title.includes('sfra') || title.includes('controller')) return 'sfra';
     if (title.includes('cartridge')) return 'cartridge';
     return 'general';
@@ -288,7 +302,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
   let contentAnalyzer;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
     contentAnalyzer = new ContentAnalyzer();
   });
 
@@ -326,6 +340,32 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
         guideData.content.includes('Security'), 'Should contain security concepts');
     });
 
+    test('should retrieve SFRA client-side JavaScript guide', async () => {
+      const result = await client.callTool('get_best_practice_guide', {
+        guideName: 'sfra_client_side_js'
+      });
+
+      const guideData = assertGuideContent(result);
+      assert.ok(guideData.title.toLowerCase().includes('client-side javascript') ||
+        guideData.description.toLowerCase().includes('client-side javascript'),
+        'Guide should reference client-side JavaScript in title or description');
+      assert.ok(/ajax|assets\.js|debounce|event delegation/i.test(guideData.content),
+        'Guide content should include client-side patterns like AJAX or assets.js');
+    });
+
+    test('should retrieve SFRA SCSS guide', async () => {
+      const result = await client.callTool('get_best_practice_guide', {
+        guideName: 'sfra_scss'
+      });
+
+      const guideData = assertGuideContent(result);
+      assert.ok(guideData.title.toLowerCase().includes('scss') ||
+        guideData.description.toLowerCase().includes('scss'),
+        'Guide should reference SCSS in title or description');
+      assert.ok(/@import|_variables\.scss|mixins|sass/i.test(guideData.content),
+        'Guide content should highlight SCSS override patterns and mixins');
+    });
+
     test('should handle invalid guide name gracefully', async () => {
       const result = await client.callTool('get_best_practice_guide', {
         guideName: 'nonexistent_guide'
@@ -357,6 +397,8 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
       'performance',
       'sfra_controllers',
       'sfra_models',
+      'sfra_client_side_js',
+      'sfra_scss',
       'ocapi_hooks',
       'scapi_hooks',
       'scapi_custom_endpoint',
@@ -402,7 +444,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
     });
 
     test('should validate technical accuracy across guide types', async () => {
-      const techGuides = ['security', 'sfra_controllers', 'cartridge_creation'];
+      const techGuides = ['security', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'cartridge_creation'];
       
       for (const guideName of techGuides) {
         const result = await client.callTool('get_best_practice_guide', {
@@ -426,11 +468,19 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
         }
 
         // Code examples validation
-        if (['sfra_controllers', 'cartridge_creation'].includes(guideName)) {
+        if (['sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'cartridge_creation'].includes(guideName)) {
           assert.ok(analysis.codeExamples.codeBlockCount > 0, 
             `${guideName} should have code examples`);
-          assert.ok(analysis.codeExamples.hasJavaScript, 
-            `${guideName} should have JavaScript examples`);
+
+          if (guideName === 'sfra_scss') {
+            const hasScssLanguage = analysis.codeExamples.languages.includes('scss');
+            const mentionsScssPatterns = /@import|\$[a-zA-Z_-]+|mixins?/i.test(guideData.content);
+            assert.ok(hasScssLanguage || mentionsScssPatterns,
+              'SFRA SCSS guide should showcase SCSS override patterns');
+          } else {
+            assert.ok(analysis.codeExamples.hasJavaScript, 
+              `${guideName} should have JavaScript examples`);
+          }
         }
       }
     });
@@ -586,10 +636,12 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
     test('should validate comprehensive development workflow coverage', async () => {
       // Simulate a complete development workflow
       const workflowGuides = [
-        'cartridge_creation',  // Project setup
-        'sfra_controllers',   // Implementation
-        'security',           // Security review
-        'performance'         // Optimization
+        'cartridge_creation',        // Project setup
+        'sfra_controllers',          // Server-side implementation
+        'sfra_client_side_js',       // Client-side enhancements
+        'sfra_scss',                 // Styling and theming overrides
+        'security',                  // Security review
+        'performance'                // Optimization
       ];
 
       const workflowAnalysis = new Map();
@@ -627,7 +679,7 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
 
   describe('Content Quality and Accessibility', () => {
     test('should validate readability across all guides', async () => {
-      const testGuides = ['cartridge_creation', 'security', 'sfra_controllers'];
+  const testGuides = ['cartridge_creation', 'security', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss'];
       
       for (const guideName of testGuides) {
         const result = await client.callTool('get_best_practice_guide', {
@@ -655,7 +707,9 @@ describe('get_best_practice_guide Tool - Advanced Programmatic Tests', () => {
       const technicalGuides = {
         'security': ['CSRF', 'XSS', 'authentication', 'encryption'],
         'performance': ['performance', 'optimization'], // Simplified expectations
-        'sfra_controllers': ['server.get', 'middleware', 'ISML']
+        'sfra_controllers': ['server.get', 'middleware', 'ISML'],
+        'sfra_client_side_js': ['ajax', 'assets.js', 'debounce', 'validation'],
+        'sfra_scss': ['@import', '_variables.scss', 'mixins', 'scss']
       };
 
       for (const [guideName, expectedTopics] of Object.entries(technicalGuides)) {

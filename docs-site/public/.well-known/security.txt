@@ -1,0 +1,6 @@
+Contact: https://github.com/taurgis/sfcc-dev-mcp/issues
+Expires: 2026-09-20T00:00:00.000Z
+Acknowledgments: https://github.com/taurgis/sfcc-dev-mcp/blob/main/CONTRIBUTING.md
+Preferred-Languages: en
+Canonical: https://sfcc-mcp-dev.rhino-inquisitor.com/.well-known/security.txt
+Policy: https://github.com/taurgis/sfcc-dev-mcp/blob/main/SECURITY.md

@@ -90,6 +90,117 @@ server.post('HandleProfileUpdate', csrfProtection.validateRequest, function(req,
 });
 ```
 
+#### CRITICAL: CSRF Middleware Automation
+
+**❌ COMMON MISTAKE**: Manually adding CSRF tokens to viewData
+
+```javascript
+// ❌ WRONG - Don't do this!
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        csrf: {
+            tokenName: req.csrf.tokenName,  // ❌ Redundant
+            token: req.csrf.token           // ❌ Redundant  
+        }
+    });
+});
+```
+
+**✅ CORRECT APPROACH**: Let middleware handle it automatically
+
+```javascript
+// ✅ CORRECT - Middleware automatically adds CSRF to pdict
+server.get('ShowForm', csrfProtection.generateToken, function(req, res, next) {
+    res.render('myForm', {
+        // No need to manually add CSRF - middleware does this
+        pageTitle: 'My Form',
+        otherData: 'value'
+    });
+    // pdict.csrf.tokenName and pdict.csrf.token are automatically available
+});
+```
+
+### Remote Include Security (server.middleware.include)
+
+Remote includes (`<isinclude url="...">`) invoke an entirely NEW request created by the Web Adapter – they DO NOT inherit the authentication context of the parent page. Treat every remote include endpoint as PUBLIC unless you explicitly secure it.
+
+| Risk Vector | Description | Mitigation |
+|-------------|-------------|------------|
+| Authentication Bypass | Endpoint renders user‑specific data but no login check runs on include request | Add `userLoggedIn.validateLoggedIn` AFTER `server.middleware.include` |
+| Sensitive Data in URL | All params are query string → logged, bookmarkable, cache key | Pass only minimal identifiers; never PII, secrets, tokens |
+| Cache Poisoning | Unique per-user params (e.g., session IDs) fragment cache & may expose personalized fragments | Keep URL stable; use surrogate keys / vary headers where needed |
+| Excessive Fragment Count | Many includes amplify attack surface & performance risk | Keep < 20 per page; consolidate where feasible |
+| Nested Includes Depth Abuse | Recursive fragment chains complicate security review & tracing | Avoid nesting beyond depth 2 |
+
+#### Mandatory Middleware Order
+```javascript
+server.get('AccountWidget',
+  server.middleware.include,          // 1. Gatekeeper – blocks direct access without include flag
+  userLoggedIn.validateLoggedIn,      // 2. Re-establish authenticated context if user data needed
+  cache.applyShortPromotionSensitiveCache, // 3. Explicit cache policy (or disable)
+  function (req, res, next) {
+    // SAFE: now in controlled context
+    res.render('components/account/widget');
+    next();
+  }
+);
+```
+
+NEVER put `userLoggedIn.validateLoggedIn` before `server.middleware.include` – bots probing the route directly would still trigger authentication logic (unnecessary overhead) and you’d miss the explicit architectural contract.
+
+#### Identifying Remote Include Requests
+`req.includeRequest === true` inside the controller. Log defensively:
+```javascript
+if (!req.includeRequest) {
+  // Unexpected direct access attempt
+  Logger.warn('Blocked direct access to remote include endpoint: {0}', request.httpPath);
+  res.setStatusCode(404);
+  return next();
+}
+```
+
+#### What NOT to Expose via Remote Include
+- Full order history snippets
+- Payment method lists / masked credit cards
+- Personally identifying profile composites
+- Any fragment whose output differs materially per authenticated user unless properly protected
+
+#### Logging & Forensics
+Use extended request ID format (`baseId-depth-index`) to correlate parent + fragment in logs. Example: `Xa12Bc-0-00` (page), `Xa12Bc-1-02` (third fragment). This enables rapid blast-radius analysis during incident response.
+
+#### Security Review Checklist
+```text
+[ ] server.middleware.include first in chain
+[ ] Auth middleware present if user / sensitive data
+[ ] No secrets / PII in query params
+[ ] Cache TTL appropriate (0 for volatile personal data)
+[ ] Fragment count on target pages audited (<20)
+[ ] No deep nesting (depth <= 2)
+[ ] Logging on unexpected direct access attempts
+```
+
+If any checklist item fails, remediate before deployment.
+
+#### How CSRF Middleware Works
+
+**`csrfProtection.generateToken` automatically:**
+- Generates a secure token
+- Adds `csrf.tokenName` and `csrf.token` to the response's viewData
+- Makes them available in templates as `${pdict.csrf.tokenName}` and `${pdict.csrf.token}`
+
+**Templates access tokens directly:**
+```isml
+<!-- ✅ Tokens available automatically -->
+<input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+```
+
+**`csrfProtection.validateRequest` automatically:**
+- Validates the submitted token
+- Handles failures (logout/redirect)
+- Allows controller to proceed only if valid
+
+**Key Principle**: Never manually add CSRF data to viewData - the middleware handles this completely. Manually adding CSRF tokens is redundant and can lead to inconsistencies or security issues.
+
 ### Server-Side Validation & Output Encoding
 
 - **Validation**: Define validation rules (e.g., `mandatory`, `regexp`, `max-length`) in your form definition XML. SFRA automatically enforces these on the server when the form is processed. [14]

@@ -1,7 +1,12 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, H2, H3, PageSubtitle } from '../components/Typography';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
-import useSEO from '../hooks/useSEO';
+import LightCodeContainer from '../components/LightCodeContainer';
+import NewcomerCTA from '../components/NewcomerCTA';
 
 const HomePage: React.FC = () => {
   const [isWithoutMcpModalOpen, setIsWithoutMcpModalOpen] = useState(false);
@@ -49,18 +54,51 @@ const HomePage: React.FC = () => {
     setIsZooming2(false);
   }, []);
 
-  useSEO({
-    title: 'SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools',
-    description: 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance.',
-    keywords: 'SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/',
-    ogTitle: 'SFCC Development MCP Server - AI-Powered Commerce Cloud Development',
-    ogDescription: 'Comprehensive MCP server for SFCC development with AI-powered documentation access, log analysis, and development best practices.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/'
-  });
+  const homePageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools",
+    "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation access, log analysis, and development best practices.",
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/",
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "description": "A comprehensive MCP server providing AI assistants with direct access to SFCC development tools, documentation, and debugging capabilities.",
+      "operatingSystem": "Node.js",
+      "downloadUrl": "https://www.npmjs.com/package/sfcc-dev-mcp",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://sfcc-mcp-dev.rhino-inquisitor.com/"
+      }]
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      <SEO 
+        title="SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools"
+        description="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance."
+        keywords="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices"
+        canonical="/"
+        ogType="website"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" }
+      ]} />
+      <StructuredData structuredData={homePageStructuredData} />
+      
       {/* Hero Section */}
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -82,9 +120,7 @@ const HomePage: React.FC = () => {
         </PageSubtitle>
       </div>
       {/* Quick Start Section */}
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl"></div>
-        <div className="relative bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -99,10 +135,13 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           
+          {/* Newcomer CTA */}
+          <NewcomerCTA className="mb-8" />
+          
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Add to your AI client:</h3>
-              <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+              <LightCodeContainer>
                 <CodeBlock language="json" code={`{
   "mcpServers": {
     "sfcc-dev": {
@@ -111,7 +150,7 @@ const HomePage: React.FC = () => {
     }
   }
 }`} />
-              </div>
+              </LightCodeContainer>
             </div>
             
             <div className="space-y-4">
@@ -130,7 +169,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <div className="bg-green-100 rounded-full p-2 mt-1">
                   <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
@@ -142,7 +181,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <div className="bg-purple-100 rounded-full p-2 mt-1">
                   <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1h-6a1 1 0 01-1-1V8z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
@@ -156,33 +195,30 @@ const HomePage: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 text-center">
               💡 <strong>Want more features?</strong> Add SFCC credentials via <InlineCode>--dw-json</InlineCode> for 
-              real-time log analysis, system object exploration, and advanced debugging tools.
+              real-time log analysis, system & custom object exploration, and advanced debugging tools.
             </p>
           </div>
-        </div>
       </div>
 
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 mb-8">
-        <a 
-          href="/#/ai-interfaces" 
+        <NavLink 
+          to="/ai-interfaces/" 
           className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
         >
           Get Started in 2 Minutes
           <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-        </a>
-        <a 
-          href="/#/examples" 
+        </NavLink>
+        <NavLink 
+          to="/examples/" 
           className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
         >
           See Examples
-        </a>
+        </NavLink>
       </div>
 
       {/* AI Instructions Warning */}
-      <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-100 to-orange-100 rounded-xl"></div>
-        <div className="relative bg-white/90 backdrop-blur-sm border-l-4 border-red-500 rounded-xl p-6 shadow-lg">
+      <div className="mb-16 bg-gradient-to-r from-red-100 to-orange-100 border-l-4 border-red-500 rounded-xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="bg-red-100 rounded-full p-3 flex-shrink-0">
               <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -200,7 +236,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-center gap-4">
                 <a 
                   href="https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions" 
-                  className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" 
+                  className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors no-underline hover:no-underline focus:no-underline" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -209,19 +245,18 @@ const HomePage: React.FC = () => {
                   </svg>
                   Download AI Instructions
                 </a>
-                <a 
-                  href="/#/ai-interfaces" 
-                  className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
+                <NavLink 
+                  to="/ai-interfaces/" 
+                  className="inline-flex no-underline items-center gap-1 text-red-600 hover:text-red-800 font-medium transition-colors"
                 >
                   📖 Setup Guide
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                </a>
+                </NavLink>
               </div>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Value Proposition Section */}
@@ -238,9 +273,7 @@ const HomePage: React.FC = () => {
         </div>
         
         {/* Before/After Comparison */}
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-3xl"></div>
-          <div className="relative bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 shadow-2xl">
+        <div className="mb-12 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-3xl p-8 shadow-2xl border border-gray-200">
             
             {/* Timeline Header */}
             <div className="text-center mb-8">
@@ -435,7 +468,6 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -527,7 +559,7 @@ const HomePage: React.FC = () => {
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-gray-700">System object exploration</span>
+                <span className="text-gray-700">System & custom object exploration</span>
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -553,7 +585,7 @@ const HomePage: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           <div className="text-center">
             <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-3">
               <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -593,14 +625,20 @@ const HomePage: React.FC = () => {
             <h3 className="font-semibold text-gray-900">Cartridges</h3>
             <p className="text-sm text-gray-600">Auto generation</p>
           </div>
+          <div className="text-center">
+            <div className="bg-yellow-100 rounded-full p-4 w-16 h-16 mx-auto mb-3">
+              <svg className="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-9a1 1 0 00-1-1H8a1 1 0 100 2h1v3a1 1 0 102 0v-3h1a1 1 0 001-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900">Job Logs</h3>
+            <p className="text-sm text-gray-600">Execution insights</p>
+          </div>
         </div>
       </div>
 
       {/* Quick Test Drive Section */}
-      <div className="mb-16">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl" />
-          <div className="relative bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-2xl p-8 shadow-xl">
+      <div className="mb-16 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl p-8 shadow-xl border border-emerald-200">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -720,17 +758,15 @@ const HomePage: React.FC = () => {
             <div className="mt-8 text-center">
               <p className="text-gray-600 mb-4">✅ Getting SFCC-specific answers? Your setup is working perfectly!</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="/#/examples" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
+                <NavLink to="/examples/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-600 text-white shadow hover:bg-emerald-700 transition group no-underline hover:no-underline focus:no-underline">
                   Try More Examples
                   <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
-                </a>
-                <a href="/#/configuration" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
+                </NavLink>
+                <NavLink to="/configuration/" className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold bg-white text-gray-800 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition no-underline hover:no-underline focus:no-underline">
                   Add Full Mode
-                </a>
+                </NavLink>
               </div>
             </div>
-          </div>
-        </div>
       </div>
 
       {/* Final CTA */}
@@ -740,19 +776,19 @@ const HomePage: React.FC = () => {
             "Empower your AI assistant with comprehensive SFCC knowledge for faster, more accurate development assistance."
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="/#/ai-interfaces" 
+            <NavLink 
+              to="/ai-interfaces/" 
               className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
             >
               Get Started Now
               <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-            </a>
-            <a 
-              href="/#/features" 
+            </NavLink>
+            <NavLink 
+              to="/features/" 
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
             >
               Explore Features
-            </a>
+            </NavLink>
           </div>
         </div>
       </div>

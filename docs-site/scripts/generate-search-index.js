@@ -24,14 +24,14 @@ const OUTPUT_FILE = path.join(__dirname, '../src/generated-search-index.ts');
  */
 const ROUTE_MAPPINGS = {
   'HomePage.tsx': '/',
-  'ConfigurationPage.tsx': '/configuration',
-  'AIInterfacesPage.tsx': '/ai-interfaces',
-  'FeaturesPage.tsx': '/features',
-  'ToolsPage.tsx': '/tools',
-  'ExamplesPage.tsx': '/examples',
-  'SecurityPage.tsx': '/security',
-  'DevelopmentPage.tsx': '/development',
-  'TroubleshootingPage.tsx': '/troubleshooting',
+  'ConfigurationPage.tsx': '/configuration/',
+  'AIInterfacesPage.tsx': '/ai-interfaces/',
+  'FeaturesPage.tsx': '/features/',
+  'ToolsPage.tsx': '/tools/',
+  'ExamplesPage.tsx': '/examples/',
+  'SecurityPage.tsx': '/security/',
+  'DevelopmentPage.tsx': '/development/',
+  'TroubleshootingPage.tsx': '/troubleshooting/',
 };
 
 /**

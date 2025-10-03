@@ -5,7 +5,7 @@
  * including dynamic validation, error categorization and
  * comprehensive response structure analysis.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "["class1", "class2", ...]" }] }
  * - Empty: { content: [{ type: "text", text: "[]" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -13,13 +13,13 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('search_sfcc_classes Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

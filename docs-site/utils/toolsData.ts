@@ -67,7 +67,7 @@ export const tools: ToolMeta[] = [
 
   // Best Practices
   { id: 'get-available-best-practice-guides', name: 'get_available_best_practice_guides', category: 'Best Practices', mode: 'both', description: 'List all best practice guides.', examples: ['List available best practice guides'] },
-  { id: 'get-best-practice-guide', name: 'get_best_practice_guide', category: 'Best Practices', mode: 'both', description: 'Full best practice guide content.', params: [p('guideName','Guide name (cartridge_creation, security, performance, etc.)')], examples: ['Open the performance best practice guide'], tags: ['guides'] },
+  { id: 'get-best-practice-guide', name: 'get_best_practice_guide', category: 'Best Practices', mode: 'both', description: 'Full best practice guide content.', params: [p('guideName','Guide name (cartridge_creation, sfra_client_side_js, sfra_scss, security, performance, etc.)')], examples: ['Open the performance best practice guide'], tags: ['guides'] },
   { id: 'search-best-practices', name: 'search_best_practices', category: 'Best Practices', mode: 'both', description: 'Search within all best practice guides.', params: [p('query','Search term')], examples: ['Search best practices for caching'], tags: ['search'] },
   { id: 'get-hook-reference', name: 'get_hook_reference', category: 'Best Practices', mode: 'both', description: 'Hook reference tables for OCAPI or SCAPI.', params: [p('guideName','ocapi_hooks | scapi_hooks')], examples: ['List SCAPI hooks for product'] },
 
@@ -97,7 +97,7 @@ export const tools: ToolMeta[] = [
   { id: 'get-job-execution-summary', name: 'get_job_execution_summary', category: 'Log Analysis', mode: 'full', description: 'Execution summary for specific job.', params: [p('jobName','Job name')], examples: ['Summarize last execution of DailyFeed job'] },
 
   // System Objects
-  { id: 'get-system-object-definitions', name: 'get_system_object_definitions', category: 'System Objects', mode: 'full', description: 'All system object definitions.', params: [p('count','Max count', false)], examples: ['List system object definitions'], tags: ['objects'], popular: true },
+  { id: 'get-system-object-definitions', name: 'get_system_object_definitions', category: 'System Objects', mode: 'full', description: 'All system object definitions with pagination support.', params: [p('start','Start index', false), p('count','Max count', false), p('select','Property selector', false)], examples: ['List system object definitions', 'Get first 10 system objects', 'Get system objects starting from index 5'], tags: ['objects'], popular: true },
   { id: 'get-system-object-definition', name: 'get_system_object_definition', category: 'System Objects', mode: 'full', description: 'Specific system object metadata.', params: [p('objectType','Object type e.g. Product')], examples: ['Get definition for Product object'] },
   { id: 'search-system-object-attribute-definitions', name: 'search_system_object_attribute_definitions', category: 'System Objects', mode: 'full', description: 'Search attributes for a system object.', params: [p('objectType','System object type'), p('searchRequest','Search request body')], examples: ['Search Product attributes for inventory fields'] },
   { id: 'search-system-object-attribute-groups', name: 'search_system_object_attribute_groups', category: 'System Objects', mode: 'full', description: 'Search attribute groups for a system object.', params: [p('objectType','System object type'), p('searchRequest','Search request body')], examples: ['List attribute groups for Product object'] },

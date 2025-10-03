@@ -1,7 +1,11 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
+import { SITE_DATES } from '../constants';
 
 const ModeBadge: React.FC<{ children: React.ReactNode; variant?: 'docs' | 'full' | 'mixed' }> = ({ children, variant = 'docs' }) => {
     const styles: Record<string, string> = {
@@ -56,18 +60,41 @@ const StepsList: React.FC<{ steps: Array<{ label: string; tool?: string; mode?: 
 );
 
 const ExamplesPage: React.FC = () => {
-    useSEO({
-        title: 'Examples & Workflows - SFCC Development MCP Server',
-        description: 'Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs.',
-        keywords: 'SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples',
-        canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples',
-        ogTitle: 'SFCC Development Examples - Prompt-First Workflows',
-        ogDescription: 'Realistic, production-focused examples for AI-assisted SFCC development across documentation, cartridges, logs, and system objects.',
-        ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples'
-    });
+    const examplesStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Examples & Workflows - SFCC Development MCP Server",
+        "description": "Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks.",
+        "author": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "datePublished": SITE_DATES.PUBLISHED,
+        "dateModified": SITE_DATES.MODIFIED,
+        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/examples/",
+        "educationalLevel": "intermediate",
+        "learningResourceType": "tutorial"
+    };
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-8">
+            <SEO 
+                title="Examples & Workflows"
+                description="Prompt-first, end-to-end examples showing how to leverage the SFCC Development MCP Server with AI assistants for real development tasks. Focus on actionable, production-grade outputs."
+                keywords="SFCC examples, Commerce Cloud prompts, MCP workflows, SFCC AI prompts, cartridge generation, log analysis examples"
+                canonical="/examples/"
+                ogType="article"
+            />
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "/" },
+                { name: "Examples", url: "/examples/" }
+            ]} />
+            <StructuredData data={examplesStructuredData} />
+            
             <div className="text-center mb-14">
                 <H1 id="examples">💡 Prompt-First Examples</H1>
                 <PageSubtitle>
@@ -75,6 +102,7 @@ const ExamplesPage: React.FC = () => {
                     request, the tool usage behind the scenes, and the kind of response you should expect.
                 </PageSubtitle>
                 <p className="text-sm text-slate-500 max-w-2xl mx-auto">No repetition of feature marketing here—only concrete, minimal, high-signal examples.</p>
+                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
             </div>
 
             <SectionCard
@@ -397,6 +425,84 @@ Minimal Extraction Snippet:
                 </div>
             </SectionCard>
 
+            <SectionCard
+                id="site-preference-search"
+                title="Discover Site Preferences Safely"
+                icon="⚙️"
+                gradient="from-indigo-50 via-white to-purple-50"
+                subtitle="Locate configuration switches before you hardcode assumptions." >
+                <PromptBlock prompt="Find all site preferences in the checkout group related to tax or shipping so I can reference them defensively in code." intent="Configuration discovery" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'List groups (if unknown)', tool: 'search_system_object_attribute_groups {"objectType": "SitePreferences", "searchRequest": {"query": {"match_all_query": {}}}}', mode: 'full', note: 'Optional first pass – discover group IDs' },
+                    { label: 'Search preferences in group', tool: 'search_site_preferences {"groupId": "checkout", "searchRequest": {"query": {"text_query": {"fields": ["id","display_name","description"], "search_phrase": "tax"}}, "count": 50}}', mode: 'full' },
+                    { label: 'Broaden to shipping', tool: 'search_site_preferences {"groupId": "checkout", "searchRequest": {"query": {"text_query": {"fields": ["id","display_name","description"], "search_phrase": "ship"}}, "count": 50}}', mode: 'full' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Interpreting Results
+Each preference includes: id, display_name, value_type, (optionally) value definition.
+Security: Password-type preference values are masked by default.
+Usage Pattern:
+\`var prefs = Site.getCurrent().getPreferences().getCustom();\nvar enableAltTax = prefs.enableAlternativeTaxEngine;\nif (enableAltTax) { /* branch logic */ }\`
+Defensive Access Tips:
+1. Guard optional boolean flags with !! to normalize (e.g., !!prefs.enableGiftWrap)
+2. Never log preference values directly (especially STRING/LONG_TEXT types containing tokens)
+3. Document critical preference dependencies in controller/module JSDoc
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="custom-object-attributes"
+                title="Target Custom Object Attributes"
+                icon="🧱"
+                gradient="from-teal-50 via-white to-cyan-50"
+                subtitle="Search attributes precisely instead of browsing blindly." >
+                <PromptBlock prompt="For custom object type Global_String, list only searchable non-system attributes and show how to query one in script." intent="Metadata → usage" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Query searchable attributes', tool: 'search_custom_object_attribute_definitions {"objectType": "Global_String", "searchRequest": {"query": {"bool_query": {"must": [{"term_query": {"fields": ["searchable"], "operator": "is", "values": ["true"]}}]}}, "count": 100}}', mode: 'full' },
+                    { label: '(Optional) broaden if empty', note: 'Fallback: use match_all_query then client-side filter' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Usage Extraction
+Attribute Sample: altValueMapping (type=string, searchable=true)
+Script Access:
+\`var CustomObjectMgr = require('dw/object/CustomObjectMgr');\nvar co = CustomObjectMgr.getCustomObject('Global_String', key);\nvar mapped = co && co.custom.altValueMapping;\`
+Guidelines:
+- Null-check custom object fetch before dereferencing .custom
+- Prefer specific term_query filtering serverside rather than large client-side scans
+- If attribute becomes critical path, add defensive logging (category=MetadataAccess, level=debug) selectively (avoid value leakage)
+`} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="micro-job-log-triage"
+                title="Micro Job Log Triage"
+                icon="🩺"
+                gradient="from-red-50 via-white to-rose-50"
+                subtitle="Fast 3-step health read of a job without noise." >
+                <PromptBlock prompt="Give me a 3-step minimal health read for the nightly InventorySync job and only call tools you truly need." intent="Minimal observation pipeline" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Confirm presence', tool: 'search_job_logs_by_name {"jobName": "InventorySync", "limit": 3 }', mode: 'full' },
+                    { label: 'Get recent entries (tail)', tool: 'get_job_log_entries {"jobName": "InventorySync", "limit": 40 }', mode: 'full', note: 'Mixed levels in single job file' },
+                    { label: 'Execution summary', tool: 'get_job_execution_summary {"jobName": "InventorySync"}', mode: 'full', note: 'Roll-up status + durations' }
+                ]} />
+                <div className="mt-6">
+                    <CodeBlock language="markdown" code={`### Minimal InventorySync Health Snapshot
+Outcome: SUCCESS (duration 2m14s, 0 errors, 3 warnings)
+Warnings Focus:
+• 2x RETRY: External API 429 backoffs (acceptable within thresholds)
+• 1x Deprecated attribute reference (non-blocking; schedule fix)
+Next Actions (Only If Persistent):
+1. Track retry ratio vs baseline (add metric instrumentation)
+2. Replace deprecated attribute before Q4 freeze
+`} />
+                </div>
+            </SectionCard>
+
             {/* End-to-End section removed per request */}
 
             <SectionCard
@@ -437,12 +543,12 @@ Improved:
             <div className="text-center mt-20">
                 <p className="text-lg text-slate-700 mb-6 font-medium">Ready to try these yourself?</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/#/ai-interfaces" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <NavLink to="/ai-interfaces/" className="group no-underline hover:no-underline bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                         Configure Your AI Client <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-                    </a>
-                    <a href="/#/tools" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
+                    </NavLink>
+                    <NavLink to="/tools/" className="no-underline hover:no-underline border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
                         Browse All Tools
-                    </a>
+                    </NavLink>
                 </div>
             </div>
         </div>

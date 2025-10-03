@@ -1,0 +1,387 @@
+description: "Tests for search_custom_object_attribute_definitions tool"
+# Run with: npx aegis "tests/mcp/yaml/search-custom-object-attribute-definitions.test.mcp.yml" --config ./aegis.config.with-dw.json
+
+tests:
+  # Full Mode Tests (primary tests with mock server)
+  - it: "should successfully search custom object attribute definitions with all query parameters"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 1
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+            start: 0
+            count: 10
+            select: "(**)"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 1
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:object_attribute_definition_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "2000ms"
+
+  - it: "should return valid JSON structure for custom object attributes"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 2
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 2
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_definition_search_result\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should validate attribute definition structure in response"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 3
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 3
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*\"hits\"[\\s\\S]*\"total\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include required attribute definition fields"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 4
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 4
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"id\"[\\s\\S]*\"value_type\"[\\s\\S]*\"mandatory\"[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should work with minimal search request (missing searchRequest parameter)"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 5
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 5
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:object_attribute_definition_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle text search query"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 6
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              text_query:
+                fields: ["id", "display_name"]
+                search_phrase: "UUID"
+            start: 0
+            count: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 6
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:object_attribute_definition_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle pagination parameters"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 7
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+            start: 2
+            count: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 7
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*\"start\"\\s*:\\s*2[\\s\\S]*"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should handle sorting parameters"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 8
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+            sorts:
+              - field: "id"
+                sort_order: "asc"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 8
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:object_attribute_definition_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Error Handling Tests (Full Mode)
+  - it: "should reject empty objectType parameter"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 9
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: ""
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 9
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "800ms"
+
+  - it: "should handle unknown custom object type"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 10
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "UnknownCustomObject"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 10
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*ObjectTypeNotFoundException[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "800ms"
+
+  - it: "should handle invalid search request structure"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 11
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            invalid: "structure"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 11
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:[\\s\\S]*PropertyConstraintViolationException[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "800ms"
+
+  - it: "should reject missing objectType parameter"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 12
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 12
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:objectType"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # Performance Tests
+  - it: "should respond quickly for basic search operations"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 13
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              match_all_query: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 13
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+          isError: false
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "1500ms"
+
+  - it: "should handle complex queries within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      method: "tools/call"
+      id: 14
+      params:
+        name: "search_custom_object_attribute_definitions"
+        arguments:
+          objectType: "VersionHistory"
+          searchRequest:
+            query:
+              bool_query:
+                must:
+                  - text_query:
+                      fields: ["id"]
+                      search_phrase: "component"
+                should:
+                  - term_query:
+                      fields: ["value_type"]
+                      operator: "is"
+                      values: ["string"]
+            sorts:
+              - field: "id"
+                sort_order: "desc"
+            start: 0
+            count: 20
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: 14
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:object_attribute_definition_search_result"
+          isError: false
+      stderr: "toBeEmpty"
+      performance:
+        maxResponseTime: "2000ms"

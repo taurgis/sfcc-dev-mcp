@@ -1,13 +1,13 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool Presence Only)', () => {
   let client;
   let toolsCache;
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
   });
 
   after(async () => {

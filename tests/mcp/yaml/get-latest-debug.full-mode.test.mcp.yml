@@ -1,11 +1,14 @@
 ---
-description: "Test get_latest_debug tool in full mode - Get detailed debug messages for code execution tracing"
+# Optimized YAML tests for get_latest_debug tool - focuses on MCP protocol compliance and basic functionality
+# Complex content validation, performance testing, and detailed parameter validation are handled in the programmatic tests
+# These tests primarily validate aegis testing framework integration and basic MCP responses
+description: "Test get_latest_debug tool in full mode - Basic MCP protocol and parameter validation"
 tests:
   # ========================================
-  # SUCCESS SCENARIOS
+  # MCP PROTOCOL COMPLIANCE
   # ========================================
 
-  - it: "should retrieve latest debug messages with default parameters"
+  - it: "should return valid MCP response structure with default parameters"
     request:
       jsonrpc: "2.0"
       id: "debug-default"
@@ -20,38 +23,18 @@ tests:
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should validate response structure and content format"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-structure"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-structure"
-        result:
-          content:
-            match:arrayElements:
               match:partial:
                 type: "text"
                 text: "match:type:string"
           isError: "match:type:boolean"
       stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
 
-  - it: "should contain default message about latest 10 debug messages"
+  - it: "should contain expected content structure for default limit"
     request:
       jsonrpc: "2.0"
-      id: "debug-default-count"
+      id: "debug-content"
       method: "tools/call"
       params:
         name: "get_latest_debug"
@@ -59,20 +42,20 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "debug-default-count"
+        id: "debug-content"
         result:
           content:
             match:arrayElements:
-              match:partial:
-                text: "match:contains:Latest 10 debug messages"
+              type: "text"
+              text: "match:contains:Latest 10 debug messages"
           isError: false
       stderr: "toBeEmpty"
 
   # ========================================
-  # PARAMETER VALIDATION TESTS
+  # PARAMETER VALIDATION
   # ========================================
 
-  - it: "should limit debug messages when limit parameter is provided"
+  - it: "should respect limit parameter"
     request:
       jsonrpc: "2.0"
       id: "debug-limit"
@@ -92,10 +75,8 @@ tests:
               text: "match:contains:Latest 3 debug messages"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
 
-  - it: "should retrieve 2 debug messages for today"
+  - it: "should handle date parameter"
     request:
       jsonrpc: "2.0"
       id: "debug-date"
@@ -103,6 +84,7 @@ tests:
       params:
         name: "get_latest_debug"
         arguments:
+          date: "20240101"
           limit: 2
     expect:
       response:
@@ -112,168 +94,15 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Latest 2 debug messages"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should handle single debug entry limit"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-single"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-single"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Latest 1 debug messages"
+              text: "match:type:string"
           isError: false
       stderr: "toBeEmpty"
 
   # ========================================
-  # CONTENT VALIDATION TESTS
+  # ERROR HANDLING
   # ========================================
 
-  - it: "should include log file name pattern in response"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-filename"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-filename"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:debug-blade-[\\d]{8}-[\\d]{6}\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include DEBUG level log entries"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-level"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-level"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:DEBUG"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include timestamp format in debug entries"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-timestamp"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-timestamp"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3} GMT"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include pipeline call information in debug entries"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-pipeline"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-pipeline"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:PipelineCallServlet"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include session and site information"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-site-info"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 2
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-site-info"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Sites-RefArchGlobal-Site"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include separation markers between log entries"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-separators"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-separators"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:---"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # ========================================
-  # EDGE CASES AND VALIDATION
-  # ========================================
-
-  - it: "should handle string limit parameter gracefully"
+  - it: "should reject invalid string limit parameter"
     request:
       jsonrpc: "2.0"
       id: "debug-string-limit"
@@ -294,7 +123,7 @@ tests:
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should handle zero limit parameter with validation error"
+  - it: "should reject zero limit parameter"
     request:
       jsonrpc: "2.0"
       id: "debug-zero-limit"
@@ -315,184 +144,48 @@ tests:
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should handle historical date parameter"
+  # ========================================
+  # BASIC CONTENT VALIDATION
+  # ========================================
+
+  - it: "should include basic SFCC log elements"
     request:
       jsonrpc: "2.0"
-      id: "debug-historical-date"
+      id: "debug-basic-content"
       method: "tools/call"
       params:
         name: "get_latest_debug"
         arguments:
-          date: "20240101"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "debug-basic-content"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:contains:DEBUG"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include log file names in response"
+    request:
+      jsonrpc: "2.0"
+      id: "debug-filenames"
+      method: "tools/call"
+      params:
+        name: "get_latest_debug"
+        arguments:
           limit: 1
     expect:
       response:
         jsonrpc: "2.0"
-        id: "debug-historical-date"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # ========================================
-  # PERFORMANCE VALIDATION
-  # ========================================
-
-  - it: "should respond quickly for small limit requests"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-performance-small"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-performance-small"
+        id: "debug-filenames"
         result:
           content:
             match:arrayElements:
               match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1500ms"
-
-  - it: "should handle larger debug entry requests efficiently"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-performance-large"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 20
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-performance-large"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Latest 20 debug messages"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  # ========================================
-  # CONTENT SPECIFIC DEBUG PATTERNS  
-  # ========================================
-
-  - it: "should include customer session validation debug messages"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-customer-session"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-customer-session"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*Customer session validated[\\s\\S]*"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include basket calculation debug information"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-basket-calc"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-basket-calc"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*Basket calculation[\\s\\S]*"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include search query execution debug details"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-search-query"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-search-query"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*Search query executed[\\s\\S]*"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include product cache hit debug information"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-product-cache"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-product-cache"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*Product cache hit[\\s\\S]*"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include system job thread debug entries"
-    request:
-      jsonrpc: "2.0"
-      id: "debug-system-job"
-      method: "tools/call"
-      params:
-        name: "get_latest_debug"
-        arguments:
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "debug-system-job"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*SystemJobThread[\\s\\S]*"
+                text: "match:contains:debug-blade-"
           isError: false
       stderr: "toBeEmpty"

@@ -1,0 +1,272 @@
+# ==================================================================================
+# SFCC MCP Server - get_system_object_definitions Tool YAML Tests (Docs-Only Mode)
+# Tests that system object tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-system-object-definitions.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "get_system_object_definitions tool tests - Docs-only mode tool availability"
+
+# ==================================================================================
+# TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+# ==================================================================================
+tests:
+  - it: "should NOT list get_system_object_definitions tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:get_system_object_definitions"
+      stderr: "toBeEmpty"
+
+  - it: "should NOT list any system object tools in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "no-system-object-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "no-system-object-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:get_system_object_definition"
+      stderr: "toBeEmpty"
+
+  - it: "should NOT list site preferences tools in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "no-site-prefs-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "no-site-prefs-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:search_site_preferences"
+      stderr: "toBeEmpty"
+
+  - it: "should NOT list custom object attribute tools in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "no-custom-object-tools"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "no-custom-object-tools"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:search_custom_object_attribute_definitions"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# TOOL CALL BEHAVIOR - AVAILABLE BUT RETURNS ERROR  
+# ==================================================================================
+
+  - it: "should return configuration error when calling unlisted tool"
+    request:
+      jsonrpc: "2.0"
+      id: "config-error"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "config-error"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"  # Error should be fast
+
+  - it: "should return proper error result structure for unlisted tool"
+    request:
+      jsonrpc: "2.0"
+      id: "error-result-structure"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-result-structure"
+        result:
+          content: "match:type:array"
+          isError: true
+
+  - it: "should fail fast when calling unlisted tool with parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "fail-fast-with-params"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments:
+          start: 0
+          count: 10
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "fail-fast-with-params"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"  # Should fail quickly
+
+# ==================================================================================
+# DOCS-ONLY MODE TOOL AVAILABILITY VERIFICATION
+# ==================================================================================
+
+  - it: "should have SFCC documentation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "docs-tools-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "docs-tools-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfcc_class_info"
+      stderr: "toBeEmpty"
+
+  - it: "should have SFRA documentation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "sfra-tools-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "sfra-tools-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_sfra_document"
+      stderr: "toBeEmpty"
+
+  - it: "should have best practices tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "best-practices-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "best-practices-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_best_practice_guide"
+      stderr: "toBeEmpty"
+
+  - it: "should have cartridge generation tools available"
+    request:
+      jsonrpc: "2.0"
+      id: "cartridge-tools-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "cartridge-tools-available"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:generate_cartridge_structure"
+      stderr: "toBeEmpty"
+
+  - it: "should have expected number of tools in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "expected-tool-count"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "expected-tool-count"
+        result:
+          tools: "match:arrayLength:15"  # Based on actual count from aegis query
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONSISTENCY TESTING
+# ==================================================================================
+
+  - it: "should consistently exclude system object tools across multiple calls"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-exclusion-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-exclusion-1"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:get_system_object_definitions"
+
+  - it: "should maintain consistent tool exclusion on second call"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-exclusion-2"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-exclusion-2"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:get_system_object_definitions"
+
+  - it: "should consistently return configuration error across multiple attempts"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-config-error"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definitions"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-config-error"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:OCAPI client not configured"
+          isError: true

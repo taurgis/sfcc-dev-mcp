@@ -5,7 +5,7 @@
  * including performance monitoring, dynamic validation, comprehensive content analysis,
  * and advanced error categorization for the SFCC class listing functionality.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Succ      // Core SFCC namespaces should have good coverage
       const coreNamespaces = ['dw.catalog', 'dw.customer', 'dw.order', 'dw.system'];
       coreNamespaces.forEach(namespace => {
@@ -26,7 +26,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Performance monitoring utility class for comprehensive metrics collection
@@ -188,7 +188,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
   const contentAnalyzer = new ContentAnalyzer();
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

@@ -1,5 +1,5 @@
 description: "Docs-only: get_available_sfra_documents tool tests"
-config: ./conductor.config.docs-only.json
+config: ./aegis.config.docs-only.json
 
 # We first list tools to ensure the tool exists in docs-only mode, then call it.
 tests:

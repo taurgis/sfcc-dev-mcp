@@ -1,12 +1,12 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
-describe('get_latest_error - Full Mode Programmatic Tests', () => {
+describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
   });
 
   after(async () => {
@@ -20,47 +20,29 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
     client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
-  // Helper functions for common validations
+  // Simplified helper functions for common validations
   function assertValidMCPResponse(result) {
     assert.ok(result.content, 'Should have content');
     assert.ok(Array.isArray(result.content), 'Content should be array');
     assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
+    assert.equal(result.content[0].type, 'text', 'Content should be text type');
   }
-
-
 
   function assertErrorResponse(result, expectedErrorText) {
     assertValidMCPResponse(result);
     assert.equal(result.isError, true, 'Should be an error response');
-    assert.equal(result.content[0].type, 'text');
     assert.ok(result.content[0].text.includes(expectedErrorText),
       `Expected error text "${expectedErrorText}" in "${result.content[0].text}"`);
   }
 
-  function assertSuccessResponse(result) {
+  function assertSuccessWithLimit(result, expectedLimit) {
     assertValidMCPResponse(result);
     assert.equal(result.isError, false, 'Should not be an error response');
-    assert.equal(result.content[0].type, 'text');
-  }
-
-  function assertLogFormat(result, expectedLimit) {
-    assertSuccessResponse(result);
     const text = result.content[0].text;
-    
-    // Should contain the expected limit message
     assert.ok(text.includes(`Latest ${expectedLimit} error messages`),
       `Should mention "${expectedLimit}" error messages`);
-    
-    // Should contain log file name pattern
-    assert.ok(/error-blade-\d{8}-\d{6}\.log/.test(text),
-      'Should contain log file name pattern');
-    
-    // Should contain ERROR level entries
+    assert.ok(/error-blade-\d{8}-\d{6}\.log/.test(text), 'Should contain log file pattern');
     assert.ok(text.includes('ERROR'), 'Should contain ERROR level entries');
-    
-    // Should contain GMT timestamps
-    assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT/.test(text),
-      'Should contain GMT timestamp pattern');
   }
 
   // Helper function to get current date in YYYYMMDD format
@@ -72,131 +54,107 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
     return `${year}${month}${day}`;
   }
 
-  // Basic functionality tests
-  describe('Basic Functionality', () => {
-    test('should retrieve latest error messages with default parameters', async () => {
+  // Core functionality tests (essential scenarios)
+  describe('Core Functionality', () => {
+    test('should retrieve error messages with default parameters', async () => {
       const result = await client.callTool('get_latest_error', {});
       
-      assertLogFormat(result, 10); // Default limit is 10
+      assertSuccessWithLimit(result, 10); // Default limit is 10
       
-      // Should contain SFCC-specific patterns
+      // Verify SFCC-specific content is present
       const text = result.content[0].text;
-      assert.ok(/PipelineCallServlet|SystemJobThread/.test(text),
-        'Should contain SFCC thread patterns');
+      assert.ok(/PipelineCallServlet|SystemJobThread/.test(text), 'Should contain SFCC thread patterns');
       assert.ok(text.includes('Sites-'), 'Should contain Sites information');
+      assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT/.test(text), 'Should contain GMT timestamps');
     });
 
-    test('should respect limit parameter', async () => {
+    test('should respect limit parameter and return ordered results', async () => {
       const result = await client.callTool('get_latest_error', { limit: 3 });
       
-      assertLogFormat(result, 3);
+      assertSuccessWithLimit(result, 3);
       
-      // Should contain separators for multiple entries
       const text = result.content[0].text;
+      // Should contain separators for multiple entries
       const separatorCount = (text.match(/---/g) || []).length;
       assert.ok(separatorCount >= 1, 'Should have separators between entries');
+      
+      // Verify chronological order (newest first) with known mock data
+      assert.ok(text.includes('CQ - AWS S3 Configuration Issue'), 'Should contain latest error');
+      assert.ok(text.includes('Payment authorization failed'), 'Should contain second latest error');
     });
 
-    test('should handle specific date parameter', async () => {
+    test('should handle date parameter correctly', async () => {
       const result = await client.callTool('get_latest_error', { 
         date: getCurrentDateString(),
         limit: 2 
       });
       
-      assertLogFormat(result, 2);
-    });
-
-    test('should handle both date and limit parameters together', async () => {
-      const result = await client.callTool('get_latest_error', {
-        date: getCurrentDateString(),
-        limit: 1
-      });
-      
-      assertLogFormat(result, 1);
+      assertSuccessWithLimit(result, 2);
     });
   });
 
-  // Parameter validation tests
+  // Parameter validation tests (core error handling)
   describe('Parameter Validation', () => {
-    test('should handle string limit parameter gracefully', async () => {
-      const result = await client.callTool('get_latest_error', { limit: '5' });
+    test('should reject invalid limit types and values', async () => {
+      // Test string limit
+      const stringResult = await client.callTool('get_latest_error', { limit: '5' });
+      assertErrorResponse(stringResult, 'Invalid limit \'5\' for get_latest_error. Must be a valid number');
       
-      assertErrorResponse(result, 'Invalid limit \'5\' for get_latest_error. Must be a valid number');
+      // Test zero limit
+      const zeroResult = await client.callTool('get_latest_error', { limit: 0 });
+      assertErrorResponse(zeroResult, 'Invalid limit \'0\' for get_latest_error');
+      
+      // Test negative limit
+      const negativeResult = await client.callTool('get_latest_error', { limit: -5 });
+      assertErrorResponse(negativeResult, 'Invalid limit');
     });
 
-    test('should handle large limit values', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 50 });
+    test('should handle large limits appropriately', async () => {
+      const largeResult = await client.callTool('get_latest_error', { limit: 50 });
+      assertSuccessWithLimit(largeResult, 50);
       
-      assertLogFormat(result, 50);
+      // Test extremely large limit (should error)
+      const hugeResult = await client.callTool('get_latest_error', { limit: 9999 });
+      assertErrorResponse(hugeResult, 'Invalid limit');
     });
 
-    test('should reject zero limit parameter', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 0 });
-      
-      assertErrorResponse(result, 'Invalid limit \'0\' for get_latest_error');
-    });
-
-    test('should reject negative limit parameter', async () => {
-      const result = await client.callTool('get_latest_error', { limit: -5 });
-      
-      assertErrorResponse(result, 'Invalid limit');
-    });
-
-    test('should reject extremely large limit parameter', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 9999 });
-      
-      assertErrorResponse(result, 'Invalid limit');
-    });
-
-    test('should handle valid YYYYMMDD date format', async () => {
-      const result = await client.callTool('get_latest_error', { 
+    test('should handle date parameters gracefully', async () => {
+      // Valid YYYYMMDD date
+      const validResult = await client.callTool('get_latest_error', { 
         date: '20240101',
         limit: 1 
       });
+      assertValidMCPResponse(validResult);
+      assert.equal(validResult.isError, false, 'Valid date should not error');
       
-      assertValidMCPResponse(result);
-      // Should not error - may return no results for past dates
-    });
-
-    test('should handle future dates gracefully', async () => {
-      const result = await client.callTool('get_latest_error', { 
-        date: '20251231',
-        limit: 1 
-      });
-      
-      assertValidMCPResponse(result);
-      // Should not error - may return no results for future dates
-    });
-
-    test('should handle invalid date format gracefully', async () => {
-      const result = await client.callTool('get_latest_error', { 
+      // Invalid date format (should handle gracefully)
+      const invalidResult = await client.callTool('get_latest_error', { 
         date: '2024-01-01',
         limit: 1 
       });
-      
-      assertValidMCPResponse(result);
-      // Should handle gracefully without erroring
+      assertValidMCPResponse(invalidResult);
+      // Should not crash, may succeed or fail gracefully
     });
 
-    test('should handle missing arguments object gracefully', async () => {
+    test('should handle missing arguments gracefully', async () => {
       const result = await client.callTool('get_latest_error');
-      
-      assertLogFormat(result, 10); // Should use default limit
+      assertSuccessWithLimit(result, 10); // Should use default limit
     });
   });
 
-  // Content validation tests
+  // Content validation tests (SFCC-specific patterns)
   describe('Content Validation', () => {
-    test('should include realistic SFCC error scenarios', async () => {
+    test('should include realistic SFCC error scenarios and structure', async () => {
       const result = await client.callTool('get_latest_error', { limit: 5 });
       
-      assertSuccessResponse(result);
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should not be an error');
       const text = result.content[0].text;
       
       // Should contain common SFCC error patterns
       const errorPatterns = [
         'Custom cartridge error',
-        'Product import failed',
+        'Product import failed', 
         'Customer profile creation failed',
         'Payment authorization failed',
         'AWS S3 Configuration Issue'
@@ -205,121 +163,52 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       const foundPatterns = errorPatterns.filter(pattern => text.includes(pattern));
       assert.ok(foundPatterns.length > 0, 
         `Should contain at least one error pattern. Found: ${foundPatterns.join(', ')}`);
-    });
-
-    test('should include proper log structure elements', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 3 });
       
-      assertSuccessResponse(result);
-      const text = result.content[0].text;
-      
-      // Validate log structure
-      assert.ok(text.includes('['), 'Should contain log brackets');
-      assert.ok(text.includes(']'), 'Should contain closing brackets');
+      // Validate basic log structure elements
+      assert.ok(text.includes('[') && text.includes(']'), 'Should contain log brackets');
       assert.ok(/\|\d+\|/.test(text), 'Should contain thread IDs with pipes');
-      assert.ok(text.includes('ERROR'), 'Should contain ERROR level');
     });
 
-    test('should separate multiple entries properly', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 4 });
-      
-      assertSuccessResponse(result);
-      const text = result.content[0].text;
-      
-      // Count separators - should have at least 2 for 4 entries (3 separators)
-      const separators = text.match(/---/g);
-      assert.ok(separators && separators.length >= 2, 
-        `Should have multiple separators for multiple entries. Found: ${separators?.length || 0}`);
-    });
-
-    test('should contain SFCC Sites and pipeline information', async () => {
+    test('should contain comprehensive SFCC-specific patterns', async () => {
       const result = await client.callTool('get_latest_error', { limit: 3 });
       
-      assertSuccessResponse(result);
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should not be an error');
       const text = result.content[0].text;
       
-      // SFCC-specific patterns
-      assert.ok(text.includes('Sites-'), 'Should contain Sites information');
-      assert.ok(/PipelineCall|SystemJob/.test(text), 'Should contain pipeline or job information');
-    });
-  });
-
-  // Multi-step workflow testing
-  describe('Multi-Step Workflows', () => {
-    test('should support sequential error analysis workflow', async () => {
-      // Step 1: Get recent errors with small limit
-      const recentErrors = await client.callTool('get_latest_error', { limit: 2 });
-      assertSuccessResponse(recentErrors);
-      
-      // Step 2: Get more comprehensive error list
-      const comprehensiveErrors = await client.callTool('get_latest_error', { limit: 10 });
-      assertSuccessResponse(comprehensiveErrors);
-      
-      // Step 3: Get errors for specific date
-      const dateSpecificErrors = await client.callTool('get_latest_error', { 
-        date: getCurrentDateString(),
-        limit: 5 
-      });
-      assertSuccessResponse(dateSpecificErrors);
-      
-      // All should be successful and contain error information
-      const recentText = recentErrors.content[0].text;
-      const comprehensiveText = comprehensiveErrors.content[0].text;
-      const dateText = dateSpecificErrors.content[0].text;
-      
-      assert.ok(recentText.includes('ERROR'), 'Recent errors should contain ERROR level');
-      assert.ok(comprehensiveText.includes('ERROR'), 'Comprehensive errors should contain ERROR level');
-      assert.ok(dateText.includes('ERROR'), 'Date-specific errors should contain ERROR level');
-    });
-
-    test('should maintain consistent response structure across calls', async () => {
-      const calls = [
-        { limit: 1 },
-        { limit: 5 },
-        { date: getCurrentDateString(), limit: 3 },
-        {} // default parameters
+      // SFCC-specific validation patterns
+      const sfccPatterns = [
+        { pattern: /Sites-\w+/, name: 'Sites names' },
+        { pattern: /PipelineCallServlet|SystemJobThread/, name: 'Thread types' },
+        { pattern: /\|\d+\|/, name: 'Thread IDs' },
+        { pattern: /custom \[\]/, name: 'Custom category' }
       ];
       
-      const results = [];
-      
-      // Execute calls sequentially (never use Promise.all with MCP!)
-      for (const params of calls) {
-        const result = await client.callTool('get_latest_error', params);
-        results.push(result);
-      }
-      
-      // All should have consistent structure
-      results.forEach((result, index) => {
-        assertValidMCPResponse(result);
-        assert.equal(result.isError, false, `Call ${index} should not be error`);
-        assert.equal(result.content[0].type, 'text', `Call ${index} should have text content`);
-        assert.ok(result.content[0].text.includes('Latest'), 
-          `Call ${index} should contain 'Latest' in response`);
-      });
+      const matchedPatterns = sfccPatterns.filter(({ pattern }) => pattern.test(text));
+      assert.ok(matchedPatterns.length >= 2,
+        `Should match at least 2 SFCC patterns. Matched: ${matchedPatterns.map(p => p.name).join(', ')}`);
     });
   });
 
   // Error recovery and resilience testing
   describe('Error Recovery and Resilience', () => {
-    test('should handle invalid parameters and recover', async () => {
+    test('should handle error scenarios and recover properly', async () => {
       // Test invalid parameter
       const invalidResult = await client.callTool('get_latest_error', { limit: 0 });
       assertErrorResponse(invalidResult, 'Invalid limit');
       
       // Test recovery with valid parameters
       const validResult = await client.callTool('get_latest_error', { limit: 1 });
-      assertSuccessResponse(validResult);
+      assertValidMCPResponse(validResult);
+      assert.equal(validResult.isError, false, 'Should work normally after error');
+      assertSuccessWithLimit(validResult, 1);
       
-      // Should work normally after error
-      assertLogFormat(validResult, 1);
-    });
-
-    test('should handle edge cases without breaking', async () => {
+      // Test edge cases without breaking
       const edgeCases = [
-        { limit: '1' },      // String limit
-        { limit: 1000 },     // Large limit (should error)
-        { date: '' },        // Empty date
-        { invalid: 'param' } // Invalid parameter name
+        { limit: '1' },      // String limit (should error)
+        { limit: 1000 },     // Large limit (should error)  
+        { date: '' },        // Empty date (should handle gracefully)
+        { invalid: 'param' } // Invalid parameter name (should handle gracefully)
       ];
       
       // Test all edge cases sequentially
@@ -331,88 +220,36 @@ describe('get_latest_error - Full Mode Programmatic Tests', () => {
       
       // Verify tool still works after edge cases
       const finalResult = await client.callTool('get_latest_error', { limit: 1 });
-      assertSuccessResponse(finalResult);
+      assertValidMCPResponse(finalResult);
+      assert.equal(finalResult.isError, false, 'Should work after edge cases');
     });
   });
 
-  // Dynamic validation based on actual responses
-  describe('Dynamic Content Validation', () => {
-    test('should validate log content patterns dynamically', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 5 });
-      assertSuccessResponse(result);
+  // Advanced scenarios (simplified multi-step workflow)
+  describe('Advanced Scenarios', () => {
+    test('should support typical error analysis workflow', async () => {
+      // Simulate a typical workflow: recent errors -> specific investigation -> recovery validation
       
-      const text = result.content[0].text;
-      const lines = text.split('\n').filter(line => line.trim().length > 0);
+      // Step 1: Get recent errors for overview
+      const recentErrors = await client.callTool('get_latest_error', { limit: 2 });
+      assertValidMCPResponse(recentErrors);
+      assert.equal(recentErrors.isError, false, 'Recent errors should succeed');
       
-      // Dynamic validation based on actual content
-      const errorLines = lines.filter(line => line.includes('ERROR'));
-      assert.ok(errorLines.length > 0, 'Should have at least one ERROR line');
-      
-      // Each error line should have timestamp
-      errorLines.forEach((line, index) => {
-        assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(line),
-          `Error line ${index} should contain timestamp: ${line}`);
+      // Step 2: Get more detailed view for specific analysis
+      const detailedErrors = await client.callTool('get_latest_error', { 
+        date: getCurrentDateString(),
+        limit: 5 
       });
-    });
-
-    test('should validate SFCC-specific content patterns', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 3 });
-      assertSuccessResponse(result);
+      assertValidMCPResponse(detailedErrors);
+      assert.equal(detailedErrors.isError, false, 'Detailed errors should succeed');
       
-      const text = result.content[0].text;
-      
-      // SFCC-specific validation patterns
-      const sfccPatterns = [
-        /Sites-\w+/,                    // Sites names
-        /PipelineCallServlet|SystemJobThread/, // Thread types
-        /\|\d+\|/,                      // Thread IDs
-        /custom \[\]/,                  // Custom category
-        /JOB [a-f0-9]+/                // Job IDs
-      ];
-      
-      const matchedPatterns = sfccPatterns.filter(pattern => pattern.test(text));
-      assert.ok(matchedPatterns.length >= 2,
-        `Should match at least 2 SFCC patterns. Matched: ${matchedPatterns.length}`);
-    });
-  });
-
-  // Functional monitoring patterns
-  describe('Functional Monitoring', () => {
-    test('should consistently return structured error log data', async () => {
-      const limits = [1, 3, 5, 10];
-      const results = [];
-      
-      // Test various limits sequentially
-      for (const limit of limits) {
-        const result = await client.callTool('get_latest_error', { limit });
-        results.push({ limit, result });
-      }
-      
-      // Analyze consistency across results
-      results.forEach(({ limit, result }) => {
-        assertSuccessResponse(result);
-        
+      // Step 3: Verify both contain expected error content
+      [recentErrors, detailedErrors].forEach((result, index) => {
         const text = result.content[0].text;
-        assert.ok(text.includes(`Latest ${limit} error messages`),
-          `Should mention correct limit: ${limit}`);
-        
-        // Count actual error entries (rough estimation)
-        const errorCount = (text.match(/ERROR/g) || []).length;
-        assert.ok(errorCount >= 1, `Should have at least 1 error for limit ${limit}`);
+        assert.ok(text.includes('ERROR'), `Result ${index} should contain ERROR level`);
+        assert.ok(text.includes('Latest'), `Result ${index} should contain 'Latest' message`);
+        assert.ok(/error-blade-.*\.log/.test(text), `Result ${index} should contain log filename`);
       });
-    });
-
-    test('should provide comprehensive error context', async () => {
-      const result = await client.callTool('get_latest_error', { limit: 2 });
-      assertSuccessResponse(result);
-      
-      const text = result.content[0].text;
-      
-      // Check for presence of key context elements
-      assert.ok(/error-blade-.*\.log/.test(text), 'Should include log file name');
-      assert.ok(/\d{4}-\d{2}-\d{2}/.test(text), 'Should include timestamp');
-      assert.ok(/Sites-/.test(text), 'Should include site information');
-      assert.ok(/ERROR/.test(text), 'Should include error level');
     });
   });
 });

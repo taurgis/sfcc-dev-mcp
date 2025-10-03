@@ -1,0 +1,191 @@
+# ==================================================================================
+# SFCC MCP Server - get_system_object_definition Tool YAML Tests (Full Mode)
+# Streamlined smoke testing and declarative validation for core functionality
+# Complex business logic, edge cases, and workflows are covered in programmatic tests
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/get-system-object-definition.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis query get_system_object_definition '{"objectType": "Product"}' --config "aegis.config.with-dw.json"
+# ==================================================================================
+
+description: "get_system_object_definition tool smoke tests - Basic functionality validation"
+
+tests:
+  # ==================================================================================
+  # TOOL AVAILABILITY VALIDATION
+  # ==================================================================================
+  - it: "should have get_system_object_definition tool available with proper schema"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-available"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-available"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:get_system_object_definition"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # CORE FUNCTIONALITY VALIDATION
+  # ==================================================================================
+  - it: "should successfully retrieve Product object definition with valid structure"
+    request:
+      jsonrpc: "2.0"
+      id: "product-success"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "product-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Product"
+          isError: false
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should successfully retrieve Customer object definition"
+    request:
+      jsonrpc: "2.0"
+      id: "customer-success"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "customer-success"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Customer"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should return valid JSON structure with required SFCC metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "valid-json"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "valid-json"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\{[\\s\\S]*object_type_definition[\\s\\S]*\\}$"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # ERROR HANDLING VALIDATION
+  # ==================================================================================
+  - it: "should handle missing objectType parameter with clear error"
+    request:
+      jsonrpc: "2.0"
+      id: "missing-param"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should handle invalid parameter type gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "invalid-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "invalid-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:objectType must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PERFORMANCE SMOKE TEST
+  # ==================================================================================
+  - it: "should respond within acceptable timeframe for unknown objects"
+    request:
+      jsonrpc: "2.0"
+      id: "performance-check"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "UnknownObject"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "performance-check"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:UnknownObject"
+          isError: false
+      performance:
+        maxResponseTime: "600ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# OPTIMIZATION NOTES
+# ==================================================================================
+# This YAML test suite has been optimized to focus on declarative smoke testing.
+# 
+# REMOVED from YAML (handled better in programmatic tests):
+# - Detailed JSON structure validation (complex regex patterns)
+# - Multiple object-specific tests (9 tests → 2 representative tests)  
+# - Fallback behavior testing (3 tests → covered in programmatic)
+# - Case sensitivity edge cases (2 tests → covered in programmatic)
+# - Complex edge case testing (3 tests → covered in programmatic)
+# - Multiple tool discovery tests (4 tests → 1 consolidated test)
+# - Detailed metadata field validation (brittle regex patterns)
+# 
+# KEPT in YAML (optimal for declarative validation):
+# - Basic tool availability (1 consolidated test)
+# - Core functionality smoke tests (2 key object types)
+# - Basic error handling (2 representative cases)
+# - Performance smoke test (1 test)
+# 
+# TOTAL REDUCTION: 30+ tests → 7 focused tests
+# COMPLEX LOGIC: Now exclusively in programmatic tests where it belongs
+# ==================================================================================

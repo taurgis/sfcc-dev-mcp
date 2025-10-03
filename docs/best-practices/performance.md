@@ -296,6 +296,42 @@ The caching models for OCAPI and SCAPI are fundamentally different.
 - **OCAPI:** The hook runs before the response is cached. The modified response is what gets stored in OCAPI's application-tier cache.
 - **SCAPI:** The web-tier cache is checked before the hook runs. The hook only executes on a cache miss. The original, unmodified response from the platform is what gets cached.
 
+### SCAPI Web-Tier Cache Fundamentals
+
+One of the Commerce Cloud application layer components performs web-tier caching for SCAPI **GET** requests across multiple API families. This cache lives on the server side and is applied only after a request reaches the platform. Any additional caching layers you add (CDN, browser, SPA state) operate independently—you could have a cache miss on the web tier but a hit in your edge cache, and vice versa. Plan your caching strategy with this multi-layer reality in mind.
+
+### Personalized Cache Keys
+
+When personalization is enabled for a SCAPI resource, the cache key includes the following in addition to the URL string:
+
+- Active promotions
+- Active product sorting rules
+- Applicable price books
+- Active AB test groups
+
+The platform keeps separate cache entries for each combination. For example, if shopper A qualifies for promotion X and shopper B qualifies for promotion Y, the same product URL produces two cache entries. This segmentation can be powerful but also multiplies cache storage. Use personalization only when you have well-sized groups and a clear business reason.
+
+By default, product requests that expand prices or promotions—and product search requests with the `prices` expand—are already personalized. Calling `response.setVaryBy('price_promotion')` in a script reinforces that behavior. Note that `price_promotion` is the only supported value; other strings have no effect.
+
+### Script-Level Cache Controls
+
+Use the Script API to adjust cache policies dynamically:
+
+- `dw.system.Response#setExpires(milliseconds)`: Sets an explicit expiration timestamp. The value must be at least 1,000 ms in the future and no more than 86,400,000 ms (24 hours).
+- `dw.system.Response#setVaryBy('price_promotion')`: Opts into personalized caching for price- or promotion-sensitive responses.
+
+```javascript
+exports.modifyGETResponse = function (scriptCategory, categoryWO) {
+    // Cache for one hour instead of the default TTL
+    response.setExpires(Date.now() + 3_600_000);
+
+    // Optional: personalize by price & promotion eligibility
+    response.setVaryBy('price_promotion');
+
+    return new Status(Status.OK);
+};
+```
+
 ### Best Practices
 
 - **OCAPI Hook:** Your modifications will be cached. Keep the logic simple and avoid slow calls like `ProductMgr.getProduct()`.

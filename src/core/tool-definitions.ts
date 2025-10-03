@@ -123,8 +123,8 @@ export const BEST_PRACTICES_TOOLS = [
       properties: {
         guideName: {
           type: 'string',
-          enum: ['cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models', 'scapi_custom_endpoint', 'performance', 'security'],
-          description: 'The guide name (e.g., \'cartridge_creation\', \'isml_templates\', \'job_framework\', \'localserviceregistry\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'sfra_models\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
+          enum: ['cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models', 'sfra_client_side_js', 'sfra_scss', 'scapi_custom_endpoint', 'performance', 'security'],
+          description: 'The guide name (e.g., \'cartridge_creation\', \'isml_templates\', \'job_framework\', \'localserviceregistry\', \'ocapi_hooks\', \'scapi_hooks\', \'sfra_controllers\', \'sfra_models\', \'sfra_client_side_js\', \'sfra_scss\', \'scapi_custom_endpoint\', \'performance\', \'security\')',
         },
       },
       required: ['guideName'],
@@ -493,7 +493,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         },
         select: {
           type: 'string',
-          description: "The property selector (e.g., '(**)' for all properties)",
+          description: "Property selector using OCAPI select syntax. Controls which fields are returned in the response. Examples: '(**)' for all properties, '(start, total)' for pagination info only, '(data.(object_type))' for only object_type in data array, '(data.(object_type, display_name))' for specific fields in data array, '(start, data.(**))' for pagination info plus all data properties. Use parentheses to group field selections and dot notation to traverse object hierarchies.",
           default: '(**)',
         },
       },

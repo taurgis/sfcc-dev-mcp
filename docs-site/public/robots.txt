@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://sfcc-dev-mcp.rhino-inquisitor.com/sitemap.xml
+Sitemap: https://sfcc-mcp-dev.rhino-inquisitor.com/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

@@ -123,6 +123,7 @@ export default tseslint.config(
   // Ignore patterns
   {
     ignores: [
+      'tmp/**',
       'dist/**',
       'node_modules/**',
       'coverage/**',

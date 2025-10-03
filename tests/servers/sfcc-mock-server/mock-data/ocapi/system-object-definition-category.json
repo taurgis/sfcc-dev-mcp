@@ -1,0 +1,26 @@
+{
+  "_v": "23.2",
+  "_type": "object_type_definition",
+  "attribute_definition_count": 29,
+  "attribute_group_count": 5,
+  "content_object": true,
+  "creation_date": "2024-02-19T10:18:31.000Z",
+  "description": {
+    "default": "Object type representing product categories."
+  },
+  "display_name": {
+    "de": "Kategorie",
+    "default": "Category",
+    "ja": "カテゴリ",
+    "it": "Categoria",
+    "fr": "Catégorie",
+    "zh-CN": "类别",
+    "es": "Categoría",
+    "nl": "Categorie"
+  },
+  "last_modified": "2024-02-19T10:18:31.000Z",
+  "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category",
+  "object_type": "Category",
+  "queryable": false,
+  "read_only": false
+}

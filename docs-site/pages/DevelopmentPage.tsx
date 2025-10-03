@@ -1,21 +1,63 @@
 import React from 'react';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import CodeBlock, { InlineCode } from '../components/CodeBlock';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
+import { SITE_DATES } from '../constants';
 
 const DevelopmentPage: React.FC = () => {
-    useSEO({
-        title: 'Development Guide - SFCC Development MCP Server',
-        description: 'Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features.',
-        keywords: 'SFCC Development MCP Server, SFCC MCP development, TypeScript MCP server, Model Context Protocol development, SFCC tools development',
-        canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/development',
-        ogTitle: 'SFCC Development MCP Server - Development Guide',
-        ogDescription: 'Contribute to SFCC Development MCP Server development. Complete guide to architecture, setup, and extending the SFCC development tools.',
-        ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/development'
-    });
+    const developmentStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Development Guide - SFCC Development MCP Server",
+        "description": "Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features.",
+        "author": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Thomas Theunen"
+        },
+        "datePublished": SITE_DATES.PUBLISHED,
+        "dateModified": SITE_DATES.MODIFIED,
+        "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/development/",
+        "about": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "SFCC Development MCP Server",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Node.js",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            }
+          }
+        ],
+        "mainEntity": {
+            "@type": "Guide",
+            "name": "SFCC MCP Development Guide"
+        }
+    };
 
     return (
-        <>
+        <div className="max-w-6xl mx-auto px-6 py-12">
+            <SEO 
+                title="Development Guide"
+                description="Contributing to the SFCC Development MCP Server project. Learn the architecture, setup development environment, and contribute new features."
+                keywords="SFCC Development MCP Server, SFCC MCP development, TypeScript MCP server, Model Context Protocol development, SFCC tools development"
+                canonical="/development/"
+                ogType="article"
+            />
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "/" },
+                { name: "Development", url: "/development/" }
+            ]} />
+            <StructuredData data={developmentStructuredData} />
+            
             <H1 id="development-guide">👨‍💻 Development Guide</H1>
             <PageSubtitle>Contributing to the SFCC Development MCP Server project</PageSubtitle>
 
@@ -50,6 +92,7 @@ npm run dev -- --dw-json /Users/username/sfcc-project/dw.json
 
             <H2 id="project-architecture">🏗️ Project Architecture</H2>
             
+            <p className="text-[11px] text-gray-500 mb-4">Surface: <strong>36+ specialized tools</strong> spanning documentation, best practices, SFRA, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
             <H3 id="directory-structure">Directory Structure</H3>
             <CodeBlock language="text" code={`
 sfcc-dev-mcp/
@@ -76,6 +119,7 @@ sfcc-dev-mcp/
 │   │   │   └── oauth-token.ts
 │   │   ├── logs/                  # Modular log system (composition)
 │   │   │   ├── log-client.ts          # Orchestrator
+│   │   │   ├── webdav-client-manager.ts # WebDAV auth + setup
 │   │   │   ├── log-file-reader.ts     # Range / tail reads
 │   │   │   ├── log-file-discovery.ts  # Listing & filtering
 │   │   │   ├── log-processor.ts       # Parsing & normalization
@@ -83,6 +127,12 @@ sfcc-dev-mcp/
 │   │   │   ├── log-formatter.ts       # Output shaping
 │   │   │   ├── log-constants.ts       # Central constants/config
 │   │   │   └── log-types.ts           # Type definitions
+│   │   ├── docs/                  # Modular documentation system
+│   │   │   ├── documentation-scanner.ts
+│   │   │   ├── class-content-parser.ts
+│   │   │   ├── class-name-resolver.ts
+│   │   │   ├── referenced-types-extractor.ts
+│   │   │   └── index.ts
 │   │   ├── docs-client.ts
 │   │   ├── sfra-client.ts
 │   │   ├── best-practices-client.ts
@@ -91,7 +141,8 @@ sfcc-dev-mcp/
 │   │   │   ├── site-preferences-client.ts
 │   │   │   └── system-objects-client.ts
 │   │   ├── ocapi-client.ts
-│   │   └── log-client.ts              # Backwards compat wrapper
+│   │   ├── log-client.ts              # Backwards compat wrapper
+│   └── best-practices-client.ts   # (already listed above? keep once)
 │   ├── services/                 # Dependency injection service layer
 │   │   ├── file-system-service.ts
 │   │   ├── path-service.ts
@@ -115,11 +166,6 @@ sfcc-dev-mcp/
 │   │   ├── query-builder.ts
 │   │   ├── utils.ts
 │   │   ├── validator.ts
-│   │   ├── log-cache.ts
-│   │   ├── log-tool-constants.ts
-│   │   ├── log-tool-utils.ts
-│   │   ├── job-log-utils.ts
-│   │   └── job-log-tool-config.ts (legacy placement if used)
 │   └── types/
 │       └── types.ts
 ├── tests/                        # Jest + MCP YAML + programmatic tests
@@ -133,59 +179,27 @@ sfcc-dev-mcp/
 └── ai-instructions/              # AI platform instruction sets
             `} />
 
-            <H3 id="key-components">Key Components</H3>
-            
-            <H3 id="mcp-server-core">MCP Server Core (<InlineCode>src/core/</InlineCode>)</H3>
+            <H3 id="configuration-system">Configuration & Capability Gating (<InlineCode>src/config/</InlineCode>)</H3>
             <ul className="list-disc pl-6 space-y-1">
-                <li><strong>server.ts</strong>: Main MCP protocol implementation</li>
-                <li><strong>tool-definitions.ts</strong>: Tool schema definitions and validation</li>
+              <li><strong>configuration-factory.ts</strong>: Determines operating mode & derives capabilities (<InlineCode>canAccessLogs</InlineCode>, <InlineCode>canAccessJobLogs</InlineCode>, <InlineCode>canAccessOCAPI</InlineCode>, <InlineCode>canAccessSitePrefs</InlineCode>).</li>
+              <li><strong>dw-json-loader.ts</strong>: Safe credential ingestion, prevents accidental misuse.</li>
+              <li><strong>Capability Gating</strong>: No credentials → docs & best practice tools only; WebDAV creds → runtime + job logs; Data API creds → system & custom objects, site preferences, code versions.</li>
+              <li><strong>Least Privilege</strong>: Tools requiring unavailable capabilities never registered.</li>
             </ul>
 
-      <H3 id="client-architecture">Client vs Handler Architecture</H3>
-      <ul className="list-disc pl-6 space-y-1">
-        <li><strong>Clients (src/clients)</strong>: Encapsulate domain logic (docs parsing, log analysis modules, OCAPI calls) but DO NOT decide routing.</li>
-        <li><strong>Handlers (src/core/handlers)</strong>: Map tool names → execution, unify timing, error shaping, logging.</li>
-        <li><strong>Orchestration</strong>: <InlineCode>server.ts</InlineCode> registers all handlers and filters tool exposure by capability.</li>
-        <li><strong>Separation Benefit</strong>: Adding a tool rarely requires editing the server—extend or adjust the relevant handler.</li>
-      </ul>
-
-      <H3 id="configuration-system">Configuration & Capability Gating (<InlineCode>src/config/</InlineCode>)</H3>
-      <ul className="list-disc pl-6 space-y-1">
-        <li><strong>configuration-factory.ts</strong>: Determines operating mode & derives capabilities (<InlineCode>canAccessLogs</InlineCode>, <InlineCode>canAccessOCAPI</InlineCode>).</li>
-        <li><strong>dw-json-loader.ts</strong>: Safe credential ingestion, prevents accidental misuse.</li>
-        <li><strong>Capability Gating</strong>: Tool lists dynamically filtered—no credentials → only documentation tools, OCAPI credentials → system objects + code versions, log credentials → log + job log tools.</li>
-        <li><strong>Security Principle</strong>: Never expose tools requiring unavailable credentials (principle of least privilege).</li>
-      </ul>
-            <H2 id="development-workflow">🔧 Development Workflow</H2>
-            
             <H3 id="adding-new-tools">Adding New Tools (Updated Flow)</H3>
             <ol className="list-decimal pl-6 space-y-2">
-              <li><strong>Define schema</strong>: Add a new object in the correct category array inside <InlineCode>tool-definitions.ts</InlineCode>.</li>
-              <li><strong>Decide placement</strong>: If existing handler category fits (e.g. logs, docs, sfra) extend that handler's <InlineCode>handle()</InlineCode>. If truly new category, create a new handler extending <InlineCode>BaseToolHandler</InlineCode>.</li>
-              <li><strong>Implement logic</strong>: Put core logic in a client or service (keep handlers thin).</li>
-              <li><strong>Register handler (only if new)</strong>: Add to the array in <InlineCode>registerHandlers()</InlineCode> inside <InlineCode>server.ts</InlineCode>.</li>
-              <li><strong>Run conductor</strong>: Use <InlineCode>npx conductor query --config ./conductor.config.docs-only.json [tool]</InlineCode> to capture real response shape BEFORE writing tests.</li>
-              <li><strong>Add tests</strong>: Jest unit tests + YAML MCP tests (docs vs full mode as applicable).</li>
-              <li><strong>Update docs</strong>: Adjust this guide + README tool counts if category changed.</li>
+              <li><strong>Define schema</strong> in correct category array inside <InlineCode>tool-definitions.ts</InlineCode>.</li>
+              <li><strong>Decide placement</strong> – extend existing handler or create new handler extending <InlineCode>BaseToolHandler</InlineCode>.</li>
+              <li><strong>Implement logic</strong> inside a client/service (keep handler thin).</li>
+              <li><strong>Register handler</strong> only if new category (update <InlineCode>registerHandlers()</InlineCode> in <InlineCode>server.ts</InlineCode>).</li>
+              <li><strong>Discover response format</strong>: Run with <InlineCode>npx aegis query [tool]</InlineCode> BEFORE writing tests; capture real JSON shape.</li>
+              <li><strong>Add tests</strong>: Jest unit + YAML (docs & full mode as applicable) + programmatic Node tests if complex.</li>
+              <li><strong>Update docs</strong>: This page + README + copilot instructions when categories/counts change.</li>
             </ol>
-            <CodeBlock language="typescript" code={`// Minimal handler example\nexport class ExampleToolHandler extends BaseToolHandler {\n  canHandle(name: string): boolean {\n    return name === 'my_new_tool';\n  }\n  protected async execute(name: string, args: any): Promise<string> {\n    const { param } = args as { param: string };\n    // domain logic (delegate to client/service ideally)\n    return \`Result for \${param}\`;\n  }\n}\n// Add to registerHandlers() in server.ts if new category.\n`} />
-
-            <p><strong>Testing YAML (discovery first):</strong></p>
-            <CodeBlock language="typescript" code={`
-// jest unit example
-describe('ExampleToolHandler', () => {
-  it('maps tool definition & executes', async () => { /* ... */ });
-});
-
-# YAML (pseudo)
-# - tool: my_new_tool
-#   params: { "param": "value" }
-#   expect:
-#     - text: "match:contains:Result for value"
-            `} />
 
             <H3 id="testing-strategy">Testing Strategy</H3>
-            
+            <p className="text-xs text-gray-500 mb-2">Programmatic MCP tests must use Node test runner (e.g. <InlineCode>node --test tests/mcp/node/your-test.programmatic.test.js</InlineCode>) — do NOT invoke via <InlineCode>npm test -- file</InlineCode> (Jest only).</p>
             <H3 id="unit-tests">Unit Tests</H3>
             <CodeBlock language="bash" code={`
 # Run all tests
@@ -456,10 +470,10 @@ git push origin main --tags
             <H3 id="release-checklist">Release Checklist</H3>
             <p><strong>1. Update Documentation</strong></p>
             <ul className="list-disc pl-6 space-y-1">
-                <li>README.md tool counts and features</li>
+                <li>README.md tool counts & feature surface (36+ phrasing)</li>
                 <li><InlineCode>ai-instructions/github-copilot/copilot-instructions.md</InlineCode> architecture updates</li>
-                <li><InlineCode>.github/copilot-instructions.md</InlineCode> if MCP server architecture changed</li>
-                <li>GitHub Pages documentation in <InlineCode>docs-site/</InlineCode></li>
+                <li><InlineCode>.github/copilot-instructions.md</InlineCode> (sync architecture + counts)</li>
+                <li>Configuration & Features pages updated if capability surface changed</li>
                 <li>CHANGELOG.md entry (if present)</li>
             </ul>
 
@@ -586,7 +600,7 @@ function validateToolInput(input: unknown): ToolParams {
                 <li>💬 <strong><a href="https://github.com/taurgis/sfcc-dev-mcp/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></strong> - Community discussions and Q&A</li>
                 <li>🚀 <strong><a href="https://github.com/taurgis/sfcc-dev-mcp/actions" target="_blank" rel="noopener noreferrer">GitHub Actions</a></strong> - View CI/CD pipeline status</li>
             </ul>
-        </>
+        </div>
     );
 };
 

@@ -1,25 +1,84 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import SEO from '../components/SEO';
+import BreadcrumbSchema from '../components/BreadcrumbSchema';
+import StructuredData from '../components/StructuredData';
 import { H1, PageSubtitle, H2, H3 } from '../components/Typography';
-import useSEO from '../hooks/useSEO';
 import { Collapsible } from '../components/Collapsible';
+import { SITE_DATES } from '../constants';
 
 const badge = (label: string) => (
   <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mr-2 mb-2 bg-slate-100 text-slate-700 border border-slate-200">{label}</span>
 );
 
 const FeaturesPage: React.FC = () => {
-  useSEO({
-    title: 'Features & Capabilities - SFCC Development MCP Server',
-    description: 'Comprehensive overview of SFCC Development MCP Server features. Documentation access, log analysis, system object exploration, cartridge generation, best practices, and AI-powered development tools.',
-    keywords: 'SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features',
-    canonical: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/features',
-    ogTitle: 'SFCC Development MCP Server Features & Capabilities',
-    ogDescription: 'Explore comprehensive SFCC development features: documentation access, log analysis, system exploration, and AI-powered development tools.',
-    ogUrl: 'https://sfcc-mcp-dev.rhino-inquisitor.com/#/features'
-  });
+  const featuresStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Features & Capabilities - SFCC Development MCP Server",
+  "description": "Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools.",
+    "author": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Thomas Theunen"
+    },
+    "datePublished": SITE_DATES.PUBLISHED,
+    "dateModified": SITE_DATES.MODIFIED,
+    "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/features/",
+    "about": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "SFCC Development MCP Server",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Node.js",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    ],
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "SFCC Development MCP Server",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "featureList": [
+        "SFCC API Documentation Access",
+  "Real-time Log & Job Log Analysis", 
+  "System & Custom Object Exploration",
+        "Cartridge Generation",
+        "Best Practices Guides",
+        "AI Assistant Integration"
+      ]
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
+      <SEO 
+        title="Features & Capabilities"
+  description="Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools."
+        keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features"
+        canonical="/features/"
+        ogType="article"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "/" },
+        { name: "Features", url: "/features/" }
+      ]} />
+      <StructuredData structuredData={featuresStructuredData} />
+      
       <header className="mb-14 text-center">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
@@ -37,7 +96,7 @@ const FeaturesPage: React.FC = () => {
           {badge('Best Practices')}
           {badge('Logs')}
           {badge('Jobs')}
-          {badge('System Objects')}
+    {badge('Objects')}
           {badge('Code Versions')}
           {badge('Security')}
         </div>
@@ -71,8 +130,8 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices & Hook References">
-            <p className="text-sm mb-2">Structured guidance for core development domains plus searchable hook reference tables.</p>
+    <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices, Guides & Hook References">
+      <p className="text-sm mb-2">Structured guidance across 13 core development domains plus searchable OCAPI / SCAPI hook reference tables with extension point signatures.</p>
             <div className="grid sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-semibold mb-1">Guides</h4>
@@ -82,6 +141,8 @@ const FeaturesPage: React.FC = () => {
                   <li>Job framework patterns</li>
                   <li>LocalServiceRegistry integrations</li>
                   <li>SFRA controllers & models</li>
+                  <li>SFRA client-side JavaScript architecture</li>
+                  <li>SFRA SCSS theming & override discipline</li>
                   <li>Custom SCAPI endpoints</li>
                 </ul>
               </div>
@@ -92,7 +153,7 @@ const FeaturesPage: React.FC = () => {
                   <li>Security hardening (OWASP)</li>
                   <li>Performance & scalability tactics</li>
                   <li>Search across all guides</li>
-                  <li>Hook reference tables</li>
+                  <li>Hook reference tables (OCAPI / SCAPI)</li>
                 </ul>
               </div>
             </div>
@@ -142,8 +203,8 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="logs" title="📊 Log Analysis & Job Debugging">
-          <p className="text-sm mb-2">Real-time visibility into runtime behaviour plus job execution insight.</p>
+        <Collapsible id="logs" title="📊 Log & Job Log Analysis">
+          <p className="text-sm mb-2">Real-time visibility into runtime behaviour plus deep job execution insight (multi-level logs in single files).</p>
           <div className="grid sm:grid-cols-2 gap-4 text-sm">
             <div>
               <h4 className="font-semibold mb-1">Runtime Logs</h4>
@@ -177,12 +238,12 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-        <Collapsible id="system-objects" title="⚙️ System Objects & Data Model">
-          <p className="text-sm">Explore object schemas, attributes, and site preferences with advanced querying.</p>
+        <Collapsible id="system-objects" title="⚙️ System & Custom Objects / Data Model">
+          <p className="text-sm">Explore system & custom object schemas, attributes, groups and site preferences with advanced querying.</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             <li>List all system objects with metadata</li>
             <li>Attribute & group searches (boolean, text, sort)</li>
-            <li>Custom object attribute discovery</li>
+            <li>Custom object attribute discovery (targeted or match-all queries)</li>
             <li>Site preference group & value exploration</li>
           </ul>
           <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
@@ -242,7 +303,7 @@ const FeaturesPage: React.FC = () => {
         </Collapsible>
 
         <Collapsible id="ai-integration" title="🤖 AI Integration Rationale">
-          <p className="text-sm">Designed so assistants like GitHub Copilot, Claude, and Cursor can produce higher-quality SFCC code.</p>
+          <p className="text-sm">Designed so assistants like GitHub Copilot, Claude, and Cursor can produce higher-quality SFCC code with deterministic tool surfaces and enriched local context.</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             <li>Deterministic tool naming & argument shapes</li>
             <li>High-signal, low-noise responses (agent friendly)</li>
@@ -257,19 +318,19 @@ const FeaturesPage: React.FC = () => {
         <H2 id="next-steps" className="text-3xl font-bold mb-4">🔗 Next Steps</H2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8">Pick a direction—inspect the precise tool surface first or jump straight into multi-step usage patterns.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-          <a 
-            href="/#/tools" 
+          <NavLink 
+            to="/tools/" 
             className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 no-underline hover:no-underline focus:no-underline"
           >
             Browse Tools
             <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
-          </a>
-          <a 
-            href="/#/examples" 
+          </NavLink>
+          <NavLink 
+            to="/examples/" 
             className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 no-underline hover:no-underline focus:no-underline"
           >
             Examples & Use Cases
-          </a>
+          </NavLink>
         </div>
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8 text-left">
           <div className="rounded-xl border border-gray-200 bg-white p-5">

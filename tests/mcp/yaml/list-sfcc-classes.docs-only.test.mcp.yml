@@ -4,9 +4,9 @@
 # Tests both successful responses and performance validation
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query list_sfcc_classes '{}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/list-sfcc-classes.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query list_sfcc_classes '{}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server list_sfcc_classes tool - comprehensive validation"
 
