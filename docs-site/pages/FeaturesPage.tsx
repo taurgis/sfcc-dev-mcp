@@ -93,6 +93,7 @@ const FeaturesPage: React.FC = () => {
                   <div className="flex flex-wrap gap-2 mt-2">
           {badge('Docs')}
           {badge('SFRA')}
+          {badge('ISML')}
           {badge('Best Practices')}
           {badge('Logs')}
           {badge('Jobs')}
@@ -199,6 +200,27 @@ const FeaturesPage: React.FC = () => {
               <li>"Search SFRA docs for middleware examples."</li>
               <li>"Show differences between product-full and product-tile models."</li>
               <li>"List order-related SFRA documents and summarize each."</li>
+            </ul>
+          </div>
+        </Collapsible>
+
+        <Collapsible id="isml-docs" title="📄 ISML Template Reference">
+          <p className="text-sm">Complete ISML (Internet Store Markup Language) element documentation for template development.</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Control flow elements (isif, isloop, isnext, isbreak, iscontinue)</li>
+            <li>Output formatting (isprint with various formatting options)</li>
+            <li>Includes & components (isinclude, iscomponent, isslot, isdecorate, isreplace)</li>
+            <li>Scripting elements (isscript, isset for server-side logic)</li>
+            <li>Caching (iscache for performance optimization)</li>
+            <li>Category-based browsing and advanced search</li>
+          </ul>
+          <div className="mt-4 text-xs text-slate-600">
+            <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>"Show me how to use isloop with paging."</li>
+              <li>"What ISML elements are available for caching?"</li>
+              <li>"Explain the difference between isinclude and iscomponent."</li>
+              <li>"Search ISML elements for redirect functionality."</li>
             </ul>
           </div>
         </Collapsible>

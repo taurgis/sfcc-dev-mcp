@@ -88,6 +88,17 @@ Use these for SFRA (Storefront Reference Architecture) related questions:
 - **`get_available_sfra_documents`** - See what SFRA documents are available
 - **`get_sfra_document`** - Get complete SFRA class/module documentation (includes all properties and methods)
 - **`search_sfra_documentation`** - Search across all SFRA documentation
+- **`get_sfra_categories`** - Get all SFRA document categories with counts
+- **`get_sfra_documents_by_category`** - Get SFRA documents filtered by category
+
+### 📄 ISML Documentation Tools
+Use these for ISML (Internet Store Markup Language) template development:
+
+- **`list_isml_elements`** - Get list of all available ISML elements with summaries
+- **`get_isml_element`** - Get detailed documentation for a specific ISML element (syntax, attributes, examples)
+- **`search_isml_elements`** - Search across ISML element documentation
+- **`get_isml_elements_by_category`** - Get ISML elements filtered by category (control-flow, output, includes, scripting, cache, etc.)
+- **`get_isml_categories`** - Get all ISML element categories with descriptions and counts
 
 ### 🔧 System Object Definitions
 Use these for understanding SFCC data models and custom attributes:
@@ -196,6 +207,21 @@ Use these for debugging and troubleshooting:
 
 3. Explore specific methods or properties:
    → get_sfcc_class_methods with className: "dw.order.Order"
+```
+
+### Understanding ISML Elements
+```markdown
+1. First list available ISML elements:
+   → list_isml_elements
+
+2. Get detailed documentation for a specific element:
+   → get_isml_element with elementName: "isloop"
+
+3. Search for elements by functionality:
+   → search_isml_elements with query: "cache"
+
+4. Browse elements by category:
+   → get_isml_elements_by_category with category: "control-flow"
 ```
 
 ### Implementing New Features

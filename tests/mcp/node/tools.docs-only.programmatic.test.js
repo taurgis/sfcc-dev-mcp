@@ -313,7 +313,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
 
   test('should have exactly the expected tool set for docs-only mode', async () => {
     const tools = await client.listTools();
-    assert.equal(tools.length, 15, 'Should have exactly 15 tools in docs-only mode');
+    assert.equal(tools.length, 20, 'Should have exactly 20 tools in docs-only mode');
 
     const expectedTools = {
       // SFCC Documentation Tools (5)
@@ -335,6 +335,13 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
       'get_sfra_categories': true,
       'get_sfra_documents_by_category': true,
       'search_sfra_documentation': true,
+      
+      // ISML Documentation Tools (5)
+      'list_isml_elements': true,
+      'get_isml_element': true,
+      'search_isml_elements': true,
+      'get_isml_elements_by_category': true,
+      'get_isml_categories': true,
       
       // Cartridge Generation Tools (1)
       'generate_cartridge_structure': true

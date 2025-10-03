@@ -216,7 +216,7 @@ tests:
         jsonrpc: "2.0"
         id: "expected-tool-count"
         result:
-          tools: "match:arrayLength:15"  # Based on actual count from aegis query
+          tools: "match:arrayLength:20"  # 15 original + 5 ISML tools
       stderr: "toBeEmpty"
 
 # ==================================================================================

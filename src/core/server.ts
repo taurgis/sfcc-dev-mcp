@@ -19,6 +19,7 @@ import {
   SFCC_DOCUMENTATION_TOOLS,
   BEST_PRACTICES_TOOLS,
   SFRA_DOCUMENTATION_TOOLS,
+  ISML_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
   JOB_LOG_TOOLS,
   SYSTEM_OBJECT_TOOLS,
@@ -33,6 +34,7 @@ import { JobLogToolHandler } from './handlers/job-log-handler.js';
 import { DocsToolHandler } from './handlers/docs-handler.js';
 import { BestPracticesToolHandler } from './handlers/best-practices-handler.js';
 import { SFRAToolHandler } from './handlers/sfra-handler.js';
+import { ISMLToolHandler } from './handlers/isml-handler.js';
 import { SystemObjectToolHandler } from './handlers/system-object-handler.js';
 import { CodeVersionToolHandler } from './handlers/code-version-handler.js';
 import { CartridgeToolHandler } from './handlers/cartridge-handler.js';
@@ -101,6 +103,7 @@ export class SFCCDevServer {
       new DocsToolHandler(context, 'Docs'),
       new BestPracticesToolHandler(context, 'BestPractices'),
       new SFRAToolHandler(context, 'SFRA'),
+      new ISMLToolHandler(context, 'ISML'),
       new SystemObjectToolHandler(context, 'SystemObjects'),
       new CodeVersionToolHandler(context, 'CodeVersions'),
       new CartridgeToolHandler(context, 'Cartridge'),
@@ -118,6 +121,7 @@ export class SFCCDevServer {
       tools.push(...SFCC_DOCUMENTATION_TOOLS);
       tools.push(...BEST_PRACTICES_TOOLS);
       tools.push(...SFRA_DOCUMENTATION_TOOLS);
+      tools.push(...ISML_DOCUMENTATION_TOOLS);
       tools.push(...CARTRIDGE_GENERATION_TOOLS);
 
       // Conditional tools based on available capabilities

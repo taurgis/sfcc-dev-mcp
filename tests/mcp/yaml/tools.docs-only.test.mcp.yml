@@ -40,7 +40,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-exact"
         result:
-          tools: "match:arrayLength:15"
+          tools: "match:arrayLength:20"
       stderr: "toBeEmpty"
 
   - it: "should have non-empty tools array"
@@ -68,7 +68,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-range"
         result:
-          tools: "match:arrayLength:15"
+          tools: "match:arrayLength:20"
       stderr: "toBeEmpty"
 
   # ==================================================================================

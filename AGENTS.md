@@ -392,28 +392,35 @@ sfcc-dev-mcp/
    - **Category Filtering**: Explore documents by functional areas for efficient discovery
    - **Complete Coverage**: Core SFRA classes (Server, Request, Response, QueryString, render) plus comprehensive model documentation (account, cart, products, pricing, billing, shipping, store, customer management, totals, categories, content, locale, addresses, and more)
 
-4. **Cartridge Generation Tools** (1 tool)
+4. **ISML Documentation Tools** (5 tools)
+   - Complete ISML element reference and documentation
+   - Control flow elements (isif, isloop, isnext, etc.)
+   - Output formatting (isprint) and includes (isinclude, iscomponent, isslot)
+   - Scripting elements (isscript, isset) and caching (iscache)
+   - Category-based browsing and advanced search capabilities
+
+5. **Cartridge Generation Tools** (1 tool)
    - Automated cartridge structure creation with direct file generation
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-5. **Log Analysis Tools** (8 tools)
+6. **Log Analysis Tools** (8 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
 
-6. **Job Log Tools** (5 tools)
+7. **Job Log Tools** (5 tools)
    - Job log analysis and debugging
    - Job execution summaries
    - Custom job step monitoring
 
-7. **System Object Tools** (6 tools)
+8. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
    - Custom object attribute definitions search
 
-8. **Code Version Tools** (2 tools)
+9. **Code Version Tools** (2 tools)
    - Code version listing and management
    - Code version activation for deployment fixes
 
@@ -452,6 +459,7 @@ grep -c "name: '" src/core/tool-definitions.ts
 awk '/export const SFCC_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
 awk '/export const BEST_PRACTICES_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
 awk '/export const SFRA_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+awk '/export const ISML_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
 awk '/export const LOG_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
 awk '/export const SYSTEM_OBJECT_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
 awk '/export const CARTRIDGE_GENERATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"

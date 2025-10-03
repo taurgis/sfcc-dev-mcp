@@ -1,0 +1,212 @@
+# ==================================================================================
+# SFCC MCP Server - list_isml_elements Tool YAML Tests
+# Comprehensive testing for ISML element listing functionality
+# Tests structure validation, content verification, and performance requirements
+# 
+# Discovery Commands:
+# npx aegis query list_isml_elements --config "aegis.config.docs-only.json"
+# 
+# Quick Test Commands:
+# npx aegis "tests/mcp/yaml/list-isml-elements.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# npx aegis "tests/mcp/yaml/list-isml-elements.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# ==================================================================================
+description: "SFCC MCP Server list_isml_elements tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list list_isml_elements tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:list_isml_elements
+      stderr: "toBeEmpty"
+
+  - it: "should define tool with correct structure"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-schema-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-schema-1"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:arrayContains:list_isml_elements"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL ELEMENT LISTING TESTS
+# ==================================================================================
+  - it: "should return array of ISML elements"
+    request:
+      jsonrpc: "2.0"
+      id: "list-elements-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-elements-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should include control-flow category"
+    request:
+      jsonrpc: "2.0"
+      id: "list-categories-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-categories-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:control-flow"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include output category"
+    request:
+      jsonrpc: "2.0"
+      id: "list-categories-2"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-categories-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:output"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include isif element"
+    request:
+      jsonrpc: "2.0"
+      id: "list-essential-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-essential-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isif"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include isloop element"
+    request:
+      jsonrpc: "2.0"
+      id: "list-essential-2"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-essential-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isloop"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include element metadata fields"
+    request:
+      jsonrpc: "2.0"
+      id: "list-metadata-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-metadata-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:name"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE & RESOURCE VALIDATION
+# ==================================================================================
+  - it: "should complete element listing within performance SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT VALIDATION TESTS
+# ==================================================================================
+  - it: "should return valid JSON array structure"
+    request:
+      jsonrpc: "2.0"
+      id: "json-valid-1"
+      method: "tools/call"
+      params:
+        name: "list_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-valid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      stderr: "toBeEmpty"

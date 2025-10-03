@@ -1,0 +1,330 @@
+# ==================================================================================
+# SFCC MCP Server - get_isml_categories Tool YAML Tests
+# Comprehensive testing for ISML category listing functionality
+# Tests category structure, counts, and metadata
+# 
+# Discovery Commands:
+# npx aegis query get_isml_categories --config "aegis.config.docs-only.json"
+# 
+# Quick Test Commands:
+# npx aegis "tests/mcp/yaml/get-isml-categories.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# npx aegis "tests/mcp/yaml/get-isml-categories.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# ==================================================================================
+description: "SFCC MCP Server get_isml_categories tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_isml_categories tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:get_isml_categories
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL CATEGORY LISTING TESTS
+# ==================================================================================
+  - it: "should return array of ISML categories"
+    request:
+      jsonrpc: "2.0"
+      id: "list-categories-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-categories-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should include all major ISML categories"
+    request:
+      jsonrpc: "2.0"
+      id: "all-categories-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "all-categories-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Control Flow"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include payment and analytics categories"
+    request:
+      jsonrpc: "2.0"
+      id: "extended-categories-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "extended-categories-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Payment"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include category metadata fields"
+    request:
+      jsonrpc: "2.0"
+      id: "category-metadata-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-metadata-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:name"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include control-flow category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "control-flow-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "control-flow-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:control-flow"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include output category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "output-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "output-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:output"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include includes category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "includes-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "includes-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:includes"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include scripting category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "scripting-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "scripting-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:scripting"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include cache category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "cache-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "cache-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:cache"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include decorators category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "decorators-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "decorators-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:decorators"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include special category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "special-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "special-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:special"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include payment category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "payment-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "payment-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:payment"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include analytics category with proper metadata"
+    request:
+      jsonrpc: "2.0"
+      id: "analytics-category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "analytics-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:analytics"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE & RESOURCE VALIDATION
+# ==================================================================================
+  - it: "should complete category listing within performance SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT VALIDATION TESTS
+# ==================================================================================
+  - it: "should return valid JSON array structure"
+    request:
+      jsonrpc: "2.0"
+      id: "json-valid-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_categories"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-valid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      stderr: "toBeEmpty"

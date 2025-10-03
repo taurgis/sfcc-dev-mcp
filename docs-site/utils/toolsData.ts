@@ -26,6 +26,7 @@ export const TOOL_CATEGORIES = [
   'Documentation',
   'Best Practices',
   'SFRA Docs',
+  'ISML Docs',
   'Cartridge Generation',
   'Log Analysis',
   'System Objects',
@@ -77,6 +78,13 @@ export const tools: ToolMeta[] = [
   { id: 'search-sfra-documentation', name: 'search_sfra_documentation', category: 'SFRA Docs', mode: 'both', description: 'Search across SFRA docs.', params: [p('query','Search term')], examples: ['Search SFRA docs for middleware'], tags: ['search'] },
   { id: 'get-sfra-categories', name: 'get_sfra_categories', category: 'SFRA Docs', mode: 'both', description: 'List SFRA document categories with counts.' },
   { id: 'get-sfra-documents-by-category', name: 'get_sfra_documents_by_category', category: 'SFRA Docs', mode: 'both', description: 'Get SFRA documents for a category.', params: [p('category','core|product|order|customer|pricing|store|other')], examples: ['List all order category SFRA docs'] },
+
+  // ISML Docs
+  { id: 'list-isml-elements', name: 'list_isml_elements', category: 'ISML Docs', mode: 'both', description: 'List all available ISML elements with summaries for template development.', examples: ['List all ISML elements','Show available ISML control flow elements'], tags: ['templates','isml','elements'], popular: true },
+  { id: 'get-isml-element', name: 'get_isml_element', category: 'ISML Docs', mode: 'both', description: 'Detailed documentation for a specific ISML element including syntax, attributes, and examples.', params: [p('elementName','ISML element name (e.g., isif, isloop, isprint)'), p('includeContent','Include full content (boolean, default: true)', false), p('includeSections','Include section headings (boolean, default: true)', false), p('includeAttributes','Include attribute info (boolean, default: true)', false)], examples: ['Show documentation for isif element','Get isloop syntax and examples','Explain isprint formatting options'], tags: ['templates','isml','syntax'], popular: true },
+  { id: 'search-isml-elements', name: 'search_isml_elements', category: 'ISML Docs', mode: 'both', description: 'Search ISML element documentation for specific terms or functionality.', params: [p('query','Search term (e.g., loop, conditional, format, cache)'), p('category','Optional category filter', false), p('limit','Max results', false)], examples: ['Search ISML elements for caching','Find ISML elements for conditionals','Search for redirect elements'], tags: ['search','templates','isml'] },
+  { id: 'get-isml-elements-by-category', name: 'get_isml_elements_by_category', category: 'ISML Docs', mode: 'both', description: 'Get all ISML elements filtered by category (control-flow, output, includes, scripting, cache, etc.).', params: [p('category','control-flow|output|includes|scripting|cache|decorators|special|payment|analytics')], examples: ['List all control flow ISML elements','Show caching ISML elements'], tags: ['templates','isml','categories'] },
+  { id: 'get-isml-categories', name: 'get_isml_categories', category: 'ISML Docs', mode: 'both', description: 'Get all ISML element categories with descriptions and element counts.', examples: ['List ISML categories','Show ISML element organization'], tags: ['templates','isml'] },
 
   // Cartridge Generation
   { id: 'generate-cartridge-structure', name: 'generate_cartridge_structure', category: 'Cartridge Generation', mode: 'both', description: 'Generate cartridge directory structure.', params: [p('cartridgeName','Name of cartridge'), p('targetPath','Target path (optional)', false), p('fullProjectSetup','Include project scaffolding (boolean)', false)], examples: ['Generate cartridge named plugin_demo'], tags: ['scaffold'], popular: true },
