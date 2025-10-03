@@ -51,6 +51,11 @@ export class DocumentationScanner {
       return false;
     }
 
+    // Exclude the isml directory (ISML templates, not SFCC classes)
+    if (directoryName === 'isml') {
+      return false;
+    }
+
     // Exclude any other non-SFCC directories
     return false;
   }
