@@ -869,6 +869,51 @@ exports.getProductReviews.public = true;
    ```
 
 
+## 5.2 Caching Strategies for Custom Endpoints
+
+### Platform Web-Tier Behavior
+
+- Commerce Cloud's application layer performs web-tier caching for **GET** requests across SCAPI API families. Custom endpoints participate automatically once a request reaches the platform.
+- Client-side caches (browser storage, SPA state, CDN/edge caches) continue to operate independently. Model your architecture with layered caches in mind so one layer's miss does not surprise you at runtime.
+
+### Personalized Cache Variants
+
+When personalization is enabled, the cache key is expanded with:
+
+- The complete set of active promotions
+- Active product sorting rules
+- Applicable price books
+- All active AB test groups
+
+That means two shoppers requesting the same URL can receive different cache entries if they fall into different promotional contexts (for example, promotion X vs. promotion Y). This is valuable for targeted experiences but increases cache cardinality. Use personalization only for well-sized shopper cohorts and monitor cache pressure.
+
+`response.setVaryBy('price_promotion')` is the only supported personalization flag. Product detail responses that expand prices or promotions—and product search responses with the `prices` expand—are already personalized by default.
+
+### Programmatic Cache Controls
+
+- `response.setExpires(Date.now() + ttlInMs)`: Sets the cache expiration timestamp. The TTL must be at least **1 second (1,000 ms)** and no more than **86,400 seconds (86,400,000 ms)**.
+- `response.setVaryBy('price_promotion')`: Opts into price/promotion-aware personalization for the response variant.
+
+```javascript
+// Example snippet within your endpoint script
+exports.getLoyaltyInfo = function (params) {
+  var loyaltyData = { id: params.c_customer_id, points: 1234 };
+
+  // Cache for five minutes and personalize by price/promotion eligibility when needed
+  response.setExpires(Date.now() + 5 * 60 * 1000);
+  // response.setVaryBy('price_promotion');
+
+  RESTResponseMgr.createSuccess(loyaltyData).render();
+};
+exports.getLoyaltyInfo.public = true;
+```
+
+### Cache-Key Design Tips
+
+- Introduce explicit query parameters (for example, `c_view=light`) when you need multiple cacheable variants from the same controller logic.
+- Avoid combining expansions with drastically different TTLs. The response inherits the **shortest** TTL from the set of requested expands, so pairing a 24-hour asset expand with a 60-second availability expand collapses the lifespan to 60 seconds.
+- Pair web-tier caching with application-tier caching (`CacheMgr.getCache().get(key, loader)`) to shield downstream services. See the Performance Best Practices guide for the full two-tier pattern.
+
 ## 6. Core Best Practices
 
 ### Design & Architecture
