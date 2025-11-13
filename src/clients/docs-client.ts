@@ -15,13 +15,15 @@
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
-import { DocumentationScanner, SFCCClassInfo } from './docs/documentation-scanner.js';
-import { ClassContentParser, SFCCClassDetails, SFCCMethod } from './docs/class-content-parser.js';
+import { DocumentationScanner } from './docs/documentation-scanner.js';
+import { ClassContentParser } from './docs/class-content-parser.js';
+import type { SFCCClassInfo } from './docs/documentation-scanner.js';
+import type { SFCCClassDetails, SFCCMethod } from './docs/class-content-parser.js';
 import { ClassNameResolver } from './docs/class-name-resolver.js';
 import { ReferencedTypesExtractor } from './docs/referenced-types-extractor.js';
 
 // Re-export types for backward compatibility
-export { SFCCClassInfo, SFCCMethod, SFCCClassDetails };
+export type { SFCCClassInfo, SFCCMethod, SFCCClassDetails };
 export type { SFCCProperty, SFCCConstant } from './docs/class-content-parser.js';
 
 export interface ClassDetailsFilterOptions {
