@@ -8,7 +8,6 @@
 
 import * as fs from 'fs/promises';
 import { PathResolver } from '../utils/path-resolver.js';
-import { constructValidatedPath } from '../utils/path-validation.js';
 import {
   AbstractDocumentationClient,
   BaseDocument,
@@ -336,15 +335,5 @@ export class SFRAClient extends AbstractDocumentationClient<SFRADocument, SFRADo
     }
 
     return 'model';
-  }
-
-  /**
-   * Validate and construct file path
-   */
-  private validateAndConstructPathSync(documentName: string): string {
-    return constructValidatedPath(this.docsPath, documentName, {
-      allowedExtensions: ['.md'],
-      normalizeToLowerCase: true,
-    });
   }
 }

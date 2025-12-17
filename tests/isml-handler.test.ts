@@ -45,7 +45,7 @@ describe('ISMLToolHandler', () => {
       capabilities: { canAccessLogs: false, canAccessOCAPI: false },
     };
 
-    handler = new ISMLToolHandler(context, 'ISML');
+    handler = new ISMLToolHandler(context);
   });
 
   afterEach(() => {

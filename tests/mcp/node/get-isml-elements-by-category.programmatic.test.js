@@ -231,7 +231,7 @@ describe('get_isml_elements_by_category (programmatic)', () => {
     for (const cat of categories.slice(0, 5)) {
       const { raw } = await invoke(cat.name);
       const elements = safeParseElements(raw);
-      assert.equal(elements.length, cat.elementCount, `${cat.name} element count should match metadata: expected ${cat.elementCount}, got ${elements.length}`);
+      assert.equal(elements.length, cat.count, `${cat.name} element count should match metadata: expected ${cat.count}, got ${elements.length}`);
     }
   });
 

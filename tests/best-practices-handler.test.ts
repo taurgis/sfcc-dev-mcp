@@ -44,7 +44,7 @@ describe('BestPracticesToolHandler', () => {
       capabilities: { canAccessLogs: false, canAccessOCAPI: false },
     };
 
-    handler = new BestPracticesToolHandler(context, 'BestPractices');
+    handler = new BestPracticesToolHandler(context);
   });
 
   afterEach(() => {

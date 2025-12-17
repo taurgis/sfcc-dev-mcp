@@ -8,12 +8,11 @@ import {
 } from '../../tool-configs/best-practices-tool-config.js';
 
 /**
- * Handler for SFCC best practices tools using config-driven dispatch
- * Provides access to development guides, security recommendations, and hook references
+ * Handler for SFCC best practices tools
  */
 export class BestPracticesToolHandler extends SimpleClientHandler<BestPracticeToolName, SFCCBestPracticesClient> {
-  constructor(context: HandlerContext, subLoggerName: string) {
-    super(context, subLoggerName, {
+  constructor(context: HandlerContext) {
+    super(context, 'BestPractices', {
       toolConfig: BEST_PRACTICES_TOOL_CONFIG,
       toolNameSet: BEST_PRACTICE_TOOL_NAMES_SET,
       clientContextKey: 'bestPracticesClient',

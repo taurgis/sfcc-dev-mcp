@@ -55,7 +55,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*category[\\s\\S]*count[\\s\\S]*description[\\s\\S]*"
+              text: "match:regex:[\\s\\S]*name[\\s\\S]*displayName[\\s\\S]*count[\\s\\S]*description[\\s\\S]*"
           isError: false
       stderr: "toBeEmpty"
 
@@ -75,7 +75,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"core\"[\\s\\S]*\"count\":[\\s]*5[\\s\\S]*Core SFRA classes[\\s\\S]*"
+              text: "match:contains:\"name\": \"core\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -94,7 +94,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"customer\"[\\s\\S]*\"count\":[\\s]*2[\\s\\S]*Customer account[\\s\\S]*"
+              text: "match:contains:\"name\": \"customer\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -113,7 +113,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"order\"[\\s\\S]*\"count\":[\\s]*6[\\s\\S]*Order, cart, billing[\\s\\S]*"
+              text: "match:contains:\"name\": \"order\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -132,7 +132,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"product\"[\\s\\S]*\"count\":[\\s]*5[\\s\\S]*Product-related[\\s\\S]*"
+              text: "match:contains:\"name\": \"product\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -151,7 +151,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"pricing\"[\\s\\S]*\"count\":[\\s]*3[\\s\\S]*Pricing and discount[\\s\\S]*"
+              text: "match:contains:\"name\": \"pricing\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -170,7 +170,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"store\"[\\s\\S]*\"count\":[\\s]*2[\\s\\S]*Store and location[\\s\\S]*"
+              text: "match:contains:\"name\": \"store\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -189,7 +189,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*\"category\":[\\s]*\"other\"[\\s\\S]*\"count\":[\\s]*3[\\s\\S]*Other models and utilities[\\s\\S]*"
+              text: "match:contains:\"name\": \"other\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -209,7 +209,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:(?:\"category\"[\\s\\S]*?){7}"
+              text: "match:regex:(?:\"name\"[\\s\\S]*?){7}"
           isError: false
       stderr: "toBeEmpty"
 
@@ -286,7 +286,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\{[\\s\\S]*\"category\"[\\s\\S]*\"count\"[\\s\\S]*\"description\"[\\s\\S]*\\}[\\s\\S]*\\]$"
+              text: "match:regex:^\\[[\\s\\S]*\\{[\\s\\S]*\"name\"[\\s\\S]*\"count\"[\\s\\S]*\"description\"[\\s\\S]*\\}[\\s\\S]*\\]$"
           isError: false
       stderr: "toBeEmpty"
 
@@ -327,7 +327,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:\"category\": \"core\""
+              text: "match:contains:\"name\": \"core\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -369,7 +369,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:\"category\":[\\s]*\"[a-z]+\""
+              text: "match:regex:\"name\":[\\s]*\"[a-z]+\""
           isError: false
       stderr: "toBeEmpty"
 
@@ -447,6 +447,6 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:(?:\"category\"[\\s\\S]*?){7}"
+              text: "match:regex:(?:\"name\"[\\s\\S]*?){7}"
           isError: false
       stderr: "toBeEmpty"

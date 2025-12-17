@@ -36,7 +36,7 @@ describe('get_isml_categories (programmatic)', () => {
   });
 
   const TOOL_NAME = 'get_isml_categories';
-  const REQUIRED_KEYS = ['name', 'displayName', 'description', 'elementCount'];
+  const REQUIRED_KEYS = ['name', 'displayName', 'description', 'count'];
   const EXPECTED_CATEGORIES = [
     'analytics',
     'cache',
@@ -84,7 +84,7 @@ describe('get_isml_categories (programmatic)', () => {
     for (const cat of categories) {
       for (const key of REQUIRED_KEYS) {
         assert.ok(Object.prototype.hasOwnProperty.call(cat, key), `Category should have ${key}: ${JSON.stringify(cat)}`);
-        if (key === 'elementCount') {
+        if (key === 'count') {
           assert.ok(typeof cat[key] === 'number', `${key} should be number`);
           assert.ok(cat[key] > 0, `${key} should be positive`);
         } else {
@@ -126,7 +126,7 @@ describe('get_isml_categories (programmatic)', () => {
   test('element count total reasonableness (expect 25-40 total elements)', async () => {
     const { raw } = await invoke();
     const categories = safeParseCategories(raw);
-    const totalElements = categories.reduce((sum, cat) => sum + cat.elementCount, 0);
+    const totalElements = categories.reduce((sum, cat) => sum + cat.count, 0);
     assert.ok(totalElements >= 25, `Total element count too low: ${totalElements}`);
     assert.ok(totalElements <= 40, `Total element count too high: ${totalElements}`);
   });
@@ -136,7 +136,7 @@ describe('get_isml_categories (programmatic)', () => {
     const categories = safeParseCategories(raw);
     const controlFlow = categories.find(cat => cat.name === 'control-flow');
     assert.ok(controlFlow, 'control-flow category should exist');
-    assert.ok(controlFlow.elementCount >= 5, `control-flow should have at least 5 elements, got ${controlFlow.elementCount}`);
+    assert.ok(controlFlow.count >= 5, `control-flow should have at least 5 elements, got ${controlFlow.count}`);
   });
 
   test('extraneous argument is ignored', async () => {
@@ -212,7 +212,7 @@ describe('get_isml_categories (programmatic)', () => {
     const { raw } = await invoke();
     const categories = safeParseCategories(raw);
     const histogram = categories.reduce((acc, cat) => {
-      acc[cat.name] = cat.elementCount;
+      acc[cat.name] = cat.count;
       return acc;
     }, {});
     console.log('Element Count by Category:', histogram);
@@ -248,7 +248,7 @@ describe('get_isml_categories (programmatic)', () => {
     // Get categories
     const { raw: catRaw } = await invoke();
     const categories = safeParseCategories(catRaw);
-    const totalByCat = categories.reduce((sum, cat) => sum + cat.elementCount, 0);
+    const totalByCat = categories.reduce((sum, cat) => sum + cat.count, 0);
     
     // Get elements
     const elemResult = await client.callTool('list_isml_elements', {});

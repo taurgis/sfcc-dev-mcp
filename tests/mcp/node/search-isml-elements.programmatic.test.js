@@ -37,7 +37,7 @@ describe('search_isml_elements (programmatic)', () => {
   });
 
   const TOOL_NAME = 'search_isml_elements';
-  const RESULT_KEYS = ['element', 'relevance', 'matchedSections', 'preview'];
+  const RESULT_KEYS = ['document', 'relevance', 'matchedSections', 'preview'];
   const ELEMENT_KEYS = ['name', 'title', 'description', 'category', 'filename'];
 
   test('tool should be registered', async () => {
@@ -70,7 +70,7 @@ describe('search_isml_elements (programmatic)', () => {
     assert.ok(results.length > 0, 'Should find loop-related elements');
     
     // Check if isloop is in results
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('isloop'), 'Should include isloop element');
   });
 
@@ -81,7 +81,7 @@ describe('search_isml_elements (programmatic)', () => {
     const results = safeParseResults(raw);
     assert.ok(results.length > 0, 'Should find formatting-related elements');
     
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('isprint'), 'Should include isprint element');
   });
 
@@ -92,7 +92,7 @@ describe('search_isml_elements (programmatic)', () => {
     const results = safeParseResults(raw);
     assert.ok(results.length > 0, 'Should find cache-related elements');
     
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('iscache'), 'Should include iscache element');
   });
 
@@ -103,7 +103,7 @@ describe('search_isml_elements (programmatic)', () => {
     const results = safeParseResults(raw);
     assert.ok(results.length > 0, 'Should find conditional-related elements');
     
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('isif'), 'Should include isif element');
   });
 
@@ -117,9 +117,9 @@ describe('search_isml_elements (programmatic)', () => {
         assert.ok(Object.prototype.hasOwnProperty.call(searchResult, key), `Result should have ${key}`);
       }
       
-      // Check element structure
+      // Check document structure
       for (const key of ELEMENT_KEYS) {
-        assert.ok(Object.prototype.hasOwnProperty.call(searchResult.element, key), `Element should have ${key}`);
+        assert.ok(Object.prototype.hasOwnProperty.call(searchResult.document, key), `Document should have ${key}`);
       }
       
       // Check types
@@ -159,7 +159,7 @@ describe('search_isml_elements (programmatic)', () => {
     
     // All results should be control-flow category
     for (const searchResult of results) {
-      assert.equal(searchResult.element.category, 'control-flow', 'All results should be control-flow category');
+      assert.equal(searchResult.document.category, 'control-flow', 'All results should be control-flow category');
     }
   });
 
@@ -219,7 +219,7 @@ describe('search_isml_elements (programmatic)', () => {
     const { raw } = await invoke('scri');
     const results = safeParseResults(raw);
     
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('isscript'), 'Should find isscript with partial match');
   });
 
@@ -228,7 +228,7 @@ describe('search_isml_elements (programmatic)', () => {
     assert.equal(result.isError, false, 'Should not be error');
     
     const results = safeParseResults(raw);
-    const elementNames = results.map(r => r.element.name);
+    const elementNames = results.map(r => r.document.name);
     assert.ok(elementNames.includes('isscript'), 'Should include isscript');
   });
 
@@ -242,7 +242,7 @@ describe('search_isml_elements (programmatic)', () => {
       const results = safeParseResults(raw);
       if (results.length > 0) {
         for (const searchResult of results) {
-          assert.equal(searchResult.element.category, category, `All results should be ${category} category`);
+          assert.equal(searchResult.document.category, category, `All results should be ${category} category`);
         }
       }
     }
@@ -253,7 +253,7 @@ describe('search_isml_elements (programmatic)', () => {
     const results = safeParseResults(raw);
     
     for (const searchResult of results.slice(0, 5)) {
-      assert.match(searchResult.element.filename, /^[a-z0-9-]+\.md$/, 'Filename should be kebab-case .md');
+      assert.match(searchResult.document.filename, /^[a-z0-9-]+\.md$/, 'Filename should be kebab-case .md');
     }
   });
 
@@ -320,6 +320,6 @@ describe('search_isml_elements (programmatic)', () => {
     const second = safeParseResults((await invoke('loop')).raw);
     
     assert.equal(second.length, first.length, 'Result count should be consistent');
-    assert.deepEqual(second.map(r => r.element.name), first.map(r => r.element.name), 'Result order should be consistent');
+    assert.deepEqual(second.map(r => r.document.name), first.map(r => r.document.name), 'Result order should be consistent');
   });
 });

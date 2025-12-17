@@ -45,7 +45,7 @@ describe('DocsToolHandler', () => {
       capabilities: { canAccessLogs: false, canAccessOCAPI: false },
     };
 
-    handler = new DocsToolHandler(context, 'Docs');
+    handler = new DocsToolHandler(context);
   });
 
   afterEach(() => {

@@ -55,10 +55,6 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
     this.logger.debug(`${this.config.clientDisplayName} client disposed`);
   }
 
-  canHandle(toolName: string): boolean {
-    return this.config.toolNameSet.has(toolName as TToolName);
-  }
-
   protected getToolNameSet(): Set<TToolName> {
     return this.config.toolNameSet;
   }

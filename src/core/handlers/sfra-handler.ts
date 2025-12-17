@@ -8,12 +8,11 @@ import {
 } from '../../tool-configs/sfra-tool-config.js';
 
 /**
- * Handler for SFRA documentation tools using config-driven dispatch
- * Provides access to Storefront Reference Architecture documentation
+ * Handler for SFRA documentation tools
  */
 export class SFRAToolHandler extends SimpleClientHandler<SFRAToolName, SFRAClient> {
-  constructor(context: HandlerContext, subLoggerName: string) {
-    super(context, subLoggerName, {
+  constructor(context: HandlerContext) {
+    super(context, 'SFRA', {
       toolConfig: SFRA_TOOL_CONFIG,
       toolNameSet: SFRA_TOOL_NAMES_SET,
       clientContextKey: 'sfraClient',

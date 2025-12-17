@@ -289,11 +289,23 @@ describe('list_isml_elements (programmatic)', () => {
     assert.ok(duration < 500, `Response should be under 500ms, got ${duration}ms`);
   });
 
-  test('alphabetical name sorting verification (first 20 elements)', async () => {
+  test('alphabetical name sorting verification within categories', async () => {
     const { raw } = await invoke();
-    const elements = safeParseElements(raw).slice(0, 20);
-    const names = elements.map(el => el.name);
-    const sorted = [...names].sort();
-    assert.deepEqual(names, sorted, 'First 20 element names should be alphabetically sorted');
+    const elements = safeParseElements(raw);
+    
+    // Group by category
+    const byCategory = {};
+    for (const el of elements) {
+      if (!byCategory[el.category]) {
+        byCategory[el.category] = [];
+      }
+      byCategory[el.category].push(el.name);
+    }
+    
+    // Each category should be sorted alphabetically
+    for (const [category, names] of Object.entries(byCategory)) {
+      const sorted = [...names].sort();
+      assert.deepEqual(names, sorted, `${category} category elements should be alphabetically sorted`);
+    }
   });
 });

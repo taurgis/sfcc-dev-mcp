@@ -16,6 +16,10 @@ import {
   CategoryWithCount,
   DocumentationClientConfig,
 } from './base/abstract-documentation-client.js';
+import {
+  extractDescriptionFromContent,
+  extractSections,
+} from '../utils/markdown-utils.js';
 
 // ==================== Types ====================
 
@@ -253,8 +257,8 @@ export class ISMLClient extends AbstractDocumentationClient<ISMLElement, ISMLEle
       return {
         name: elementName,
         title,
-        description: this.extractDescription(content),
-        sections: this.extractSections(content),
+        description: extractDescriptionFromContent(content),
+        sections: extractSections(content),
         content,
         category,
         attributes: attributes.all,
@@ -277,32 +281,6 @@ export class ISMLClient extends AbstractDocumentationClient<ISMLElement, ISMLEle
   private normalizeElementName(name: string): string {
     const lower = name.toLowerCase();
     return lower.startsWith('is') ? lower : `is${lower}`;
-  }
-
-  /**
-   * Extract description from content
-   */
-  private extractDescription(content: string): string {
-    const overviewMatch = content.match(/##\s+Overview\s+(.+?)(?=\n##|\n\*\*|$)/s);
-    if (overviewMatch) {
-      return overviewMatch[1].trim().split('\n\n')[0].replace(/\n/g, ' ').trim();
-    }
-
-    const firstParaMatch = content.match(/^#.+?\n\n(.+?)(?=\n\n|$)/s);
-    return firstParaMatch ? firstParaMatch[1].replace(/\n/g, ' ').trim() : '';
-  }
-
-  /**
-   * Extract section headings from content
-   */
-  private extractSections(content: string): string[] {
-    const regex = /^##(?!#)\s+(.+)$/gm;
-    const sections: string[] = [];
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-      sections.push(match[1].trim());
-    }
-    return sections;
   }
 
   /**

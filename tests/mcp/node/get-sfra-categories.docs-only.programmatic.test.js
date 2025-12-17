@@ -72,7 +72,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const categoryNames = categories.map(cat => cat.category).sort();
+      const categoryNames = categories.map(cat => cat.name).sort();
       const expectedNames = ['core', 'customer', 'order', 'other', 'pricing', 'product', 'store'];
       
       assert.deepEqual(categoryNames, expectedNames, 'Should have all expected category names');
@@ -83,8 +83,8 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       
       const categories = JSON.parse(result.content[0].text);
       categories.forEach((category, index) => {
-        assert.ok(category.category, `Category ${index} should have category field`);
-        assert.ok(typeof category.category === 'string', `Category ${index} name should be string`);
+        assert.ok(category.name, `Category ${index} should have category field`);
+        assert.ok(typeof category.name === 'string', `Category ${index} name should be string`);
         assert.ok(typeof category.count === 'number', `Category ${index} count should be number`);
         assert.ok(category.count > 0, `Category ${index} count should be positive`);
         assert.ok(category.description, `Category ${index} should have description`);
@@ -99,7 +99,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const coreCategory = categories.find(cat => cat.category === 'core');
+      const coreCategory = categories.find(cat => cat.name === 'core');
       
       assert.ok(coreCategory, 'Should have core category');
       assert.equal(coreCategory.count, 5, 'Core category should have 5 documents');
@@ -113,7 +113,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const customerCategory = categories.find(cat => cat.category === 'customer');
+      const customerCategory = categories.find(cat => cat.name === 'customer');
       
       assert.ok(customerCategory, 'Should have customer category');
       assert.equal(customerCategory.count, 2, 'Customer category should have 2 documents');
@@ -125,7 +125,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const orderCategory = categories.find(cat => cat.category === 'order');
+      const orderCategory = categories.find(cat => cat.name === 'order');
       
       assert.ok(orderCategory, 'Should have order category');
       assert.equal(orderCategory.count, 6, 'Order category should have 6 documents');
@@ -139,7 +139,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const productCategory = categories.find(cat => cat.category === 'product');
+      const productCategory = categories.find(cat => cat.name === 'product');
       
       assert.ok(productCategory, 'Should have product category');
       assert.equal(productCategory.count, 5, 'Product category should have 5 documents');
@@ -151,7 +151,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const pricingCategory = categories.find(cat => cat.category === 'pricing');
+      const pricingCategory = categories.find(cat => cat.name === 'pricing');
       
       assert.ok(pricingCategory, 'Should have pricing category');
       assert.equal(pricingCategory.count, 3, 'Pricing category should have 3 documents');
@@ -163,7 +163,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const storeCategory = categories.find(cat => cat.category === 'store');
+      const storeCategory = categories.find(cat => cat.name === 'store');
       
       assert.ok(storeCategory, 'Should have store category');
       assert.equal(storeCategory.count, 2, 'Store category should have 2 documents');
@@ -175,7 +175,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const otherCategory = categories.find(cat => cat.category === 'other');
+      const otherCategory = categories.find(cat => cat.name === 'other');
       
       assert.ok(otherCategory, 'Should have other category');
       assert.equal(otherCategory.count, 3, 'Other category should have 3 documents');
@@ -201,7 +201,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const categories = JSON.parse(result.content[0].text);
       const countMap = {};
       categories.forEach(cat => {
-        countMap[cat.category] = cat.count;
+        countMap[cat.name] = cat.count;
       });
 
       assert.equal(countMap.core, 5, 'Core should have 5 documents');
@@ -263,7 +263,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       assert.ok(responseText.includes('}'), 'Response should contain complete objects');
       
       // Should have proper field formatting
-      assert.ok(responseText.includes('"category":'), 'Should have category fields');
+      assert.ok(responseText.includes('"name":'), 'Should have category fields');
       assert.ok(responseText.includes('"count":'), 'Should have count fields');
       assert.ok(responseText.includes('"description":'), 'Should have description fields');
     });
@@ -272,7 +272,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const categoryNames = categories.map(cat => cat.category);
+      const categoryNames = categories.map(cat => cat.name);
       const sortedNames = [...categoryNames].sort();
       
       assert.deepEqual(categoryNames, sortedNames, 'Categories should be alphabetically sorted');
@@ -284,11 +284,11 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const categories = JSON.parse(result.content[0].text);
       
       categories.forEach(category => {
-        assert.ok(category.description.length >= 20, `Description for ${category.category} should be substantial`);
+        assert.ok(category.description.length >= 20, `Description for ${category.name} should be substantial`);
         assert.ok(category.description.includes('models') || category.description.includes('classes') || category.description.includes('utilities'), 
-          `Description for ${category.category} should mention relevant concepts`);
-        assert.ok(/^[A-Z]/.test(category.description), `Description for ${category.category} should start with capital letter`);
-        assert.ok(!category.description.endsWith('.'), `Description for ${category.category} should not end with period`);
+          `Description for ${category.name} should mention relevant concepts`);
+        assert.ok(/^[A-Z]/.test(category.description), `Description for ${category.name} should start with capital letter`);
+        assert.ok(!category.description.endsWith('.'), `Description for ${category.name} should not end with period`);
       });
     });
 
@@ -298,9 +298,9 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const categories = JSON.parse(result.content[0].text);
       
       categories.forEach(category => {
-        assert.ok(category.count >= 1, `Count for ${category.category} should be at least 1`);
-        assert.ok(category.count <= 10, `Count for ${category.category} should be reasonable (≤10)`);
-        assert.ok(Number.isInteger(category.count), `Count for ${category.category} should be an integer`);
+        assert.ok(category.count >= 1, `Count for ${category.name} should be at least 1`);
+        assert.ok(category.count <= 10, `Count for ${category.name} should be reasonable (≤10)`);
+        assert.ok(Number.isInteger(category.count), `Count for ${category.name} should be an integer`);
       });
     });
   });
@@ -310,7 +310,7 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result = await client.callTool('get_sfra_categories', {});
       
       const categories = JSON.parse(result.content[0].text);
-      const categoryNames = categories.map(cat => cat.category);
+      const categoryNames = categories.map(cat => cat.name);
       
       // These categories should be usable with get_sfra_documents_by_category
       const expectedCategoriesForFiltering = ['core', 'product', 'order', 'customer', 'pricing', 'store', 'other'];
@@ -326,9 +326,9 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const categories = JSON.parse(result.content[0].text);
       
       // Check that categories align with known SFRA functional areas
-      const coreCategory = categories.find(cat => cat.category === 'core');
-      const productCategory = categories.find(cat => cat.category === 'product');
-      const orderCategory = categories.find(cat => cat.category === 'order');
+      const coreCategory = categories.find(cat => cat.name === 'core');
+      const productCategory = categories.find(cat => cat.name === 'product');
+      const orderCategory = categories.find(cat => cat.name === 'order');
       
       assert.ok(coreCategory && coreCategory.count > 0, 'Should have core SFRA functionality');
       assert.ok(productCategory && productCategory.count > 0, 'Should have product functionality');

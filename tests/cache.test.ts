@@ -361,9 +361,9 @@ describe('CacheManager', () => {
 
       cacheManager.destroy();
 
-      // After destroy, the caches should be cleared
+      // After destroy, the caches map should be cleared (empty stats object)
       allStats = cacheManager.getAllStats();
-      expect(allStats.fileContent.size).toBe(0);
+      expect(Object.keys(allStats).length).toBe(0);
     });
   });
 
