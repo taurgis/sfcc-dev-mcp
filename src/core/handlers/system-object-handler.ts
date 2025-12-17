@@ -1,6 +1,6 @@
-import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
+import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { AbstractOCAPIHandler } from './abstract-ocapi-handler.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
-import { ClientFactory } from './client-factory.js';
 import {
   SYSTEM_OBJECT_TOOL_CONFIG,
   SystemObjectToolName,
@@ -8,51 +8,31 @@ import {
 } from '../../tool-configs/system-object-tool-config.js';
 
 /**
- * Handler for system object tools using config-driven dispatch
- * Provides access to SFCC system object definitions, attributes, and site preferences
+ * Handler for system object tools using config-driven dispatch.
+ * Provides access to SFCC system object definitions, attributes, and site preferences.
  */
-export class SystemObjectToolHandler extends BaseToolHandler<SystemObjectToolName> {
-  private ocapiClient: OCAPIClient | null = null;
-  private clientFactory: ClientFactory;
-
+export class SystemObjectToolHandler extends AbstractOCAPIHandler<SystemObjectToolName, OCAPIClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
     super(context, subLoggerName);
-    this.clientFactory = new ClientFactory(context, this.logger);
   }
 
-  protected async onInitialize(): Promise<void> {
-    this.ocapiClient = this.clientFactory.createOCAPIClient();
-    if (this.ocapiClient) {
-      this.logger.debug('OCAPI client initialized for system objects');
-    }
+  protected createClient(): OCAPIClient | null {
+    return this.clientFactory.createOCAPIClient();
   }
 
-  protected async onDispose(): Promise<void> {
-    this.ocapiClient = null;
-    this.logger.debug('OCAPI client disposed');
+  protected getClientContextKey(): string {
+    return 'ocapiClient';
   }
 
-  canHandle(toolName: string): boolean {
-    return SYSTEM_OBJECT_TOOL_NAMES_SET.has(toolName as SystemObjectToolName);
+  protected getClientDisplayName(): string {
+    return 'OCAPI (System Objects)';
   }
 
   protected getToolNameSet(): Set<SystemObjectToolName> {
     return SYSTEM_OBJECT_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> {
     return SYSTEM_OBJECT_TOOL_CONFIG;
-  }
-
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
-    if (!this.ocapiClient) {
-      throw new Error(ClientFactory.getClientRequiredError('OCAPI'));
-    }
-
-    return {
-      handlerContext: this.context,
-      logger: this.logger,
-      ocapiClient: this.ocapiClient,
-    };
   }
 }
