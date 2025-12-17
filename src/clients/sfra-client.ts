@@ -11,6 +11,14 @@ import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
+import { constructValidatedPath } from '../utils/path-validation.js';
+import {
+  extractDescriptionFromLines,
+  extractSections,
+  extractProperties,
+  extractMethods,
+  formatDocumentName,
+} from '../utils/markdown-utils.js';
 
 export interface SFRADocument {
   title: string;
@@ -172,7 +180,7 @@ export class SFRAClient {
     }
 
     try {
-      const filePath = await this.validateAndConstructPath(documentName);
+      const filePath = this.validateAndConstructPathSync(documentName);
       const stats = await fs.stat(filePath);
 
       // Check if we have a cached version that's still valid
@@ -191,7 +199,7 @@ export class SFRAClient {
 
       // Extract title
       const titleLine = lines.find(line => line.startsWith('#'));
-      const title = titleLine?.replace(/^#+\s*/, '').trim() ?? this.formatDocumentName(normalizedDocumentName);
+      const title = titleLine?.replace(/^#+\s*/, '').trim() ?? formatDocumentName(normalizedDocumentName);
 
       // Determine type based on title and content
       const type = this.determineDocumentType(title, content);
@@ -199,14 +207,11 @@ export class SFRAClient {
       // Determine category - use normalized name for consistent mapping
       const category = (CATEGORY_MAPPINGS[normalizedDocumentName] || 'other') as SFRADocument['category'];
 
-      // Extract description (first substantial paragraph after title)
-      const description = this.extractDescription(lines, title);
+      // Extract description using shared utility
+      const description = extractDescriptionFromLines(lines, title);
 
-      // Extract sections (## headers)
-      const sections = lines
-        .filter(line => line.startsWith('##'))
-        .map(line => line.replace(/^##\s*/, '').trim())
-        .filter(section => section.length > 0);
+      // Extract sections using shared utility
+      const sections = extractSections(content);
 
       const document: SFRADocument = {
         title,
@@ -218,8 +223,8 @@ export class SFRAClient {
         filename: `${normalizedDocumentName}.md`,
         lastModified: stats.mtime,
         ...(type === 'class' || type === 'model' ? {
-          properties: this.extractProperties(lines),
-          methods: this.extractMethods(lines),
+          properties: extractProperties(lines),
+          methods: extractMethods(lines),
         } : {}),
       };
 
@@ -254,7 +259,7 @@ export class SFRAClient {
 
     // Otherwise, load the full content
     try {
-      const filePath = await this.validateAndConstructPath(documentName);
+      const filePath = this.validateAndConstructPathSync(documentName);
       const content = await fs.readFile(filePath, 'utf-8');
 
       const fullDocument: SFRADocument = {
@@ -410,40 +415,13 @@ export class SFRAClient {
   }
 
   /**
-   * Enhanced path validation and construction
+   * Enhanced path validation and construction using shared utility
    */
-  private async validateAndConstructPath(documentName: string): Promise<string> {
-    if (!documentName || typeof documentName !== 'string') {
-      throw new Error('Invalid document name: must be a non-empty string');
-    }
-
-    if (documentName.includes('\0') || documentName.includes('\x00')) {
-      throw new Error('Invalid document name: contains null bytes');
-    }
-
-    if (documentName.includes('..') || documentName.includes('/') || documentName.includes('\\')) {
-      throw new Error('Invalid document name: contains path traversal sequences');
-    }
-
-    if (!/^[a-zA-Z0-9_-]+$/.test(documentName)) {
-      throw new Error('Invalid document name: contains invalid characters');
-    }
-
-    // Normalize document name to lowercase for case-insensitive lookup
-    const normalizedDocumentName = documentName.toLowerCase();
-    const filePath = path.join(this.docsPath, `${normalizedDocumentName}.md`);
-    const resolvedPath = path.resolve(filePath);
-    const resolvedDocsPath = path.resolve(this.docsPath);
-
-    if (!resolvedPath.startsWith(resolvedDocsPath)) {
-      throw new Error('Invalid document name: path outside allowed directory');
-    }
-
-    if (!resolvedPath.toLowerCase().endsWith('.md')) {
-      throw new Error('Invalid document name: must reference a markdown file');
-    }
-
-    return resolvedPath;
+  private validateAndConstructPathSync(documentName: string): string {
+    return constructValidatedPath(this.docsPath, documentName, {
+      allowedExtensions: ['.md'],
+      normalizeToLowerCase: true,
+    });
   }
 
   /**
@@ -467,128 +445,6 @@ export class SFRAClient {
     }
 
     return 'model'; // Default for most SFRA docs
-  }
-
-  /**
-   * Extract description from document lines
-   */
-  private extractDescription(lines: string[], title: string): string {
-    const titleIndex = lines.findIndex(line => line.trim() === `# ${title}` || line.startsWith('#'));
-    if (titleIndex === -1) {
-      return 'No description available';
-    }
-
-    // Look for overview section first
-    const overviewIndex = lines.findIndex((line, index) =>
-      index > titleIndex && line.toLowerCase().includes('## overview'),
-    );
-
-    if (overviewIndex !== -1) {
-      // Get content under Overview section
-      let descriptionEnd = lines.findIndex((line, index) =>
-        index > overviewIndex + 1 && line.startsWith('##'),
-      );
-
-      if (descriptionEnd === -1) {
-        descriptionEnd = Math.min(lines.length, overviewIndex + 10);
-      }
-
-      const overviewContent = lines.slice(overviewIndex + 1, descriptionEnd)
-        .filter(line => line.trim() && !line.startsWith('#'))
-        .join(' ')
-        .trim();
-
-      if (overviewContent) {
-        return overviewContent.substring(0, 300) + (overviewContent.length > 300 ? '...' : '');
-      }
-    }
-
-    // Fallback to first paragraph after title
-    let descriptionStart = titleIndex + 1;
-    while (descriptionStart < lines.length && !lines[descriptionStart].trim()) {
-      descriptionStart++;
-    }
-
-    const descriptionEnd = lines.findIndex((line, index) =>
-      index > descriptionStart && (line.startsWith('#') || line.trim() === ''));
-
-    const description = lines
-      .slice(descriptionStart, descriptionEnd > -1 ? descriptionEnd : descriptionStart + 3)
-      .filter(line => line.trim() && !line.startsWith('#'))
-      .join(' ')
-      .trim();
-
-    return description || 'No description available';
-  }
-
-  /**
-   * Extract properties from document content
-   */
-  private extractProperties(lines: string[]): string[] {
-    const properties: string[] = [];
-    let inPropertiesSection = false;
-
-    for (const line of lines) {
-      if (line.toLowerCase().includes('## properties') ||
-          line.toLowerCase().includes('## property')) {
-        inPropertiesSection = true;
-        continue;
-      }
-
-      if (inPropertiesSection && line.startsWith('#') && !line.includes('properties')) {
-        break;
-      }
-
-      if (inPropertiesSection && line.startsWith('### ')) {
-        const property = line.replace('### ', '').trim();
-        if (!properties.includes(property)) {
-          properties.push(property);
-        }
-      }
-    }
-
-    return properties;
-  }
-
-  /**
-   * Extract methods from document content
-   */
-  private extractMethods(lines: string[]): string[] {
-    const methods: string[] = [];
-    let inMethodSection = false;
-
-    for (const line of lines) {
-      if (line.toLowerCase().includes('## method') ||
-          line.toLowerCase().includes('## function')) {
-        inMethodSection = true;
-        continue;
-      }
-
-      if (inMethodSection && line.startsWith('#') &&
-          !line.toLowerCase().includes('method') &&
-          !line.toLowerCase().includes('function')) {
-        break;
-      }
-
-      if (inMethodSection && line.startsWith('### ')) {
-        const method = line.replace('### ', '').trim();
-        if (!methods.includes(method)) {
-          methods.push(method);
-        }
-      }
-    }
-
-    return methods;
-  }
-
-  /**
-   * Format document name for display
-   */
-  private formatDocumentName(documentName: string): string {
-    return documentName
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   }
 
   /**

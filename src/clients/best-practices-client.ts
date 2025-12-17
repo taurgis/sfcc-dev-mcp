@@ -7,10 +7,11 @@
  */
 
 import * as fs from 'fs/promises';
-import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
+import { constructValidatedPath, validateTextContent } from '../utils/path-validation.js';
+import { extractSections } from '../utils/markdown-utils.js';
 
 export interface BestPracticeGuide {
   title: string;
@@ -122,60 +123,22 @@ export class SFCCBestPracticesClient {
     if (cached) {return JSON.parse(cached);}
 
     try {
-      // Enhanced security validation - validate guideName before path construction
-      if (!guideName || typeof guideName !== 'string') {
-        throw new Error('Invalid guide name: must be a non-empty string');
-      }
-
-      // Prevent null bytes and dangerous characters in the guide name itself
-      if (guideName.includes('\0') || guideName.includes('\x00')) {
-        throw new Error('Invalid guide name: contains null bytes');
-      }
-
-      // Prevent path traversal sequences in the guide name
-      if (guideName.includes('..') || guideName.includes('/') || guideName.includes('\\')) {
-        throw new Error('Invalid guide name: contains path traversal sequences');
-      }
-
-      // Only allow alphanumeric characters, underscores, and hyphens
-      if (!/^[a-zA-Z0-9_-]+$/.test(guideName)) {
-        throw new Error('Invalid guide name: contains invalid characters');
-      }
-
-      const filePath = path.join(this.docsPath, `${guideName}.md`);
-
-      // Additional security validation - ensure the resolved path is within the docs directory
-      const resolvedPath = path.resolve(filePath);
-      const resolvedDocsPath = path.resolve(this.docsPath);
-
-      if (!resolvedPath.startsWith(resolvedDocsPath)) {
-        throw new Error('Invalid guide name: path outside allowed directory');
-      }
-
-      // Ensure the file still ends with .md after path resolution
-      if (!resolvedPath.toLowerCase().endsWith('.md')) {
-        throw new Error('Invalid guide name: must reference a markdown file');
-      }
+      // Use shared path validation utility
+      const resolvedPath = constructValidatedPath(this.docsPath, guideName, {
+        allowedExtensions: ['.md'],
+        normalizeToLowerCase: false,
+      });
 
       const content = await fs.readFile(resolvedPath, 'utf-8');
 
-      // Basic content validation
-      if (!content.trim()) {
-        throw new Error(`Empty best practice guide: ${guideName}`);
-      }
-
-      // Check for binary content
-      if (content.includes('\0')) {
-        throw new Error(`Invalid content in best practice guide: ${guideName}`);
-      }
+      // Use shared content validation
+      validateTextContent(content, `best practice guide: ${guideName}`);
 
       const lines = content.split('\n');
       const title = lines.find(line => line.startsWith('#'))?.replace('#', '').trim() ?? guideName;
 
-      // Extract sections (## headers)
-      const sections = lines
-        .filter(line => line.startsWith('##'))
-        .map(line => line.replace('##', '').trim());
+      // Use shared utility for section extraction
+      const sections = extractSections(content);
 
       // Extract description (first paragraph after title)
       const descriptionStart = lines.findIndex(line => line.startsWith('#')) + 1;
