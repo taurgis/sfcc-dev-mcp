@@ -5,6 +5,147 @@
  * to keep the main server file clean and maintainable.
  */
 
+// ==============================================================
+// SHARED SCHEMAS - DRY: Reusable schema components
+// ==============================================================
+
+/**
+ * Common query schema for OCAPI search operations
+ */
+const QUERY_SCHEMA = {
+  type: 'object',
+  description: 'Query to filter results',
+  properties: {
+    text_query: {
+      type: 'object',
+      description: 'Search for text in specific fields',
+      properties: {
+        fields: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
+        },
+        search_phrase: {
+          type: 'string',
+          description: 'Text to search for',
+        },
+      },
+      required: ['fields', 'search_phrase'],
+    },
+    term_query: {
+      type: 'object',
+      description: 'Search for exact term matches',
+      properties: {
+        fields: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Fields to search in',
+        },
+        operator: {
+          type: 'string',
+          description: 'Query operator (e.g., "is", "one_of")',
+        },
+        values: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Values to match',
+        },
+      },
+      required: ['fields', 'operator', 'values'],
+    },
+    bool_query: {
+      type: 'object',
+      description: 'Combine multiple queries with boolean logic',
+      properties: {
+        must: {
+          type: 'array',
+          items: { type: 'object' },
+          description: 'Queries that must match (AND)',
+        },
+        must_not: {
+          type: 'array',
+          items: { type: 'object' },
+          description: 'Queries that must not match',
+        },
+        should: {
+          type: 'array',
+          items: { type: 'object' },
+          description: 'Queries that should match (OR)',
+        },
+      },
+    },
+    match_all_query: {
+      type: 'object',
+      description: 'Match all documents - useful when you want all results or to filter with sorts/pagination only.',
+      properties: {},
+    },
+  },
+} as const;
+
+/**
+ * Common sorts schema for OCAPI search operations
+ */
+const SORTS_SCHEMA = {
+  type: 'array',
+  description: 'Sort criteria',
+  items: {
+    type: 'object',
+    properties: {
+      field: {
+        type: 'string',
+        description: 'Field to sort by',
+      },
+      sort_order: {
+        type: 'string',
+        enum: ['asc', 'desc'],
+        description: 'Sort order (default: asc)',
+      },
+    },
+    required: ['field'],
+  },
+} as const;
+
+/**
+ * Common pagination schema for OCAPI search operations
+ */
+const PAGINATION_SCHEMA = {
+  start: {
+    type: 'number',
+    description: 'Start index for pagination (default: 0)',
+    default: 0,
+  },
+  count: {
+    type: 'number',
+    description: 'Number of results to return (default: 200)',
+    default: 200,
+  },
+  select: {
+    type: 'string',
+    description: "Property selector (e.g., '(**)' for all properties)",
+  },
+} as const;
+
+/**
+ * Factory to create search request schema with optional description override
+ */
+function createSearchRequestSchema(queryDescription?: string) {
+  return {
+    type: 'object',
+    description: 'The search request with query, sorting, and pagination options',
+    properties: {
+      query: queryDescription
+        ? { ...QUERY_SCHEMA, description: queryDescription }
+        : QUERY_SCHEMA,
+      sorts: SORTS_SCHEMA,
+      ...PAGINATION_SCHEMA,
+    },
+  };
+}
+
+// ==============================================================
+// TOOL DEFINITIONS
+// ==============================================================
+
 export const SFCC_DOCUMENTATION_TOOLS = [
   {
     name: 'get_sfcc_class_info',
@@ -609,114 +750,7 @@ export const SYSTEM_OBJECT_TOOLS = [
           type: 'string',
           description: "The system object type to search within (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
         },
-        searchRequest: {
-          type: 'object',
-          description: 'The search request with query, sorting, and pagination options',
-          properties: {
-            query: {
-              type: 'object',
-              description: 'Query to filter attribute definitions',
-              properties: {
-                text_query: {
-                  type: 'object',
-                  description: 'Search for text in specific fields',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
-                    },
-                    search_phrase: {
-                      type: 'string',
-                      description: 'Text to search for',
-                    },
-                  },
-                  required: ['fields', 'search_phrase'],
-                },
-                term_query: {
-                  type: 'object',
-                  description: 'Search for exact term matches',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in',
-                    },
-                    operator: {
-                      type: 'string',
-                      description: 'Query operator (e.g., "is", "one_of")',
-                    },
-                    values: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Values to match',
-                    },
-                  },
-                  required: ['fields', 'operator', 'values'],
-                },
-                bool_query: {
-                  type: 'object',
-                  description: 'Combine multiple queries with boolean logic',
-                  properties: {
-                    must: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must match (AND)',
-                    },
-                    must_not: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must not match',
-                    },
-                    should: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that should match (OR)',
-                    },
-                  },
-                },
-                match_all_query: {
-                  type: 'object',
-                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
-                  properties: {},
-                },
-              },
-            },
-            sorts: {
-              type: 'array',
-              description: 'Sort criteria',
-              items: {
-                type: 'object',
-                properties: {
-                  field: {
-                    type: 'string',
-                    description: 'Field to sort by',
-                  },
-                  sort_order: {
-                    type: 'string',
-                    enum: ['asc', 'desc'],
-                    description: 'Sort order (default: asc)',
-                  },
-                },
-                required: ['field'],
-              },
-            },
-            start: {
-              type: 'number',
-              description: 'Start index for pagination (default: 0)',
-              default: 0,
-            },
-            count: {
-              type: 'number',
-              description: 'Number of results to return (default: 200)',
-              default: 200,
-            },
-            select: {
-              type: 'string',
-              description: "Property selector (e.g., '(**)' for all properties)",
-            },
-          },
-        },
+        searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
       required: ['objectType', 'searchRequest'],
     },
@@ -737,114 +771,7 @@ export const SYSTEM_OBJECT_TOOLS = [
           description: 'The instance type to search preferences for. Since this MCP server is aimed at development and testing, the default is "sandbox".',
           default: 'sandbox',
         },
-        searchRequest: {
-          type: 'object',
-          description: 'The search request with query, sorting, and pagination options',
-          properties: {
-            query: {
-              type: 'object',
-              description: 'Query to filter site preferences',
-              properties: {
-                text_query: {
-                  type: 'object',
-                  description: 'Search for text in specific fields',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
-                    },
-                    search_phrase: {
-                      type: 'string',
-                      description: 'Text to search for',
-                    },
-                  },
-                  required: ['fields', 'search_phrase'],
-                },
-                term_query: {
-                  type: 'object',
-                  description: 'Search for exact term matches',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in',
-                    },
-                    operator: {
-                      type: 'string',
-                      description: 'Query operator (e.g., "is", "one_of")',
-                    },
-                    values: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Values to match',
-                    },
-                  },
-                  required: ['fields', 'operator', 'values'],
-                },
-                bool_query: {
-                  type: 'object',
-                  description: 'Combine multiple queries with boolean logic',
-                  properties: {
-                    must: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must match (AND)',
-                    },
-                    must_not: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must not match',
-                    },
-                    should: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that should match (OR)',
-                    },
-                  },
-                },
-                match_all_query: {
-                  type: 'object',
-                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
-                  properties: {},
-                },
-              },
-            },
-            sorts: {
-              type: 'array',
-              description: 'Sort criteria',
-              items: {
-                type: 'object',
-                properties: {
-                  field: {
-                    type: 'string',
-                    description: 'Field to sort by (id, display_name, description, value_type)',
-                  },
-                  sort_order: {
-                    type: 'string',
-                    enum: ['asc', 'desc'],
-                    description: 'Sort order (default: asc)',
-                  },
-                },
-                required: ['field'],
-              },
-            },
-            start: {
-              type: 'number',
-              description: 'Start index for pagination (default: 0)',
-              default: 0,
-            },
-            count: {
-              type: 'number',
-              description: 'Number of results to return (default: 200)',
-              default: 200,
-            },
-            select: {
-              type: 'string',
-              description: "Property selector (e.g., '(**)' for all properties)",
-            },
-          },
-        },
+        searchRequest: createSearchRequestSchema('Query to filter site preferences'),
         options: {
           type: 'object',
           description: 'Additional options for the search',
@@ -874,114 +801,7 @@ export const SYSTEM_OBJECT_TOOLS = [
           type: 'string',
           description: 'The system object type to search attribute groups for (e.g., "Product", "Customer", "SitePreferences")',
         },
-        searchRequest: {
-          type: 'object',
-          description: 'The search request with query, sorting, and pagination options',
-          properties: {
-            query: {
-              type: 'object',
-              description: 'Query to filter attribute groups',
-              properties: {
-                text_query: {
-                  type: 'object',
-                  description: 'Search for text in specific fields',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
-                    },
-                    search_phrase: {
-                      type: 'string',
-                      description: 'Text to search for',
-                    },
-                  },
-                  required: ['fields', 'search_phrase'],
-                },
-                term_query: {
-                  type: 'object',
-                  description: 'Search for exact term matches',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in',
-                    },
-                    operator: {
-                      type: 'string',
-                      description: 'Query operator (e.g., "is", "one_of")',
-                    },
-                    values: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Values to match',
-                    },
-                  },
-                  required: ['fields', 'operator', 'values'],
-                },
-                bool_query: {
-                  type: 'object',
-                  description: 'Combine multiple queries with boolean logic',
-                  properties: {
-                    must: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must match (AND)',
-                    },
-                    must_not: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must not match',
-                    },
-                    should: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that should match (OR)',
-                    },
-                  },
-                },
-                match_all_query: {
-                  type: 'object',
-                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
-                  properties: {},
-                },
-              },
-            },
-            sorts: {
-              type: 'array',
-              description: 'Sort criteria',
-              items: {
-                type: 'object',
-                properties: {
-                  field: {
-                    type: 'string',
-                    description: 'Field to sort by (id, display_name, description, position, internal)',
-                  },
-                  sort_order: {
-                    type: 'string',
-                    enum: ['asc', 'desc'],
-                    description: 'Sort order (default: asc)',
-                  },
-                },
-                required: ['field'],
-              },
-            },
-            start: {
-              type: 'number',
-              description: 'Start index for pagination (default: 0)',
-              default: 0,
-            },
-            count: {
-              type: 'number',
-              description: 'Number of results to return (default: 200)',
-              default: 200,
-            },
-            select: {
-              type: 'string',
-              description: "Property selector (e.g., '(**)' for all properties)",
-            },
-          },
-        },
+        searchRequest: createSearchRequestSchema('Query to filter attribute groups'),
       },
       required: ['objectType', 'searchRequest'],
     },
@@ -996,114 +816,7 @@ export const SYSTEM_OBJECT_TOOLS = [
           type: 'string',
           description: "The custom object type to search within (e.g., 'Global_String', 'MyCustomObject')",
         },
-        searchRequest: {
-          type: 'object',
-          description: 'The search request with query, sorting, and pagination options',
-          properties: {
-            query: {
-              type: 'object',
-              description: 'Query to filter attribute definitions',
-              properties: {
-                text_query: {
-                  type: 'object',
-                  description: 'Search for text in specific fields',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in (e.g., ["id", "display_name", "description"])',
-                    },
-                    search_phrase: {
-                      type: 'string',
-                      description: 'Text to search for',
-                    },
-                  },
-                  required: ['fields', 'search_phrase'],
-                },
-                term_query: {
-                  type: 'object',
-                  description: 'Search for exact term matches',
-                  properties: {
-                    fields: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Fields to search in',
-                    },
-                    operator: {
-                      type: 'string',
-                      description: 'Query operator (e.g., "is", "one_of")',
-                    },
-                    values: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Values to match',
-                    },
-                  },
-                  required: ['fields', 'operator', 'values'],
-                },
-                bool_query: {
-                  type: 'object',
-                  description: 'Combine multiple queries with boolean logic',
-                  properties: {
-                    must: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must match (AND)',
-                    },
-                    must_not: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that must not match',
-                    },
-                    should: {
-                      type: 'array',
-                      items: { type: 'object' },
-                      description: 'Queries that should match (OR)',
-                    },
-                  },
-                },
-                match_all_query: {
-                  type: 'object',
-                  description: 'Match all documents query - matches all documents in the namespace and document type. Useful when you just want to filter results or have no constraints.',
-                  properties: {},
-                },
-              },
-            },
-            sorts: {
-              type: 'array',
-              description: 'Sort criteria',
-              items: {
-                type: 'object',
-                properties: {
-                  field: {
-                    type: 'string',
-                    description: 'Field to sort by',
-                  },
-                  sort_order: {
-                    type: 'string',
-                    enum: ['asc', 'desc'],
-                    description: 'Sort order (default: asc)',
-                  },
-                },
-                required: ['field'],
-              },
-            },
-            start: {
-              type: 'number',
-              description: 'Start index for pagination (default: 0)',
-              default: 0,
-            },
-            count: {
-              type: 'number',
-              description: 'Number of results to return (default: 200)',
-              default: 200,
-            },
-            select: {
-              type: 'string',
-              description: "Property selector (e.g., '(**)' for all properties)",
-            },
-          },
-        },
+        searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
       required: ['objectType', 'searchRequest'],
     },

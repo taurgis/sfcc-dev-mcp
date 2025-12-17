@@ -72,13 +72,4 @@ export class LogMessageFormatter {
   static formatGetLogFileContents(filename: string, maxBytes?: number, tailOnly?: boolean): string {
     return `Reading log file contents: ${filename} (maxBytes=${maxBytes ?? 'default'}, tailOnly=${tailOnly ?? false})`;
   }
-
-  static formatJobLogMessage(operation: string, params: Record<string, any>): string {
-    const paramStr = Object.entries(params)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key, value]) => `${key}=${value}`)
-      .join(' ');
-
-    return paramStr ? `${operation} ${paramStr}` : operation;
-  }
 }

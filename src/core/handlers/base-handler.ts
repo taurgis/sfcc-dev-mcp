@@ -226,9 +226,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       content: [
         {
           type: 'text',
-          text: error instanceof HandlerError
-            ? `Error: ${error.message}`
-            : `Error: ${error.message}`,
+          text: `Error: ${error.message}`,
         },
       ],
       isError: true,
@@ -266,17 +264,5 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       this.logger.timing(`${toolName}_error`, startTime);
       return this.createErrorResponse(error as Error, toolName);
     }
-  }
-
-  /**
-   * @deprecated Use executeWithLogging instead
-   */
-  protected async wrap(
-    toolName: string,
-    startTime: number,
-    fn: () => Promise<any>,
-    logMessage?: string,
-  ): Promise<ToolExecutionResult> {
-    return this.executeWithLogging(toolName, startTime, fn, logMessage);
   }
 }
