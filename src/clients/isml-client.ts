@@ -8,54 +8,46 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
-import { CacheManager } from '../utils/cache.js';
-import { Logger } from '../utils/logger.js';
 import {
-  extractDescriptionFromContent,
-  extractSections as extractMarkdownSections,
-  calculateSearchRelevance,
-  generateSearchPreview,
-} from '../utils/markdown-utils.js';
-import { buildCategoryList } from '../utils/category-utils.js';
+  AbstractDocumentationClient,
+  BaseDocument,
+  DocumentSummary,
+  SearchResult,
+  CategoryWithCount,
+  DocumentationClientConfig,
+} from './base/abstract-documentation-client.js';
 
-export interface ISMLElement {
-  name: string;
-  title: string;
-  description: string;
-  sections: string[];
-  content: string;
-  category: 'control-flow' | 'output' | 'includes' | 'scripting' | 'cache' | 'decorators' | 'special' | 'payment' | 'analytics';
+// ==================== Types ====================
+
+export type ISMLCategory =
+  | 'control-flow'
+  | 'output'
+  | 'includes'
+  | 'scripting'
+  | 'cache'
+  | 'decorators'
+  | 'special'
+  | 'payment'
+  | 'analytics';
+
+export interface ISMLElement extends BaseDocument {
+  category: ISMLCategory;
   attributes?: string[];
   requiredAttributes?: string[];
   optionalAttributes?: string[];
-  filename: string;
-  lastModified?: Date;
 }
 
-export interface ISMLElementSummary {
-  name: string;
-  title: string;
-  description: string;
+export interface ISMLElementSummary extends DocumentSummary {
   category: string;
-  filename: string;
 }
 
-export interface ISMLSearchResult {
-  element: ISMLElementSummary;
-  relevance: number;
-  matchedSections: string[];
-  preview: string;
-}
+export interface ISMLSearchResult extends SearchResult<ISMLElementSummary> {}
 
-export interface ISMLCategory {
-  name: string;
-  displayName: string;
-  description: string;
-  elementCount: number;
-}
+export interface ISMLCategoryInfo extends CategoryWithCount {}
 
-// Element categorization rules
-const CATEGORY_MAPPINGS: Record<string, string> = {
+// ==================== Configuration ====================
+
+const ISML_CATEGORY_MAPPINGS: Record<string, ISMLCategory> = {
   // Control flow elements
   'isif': 'control-flow',
   'isloop': 'control-flow',
@@ -105,7 +97,7 @@ const CATEGORY_MAPPINGS: Record<string, string> = {
   'isanalyticsoff': 'analytics',
 };
 
-const CATEGORY_DESCRIPTIONS: Record<string, { displayName: string; description: string }> = {
+const ISML_CATEGORY_DESCRIPTIONS: Record<ISMLCategory, { displayName: string; description: string }> = {
   'control-flow': {
     displayName: 'Control Flow',
     description: 'Conditional logic, loops, and flow control elements (isif, isloop, isbreak, etc.)',
@@ -144,39 +136,32 @@ const CATEGORY_DESCRIPTIONS: Record<string, { displayName: string; description: 
   },
 };
 
+// ==================== Client Implementation ====================
+
 /**
  * Client for accessing ISML element documentation
+ * Extends AbstractDocumentationClient for shared functionality
  */
-export class ISMLClient {
-  private readonly logger: Logger;
-  private readonly cache: CacheManager;
-  private readonly docsDir: string;
-  private elementsCache: ISMLElement[] | null = null;
-
+export class ISMLClient extends AbstractDocumentationClient<ISMLElement, ISMLElementSummary, ISMLCategory> {
   constructor() {
-    this.logger = Logger.getChildLogger('ISMLClient');
-    this.cache = new CacheManager();
-    this.docsDir = path.join(PathResolver.getDocsPath(), 'isml');
+    const config: DocumentationClientConfig<ISMLCategory> = {
+      clientName: 'ISMLClient',
+      docsPath: path.join(PathResolver.getDocsPath(), 'isml'),
+      categoryMappings: ISML_CATEGORY_MAPPINGS,
+      categoryDescriptions: ISML_CATEGORY_DESCRIPTIONS,
+      defaultCategory: 'special',
+      cachePrefix: 'isml',
+    };
+    super(config);
   }
+
+  // ==================== Public API (preserves existing interface) ====================
 
   /**
    * Get list of all available ISML elements with summaries
    */
   async getAvailableElements(): Promise<ISMLElementSummary[]> {
-    this.logger.debug('Getting available ISML elements');
-
-    const cacheKey = 'isml:elements:list';
-    const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) {
-      this.logger.debug('Returning cached element list');
-      return cached;
-    }
-
-    const elements = await this.loadAllElements();
-    const summaries = elements.map((el) => this.toSummary(el));
-
-    this.cache.setSearchResults(cacheKey, summaries);
-    return summaries;
+    return this.getAvailableDocuments();
   }
 
   /**
@@ -191,28 +176,14 @@ export class ISMLClient {
     },
   ): Promise<ISMLElement | null> {
     const normalizedName = this.normalizeElementName(elementName);
-    this.logger.debug(`Getting ISML element: ${normalizedName}`);
-
-    const cacheKey = `isml:element:${normalizedName}:${JSON.stringify(options)}`;
-    const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) {
-      this.logger.debug('Returning cached element');
-      return cached;
-    }
-
-    const elements = await this.loadAllElements();
-    const element = elements.find((el) => el.name.toLowerCase() === normalizedName.toLowerCase());
+    const element = await this.getDocument(normalizedName);
 
     if (!element) {
-      this.logger.warn(`ISML element not found: ${normalizedName}`);
       return null;
     }
 
     // Apply options to filter returned data
-    const filteredElement = this.applyElementOptions(element, options);
-
-    this.cache.setSearchResults(cacheKey, filteredElement);
-    return filteredElement;
+    return this.applyElementOptions(element, options);
   }
 
   /**
@@ -222,150 +193,68 @@ export class ISMLClient {
     query: string,
     options?: { category?: string; limit?: number },
   ): Promise<ISMLSearchResult[]> {
-    this.logger.debug(`Searching ISML elements for: ${query}`);
-
-    const elements = await this.loadAllElements();
-    const searchQuery = query.toLowerCase();
-    const results: ISMLSearchResult[] = [];
-
-    for (const element of elements) {
-      // Skip if category filter doesn't match
-      if (options?.category && element.category !== options.category) {
-        continue;
-      }
-
-      const relevance = this.calculateRelevance(element, searchQuery);
-      if (relevance > 0) {
-        const matchedSections = this.findMatchedSections(element, searchQuery);
-        const preview = this.generatePreview(element, searchQuery);
-
-        results.push({
-          element: this.toSummary(element),
-          relevance,
-          matchedSections,
-          preview,
-        });
-      }
-    }
-
-    // Sort by relevance (highest first)
-    results.sort((a, b) => b.relevance - a.relevance);
-
-    // Apply limit if specified
-    const limitedResults = options?.limit ? results.slice(0, options.limit) : results;
-
-    this.logger.debug(`Found ${limitedResults.length} results for query: ${query}`);
-    return limitedResults;
+    return this.searchDocuments(query, options);
   }
 
   /**
    * Get ISML elements filtered by category
    */
   async getElementsByCategory(category: string): Promise<ISMLElementSummary[]> {
-    this.logger.debug(`Getting ISML elements by category: ${category}`);
-
-    const elements = await this.loadAllElements();
-    const filtered = elements.filter((el) => el.category === category);
-
-    return filtered.map((el) => this.toSummary(el));
+    return this.getDocumentsByCategory(category);
   }
 
   /**
    * Get available ISML element categories with counts
    */
-  async getAvailableCategories(): Promise<ISMLCategory[]> {
-    this.logger.debug('Getting available ISML categories');
-
-    const cacheKey = 'isml:categories';
-    const cached = this.cache.getSearchResults(cacheKey);
-    if (cached) {
-      this.logger.debug('Returning cached categories');
-      return cached;
-    }
-
-    const elements = await this.loadAllElements();
-
-    // Use shared utility for building category list
-    const categoryList = buildCategoryList(elements, CATEGORY_DESCRIPTIONS);
-
-    // Map to ISMLCategory format
-    const categories: ISMLCategory[] = categoryList.map(cat => ({
-      name: cat.name,
-      displayName: cat.displayName,
-      description: cat.description,
-      elementCount: cat.count ?? 0,
-    }));
-
-    this.cache.setSearchResults(cacheKey, categories);
-    return categories;
+  async getAvailableCategories(): Promise<ISMLCategoryInfo[]> {
+    return super.getAvailableCategories();
   }
 
-  /**
-   * Load all ISML element documentation files
-   */
-  private async loadAllElements(): Promise<ISMLElement[]> {
-    if (this.elementsCache) {
-      return this.elementsCache;
-    }
+  // ==================== Protected overrides ====================
 
-    this.logger.debug(`Scanning ISML documentation directory: ${this.docsDir}`);
-
-    try {
-      const files = await fs.readdir(this.docsDir);
-      const mdFiles = files.filter((f) => f.endsWith('.md'));
-
-      this.logger.debug(`Found ${mdFiles.length} ISML documentation files`);
-
-      const elements: ISMLElement[] = [];
-      for (const file of mdFiles) {
-        const filePath = path.join(this.docsDir, file);
-        const element = await this.parseElementFile(filePath, file);
-        if (element) {
-          elements.push(element);
-        }
-      }
-
-      this.elementsCache = elements;
-      return elements;
-    } catch (error) {
-      this.logger.error(`Error loading ISML elements: ${error}`);
-      throw new Error(`Failed to load ISML documentation: ${error}`);
-    }
+  protected createDocument(baseData: BaseDocument): ISMLElement {
+    return {
+      ...baseData,
+      category: baseData.category as ISMLCategory,
+      attributes: [],
+      requiredAttributes: [],
+      optionalAttributes: [],
+    };
   }
 
-  /**
-   * Parse a single ISML element documentation file
-   */
-  private async parseElementFile(filePath: string, filename: string): Promise<ISMLElement | null> {
+  protected toSummary(element: ISMLElement): ISMLElementSummary {
+    return {
+      name: element.name,
+      title: element.title,
+      description: element.description,
+      category: element.category,
+      filename: element.filename,
+    };
+  }
+
+  protected async parseDocumentFile(filePath: string, filename: string): Promise<ISMLElement | null> {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       const stats = await fs.stat(filePath);
 
-      // Extract element name from filename (e.g., isif.md -> isif)
       const elementName = filename.replace('.md', '');
+      const normalizedName = this.normalizeDocumentName(elementName);
 
       // Extract title from first heading
       const titleMatch = content.match(/^#\s+(.+)$/m);
       const title = titleMatch ? titleMatch[1].trim() : elementName;
 
-      // Extract description from overview section
-      const description = this.extractDescription(content);
-
-      // Extract sections
-      const sections = this.extractSections(content);
-
       // Extract attributes
       const attributes = this.extractAttributes(content);
 
-      // Determine category
-      const category = (CATEGORY_MAPPINGS[elementName.toLowerCase()] ||
-        'special') as ISMLElement['category'];
+      // Get category
+      const category = ISML_CATEGORY_MAPPINGS[normalizedName] ?? 'special';
 
       return {
         name: elementName,
         title,
-        description,
-        sections,
+        description: this.extractDescription(content),
+        sections: this.extractSections(content),
         content,
         category,
         attributes: attributes.all,
@@ -380,18 +269,40 @@ export class ISMLClient {
     }
   }
 
+  // ==================== Private helpers ====================
+
   /**
-   * Extract description from overview section (delegates to shared utility)
+   * Normalize element name (ensure 'is' prefix)
    */
-  private extractDescription(content: string): string {
-    return extractDescriptionFromContent(content);
+  private normalizeElementName(name: string): string {
+    const lower = name.toLowerCase();
+    return lower.startsWith('is') ? lower : `is${lower}`;
   }
 
   /**
-   * Extract section headings from content (delegates to shared utility)
+   * Extract description from content
+   */
+  private extractDescription(content: string): string {
+    const overviewMatch = content.match(/##\s+Overview\s+(.+?)(?=\n##|\n\*\*|$)/s);
+    if (overviewMatch) {
+      return overviewMatch[1].trim().split('\n\n')[0].replace(/\n/g, ' ').trim();
+    }
+
+    const firstParaMatch = content.match(/^#.+?\n\n(.+?)(?=\n\n|$)/s);
+    return firstParaMatch ? firstParaMatch[1].replace(/\n/g, ' ').trim() : '';
+  }
+
+  /**
+   * Extract section headings from content
    */
   private extractSections(content: string): string[] {
-    return extractMarkdownSections(content, 2);
+    const regex = /^##(?!#)\s+(.+)$/gm;
+    const sections: string[] = [];
+    let match;
+    while ((match = regex.exec(content)) !== null) {
+      sections.push(match[1].trim());
+    }
+    return sections;
   }
 
   /**
@@ -406,7 +317,6 @@ export class ISMLClient {
     const required: string[] = [];
     const optional: string[] = [];
 
-    // Look for attribute sections
     const attrRegex = /###\s+(.+?)\n/g;
     let match;
 
@@ -414,21 +324,15 @@ export class ISMLClient {
       const attrName = match[1].trim();
 
       // Skip common headings that aren't attributes
-      if (
-        attrName.toLowerCase().includes('overview') ||
-        attrName.toLowerCase().includes('syntax') ||
-        attrName.toLowerCase().includes('example') ||
-        attrName.toLowerCase().includes('use case')
-      ) {
+      const skipPatterns = ['overview', 'syntax', 'example', 'use case'];
+      if (skipPatterns.some(p => attrName.toLowerCase().includes(p))) {
         continue;
       }
 
       all.push(attrName);
 
-      // Check if attribute is marked as required
-      const sectionStart = match.index;
-      const sectionContent = content.slice(sectionStart, sectionStart + 500);
-
+      // Check if attribute is required/optional
+      const sectionContent = content.slice(match.index, match.index + 500);
       if (sectionContent.toLowerCase().includes('required: yes')) {
         required.push(attrName);
       } else if (sectionContent.toLowerCase().includes('optional: yes')) {
@@ -437,72 +341,6 @@ export class ISMLClient {
     }
 
     return { all, required, optional };
-  }
-
-  /**
-   * Calculate relevance score for search (delegates to shared utility)
-   */
-  private calculateRelevance(element: ISMLElement, query: string): number {
-    return calculateSearchRelevance(query, {
-      name: element.name,
-      title: element.title,
-      description: element.description,
-      sections: element.sections,
-      content: element.content,
-      attributes: element.attributes,
-    });
-  }
-
-  /**
-   * Find sections that match the search query
-   */
-  private findMatchedSections(element: ISMLElement, query: string): string[] {
-    const matched: string[] = [];
-    const lowerQuery = query.toLowerCase();
-
-    for (const section of element.sections) {
-      if (section.toLowerCase().includes(lowerQuery)) {
-        matched.push(section);
-      }
-    }
-
-    return matched;
-  }
-
-  /**
-   * Generate a preview snippet for search results (delegates to shared utility)
-   */
-  private generatePreview(element: ISMLElement, query: string): string {
-    // If no match in content, return description
-    if (!element.content.toLowerCase().includes(query.toLowerCase())) {
-      return element.description.slice(0, 200);
-    }
-    return generateSearchPreview(element.content, query, 100);
-  }
-
-  /**
-   * Normalize element name (remove 'is' prefix variations)
-   */
-  private normalizeElementName(name: string): string {
-    const lower = name.toLowerCase();
-    // Ensure it starts with 'is' for ISML elements
-    if (!lower.startsWith('is')) {
-      return `is${lower}`;
-    }
-    return lower;
-  }
-
-  /**
-   * Convert full element to summary
-   */
-  private toSummary(element: ISMLElement): ISMLElementSummary {
-    return {
-      name: element.name,
-      title: element.title,
-      description: element.description,
-      category: element.category,
-      filename: element.filename,
-    };
   }
 
   /**

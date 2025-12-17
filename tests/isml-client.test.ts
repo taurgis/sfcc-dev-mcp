@@ -258,7 +258,7 @@ The isprint element outputs formatted data to the template.
       const results = await client.searchISMLElements('conditional');
 
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]).toHaveProperty('element');
+      expect(results[0]).toHaveProperty('document');
       expect(results[0]).toHaveProperty('relevance');
       expect(results[0]).toHaveProperty('matchedSections');
       expect(results[0]).toHaveProperty('preview');
@@ -268,14 +268,14 @@ The isprint element outputs formatted data to the template.
       const results = await client.searchISMLElements('isif');
 
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0].element.name).toBe('isif');
+      expect(results[0].document.name).toBe('isif');
       expect(results[0].relevance).toBeGreaterThan(100); // High relevance for exact match
     });
 
     it('should find elements by description', async () => {
       const results = await client.searchISMLElements('iteration');
 
-      const isloopResult = results.find((r) => r.element.name === 'isloop');
+      const isloopResult = results.find((r) => r.document.name === 'isloop');
       expect(isloopResult).toBeDefined();
     });
 
@@ -290,7 +290,7 @@ The isprint element outputs formatted data to the template.
     it('should filter by category', async () => {
       const results = await client.searchISMLElements('element', { category: 'control-flow' });
 
-      expect(results.every((r) => r.element.category === 'control-flow')).toBe(true);
+      expect(results.every((r) => r.document.category === 'control-flow')).toBe(true);
     });
 
     it('should limit results', async () => {
@@ -302,7 +302,7 @@ The isprint element outputs formatted data to the template.
     it('should provide preview snippets', async () => {
       const results = await client.searchISMLElements('conditional');
 
-      const isifResult = results.find((r) => r.element.name === 'isif');
+      const isifResult = results.find((r) => r.document.name === 'isif');
       expect(isifResult?.preview).toBeTruthy();
       expect(isifResult?.preview.length).toBeLessThanOrEqual(300);
     });
@@ -360,7 +360,7 @@ The isprint element outputs formatted data to the template.
       expect(categories[0]).toHaveProperty('name');
       expect(categories[0]).toHaveProperty('displayName');
       expect(categories[0]).toHaveProperty('description');
-      expect(categories[0]).toHaveProperty('elementCount');
+      expect(categories[0]).toHaveProperty('count');
     });
 
     it('should include control-flow category', async () => {
@@ -369,7 +369,7 @@ The isprint element outputs formatted data to the template.
       const controlFlow = categories.find((c) => c.name === 'control-flow');
       expect(controlFlow).toBeDefined();
       expect(controlFlow?.displayName).toBe('Control Flow');
-      expect(controlFlow?.elementCount).toBeGreaterThan(0);
+      expect(controlFlow?.count).toBeGreaterThan(0);
     });
 
     it('should include output category', async () => {
@@ -386,8 +386,8 @@ The isprint element outputs formatted data to the template.
       const controlFlow = categories.find((c) => c.name === 'control-flow');
       const output = categories.find((c) => c.name === 'output');
 
-      expect(controlFlow?.elementCount).toBe(2); // isif, isloop
-      expect(output?.elementCount).toBe(1); // isprint
+      expect(controlFlow?.count).toBe(2); // isif, isloop
+      expect(output?.count).toBe(1); // isprint
     });
 
     it('should sort categories alphabetically by display name', async () => {
@@ -411,7 +411,7 @@ The isprint element outputs formatted data to the template.
     it('should handle file read errors', async () => {
       (fs.readdir as jest.Mock).mockRejectedValue(new Error('Permission denied'));
 
-      await expect(client.getAvailableElements()).rejects.toThrow('Failed to load ISML documentation');
+      await expect(client.getAvailableElements()).rejects.toThrow('Failed to load documentation');
     });
 
     it('should handle malformed markdown files gracefully', async () => {
