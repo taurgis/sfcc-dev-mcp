@@ -1,6 +1,6 @@
 import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
 import { AbstractClientHandler } from './abstract-client-handler.js';
-import { CartridgeGenerationClient } from '../../clients/cartridge-generation-client.js';
+import { CartridgeGenerationClient } from '../../clients/cartridge/index.js';
 import {
   CARTRIDGE_TOOL_CONFIG,
   CartridgeToolName,

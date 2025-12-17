@@ -2,7 +2,7 @@ import { HandlerContext } from './base-handler.js';
 import { SFCCLogClient } from '../../clients/log-client.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
 import { OCAPICodeVersionsClient } from '../../clients/ocapi/code-versions-client.js';
-import { CartridgeGenerationClient } from '../../clients/cartridge-generation-client.js';
+import { CartridgeGenerationClient } from '../../clients/cartridge/index.js';
 import { Logger } from '../../utils/logger.js';
 import { IFileSystemService, IPathService, FileSystemService, PathService } from '../../services/index.js';
 

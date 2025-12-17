@@ -7,7 +7,7 @@ import { SFCCConfig } from '../src/types/types.js';
 jest.mock('../src/clients/log-client.js');
 jest.mock('../src/clients/ocapi-client.js');
 jest.mock('../src/clients/ocapi/code-versions-client.js');
-jest.mock('../src/clients/cartridge-generation-client.js');
+jest.mock('../src/clients/cartridge/cartridge-generation-client.js');
 
 describe('ClientFactory', () => {
   let mockLogger: jest.Mocked<Logger>;

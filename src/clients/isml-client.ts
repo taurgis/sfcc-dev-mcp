@@ -16,6 +16,7 @@ import {
   calculateSearchRelevance,
   generateSearchPreview,
 } from '../utils/markdown-utils.js';
+import { buildCategoryList } from '../utils/category-utils.js';
 
 export interface ISMLElement {
   name: string;
@@ -283,30 +284,17 @@ export class ISMLClient {
     }
 
     const elements = await this.loadAllElements();
-    const categoryCounts = new Map<string, number>();
 
-    // Count elements per category
-    for (const element of elements) {
-      const count = categoryCounts.get(element.category) ?? 0;
-      categoryCounts.set(element.category, count + 1);
-    }
+    // Use shared utility for building category list
+    const categoryList = buildCategoryList(elements, CATEGORY_DESCRIPTIONS);
 
-    // Build category info
-    const categories: ISMLCategory[] = [];
-    for (const [categoryKey, count] of categoryCounts.entries()) {
-      const categoryInfo = CATEGORY_DESCRIPTIONS[categoryKey];
-      if (categoryInfo) {
-        categories.push({
-          name: categoryKey,
-          displayName: categoryInfo.displayName,
-          description: categoryInfo.description,
-          elementCount: count,
-        });
-      }
-    }
-
-    // Sort by display name
-    categories.sort((a, b) => a.displayName.localeCompare(b.displayName));
+    // Map to ISMLCategory format
+    const categories: ISMLCategory[] = categoryList.map(cat => ({
+      name: cat.name,
+      displayName: cat.displayName,
+      description: cat.description,
+      elementCount: cat.count ?? 0,
+    }));
 
     this.cache.setSearchResults(cacheKey, categories);
     return categories;
