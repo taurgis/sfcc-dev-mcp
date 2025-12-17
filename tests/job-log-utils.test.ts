@@ -39,24 +39,6 @@ describe('JobLogValidators', () => {
     });
   });
 
-  describe('getDefaultLimit', () => {
-    it('should return correct default limit for search operations', () => {
-      expect(JobLogValidators.getDefaultLimit('search')).toBe(20);
-    });
-
-    it('should return correct default limit for entries operations', () => {
-      expect(JobLogValidators.getDefaultLimit('entries')).toBe(10);
-    });
-
-    it('should return correct default limit for files operations', () => {
-      expect(JobLogValidators.getDefaultLimit('files')).toBe(10);
-    });
-
-    it('should return default limit for unknown operations', () => {
-      expect(JobLogValidators.getDefaultLimit('unknown' as any)).toBe(10);
-    });
-  });
-
   describe('ALLOWED_LEVELS constant', () => {
     it('should contain exactly the expected levels', () => {
       expect(JobLogValidators.ALLOWED_LEVELS).toEqual(['error', 'warn', 'info', 'debug', 'all']);

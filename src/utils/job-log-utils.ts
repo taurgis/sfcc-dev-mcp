@@ -21,23 +21,6 @@ export class JobLogValidators {
       );
     }
   }
-
-  /**
-   * Get default limit based on operation type
-   * @param operationType - Type of operation ('search' | 'entries' | 'files')
-   */
-  static getDefaultLimit(operationType: 'search' | 'entries' | 'files'): number {
-    switch (operationType) {
-      case 'search':
-        return 20;
-      case 'entries':
-        return 10;
-      case 'files':
-        return 10;
-      default:
-        return 10;
-    }
-  }
 }
 
 export class JobLogFormatters {

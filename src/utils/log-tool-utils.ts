@@ -1,16 +1,4 @@
-import { ToolArguments } from '../core/handlers/base-handler.js';
-import { SFCCLogClient } from '../clients/log-client.js';
 import { LogLevel, isValidLogLevel } from './log-tool-constants.js';
-
-/**
- * Configuration interface for tool dispatch
- */
-export interface ToolSpec<T = any> {
-  validate?: (args: ToolArguments, toolName: string) => void;
-  defaults?: (args: ToolArguments) => Record<string, any>;
-  exec: (args: ToolArguments, client: SFCCLogClient) => Promise<T>;
-  logMessage: (args: ToolArguments) => string;
-}
 
 /**
  * Validation utilities for log tools
@@ -92,31 +80,5 @@ export class LogMessageFormatter {
       .join(' ');
 
     return paramStr ? `${operation} ${paramStr}` : operation;
-  }
-}
-
-/**
- * Utility functions for argument processing
- */
-export class LogToolUtils {
-  static applyDefaults(spec: ToolSpec, args: ToolArguments): ToolArguments {
-    if (!spec.defaults) {
-      return args;
-    }
-
-    const defaults = spec.defaults(args);
-    return { ...args, ...defaults };
-  }
-
-  static createValidatedArgs(spec: ToolSpec, args: ToolArguments, toolName: string): ToolArguments {
-    // Apply defaults first
-    const processedArgs = LogToolUtils.applyDefaults(spec, args);
-
-    // Validate if validator exists
-    if (spec.validate) {
-      spec.validate(processedArgs, toolName);
-    }
-
-    return processedArgs;
   }
 }
