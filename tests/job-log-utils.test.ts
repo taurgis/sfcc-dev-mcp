@@ -15,7 +15,7 @@ describe('JobLogValidators', () => {
 
       invalidLevels.forEach(level => {
         expect(() => JobLogValidators.validateJobLogLevel(level))
-          .toThrow(`Invalid log level: ${level}. Must be one of: error, warn, info, debug, all`);
+          .toThrow(/Invalid log level/);
       });
     });
 
@@ -24,7 +24,7 @@ describe('JobLogValidators', () => {
       const invalidLevel = 'invalid';
 
       expect(() => JobLogValidators.validateJobLogLevel(invalidLevel, toolName))
-        .toThrow(`${toolName}: Invalid log level: ${invalidLevel}. Must be one of: error, warn, info, debug, all`);
+        .toThrow(/Invalid log level.*test_tool/);
     });
 
     it('should handle null and undefined gracefully', () => {

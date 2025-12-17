@@ -3,14 +3,22 @@
  * Centralizes defaults, types, and configuration
  */
 
-// Log levels enum for type safety
-export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
-  ALL = 'all'
-}
+import type { LogLevel as BaseLogLevel } from '../types/types.js';
+
+// Extended log level type that includes 'all' for tool filtering
+export type LogLevelWithAll = BaseLogLevel | 'all';
+
+// Re-export base LogLevel for convenience
+export type { LogLevel } from '../types/types.js';
+
+// Log levels enum for validation and iteration
+export const LogLevelValues = {
+  ERROR: 'error',
+  WARN: 'warn',
+  INFO: 'info',
+  DEBUG: 'debug',
+  ALL: 'all',
+} as const;
 
 // Default limits for different tool types
 export const DEFAULT_LIMITS = {
@@ -52,15 +60,15 @@ export type JobLogToolName = 'get_latest_job_log_files' | 'search_job_logs_by_na
 export type LogToolArgs =
   | { tool: 'get_latest_error' | 'get_latest_warn' | 'get_latest_info' | 'get_latest_debug'; limit?: number; date?: string }
   | { tool: 'summarize_logs'; date?: string }
-  | { tool: 'search_logs'; pattern: string; logLevel?: LogLevel; limit?: number; date?: string }
+  | { tool: 'search_logs'; pattern: string; logLevel?: LogLevelWithAll; limit?: number; date?: string }
   | { tool: 'list_log_files' }
   | { tool: 'get_log_file_contents'; filename: string; maxBytes?: number; tailOnly?: boolean };
 
 export type JobLogToolArgs =
   | { tool: 'get_latest_job_log_files'; limit?: number }
   | { tool: 'search_job_logs_by_name'; jobName: string; limit?: number }
-  | { tool: 'get_job_log_entries'; level?: LogLevel; limit?: number; jobName?: string }
-  | { tool: 'search_job_logs'; pattern: string; level?: LogLevel; limit?: number; jobName?: string }
+  | { tool: 'get_job_log_entries'; level?: LogLevelWithAll; limit?: number; jobName?: string }
+  | { tool: 'search_job_logs'; pattern: string; level?: LogLevelWithAll; limit?: number; jobName?: string }
   | { tool: 'get_job_execution_summary'; jobName: string };
 
 // Helper functions
@@ -68,20 +76,20 @@ export function getLimit(providedLimit: number | undefined, toolType: keyof type
   return providedLimit ?? DEFAULT_LIMITS[toolType];
 }
 
-export function isValidLogLevel(level: string): level is LogLevel {
-  return Object.values(LogLevel).includes(level as LogLevel);
+export function isValidLogLevel(level: string): level is LogLevelWithAll {
+  return Object.values(LogLevelValues).includes(level as LogLevelWithAll);
 }
 
-export function deriveLogLevel(toolName: string, argsLevel?: string): LogLevel {
+export function deriveLogLevel(toolName: string, argsLevel?: string): LogLevelWithAll {
   if (argsLevel && isValidLogLevel(argsLevel)) {
-    return argsLevel as LogLevel;
+    return argsLevel as LogLevelWithAll;
   }
 
   // Extract level from tool name for get_latest_* tools
   const match = toolName.match(/get_latest_(\w+)/);
   if (match && isValidLogLevel(match[1])) {
-    return match[1] as LogLevel;
+    return match[1] as LogLevelWithAll;
   }
 
-  return LogLevel.ALL;
+  return LogLevelValues.ALL;
 }

@@ -1,53 +1,52 @@
-import { BaseToolHandler, GenericToolSpec, ToolExecutionContext, HandlerContext } from './base-handler.js';
-import { SFCCLogClient } from '../../clients/logs/index.js';
+import { GenericToolSpec, HandlerContext } from './base-handler.js';
+import { AbstractClientHandler } from './abstract-client-handler.js';
 import { ClientFactory } from './client-factory.js';
+import { SFCCLogClient } from '../../clients/logs/index.js';
 
 /**
  * Abstract base class for log-related tool handlers
- * Extends the generic config-driven handler with log-specific functionality
+ * Extends AbstractClientHandler with log-specific functionality
+ *
+ * This class simplifies creating log handlers by providing:
+ * - Automatic LogClient creation via ClientFactory
+ * - Standardized context key and display name
+ * - Convenient getLogClient() helper method
  */
-export abstract class AbstractLogToolHandler<TToolName extends string = string> extends BaseToolHandler<TToolName> {
-  protected logClient: SFCCLogClient | null = null;
-  protected clientFactory: ClientFactory;
-
+export abstract class AbstractLogToolHandler<
+  TToolName extends string = string,
+> extends AbstractClientHandler<TToolName, SFCCLogClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
     super(context, subLoggerName);
-    this.clientFactory = new ClientFactory(context, this.logger);
   }
 
-  protected async onInitialize(): Promise<void> {
-    this.logClient = this.clientFactory.createLogClient();
-    if (this.logClient) {
-      this.logger.debug('Log client initialized');
-    }
+  protected createClient(): SFCCLogClient | null {
+    return this.clientFactory.createLogClient();
   }
 
-  protected async onDispose(): Promise<void> {
-    this.logClient = null;
-    this.logger.debug('Log client disposed');
+  protected getClientContextKey(): string {
+    return 'logClient';
+  }
+
+  protected getClientDisplayName(): string {
+    return 'Log';
+  }
+
+  /**
+   * Override to use the standard Log error message from ClientFactory.
+   */
+  protected getClientRequiredError(): string {
+    return ClientFactory.getClientRequiredError('Log');
   }
 
   /**
    * Get the log client with proper error handling
-   * Eliminates repetitive null checks in handlers
+   * Convenience method for cleaner code in handlers
    */
   protected getLogClient(): SFCCLogClient {
-    if (!this.logClient) {
-      throw new Error(ClientFactory.getClientRequiredError('Log'));
+    if (!this.client) {
+      throw new Error(this.getClientRequiredError());
     }
-    return this.logClient;
-  }
-
-  /**
-   * Create execution context for log tools
-   * Provides access to log client and handler context
-   */
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
-    return {
-      handlerContext: this.context,
-      logger: this.logger,
-      logClient: this.getLogClient(),
-    };
+    return this.client;
   }
 
   /**
@@ -60,5 +59,5 @@ export abstract class AbstractLogToolHandler<TToolName extends string = string> 
    * Abstract method to get tool name set for O(1) lookup
    * Each concrete log handler implements this with their specific tool set
    */
-  protected abstract getToolNameSet(): Set<string>;
+  protected abstract getToolNameSet(): Set<TToolName>;
 }

@@ -1,4 +1,4 @@
-import { LogLevel, isValidLogLevel } from './log-tool-constants.js';
+import { isValidLogLevel, LogLevelValues } from './log-tool-constants.js';
 
 /**
  * Validation utilities for log tools
@@ -6,7 +6,7 @@ import { LogLevel, isValidLogLevel } from './log-tool-constants.js';
 export class LogToolValidators {
   static validateLogLevel(level: string, toolName: string): void {
     if (!isValidLogLevel(level)) {
-      throw new Error(`Invalid log level '${level}' for ${toolName}. Valid levels: ${Object.values(LogLevel).join(', ')}`);
+      throw new Error(`Invalid log level '${level}' for ${toolName}. Valid levels: ${Object.values(LogLevelValues).join(', ')}`);
     }
   }
 

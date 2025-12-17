@@ -1,28 +1,17 @@
 /**
  * TypeScript interfaces and types for log operations
+ *
+ * Re-exports common types from the main types module to maintain a single source of truth.
+ * Additional log-specific types are defined here.
  */
 
-export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+// Re-export common types from main types module
+export type { LogLevel, LogFileInfo, LogSummary } from '../../types/types.js';
 
-export interface LogFileInfo {
-  name: string;
-  size: number;
-  lastModified: string;
-}
-
+// Log-specific types not shared elsewhere
 export interface LogFileMetadata {
   filename: string;
   lastmod: string;
-}
-
-export interface LogSummary {
-  date: string;
-  errorCount: number;
-  warningCount: number;
-  infoCount: number;
-  debugCount: number;
-  keyIssues: string[];
-  files: string[];
 }
 
 export interface LogEntry {
@@ -41,13 +30,13 @@ export interface ProcessedLogEntry {
 
 export interface LogSearchOptions {
   pattern: string;
-  logLevel?: LogLevel;
+  logLevel?: import('../../types/types.js').LogLevel;
   limit: number;
   date?: string;
 }
 
 export interface LogFileFilter {
-  level?: LogLevel;
+  level?: import('../../types/types.js').LogLevel;
   date?: string;
   includeCustom?: boolean;
   includeJobLogs?: boolean;

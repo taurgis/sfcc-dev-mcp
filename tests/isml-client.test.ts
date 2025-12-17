@@ -3,7 +3,16 @@ import * as fs from 'fs/promises';
 
 // Mock dependencies
 jest.mock('fs/promises');
-jest.mock('../src/utils/logger.js');
+jest.mock('../src/utils/logger.js', () => ({
+  Logger: {
+    getChildLogger: jest.fn(() => ({
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+    })),
+  },
+}));
 
 // Mock PathResolver before it's imported
 jest.mock('../src/utils/path-resolver.js', () => ({

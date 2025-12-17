@@ -8,8 +8,14 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PathResolver } from '../utils/path-resolver.js';
-import { InMemoryCache } from '../utils/cache.js';
+import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
+import {
+  extractDescriptionFromContent,
+  extractSections as extractMarkdownSections,
+  calculateSearchRelevance,
+  generateSearchPreview,
+} from '../utils/markdown-utils.js';
 
 export interface ISMLElement {
   name: string;
@@ -142,17 +148,13 @@ const CATEGORY_DESCRIPTIONS: Record<string, { displayName: string; description: 
  */
 export class ISMLClient {
   private readonly logger: Logger;
-  private readonly cache: InMemoryCache<string>;
+  private readonly cache: CacheManager;
   private readonly docsDir: string;
   private elementsCache: ISMLElement[] | null = null;
 
   constructor() {
-    this.logger = new Logger('ISMLClient');
-    this.cache = new InMemoryCache<string>({
-      maxSize: 200,
-      ttlMs: 3600000, // 1 hour
-      cleanupIntervalMs: 10 * 60 * 1000, // 10 minutes
-    });
+    this.logger = Logger.getChildLogger('ISMLClient');
+    this.cache = new CacheManager();
     this.docsDir = path.join(PathResolver.getDocsPath(), 'isml');
   }
 
@@ -163,16 +165,16 @@ export class ISMLClient {
     this.logger.debug('Getting available ISML elements');
 
     const cacheKey = 'isml:elements:list';
-    const cached = this.cache.get(cacheKey);
+    const cached = this.cache.getSearchResults(cacheKey);
     if (cached) {
       this.logger.debug('Returning cached element list');
-      return JSON.parse(cached);
+      return cached;
     }
 
     const elements = await this.loadAllElements();
     const summaries = elements.map((el) => this.toSummary(el));
 
-    this.cache.set(cacheKey, JSON.stringify(summaries));
+    this.cache.setSearchResults(cacheKey, summaries);
     return summaries;
   }
 
@@ -191,10 +193,10 @@ export class ISMLClient {
     this.logger.debug(`Getting ISML element: ${normalizedName}`);
 
     const cacheKey = `isml:element:${normalizedName}:${JSON.stringify(options)}`;
-    const cached = this.cache.get(cacheKey);
+    const cached = this.cache.getSearchResults(cacheKey);
     if (cached) {
       this.logger.debug('Returning cached element');
-      return JSON.parse(cached);
+      return cached;
     }
 
     const elements = await this.loadAllElements();
@@ -208,7 +210,7 @@ export class ISMLClient {
     // Apply options to filter returned data
     const filteredElement = this.applyElementOptions(element, options);
 
-    this.cache.set(cacheKey, JSON.stringify(filteredElement));
+    this.cache.setSearchResults(cacheKey, filteredElement);
     return filteredElement;
   }
 
@@ -274,10 +276,10 @@ export class ISMLClient {
     this.logger.debug('Getting available ISML categories');
 
     const cacheKey = 'isml:categories';
-    const cached = this.cache.get(cacheKey);
+    const cached = this.cache.getSearchResults(cacheKey);
     if (cached) {
       this.logger.debug('Returning cached categories');
-      return JSON.parse(cached);
+      return cached;
     }
 
     const elements = await this.loadAllElements();
@@ -306,7 +308,7 @@ export class ISMLClient {
     // Sort by display name
     categories.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
-    this.cache.set(cacheKey, JSON.stringify(categories));
+    this.cache.setSearchResults(cacheKey, categories);
     return categories;
   }
 
@@ -391,39 +393,17 @@ export class ISMLClient {
   }
 
   /**
-   * Extract description from overview section
+   * Extract description from overview section (delegates to shared utility)
    */
   private extractDescription(content: string): string {
-    // Look for Overview section
-    const overviewMatch = content.match(/##\s+Overview\s+(.+?)(?=\n##|\n\*\*|$)/s);
-    if (overviewMatch) {
-      // Take first paragraph
-      const firstPara = overviewMatch[1].trim().split('\n\n')[0];
-      return firstPara.replace(/\n/g, ' ').trim();
-    }
-
-    // Fallback to first paragraph after title
-    const firstParaMatch = content.match(/^#.+?\n\n(.+?)(?=\n\n|$)/s);
-    if (firstParaMatch) {
-      return firstParaMatch[1].replace(/\n/g, ' ').trim();
-    }
-
-    return '';
+    return extractDescriptionFromContent(content);
   }
 
   /**
-   * Extract section headings from content
+   * Extract section headings from content (delegates to shared utility)
    */
   private extractSections(content: string): string[] {
-    const sections: string[] = [];
-    const headingRegex = /^##\s+(.+)$/gm;
-    let match;
-
-    while ((match = headingRegex.exec(content)) !== null) {
-      sections.push(match[1].trim());
-    }
-
-    return sections;
+    return extractMarkdownSections(content, 2);
   }
 
   /**
@@ -472,51 +452,17 @@ export class ISMLClient {
   }
 
   /**
-   * Calculate relevance score for search
+   * Calculate relevance score for search (delegates to shared utility)
    */
   private calculateRelevance(element: ISMLElement, query: string): number {
-    let score = 0;
-    const lowerQuery = query.toLowerCase();
-
-    // Element name match (highest priority)
-    if (element.name.toLowerCase().includes(lowerQuery)) {
-      score += 100;
-      if (element.name.toLowerCase() === lowerQuery) {
-        score += 50; // Exact match bonus
-      }
-    }
-
-    // Title match
-    if (element.title.toLowerCase().includes(lowerQuery)) {
-      score += 50;
-    }
-
-    // Description match
-    if (element.description.toLowerCase().includes(lowerQuery)) {
-      score += 30;
-    }
-
-    // Section name match
-    for (const section of element.sections) {
-      if (section.toLowerCase().includes(lowerQuery)) {
-        score += 10;
-      }
-    }
-
-    // Content match (lower priority)
-    const contentMatches = (element.content.toLowerCase().match(new RegExp(lowerQuery, 'g')) ?? []).length;
-    score += Math.min(contentMatches * 2, 20); // Cap content matches contribution
-
-    // Attribute match
-    if (element.attributes) {
-      for (const attr of element.attributes) {
-        if (attr.toLowerCase().includes(lowerQuery)) {
-          score += 15;
-        }
-      }
-    }
-
-    return score;
+    return calculateSearchRelevance(query, {
+      name: element.name,
+      title: element.title,
+      description: element.description,
+      sections: element.sections,
+      content: element.content,
+      attributes: element.attributes,
+    });
   }
 
   /**
@@ -536,36 +482,14 @@ export class ISMLClient {
   }
 
   /**
-   * Generate a preview snippet for search results
+   * Generate a preview snippet for search results (delegates to shared utility)
    */
   private generatePreview(element: ISMLElement, query: string): string {
-    const lowerQuery = query.toLowerCase();
-    const lowerContent = element.content.toLowerCase();
-
-    // Find first occurrence of query in content
-    const index = lowerContent.indexOf(lowerQuery);
-    if (index === -1) {
-      // Return description if no match in content
+    // If no match in content, return description
+    if (!element.content.toLowerCase().includes(query.toLowerCase())) {
       return element.description.slice(0, 200);
     }
-
-    // Extract context around the match
-    const start = Math.max(0, index - 100);
-    const end = Math.min(element.content.length, index + 100);
-    let preview = element.content.slice(start, end);
-
-    // Clean up preview
-    preview = preview.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-    // Add ellipsis if truncated
-    if (start > 0) {
-      preview = `...${preview}`;
-    }
-    if (end < element.content.length) {
-      preview = `${preview}...`;
-    }
-
-    return preview;
+    return generateSearchPreview(element.content, query, 100);
   }
 
   /**

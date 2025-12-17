@@ -2,24 +2,23 @@
  * Shared utilities for job log operations
  */
 
+import { LogToolValidators } from './log-tool-utils.js';
+
 export class JobLogValidators {
   /**
    * Allowed log levels for job logs (includes 'all' for job-specific operations)
+   * @deprecated Use LogToolValidators.validateLogLevel instead
    */
   static readonly ALLOWED_LEVELS = ['error', 'warn', 'info', 'debug', 'all'] as const;
 
   /**
    * Validate job log level parameter
+   * Delegates to LogToolValidators for consistency
    * @param level - The level to validate
    * @param toolName - Optional tool name for better error messages
    */
   static validateJobLogLevel(level: string, toolName?: string): void {
-    if (!this.ALLOWED_LEVELS.includes(level as any)) {
-      const errorPrefix = toolName ? `${toolName}: ` : '';
-      throw new Error(
-        `${errorPrefix}Invalid log level: ${level}. Must be one of: ${this.ALLOWED_LEVELS.join(', ')}`,
-      );
-    }
+    LogToolValidators.validateLogLevel(level, toolName ?? 'job_log_tool');
   }
 }
 
