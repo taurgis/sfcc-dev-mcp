@@ -19,10 +19,6 @@ export const BEST_PRACTICE_TOOL_NAMES_SET = new Set<BestPracticeToolName>(BEST_P
  */
 export const BEST_PRACTICES_TOOL_CONFIG: Record<BestPracticeToolName, GenericToolSpec<ToolArguments, any>> = {
   get_available_best_practice_guides: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.bestPracticesClient as SFCCBestPracticesClient;
       return client.getAvailableGuides();
@@ -31,7 +27,6 @@ export const BEST_PRACTICES_TOOL_CONFIG: Record<BestPracticeToolName, GenericToo
   },
 
   get_best_practice_guide: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('guideName'), toolName);
     },
@@ -43,7 +38,6 @@ export const BEST_PRACTICES_TOOL_CONFIG: Record<BestPracticeToolName, GenericToo
   },
 
   search_best_practices: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
     },
@@ -55,7 +49,6 @@ export const BEST_PRACTICES_TOOL_CONFIG: Record<BestPracticeToolName, GenericToo
   },
 
   get_hook_reference: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('guideName'), toolName);
     },

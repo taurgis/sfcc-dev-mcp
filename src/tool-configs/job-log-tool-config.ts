@@ -105,7 +105,6 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
   },
 
   get_job_execution_summary: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('jobName'), toolName);
     },

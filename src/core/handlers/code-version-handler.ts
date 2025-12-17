@@ -1,5 +1,6 @@
 import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { AbstractOCAPIHandler } from './abstract-ocapi-handler.js';
+import { AbstractClientHandler } from './abstract-client-handler.js';
+import { ClientFactory } from './client-factory.js';
 import { OCAPICodeVersionsClient } from '../../clients/ocapi/code-versions-client.js';
 import {
   CODE_VERSION_TOOL_CONFIG,
@@ -11,7 +12,7 @@ import {
  * Handler for code version management tools using config-driven dispatch.
  * Provides code version listing, activation, and deployment management.
  */
-export class CodeVersionToolHandler extends AbstractOCAPIHandler<CodeVersionToolName, OCAPICodeVersionsClient> {
+export class CodeVersionToolHandler extends AbstractClientHandler<CodeVersionToolName, OCAPICodeVersionsClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
     super(context, subLoggerName);
   }
@@ -26,6 +27,10 @@ export class CodeVersionToolHandler extends AbstractOCAPIHandler<CodeVersionTool
 
   protected getClientDisplayName(): string {
     return 'OCAPI (Code Versions)';
+  }
+
+  protected getClientRequiredError(): string {
+    return ClientFactory.getClientRequiredError('OCAPI');
   }
 
   protected getToolNameSet(): Set<CodeVersionToolName> {

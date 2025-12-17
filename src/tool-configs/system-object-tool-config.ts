@@ -21,10 +21,6 @@ export const SYSTEM_OBJECT_TOOL_NAMES_SET = new Set<SystemObjectToolName>(SYSTEM
  */
 export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> = {
   get_system_object_definitions: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       // Pass pagination parameters to the client
@@ -45,7 +41,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
   },
 
   get_system_object_definition: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
     },

@@ -17,10 +17,6 @@ export const CODE_VERSION_TOOL_NAMES_SET = new Set<CodeVersionToolName>(CODE_VER
  */
 export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSpec<ToolArguments, any>> = {
   get_code_versions: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.codeVersionsClient as OCAPICodeVersionsClient;
       return client.getCodeVersions();
@@ -29,7 +25,6 @@ export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSp
   },
 
   activate_code_version: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('codeVersionId'), toolName);
     },

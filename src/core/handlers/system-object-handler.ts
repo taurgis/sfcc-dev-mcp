@@ -1,5 +1,6 @@
 import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { AbstractOCAPIHandler } from './abstract-ocapi-handler.js';
+import { AbstractClientHandler } from './abstract-client-handler.js';
+import { ClientFactory } from './client-factory.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
 import {
   SYSTEM_OBJECT_TOOL_CONFIG,
@@ -11,7 +12,7 @@ import {
  * Handler for system object tools using config-driven dispatch.
  * Provides access to SFCC system object definitions, attributes, and site preferences.
  */
-export class SystemObjectToolHandler extends AbstractOCAPIHandler<SystemObjectToolName, OCAPIClient> {
+export class SystemObjectToolHandler extends AbstractClientHandler<SystemObjectToolName, OCAPIClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
     super(context, subLoggerName);
   }
@@ -26,6 +27,10 @@ export class SystemObjectToolHandler extends AbstractOCAPIHandler<SystemObjectTo
 
   protected getClientDisplayName(): string {
     return 'OCAPI (System Objects)';
+  }
+
+  protected getClientRequiredError(): string {
+    return ClientFactory.getClientRequiredError('OCAPI');
   }
 
   protected getToolNameSet(): Set<SystemObjectToolName> {

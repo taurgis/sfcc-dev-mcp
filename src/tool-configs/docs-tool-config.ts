@@ -57,7 +57,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   search_sfcc_classes: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
     },
@@ -69,7 +68,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   search_sfcc_methods: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('methodName'), toolName);
     },
@@ -81,10 +79,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   list_sfcc_classes: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
       return client.getAvailableClasses();
@@ -93,7 +87,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   get_sfcc_class_documentation: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('className'), toolName);
     },

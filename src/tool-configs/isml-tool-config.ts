@@ -20,10 +20,6 @@ export const ISML_TOOL_NAMES_SET = new Set<ISMLToolName>(ISML_TOOL_NAMES);
  */
 export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArguments, any>> = {
   list_isml_elements: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;
       return client.getAvailableElements();
@@ -57,7 +53,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
   },
 
   search_isml_elements: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
     },
@@ -72,7 +67,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
   },
 
   get_isml_elements_by_category: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('category'), toolName);
     },
@@ -84,10 +78,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
   },
 
   get_isml_categories: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;
       return client.getAvailableCategories();
