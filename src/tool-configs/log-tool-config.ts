@@ -1,8 +1,7 @@
-import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
-import { ToolArguments } from '../core/handlers/base-handler.js';
-import { LogToolValidators, LogMessageFormatter } from '../utils/log-tool-utils.js';
+import { GenericToolSpec, ToolExecutionContext, ToolArguments } from '../core/handlers/base-handler.js';
 import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { LogToolName, getLimit } from '../utils/log-tool-constants.js';
+import { validateLimit, validateLogLevel, validateFilename, validateMaxBytes, formatLogMessage } from '../utils/log-validation.js';
 import { SFCCLogClient } from '../clients/log-client.js';
 import { LogLevel } from '../clients/logs/log-types.js';
 
@@ -18,13 +17,13 @@ function createLatestLogTool(
     defaults: (args: ToolArguments) => ({
       limit: getLimit(args.limit as number, 'latest'),
     }),
-    validate: (args: ToolArguments) => LogToolValidators.validateLimit(args.limit as number, toolName),
+    validate: (args: ToolArguments) => validateLimit(args.limit as number, toolName),
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.getLatestLogs(level, args.limit as number, args.date as string);
     },
     logMessage: (args: ToolArguments) =>
-      LogMessageFormatter.formatLatestLogs(level, args.limit as number, args.date as string),
+      formatLogMessage(`Fetching latest ${level} logs`, { limit: args.limit as number, date: args.date as string ?? 'today' }),
   };
 }
 
@@ -43,7 +42,7 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
       const client = context.logClient as SFCCLogClient;
       return client.summarizeLogs(args.date as string);
     },
-    logMessage: (args: ToolArguments) => LogMessageFormatter.formatSummarizeLogs(args.date as string),
+    logMessage: (args: ToolArguments) => formatLogMessage('Summarizing logs for date', { date: args.date as string ?? 'today' }),
   },
 
   search_logs: {
@@ -52,9 +51,9 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
     }),
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('pattern'), toolName);
-      LogToolValidators.validateLimit(args.limit as number, toolName);
+      validateLimit(args.limit as number, toolName);
       if (args.logLevel) {
-        LogToolValidators.validateLogLevel(args.logLevel as string, toolName);
+        validateLogLevel(args.logLevel as string, toolName);
       }
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
@@ -66,12 +65,11 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
         args.date as string,
       );
     },
-    logMessage: (args: ToolArguments) => LogMessageFormatter.formatSearchLogs(
-      args.pattern as string,
-      args.logLevel as string,
-      args.limit as number,
-      args.date as string,
-    ),
+    logMessage: (args: ToolArguments) => formatLogMessage('Searching logs', {
+      pattern: args.pattern as string,
+      level: args.logLevel as string ?? 'all',
+      limit: args.limit as number ?? 20,
+    }),
   },
 
   list_log_files: {
@@ -79,14 +77,14 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
       const client = context.logClient as SFCCLogClient;
       return client.listLogFiles();
     },
-    logMessage: () => LogMessageFormatter.formatListLogFiles(),
+    logMessage: () => 'Listing log files',
   },
 
   get_log_file_contents: {
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('filename'), toolName);
-      LogToolValidators.validateFilename(args.filename as string, toolName);
-      LogToolValidators.validateMaxBytes(args.maxBytes as number, toolName);
+      validateFilename(args.filename as string, toolName);
+      validateMaxBytes(args.maxBytes as number, toolName);
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
@@ -96,10 +94,10 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
         args.tailOnly as boolean,
       );
     },
-    logMessage: (args: ToolArguments) => LogMessageFormatter.formatGetLogFileContents(
-      args.filename as string,
-      args.maxBytes as number,
-      args.tailOnly as boolean,
-    ),
+    logMessage: (args: ToolArguments) => formatLogMessage('Reading log file contents:', {
+      filename: args.filename as string,
+      maxBytes: args.maxBytes as number,
+      tailOnly: args.tailOnly as boolean,
+    }),
   },
 };

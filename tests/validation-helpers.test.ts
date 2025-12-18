@@ -157,37 +157,6 @@ describe('ValidationHelpers', () => {
     });
   });
 
-  describe('requireStrings', () => {
-    it('should pass when all required string fields are present', () => {
-      const args = {
-        field1: 'value1',
-        field2: 'value2',
-      };
-
-      expect(() => {
-        ValidationHelpers.requireStrings(args, ['field1', 'field2'], 'test_tool');
-      }).not.toThrow();
-    });
-
-    it('should throw when required string field is missing', () => {
-      const args = {
-        field1: 'value1',
-      };
-
-      expect(() => {
-        ValidationHelpers.requireStrings(args, ['field1', 'field2'], 'test_tool');
-      }).toThrow('field2 is required for test_tool');
-    });
-
-    it('should pass when no fields are required', () => {
-      const args = { field1: 'value1' };
-
-      expect(() => {
-        ValidationHelpers.requireStrings(args, [], 'test_tool');
-      }).not.toThrow();
-    });
-  });
-
   describe('type validation', () => {
     it('should validate string type correctly', () => {
       const args = { field: 'string value' };

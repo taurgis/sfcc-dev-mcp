@@ -1,9 +1,7 @@
-import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
-import { ToolArguments } from '../core/handlers/base-handler.js';
-import { LogToolValidators } from '../utils/log-tool-utils.js';
+import { GenericToolSpec, ToolExecutionContext, ToolArguments } from '../core/handlers/base-handler.js';
 import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { JobLogToolName, getLimit } from '../utils/log-tool-constants.js';
-import { JobLogValidators, JobLogFormatters } from '../utils/job-log-utils.js';
+import { validateLogLevel, validateLimit, formatLogMessage } from '../utils/log-validation.js';
 import { SFCCLogClient } from '../clients/log-client.js';
 
 /**
@@ -16,12 +14,12 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
       limit: getLimit(args.limit as number, 'jobFiles'),
     }),
     validate: (args: ToolArguments, toolName: string) =>
-      LogToolValidators.validateLimit(args.limit as number, toolName),
+      validateLimit(args.limit as number, toolName),
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.getLatestJobLogFiles(args.limit as number);
     },
-    logMessage: (args: ToolArguments) => JobLogFormatters.formatJobLogMessage('Fetching latest job log files', {
+    logMessage: (args: ToolArguments) => formatLogMessage('Fetching latest job log files', {
       limit: args.limit as number,
     }),
   },
@@ -32,13 +30,13 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
     }),
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('jobName'), toolName);
-      LogToolValidators.validateLimit(args.limit as number, toolName);
+      validateLimit(args.limit as number, toolName);
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.searchJobLogsByName(args.jobName as string, args.limit as number);
     },
-    logMessage: (args: ToolArguments) => JobLogFormatters.formatJobLogMessage('Searching job logs by name', {
+    logMessage: (args: ToolArguments) => formatLogMessage('Searching job logs by name', {
       jobName: args.jobName as string,
       limit: args.limit as number,
     }),
@@ -50,8 +48,8 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
       limit: getLimit(args.limit as number, 'jobEntries'),
     }),
     validate: (args: ToolArguments, toolName: string) => {
-      JobLogValidators.validateJobLogLevel(args.level as string, toolName);
-      LogToolValidators.validateLimit(args.limit as number, toolName);
+      validateLogLevel(args.level as string, toolName);
+      validateLimit(args.limit as number, toolName);
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
@@ -61,7 +59,7 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
         args.jobName as string,
       );
     },
-    logMessage: (args: ToolArguments) => JobLogFormatters.formatJobLogMessage('Fetching job log entries', {
+    logMessage: (args: ToolArguments) => formatLogMessage('Fetching job log entries', {
       level: args.level as string,
       limit: args.limit as number,
       jobName: args.jobName as string,
@@ -75,9 +73,8 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
     }),
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('pattern'), toolName);
-      JobLogValidators.validateJobLogLevel(args.level as string, toolName);
-      LogToolValidators.validateLimit(args.limit as number, toolName);
-      // Validate optional jobName parameter - must be string if provided
+      validateLogLevel(args.level as string, toolName);
+      validateLimit(args.limit as number, toolName);
       if (args.jobName !== undefined) {
         ValidationHelpers.validateArguments(args, CommonValidations.optionalField(
           'jobName',
@@ -96,7 +93,7 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
         args.jobName as string,
       );
     },
-    logMessage: (args: ToolArguments) => JobLogFormatters.formatJobLogMessage('Searching job logs', {
+    logMessage: (args: ToolArguments) => formatLogMessage('Searching job logs', {
       pattern: args.pattern as string,
       level: args.level as string,
       limit: args.limit as number,

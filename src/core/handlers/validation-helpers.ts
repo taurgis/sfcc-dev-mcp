@@ -62,26 +62,6 @@ export class ValidationHelpers {
   }
 
   /**
-   * Quick validation for required string fields
-   * @deprecated Use CommonValidations.requiredString() with validateArguments() instead
-   * @example
-   * // Old way
-   * ValidationHelpers.requireStrings(args, ['fieldName'], 'tool_name');
-   *
-   * // New way
-   * ValidationHelpers.validateArguments(args, CommonValidations.requiredString('fieldName'), 'tool_name');
-   */
-  static requireStrings(args: ToolArguments, fields: string[], toolName: string): void {
-    const rules: ValidationRule[] = fields.map(field => ({
-      field,
-      required: true,
-      type: 'string' as const,
-      errorMessage: `${field} is required for ${toolName}`,
-    }));
-    this.validateArguments(args, rules, toolName);
-  }
-
-  /**
    * Validate a single field with custom validator
    */
   static validateField<T>(
