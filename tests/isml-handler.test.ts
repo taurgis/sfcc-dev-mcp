@@ -366,7 +366,7 @@ describe('ISMLToolHandler', () => {
       await handler.handle('list_isml_elements', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'list_isml_elements completed successfully',
+        'list_isml_elements completed',
         expect.any(Object),
       );
     });

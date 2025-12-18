@@ -1,4 +1,4 @@
-import { validateLogLevel, formatLogMessage } from '../src/utils/log-validation.js';
+import { validateLogLevel, formatLogMessage } from '../src/core/handlers/validation-helpers.js';
 import { LogLevelValues } from '../src/utils/log-tool-constants.js';
 
 describe('validateLogLevel', () => {

@@ -215,7 +215,7 @@ describe('CodeVersionToolHandler', () => {
       await handler.handle('get_code_versions', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'get_code_versions completed successfully',
+        'get_code_versions completed',
         expect.any(Object),
       );
     });

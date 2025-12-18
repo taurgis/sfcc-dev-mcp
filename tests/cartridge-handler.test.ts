@@ -220,7 +220,7 @@ describe('CartridgeToolHandler', () => {
       await handler.handle('generate_cartridge_structure', { cartridgeName: 'test_cartridge' }, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'generate_cartridge_structure completed successfully',
+        'generate_cartridge_structure completed',
         expect.any(Object),
       );
     });
@@ -236,7 +236,7 @@ describe('CartridgeToolHandler', () => {
 
       // Check that the debug log contains the execution details
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'generate_cartridge_structure completed successfully',
+        'generate_cartridge_structure completed',
         expect.any(Object),
       );
     });

@@ -228,7 +228,7 @@ describe('BestPracticesToolHandler', () => {
       await handler.handle('get_available_best_practice_guides', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'get_available_best_practice_guides completed successfully',
+        'get_available_best_practice_guides completed',
         expect.any(Object),
       );
     });

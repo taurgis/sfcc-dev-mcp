@@ -51,9 +51,9 @@ describe('OCAPIClient', () => {
   describe('constructor', () => {
     it('should initialize with provided config', () => {
       expect(client).toBeInstanceOf(OCAPIClient);
-      // Note: TokenManager.getInstance is called by the auth client, not directly by OCAPIClient
       expect(client.systemObjects).toBeDefined();
       expect(client.sitePreferences).toBeDefined();
+      expect(client.codeVersions).toBeDefined();
     });
 
     it('should use default version when not provided', () => {
@@ -70,70 +70,71 @@ describe('OCAPIClient', () => {
     it('should initialize all specialized client modules', () => {
       expect(client.systemObjects).toBeDefined();
       expect(client.sitePreferences).toBeDefined();
+      expect(client.codeVersions).toBeDefined();
     });
   });
 
-  describe('System Objects API delegation', () => {
-    it('should delegate getSystemObjectDefinitions to SystemObjectsClient', async () => {
+  describe('System Objects API via public property', () => {
+    it('should access getSystemObjectDefinitions via systemObjects', async () => {
       const mockResponse = { data: 'system-objects' };
       jest.spyOn(client.systemObjects, 'getSystemObjectDefinitions').mockResolvedValue(mockResponse);
 
-      const result = await client.getSystemObjectDefinitions();
+      const result = await client.systemObjects.getSystemObjectDefinitions();
 
-      expect(client.systemObjects.getSystemObjectDefinitions).toHaveBeenCalledWith(undefined);
+      expect(client.systemObjects.getSystemObjectDefinitions).toHaveBeenCalled();
       expect(result).toBe(mockResponse);
     });
 
-    it('should delegate getSystemObjectDefinition with objectType to SystemObjectsClient', async () => {
+    it('should access getSystemObjectDefinition via systemObjects', async () => {
       const mockResponse = { data: 'product-definition' };
       const objectType = 'Product';
       jest.spyOn(client.systemObjects, 'getSystemObjectDefinition').mockResolvedValue(mockResponse);
 
-      const result = await client.getSystemObjectDefinition(objectType);
+      const result = await client.systemObjects.getSystemObjectDefinition(objectType);
 
       expect(client.systemObjects.getSystemObjectDefinition).toHaveBeenCalledWith(objectType);
       expect(result).toBe(mockResponse);
     });
 
-    it('should delegate searchSystemObjectDefinitions to SystemObjectsClient', async () => {
+    it('should access searchSystemObjectDefinitions via systemObjects', async () => {
       const mockResponse = { data: 'search-results' };
       const searchRequest = { query: { match_all_query: {} } };
       jest.spyOn(client.systemObjects, 'searchSystemObjectDefinitions').mockResolvedValue(mockResponse);
 
-      const result = await client.searchSystemObjectDefinitions(searchRequest);
+      const result = await client.systemObjects.searchSystemObjectDefinitions(searchRequest);
 
       expect(client.systemObjects.searchSystemObjectDefinitions).toHaveBeenCalledWith(searchRequest);
       expect(result).toBe(mockResponse);
     });
 
-    it('should delegate searchSystemObjectAttributeDefinitions to SystemObjectsClient', async () => {
+    it('should access searchSystemObjectAttributeDefinitions via systemObjects', async () => {
       const mockResponse = { data: 'attribute-search-results' };
       const objectType = 'Product';
       const searchRequest = { query: { text_query: { fields: ['id'], search_phrase: 'custom' } } };
       jest.spyOn(client.systemObjects, 'searchSystemObjectAttributeDefinitions').mockResolvedValue(mockResponse);
 
-      const result = await client.searchSystemObjectAttributeDefinitions(objectType, searchRequest);
+      const result = await client.systemObjects.searchSystemObjectAttributeDefinitions(objectType, searchRequest);
 
       expect(client.systemObjects.searchSystemObjectAttributeDefinitions)
         .toHaveBeenCalledWith(objectType, searchRequest);
       expect(result).toBe(mockResponse);
     });
 
-    it('should delegate searchSystemObjectAttributeGroups to SystemObjectsClient', async () => {
+    it('should access searchSystemObjectAttributeGroups via systemObjects', async () => {
       const mockResponse = { data: 'attribute-groups' };
       const objectType = 'SitePreferences';
       const searchRequest = { query: { match_all_query: {} } };
       jest.spyOn(client.systemObjects, 'searchSystemObjectAttributeGroups').mockResolvedValue(mockResponse);
 
-      const result = await client.searchSystemObjectAttributeGroups(objectType, searchRequest);
+      const result = await client.systemObjects.searchSystemObjectAttributeGroups(objectType, searchRequest);
 
       expect(client.systemObjects.searchSystemObjectAttributeGroups).toHaveBeenCalledWith(objectType, searchRequest);
       expect(result).toBe(mockResponse);
     });
   });
 
-  describe('Site Preferences API delegation', () => {
-    it('should delegate searchSitePreferences to SitePreferencesClient', async () => {
+  describe('Site Preferences API via public property', () => {
+    it('should access searchSitePreferences via sitePreferences', async () => {
       const mockResponse = { data: 'site-preferences' };
       const groupId = 'SiteGeneral';
       const instanceType = 'sandbox';
@@ -141,7 +142,7 @@ describe('OCAPIClient', () => {
       const options = { maskPasswords: true };
       jest.spyOn(client.sitePreferences, 'searchSitePreferences').mockResolvedValue(mockResponse);
 
-      const result = await client.searchSitePreferences(groupId, instanceType, searchRequest, options);
+      const result = await client.sitePreferences.searchSitePreferences(groupId, instanceType, searchRequest, options);
 
       expect(client.sitePreferences.searchSitePreferences)
         .toHaveBeenCalledWith(groupId, instanceType, searchRequest, options);
@@ -149,16 +150,44 @@ describe('OCAPIClient', () => {
     });
   });
 
-  describe('Authentication & Token Management delegation', () => {
+  describe('Code Versions API via public property', () => {
+    it('should access getCodeVersions via codeVersions', async () => {
+      const mockCodeVersions = {
+        _v: '23.2',
+        _type: 'code_version_result',
+        count: 1,
+        data: [{ _type: 'code_version', id: 'version1', active: true }],
+        total: 1,
+      };
+      jest.spyOn(client.codeVersions, 'getCodeVersions').mockResolvedValue(mockCodeVersions);
+
+      const result = await client.codeVersions.getCodeVersions();
+
+      expect(client.codeVersions.getCodeVersions).toHaveBeenCalled();
+      expect(result).toBe(mockCodeVersions);
+    });
+
+    it('should access activateCodeVersion via codeVersions', async () => {
+      const mockActivatedVersion = {
+        _v: '23.2',
+        _type: 'code_version',
+        id: 'version2',
+        active: true,
+      };
+      jest.spyOn(client.codeVersions, 'activateCodeVersion').mockResolvedValue(mockActivatedVersion);
+
+      const codeVersionId = 'version2';
+      const result = await client.codeVersions.activateCodeVersion(codeVersionId);
+
+      expect(client.codeVersions.activateCodeVersion).toHaveBeenCalledWith(codeVersionId);
+      expect(result).toBe(mockActivatedVersion);
+    });
+  });
+
+  describe('Authentication & Token Management', () => {
     it('should delegate getTokenExpiration to AuthClient', () => {
       const mockExpiration = new Date();
-
-      // Mock the authClient's getTokenExpiration method
-      const mockAuthClient = {
-        getTokenExpiration: jest.fn().mockReturnValue(mockExpiration),
-      };
-
-      // Access the private authClient property and mock it
+      const mockAuthClient = { getTokenExpiration: jest.fn().mockReturnValue(mockExpiration) };
       (client as any).authClient = mockAuthClient;
 
       const result = client.getTokenExpiration();
@@ -168,78 +197,12 @@ describe('OCAPIClient', () => {
     });
 
     it('should delegate refreshToken to AuthClient', async () => {
-      // Mock the authClient's refreshToken method
-      const mockAuthClient = {
-        refreshToken: jest.fn().mockResolvedValue(undefined),
-      };
-
-      // Access the private authClient property and mock it
+      const mockAuthClient = { refreshToken: jest.fn().mockResolvedValue(undefined) };
       (client as any).authClient = mockAuthClient;
 
       await client.refreshToken();
 
       expect(mockAuthClient.refreshToken).toHaveBeenCalled();
-    });
-
-    it('should delegate getCodeVersions to CodeVersionsClient', async () => {
-      // Mock the codeVersions client's getCodeVersions method
-      const mockCodeVersions = {
-        _v: '23.2',
-        _type: 'code_version_result',
-        count: 1,
-        data: [
-          {
-            _type: 'code_version',
-            id: 'version1',
-            active: true,
-            cartridges: 'app_storefront_base',
-            compatibility_mode: '23.2',
-            activation_time: '2024-01-01T00:00:00Z',
-            total_size: '1024 KB',
-          },
-        ],
-        total: 1,
-      };
-
-      const mockCodeVersionsClient = {
-        getCodeVersions: jest.fn().mockResolvedValue(mockCodeVersions),
-      };
-
-      // Access the private codeVersions property and mock it
-      (client as any).codeVersions = mockCodeVersionsClient;
-
-      const result = await client.getCodeVersions();
-
-      expect(mockCodeVersionsClient.getCodeVersions).toHaveBeenCalled();
-      expect(result).toBe(mockCodeVersions);
-    });
-
-    it('should delegate activateCodeVersion to CodeVersionsClient', async () => {
-      // Mock the codeVersions client's activateCodeVersion method
-      const mockActivatedVersion = {
-        _v: '23.2',
-        _type: 'code_version',
-        _resource_state: 'new-resource-state-12345',
-        id: 'version2',
-        active: true,
-        cartridges: 'app_storefront_base',
-        compatibility_mode: '23.2',
-        activation_time: '2024-01-15T10:30:00Z',
-        total_size: '1024 KB',
-      };
-
-      const mockCodeVersionsClient = {
-        activateCodeVersion: jest.fn().mockResolvedValue(mockActivatedVersion),
-      };
-
-      // Access the private codeVersions property and mock it
-      (client as any).codeVersions = mockCodeVersionsClient;
-
-      const codeVersionId = 'version2';
-      const result = await client.activateCodeVersion(codeVersionId);
-
-      expect(mockCodeVersionsClient.activateCodeVersion).toHaveBeenCalledWith(codeVersionId);
-      expect(result).toBe(mockActivatedVersion);
     });
   });
 
@@ -252,27 +215,10 @@ describe('OCAPIClient', () => {
       };
 
       const clientWithDefaults = new OCAPIClient(configWithoutVersion);
-
-      // Verify that the client was created successfully (which means defaults were applied)
       expect(clientWithDefaults).toBeInstanceOf(OCAPIClient);
       expect(clientWithDefaults.systemObjects).toBeDefined();
       expect(clientWithDefaults.sitePreferences).toBeDefined();
-    });
-
-    it('should preserve provided config values', () => {
-      const customConfig = {
-        hostname: 'custom.demandware.net',
-        clientId: 'custom-client-id',
-        clientSecret: 'custom-client-secret',
-        version: 'v22_1',
-      };
-
-      const customClient = new OCAPIClient(customConfig);
-
-      // Verify that the client was created successfully with custom config
-      expect(customClient).toBeInstanceOf(OCAPIClient);
-      expect(customClient.systemObjects).toBeDefined();
-      expect(customClient.sitePreferences).toBeDefined();
+      expect(clientWithDefaults.codeVersions).toBeDefined();
     });
   });
 
@@ -281,7 +227,7 @@ describe('OCAPIClient', () => {
       const error = new Error('System objects error');
       jest.spyOn(client.systemObjects, 'getSystemObjectDefinitions').mockRejectedValue(error);
 
-      await expect(client.getSystemObjectDefinitions()).rejects.toThrow('System objects error');
+      await expect(client.systemObjects.getSystemObjectDefinitions()).rejects.toThrow('System objects error');
     });
 
     it('should propagate errors from site preferences client', async () => {
@@ -289,7 +235,8 @@ describe('OCAPIClient', () => {
       jest.spyOn(client.sitePreferences, 'searchSitePreferences').mockRejectedValue(error);
 
       const searchRequest = { query: { match_all_query: {} } };
-      await expect(client.searchSitePreferences('groupId', 'sandbox', searchRequest)).rejects.toThrow('Site preferences error');
+      await expect(client.sitePreferences.searchSitePreferences('groupId', 'sandbox', searchRequest))
+        .rejects.toThrow('Site preferences error');
     });
   });
 });

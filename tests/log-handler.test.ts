@@ -357,7 +357,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest error logs limit=5 date=today');
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'get_latest_error completed successfully',
+        'get_latest_error completed',
         expect.any(Object),
       );
     });

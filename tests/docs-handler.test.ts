@@ -351,7 +351,7 @@ describe('DocsToolHandler', () => {
       await handler.handle('list_sfcc_classes', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'list_sfcc_classes completed successfully',
+        'list_sfcc_classes completed',
         expect.any(Object),
       );
     });

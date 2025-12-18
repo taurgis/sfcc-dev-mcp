@@ -76,13 +76,3 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
   }
 }
 
-/**
- * Factory function to create a SimpleClientHandler with less verbosity
- */
-export function createSimpleClientHandler<TToolName extends string, TClient>(
-  context: HandlerContext,
-  subLoggerName: string,
-  config: SimpleClientConfig<TToolName, TClient>,
-): SimpleClientHandler<TToolName, TClient> {
-  return new SimpleClientHandler(context, subLoggerName, config);
-}

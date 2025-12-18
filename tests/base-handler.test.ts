@@ -365,7 +365,7 @@ describe('BaseToolHandler', () => {
       await handler.handle('test_tool', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'test_tool completed successfully',
+        'test_tool completed',
         expect.any(Object),
       );
     });

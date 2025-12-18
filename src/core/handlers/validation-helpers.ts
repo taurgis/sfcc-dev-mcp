@@ -3,6 +3,7 @@
  */
 
 import { HandlerError, ToolArguments } from './base-handler.js';
+import { isValidLogLevel, LogLevelValues } from '../../utils/log-tool-constants.js';
 
 export interface ValidationRule<T = any> {
   field: string;
@@ -61,24 +62,6 @@ export class ValidationHelpers {
     }
   }
 
-  /**
-   * Validate a single field with custom validator
-   */
-  static validateField<T>(
-    args: ToolArguments,
-    field: string,
-    validator: (value: T) => boolean,
-    errorMessage: string,
-    toolName: string,
-  ): void {
-    const rules: ValidationRule[] = [{
-      field,
-      validator,
-      errorMessage,
-    }];
-    this.validateArguments(args, rules, toolName);
-  }
-
   private static validateType(value: any, type: ValidationRule['type']): boolean {
     switch (type) {
       case 'string':
@@ -101,9 +84,7 @@ export class ValidationHelpers {
  * Common validation rules factory
  */
 export const CommonValidations = {
-  /**
-   * Create a required string field validation
-   */
+  /** Create a required string field validation */
   requiredString: (field: string, customMessage?: string): ValidationRule[] => [{
     field,
     required: true,
@@ -112,9 +93,7 @@ export const CommonValidations = {
     errorMessage: customMessage ?? `${field} must be a non-empty string`,
   }],
 
-  /**
-   * Create a required field validation with custom validator
-   */
+  /** Create a required field validation with custom validator */
   requiredField: (
     field: string,
     type: ValidationRule['type'],
@@ -128,9 +107,7 @@ export const CommonValidations = {
     errorMessage,
   }],
 
-  /**
-   * Create an optional field validation
-   */
+  /** Create an optional field validation */
   optionalField: (
     field: string,
     type: ValidationRule['type'],
@@ -144,3 +121,73 @@ export const CommonValidations = {
     errorMessage,
   }],
 };
+
+// =============================================================================
+// Log-specific validators (consolidated from log-validation.ts)
+// =============================================================================
+
+/** Validate log level parameter */
+export function validateLogLevel(level: string, toolName: string): void {
+  if (!isValidLogLevel(level)) {
+    const validLevels = Object.values(LogLevelValues).join(', ');
+    throw new Error(`Invalid log level '${level}' for ${toolName}. Valid levels: ${validLevels}`);
+  }
+}
+
+/** Validate limit parameter */
+export function validateLimit(limit: number | undefined, toolName: string): void {
+  if (limit === undefined) { return; }
+  if (typeof limit !== 'number' || isNaN(limit)) {
+    throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be a valid number`);
+  }
+  if (limit <= 0 || limit > 1000) {
+    throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be between 1 and 1000`);
+  }
+}
+
+/** Validate maxBytes parameter */
+export function validateMaxBytes(maxBytes: number | undefined, toolName: string): void {
+  if (maxBytes === undefined) { return; }
+  if (typeof maxBytes !== 'number' || isNaN(maxBytes)) {
+    throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be a valid number`);
+  }
+  if (maxBytes <= 0 || maxBytes > 10_000_000) {
+    throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be between 1 and 10,000,000`);
+  }
+}
+
+/** Validate filename parameter */
+export function validateFilename(filename: string, toolName: string): void {
+  if (!filename || filename.trim().length === 0) {
+    throw new Error(`Filename is required for ${toolName}`);
+  }
+  if (filename.includes('..') || filename.includes('\\')) {
+    throw new Error(`Invalid filename '${filename}' for ${toolName}. Path traversal not allowed`);
+  }
+}
+
+/** Format log operation message */
+export function formatLogMessage(
+  operation: string,
+  params: {
+    level?: string;
+    limit?: number;
+    date?: string;
+    pattern?: string;
+    jobName?: string;
+    filename?: string;
+    maxBytes?: number;
+    tailOnly?: boolean;
+  } = {},
+): string {
+  const parts = [operation];
+  if (params.jobName) { parts.push(`jobName=${params.jobName}`); }
+  if (params.level) { parts.push(`level=${params.level}`); }
+  if (params.limit !== undefined) { parts.push(`limit=${params.limit}`); }
+  if (params.date) { parts.push(`date=${params.date}`); }
+  if (params.pattern) { parts.push(`pattern="${params.pattern}"`); }
+  if (params.filename) { parts.push(`filename=${params.filename}`); }
+  if (params.maxBytes !== undefined) { parts.push(`maxBytes=${params.maxBytes}`); }
+  if (params.tailOnly !== undefined) { parts.push(`tailOnly=${params.tailOnly}`); }
+  return parts.join(' ');
+}
