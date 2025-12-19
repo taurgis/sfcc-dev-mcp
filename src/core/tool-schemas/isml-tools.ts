@@ -5,7 +5,7 @@
 export const ISML_DOCUMENTATION_TOOLS = [
   {
     name: 'list_isml_elements',
-    description: 'Get a list of all available ISML (Internet Store Markup Language) elements with summaries. Use this to discover what ISML elements are available for template development including control flow (isif, isloop), output formatting (isprint), includes (isinclude, iscomponent), scripting (isscript, isset), caching (iscache), and special elements.',
+    description: 'List all ISML template elements with summaries. Includes control flow (isif, isloop), output (isprint), includes (isinclude, iscomponent), scripting (isscript), and caching (iscache).',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -13,7 +13,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'get_isml_element',
-    description: 'Get detailed documentation for a specific ISML element including syntax, attributes, examples, and use cases. Use this when implementing ISML templates and need to understand element usage, required/optional attributes, formatting options, or best practices for elements like isif, isloop, isprint, isinclude, etc.',
+    description: 'Get detailed documentation for an ISML element including syntax, attributes, examples, and use cases.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -42,7 +42,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'search_isml_elements',
-    description: 'Search across ISML element documentation for specific terms, functionality, or patterns. Use this when you need to find elements by purpose (e.g., \'loop\', \'conditional\', \'cache\'), by attribute name, or by use case. Returns results with relevance scoring and preview snippets.',
+    description: 'Search ISML elements by purpose, attribute name, or use case. Returns relevance-scored results with preview snippets.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -65,7 +65,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'get_isml_elements_by_category',
-    description: 'Get all ISML elements filtered by category. Use this to explore elements grouped by functionality such as control flow elements (isif, isloop), output elements (isprint), includes/components (isinclude, iscomponent, isslot), scripting (isscript, isset), or special elements.',
+    description: 'Get ISML elements filtered by category (control-flow, output, includes, scripting, cache, decorators, special, payment, analytics).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -80,7 +80,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'get_isml_categories',
-    description: 'Get all available ISML element categories with descriptions and element counts. Use this to understand the organization of ISML elements and discover what types of functionality are available for template development.',
+    description: 'Get all ISML element categories with descriptions and counts.',
     inputSchema: {
       type: 'object',
       properties: {},

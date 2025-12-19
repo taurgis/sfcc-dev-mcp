@@ -49,7 +49,7 @@ describe('activate_code_version Advanced Programmatic Tests (Full Mode)', () => 
       
       assert.ok(activateTool, 'activate_code_version tool should be available');
       assert.equal(activateTool.name, 'activate_code_version');
-      assert.ok(activateTool.description.includes('Activate a specific code version'));
+      assert.ok(activateTool.description.includes('Activate a code version'));
       
       // Validate input schema
       assert.equal(activateTool.inputSchema.type, 'object');

@@ -5,7 +5,7 @@
 export const CARTRIDGE_GENERATION_TOOLS = [
   {
     name: 'generate_cartridge_structure',
-    description: 'Generate a complete cartridge directory structure with all necessary files and configurations. Use this when creating new cartridges to ensure proper organization and include all required components. This tool creates all necessary files directly in the specified target directory, ensuring the cartridge is created exactly where needed in your project structure.',
+    description: 'Generate a complete SFCC cartridge with proper directory structure, configurations, and boilerplate files. Creates files directly in the target directory.',
     inputSchema: {
       type: 'object',
       properties: {

@@ -116,15 +116,30 @@ sfcc-dev-mcp/
 │   ├── index.ts                  # Package exports and compatibility
 │   ├── core/                     # Core MCP server functionality
 │   │   ├── server.ts             # Main MCP server implementation
-│   │   ├── tool-definitions.ts   # MCP tool schema definitions
+│   │   ├── tool-definitions.ts   # Re-exports tool schemas from modular files
+│   │   ├── tool-schemas/         # Modular tool schema definitions
+│   │   │   ├── index.ts          # Aggregates and re-exports all tool schemas
+│   │   │   ├── shared-schemas.ts # Reusable schema components (query, pagination, etc.)
+│   │   │   ├── documentation-tools.ts # SFCC documentation tools (5 tools)
+│   │   │   ├── best-practices-tools.ts # Best practices tools (4 tools)
+│   │   │   ├── sfra-tools.ts     # SFRA documentation tools (5 tools)
+│   │   │   ├── isml-tools.ts     # ISML documentation tools (5 tools)
+│   │   │   ├── log-tools.ts      # Log + Job log tools (8 + 5 tools)
+│   │   │   ├── system-object-tools.ts # System object tools (6 tools)
+│   │   │   ├── cartridge-tools.ts # Cartridge generation tools (1 tool)
+│   │   │   └── code-version-tools.ts # Code version tools (2 tools)
 │   │   └── handlers/             # Modular tool handlers
 │   │       ├── base-handler.ts   # Abstract base handler with common functionality
+│   │       ├── abstract-client-handler.ts # Abstract handler for client-based tools
+│   │       ├── simple-client-handler.ts # Simple handler for single-client tools
 │   │       ├── client-factory.ts # Centralized client creation with dependency injection
 │   │       ├── validation-helpers.ts # Common validation utilities for handlers
 │   │       ├── docs-handler.ts   # SFCC documentation tool handler
 │   │       ├── best-practices-handler.ts # Best practices tool handler
 │   │       ├── sfra-handler.ts   # SFRA documentation tool handler
+│   │       ├── isml-handler.ts   # ISML documentation tool handler
 │   │       ├── log-handler.ts    # Log analysis tool handler
+│   │       ├── job-log-handler.ts # Job log analysis tool handler
 │   │       ├── system-object-handler.ts # System object tool handler
 │   │       ├── code-version-handler.ts # Code version tool handler
 │   │       └── cartridge-handler.ts # Cartridge generation tool handler
@@ -153,10 +168,15 @@ sfcc-dev-mcp/
 │   │   │   ├── class-name-resolver.ts # Class name normalization and resolution
 │   │   │   ├── referenced-types-extractor.ts # Type extraction from documentation content
 │   │   │   └── index.ts          # Module exports
-│   │   ├── cartridge-generation-client.ts # Cartridge structure generation client
+│   │   ├── cartridge/            # Cartridge generation system
+│   │   │   ├── cartridge-generation-client.ts # Main cartridge structure generator
+│   │   │   ├── cartridge-structure.ts # Directory structure definitions
+│   │   │   ├── cartridge-templates.ts # File content templates
+│   │   │   └── index.ts          # Module exports
 │   │   ├── log-client.ts         # Log client compatibility wrapper
 │   │   ├── docs-client.ts        # SFCC documentation client orchestrator
 │   │   ├── sfra-client.ts        # SFRA documentation client
+│   │   ├── isml-client.ts        # ISML element documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
 │   │   └── best-practices-client.ts # Best practices guide client
 │   ├── services/                 # Service layer with clean abstractions
@@ -166,6 +186,9 @@ sfcc-dev-mcp/
 │   ├── config/                   # Configuration management
 │   │   ├── configuration-factory.ts # Config factory for different modes
 │   │   └── dw-json-loader.ts     # dw.json configuration loader
+│   ├── constants/                # Application constants
+│   │   ├── index.ts              # Constants exports
+│   │   └── best-practices-guides.ts # Best practices guide definitions
 │   ├── tool-configs/             # Tool configuration definitions
 │   │   ├── best-practices-tool-config.ts # Best practices tools configuration
 │   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
@@ -310,12 +333,16 @@ sfcc-dev-mcp/
 
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
+- **AbstractClientHandler** (`abstract-client-handler.ts`): Abstract handler for tools that require client instantiation
+- **SimpleClientHandler** (`simple-client-handler.ts`): Simplified handler for single-client tools with less boilerplate
 - **ClientFactory** (`client-factory.ts`): Centralized client creation with dependency injection support for testing and clean architecture
 - **ValidationHelpers** (`validation-helpers.ts`): Common validation utilities shared across all handlers
 - **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
 - **BestPracticesToolHandler** (`best-practices-handler.ts`): Manages best practice guides, security recommendations, and hook reference tables
 - **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
+- **ISMLToolHandler** (`isml-handler.ts`): Handles ISML element documentation, search, and category browsing
 - **LogToolHandler** (`log-handler.ts`): Handles real-time log analysis, error monitoring, and system health summarization
+- **JobLogToolHandler** (`job-log-handler.ts`): Handles job log analysis, debugging, and execution summaries
 - **SystemObjectToolHandler** (`system-object-handler.ts`): Manages system object definitions, custom attributes, and site preferences
 - **CodeVersionToolHandler** (`code-version-handler.ts`): Handles code version listing, activation, and deployment management
 - **CartridgeToolHandler** (`cartridge-handler.ts`): Processes cartridge generation requests with complete project setup using dependency injection
@@ -352,9 +379,14 @@ sfcc-dev-mcp/
 - **DocsClient** (`docs-client.ts`): Main orchestrator for SFCC documentation processing that coordinates specialized modules for documentation scanning, content parsing, class name resolution, and type extraction across all namespaces
 - **LogClient** (`log-client.ts`): Backward compatibility wrapper that re-exports the modular log system
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
+- **ISMLClient** (`isml-client.ts`): Provides ISML element documentation, category-based browsing, and search functionality for template development
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
 - **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, SFRA client-side JavaScript architecture (AJAX flows, validation, accessibility), custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+
+##### **Cartridge Generation** (`clients/cartridge/`)
 - **CartridgeGenerationClient** (`cartridge-generation-client.ts`): Generates complete cartridge structures with clean dependency injection for file system and path operations
+- **CartridgeStructure** (`cartridge-structure.ts`): Defines standard SFCC cartridge directory structure
+- **CartridgeTemplates** (`cartridge-templates.ts`): Contains file templates for controllers, models, scripts, and configurations
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
@@ -436,12 +468,12 @@ sfcc-dev-mcp/
 - Complete access to logs, job logs, and system objects
 - Real-time debugging and monitoring capabilities
 
-### 🎯 Development Guidelines (Consolidated Above)
-Legacy duplication removed. See Unified Engineering Principles section for the authoritative list.
-    - Configuration options or operating modes
-    - Development workflows or best practices
-    - Tool categories or counts
-    - Installation or setup procedures
+### 🎯 Development Guidelines
+See Unified Engineering Principles section above for the authoritative guidelines covering:
+- Configuration options and operating modes
+- Development workflows and best practices
+- Tool categories and counts
+- Installation and setup procedures
 
 ### 📝 Documentation Maintenance Requirements
 
@@ -452,18 +484,18 @@ Legacy duplication removed. See Unified Engineering Principles section for the a
 Before updating any documentation with tool counts or quantitative information, **ALWAYS** verify the actual numbers using command line tools:
 
 ```bash
-# Total tool count verification
-grep -c "name: '" src/core/tool-definitions.ts
+# Total tool count verification (41 tools across all categories)
+grep -c "name: '" src/core/tool-schemas/*.ts | grep -v ":0" | awk -F: '{sum+=$2} END {print "Total tools:", sum}'
 
-# Individual section counts
-awk '/export const SFCC_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const BEST_PRACTICES_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const SFRA_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const ISML_DOCUMENTATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const LOG_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const SYSTEM_OBJECT_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const CARTRIDGE_GENERATION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
-awk '/export const CODE_VERSION_TOOLS/,/^];/' src/core/tool-definitions.ts | grep -c "name: '"
+# Individual category counts (from modular schema files)
+echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
+echo "Best practices tools:" && grep -c "name: '" src/core/tool-schemas/best-practices-tools.ts
+echo "SFRA tools:" && grep -c "name: '" src/core/tool-schemas/sfra-tools.ts
+echo "ISML tools:" && grep -c "name: '" src/core/tool-schemas/isml-tools.ts
+echo "Log + Job log tools:" && grep -c "name: '" src/core/tool-schemas/log-tools.ts
+echo "System object tools:" && grep -c "name: '" src/core/tool-schemas/system-object-tools.ts
+echo "Cartridge tools:" && grep -c "name: '" src/core/tool-schemas/cartridge-tools.ts
+echo "Code version tools:" && grep -c "name: '" src/core/tool-schemas/code-version-tools.ts
 
 # Verify file structure changes
 find src -name "*.ts" -type f | wc -l  # Count TypeScript files
@@ -525,7 +557,7 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 
 ### 🔧 Common Development Tasks (Streamlined)
 
-- **Adding New Tools**: Define schema in `core/tool-definitions.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
+- **Adding New Tools**: Define schema in `core/tool-schemas/[category]-tools.ts`, add to exports in `core/tool-schemas/index.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
 - **Creating New Handlers**: Extend `BaseToolHandler` class, implement `canHandle()` and `handle()` methods, register in `server.ts`
 - **Using ClientFactory**: Create clients using `ClientFactory` for centralized creation and dependency injection support
 - **Implementing Services**: Create service interfaces in `services/index.ts`, implement production versions, and provide mock implementations for testing
@@ -536,7 +568,7 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
 - **Adding Tests**: Create comprehensive test coverage in the `tests/` directory with proper service mocking
 - **MCP Test Execution**: Use `node --test` for individual MCP programmatic tests, NOT `npm test -- file.js` (which runs Jest)
-- **Test Types**: Jest for unit tests (`src/` directory), Node.js test runner for MCP programmatic tests (`tests/mcp/node/`), Aegis for YAML tests (`tests/mcp/yaml/`)
+- **Test Types**: Jest for unit tests (`tests/` directory), Node.js test runner for MCP programmatic tests (`tests/mcp/node/`), Aegis for YAML tests (`tests/mcp/yaml/`)
 - **Adding Utilities**: Extend `utils/` modules for shared functionality
 - **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
 - **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation

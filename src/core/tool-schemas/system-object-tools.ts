@@ -7,23 +7,23 @@ import { createSearchRequestSchema } from './shared-schemas.js';
 export const SYSTEM_OBJECT_TOOLS = [
   {
     name: 'get_system_object_definitions',
-    description: 'Get all system object definitions from SFCC with their main metadata, not including attributes. Use this to discover what system objects are available in the SFCC instance, understand the basic data model, or when you need to see all objects at once. Essential for understanding the complete SFCC data structure and identifying objects. You can also discover which objects are "Custom Objects" by looking at the _type field in the response.',
+    description: 'Get all system object definitions with metadata (not attributes). Use to discover available objects and identify Custom Objects via the _type field.',
     inputSchema: {
       type: 'object',
       properties: {
         start: {
           type: 'number',
-          description: 'Optional start index for retrieving items from a given index (default: 0)',
+          description: 'Start index for pagination (default: 0)',
           default: 0,
         },
         count: {
           type: 'number',
-          description: 'Optional count for retrieving only a subset of items (default: 200)',
+          description: 'Number of items to return (default: 200)',
           default: 200,
         },
         select: {
           type: 'string',
-          description: "Property selector using OCAPI select syntax. Controls which fields are returned in the response. Examples: '(**)' for all properties, '(start, total)' for pagination info only, '(data.(object_type))' for only object_type in data array, '(data.(object_type, display_name))' for specific fields in data array, '(start, data.(**))' for pagination info plus all data properties. Use parentheses to group field selections and dot notation to traverse object hierarchies.",
+          description: 'OCAPI field selector. Examples: "(**)" for all, "(data.(object_type, display_name))" for specific fields.',
           default: '(**)',
         },
       },
@@ -31,13 +31,13 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'get_system_object_definition',
-    description: 'Get basic metadata about a specific SFCC system object definition including counts and configuration flags. Returns information like attribute count, group count, display name, creation date, and object type flags (content_object, queryable, read_only). Use this when you need to understand the basic structure and configuration of system objects like Product, Customer, Order, Category, or Site. For detailed attribute information, use get_system_object_attribute_definitions instead. You can not fetch "Custom Objects" with this API.',
+    description: 'Get metadata for a specific system object (attribute count, group count, flags). For attribute details, use search_system_object_attribute_definitions. Does not work for Custom Objects.',
     inputSchema: {
       type: 'object',
       properties: {
         objectType: {
           type: 'string',
-          description: "The system object type (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
+          description: 'System object type, e.g., "Product", "Customer", "Order", "Category".',
         },
       },
       required: ['objectType'],
@@ -45,13 +45,13 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_system_object_attribute_definitions',
-    description: 'Search for specific attribute definitions within a system object type using complex queries. Use this when you need to find attributes by name, type, or other properties rather than retrieving all attributes. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics. To get all attributes, use a match_all_query.',
+    description: 'Search attribute definitions within a system object. Supports text search, filtering by mandatory/searchable/system, and sorting. Use match_all_query to get all attributes.',
     inputSchema: {
       type: 'object',
       properties: {
         objectType: {
           type: 'string',
-          description: "The system object type to search within (e.g., 'Product', 'Customer', 'Order', 'Category', 'Site')",
+          description: 'System object type, e.g., "Product", "Customer", "Order".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
@@ -60,7 +60,7 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_site_preferences',
-    description: 'Search site preferences across sites in the specified preference group and instance. Use this to find specific site preferences by name, description, or value type. Essential for discovering custom site preferences, understanding preference configurations, or when working with site-specific settings. Use this tool when generating or debugging code that accesses site preferences (e.g., dw.system.Site.current.preferences.custom.yourPreference, Site.getCurrent().getCustomPreferenceValue()) to validate preference names, understand their data types, discover available preferences in a group, or troubleshoot preference-related issues. Supports complex queries with text search, filtering, and sorting.',
+    description: 'Search site preferences by name, description, or type. Use to validate preference names and types when working with Site.getCurrent().getCustomPreferenceValue() or dw.system.Site.current.preferences.custom.*.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -96,13 +96,13 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_system_object_attribute_groups',
-    description: 'Search attribute groups for a specific system object type. Use this to discover available attribute groups, which is essential for finding site preference groups (use "SitePreferences" as objectType) needed for the site preferences search API. Supports complex queries with text search, filtering, and sorting on group properties.',
+    description: 'Search attribute groups for a system object. Use "SitePreferences" as objectType to find preference groups needed for the site preferences API.',
     inputSchema: {
       type: 'object',
       properties: {
         objectType: {
           type: 'string',
-          description: 'The system object type to search attribute groups for (e.g., "Product", "Customer", "SitePreferences")',
+          description: 'System object type, e.g., "Product", "Customer", "SitePreferences".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute groups'),
       },
@@ -111,13 +111,13 @@ export const SYSTEM_OBJECT_TOOLS = [
   },
   {
     name: 'search_custom_object_attribute_definitions',
-    description: 'Search for specific attribute definitions within a custom object type using complex queries. Use this when you need to find attributes by name, type, or other properties for custom objects rather than system objects. Supports text search on id/display_name/description, filtering by properties like mandatory/searchable/system, and sorting. Essential for finding custom attributes or attributes with specific characteristics in custom object definitions. Custom objects are user-defined data structures that extend SFCC functionality.',
+    description: 'Search attribute definitions within a custom object type (user-defined objects, not system objects). Supports text search, filtering, and sorting.',
     inputSchema: {
       type: 'object',
       properties: {
         objectType: {
           type: 'string',
-          description: "The custom object type to search within (e.g., 'Global_String', 'MyCustomObject')",
+          description: 'Custom object type, e.g., "Global_String", "MyCustomObject".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },

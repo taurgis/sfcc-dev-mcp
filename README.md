@@ -74,14 +74,14 @@ Complete development experience with live SFCC instance access:
 - System object definitions (6 tools)
 - Code version management (2 tools)
 
-## � Architecture Overview
+## 🏗️ Architecture Overview
 
 This server is built around a **capability-gated, modular handler architecture** that cleanly separates tool routing from domain logic:
 
 ### Core Layers
-- **Tool Definitions** (`src/core/tool-definitions.ts`): Declarative schemas grouped by category (documentation, best practices, SFRA, logs, job logs, system objects, cartridge generation, code versions).
-- **Handlers** (`src/core/handlers/*.ts`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `system-object-handler`).
-- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, best practices, modular log analysis). Handlers delegate to these so orchestration and computation remain separate.
+- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, best practices, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
+- **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
+- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, best practices, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
@@ -93,17 +93,18 @@ This server is built around a **capability-gated, modular handler architecture**
 - **Performance**: Tail log reads + lightweight caching (`cache.ts`, `log-cache.ts`) reduce unnecessary I/O.
 
 ### Adding a New Tool (High-Level)
-1. Add schema object to the correct exported array in `tool-definitions.ts`.
-2. Implement domain logic in a client/service (avoid bloating handlers).
-3. Extend an existing handler or create a new one if it's a new category.
-4. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
-5. Discover actual response shape with `npx mcp-aegis query` before writing tests.
-6. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
-7. Update documentation (Development Guide + README counts if changed).
+1. Add schema to the appropriate file in `src/core/tool-schemas/` (or create new file for new category).
+2. Export new schema from `src/core/tool-schemas/index.ts` if adding a new file.
+3. Implement domain logic in a client/service (avoid bloating handlers).
+4. Extend an existing handler or create a new one if it's a new category.
+5. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
+6. Discover actual response shape with `npx aegis query` before writing tests.
+7. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
+8. Update documentation (AGENTS.md + README counts if changed).
 
 > For a deeper internal view, see the Development Guide in the docs site.
 
-## �🤖 AI Interface Setup
+## 🤖 AI Interface Setup
 
 Choose your preferred AI assistant:
 

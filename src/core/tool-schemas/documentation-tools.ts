@@ -5,7 +5,7 @@
 export const SFCC_DOCUMENTATION_TOOLS = [
   {
     name: 'get_sfcc_class_info',
-    description: 'Get detailed information about an SFCC class including properties, methods, and description. Use this when you need to understand what a specific SFCC class does, what methods/properties are available, or when implementing features that use SFCC APIs. Essential for cartridge development (controllers, scripts, templates, rest-apis) using the dw.* namespace in the SFCC Rhino environment.',
+    description: 'Get detailed information about an SFCC class including properties, methods, constants, and inheritance. Essential for understanding dw.* APIs when building controllers, scripts, templates, or REST APIs. Supports filtering by section and search within class members.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -45,7 +45,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
         },
         search: {
           type: 'string',
-          description: 'Optional search term to filter constants, properties, methods, and inheritance entries. Case-insensitive search across names and descriptions. Only one word at a time (e.g., "get", "create", "order"). Combining multiple words or looking for multiple items at the same time is not supported.',
+          description: 'Filter class members by keyword (case-insensitive). Single word only, e.g., "price", "get", "custom".',
         },
       },
       required: ['className'],
@@ -53,13 +53,13 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'search_sfcc_classes',
-    description: "Search for SFCC classes by name or functionality. Use this when you know part of a class name or need to find classes related to specific functionality (e.g., search 'catalog' to find catalog-related classes). Perfect starting point when you're unsure of the exact class name or exploring available APIs for a feature area.",
+    description: "Find SFCC classes by partial name or keyword. Use when you don't know the exact class name (e.g., 'catalog' finds dw.catalog.*, 'price' finds pricing-related classes).",
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Search query for class names. Only use one word at a time (e.g., "catalog", "order", "customer"). Combining multiple words or attempting to look for multiple classes at the same time is not supported.',
+          description: 'Single keyword to search class names, e.g., "catalog", "order", "basket".',
         },
       },
       required: ['query'],
@@ -67,13 +67,13 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'search_sfcc_methods',
-    description: 'Search for methods across all SFCC classes by method name. Use this when you know the method name but not which class it belongs to, or when looking for similar methods across different classes. Helpful for discovering all available methods that perform similar operations.',
+    description: 'Find methods across all dw.* classes by name. Use when you know a method exists but not which class contains it.',
     inputSchema: {
       type: 'object',
       properties: {
         methodName: {
           type: 'string',
-          description: 'Method name to search for. Only use one word at a time (e.g., "get", "create", "update"). Combining multiple words or looking for multiple methods at the same time is not supported.',
+          description: 'Method name to search, e.g., "getProduct", "addItem", "calculate".',
         },
       },
       required: ['methodName'],
@@ -81,7 +81,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'list_sfcc_classes',
-    description: "Get a complete list of all available SFCC classes. Use this for exploration and discovery when you need to understand the full scope of SFCC APIs, or when you're new to SFCC development and want to see what's available. Good starting point for understanding the SFCC class hierarchy.",
+    description: 'List all available SFCC dw.* classes organized by namespace. Use to explore the full API surface or find classes in a specific domain.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -89,7 +89,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
   },
   {
     name: 'get_sfcc_class_documentation',
-    description: "Get the complete raw documentation for an SFCC class. Use this when you need comprehensive details about a class including examples, detailed descriptions, and full context. Best for in-depth understanding when the basic class info isn't sufficient.",
+    description: 'Get the full raw documentation for an SFCC class including examples and detailed descriptions. Use when get_sfcc_class_info lacks sufficient detail.',
     inputSchema: {
       type: 'object',
       properties: {
