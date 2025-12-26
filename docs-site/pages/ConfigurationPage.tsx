@@ -67,6 +67,40 @@ const ConfigurationPage: React.FC = () => {
           </div>
           <ConfigModeTabs />
       </div>
+
+      <div className="mb-16 bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 rounded-2xl p-8 shadow-xl border border-amber-100">
+          <div className="text-center mb-8">
+            <H2 id="config-discovery" className="text-2xl font-bold mb-3">🔍 Configuration Discovery</H2>
+            <p className="text-gray-700 max-w-3xl mx-auto">The server discovers SFCC credentials automatically using this priority order:</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl border-2 border-amber-300 p-6 shadow-md relative">
+              <div className="absolute -top-3 -left-3 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow">1</div>
+              <h4 className="font-semibold text-lg mb-2 text-amber-800">CLI Parameter</h4>
+              <p className="text-sm text-gray-600 mb-3">Explicit path via <InlineCode>--dw-json</InlineCode></p>
+              <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /path/to/dw.json`} />
+              <p className="text-xs text-amber-700 mt-2">Highest priority – always takes precedence</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-md relative">
+              <div className="absolute -top-3 -left-3 w-8 h-8 bg-gray-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow">2</div>
+              <h4 className="font-semibold text-lg mb-2">Environment Variables</h4>
+              <p className="text-sm text-gray-600 mb-3">Set credentials via environment</p>
+              <CodeBlock language="bash" code={`export SFCC_HOSTNAME="..."\nexport SFCC_USERNAME="..."\nexport SFCC_PASSWORD="..."`} />
+              <p className="text-xs text-gray-500 mt-2">Great for CI/CD or sensitive secrets</p>
+            </div>
+            <div className="bg-white rounded-xl border-2 border-green-300 p-6 shadow-md relative">
+              <div className="absolute -top-3 -left-3 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow">3</div>
+              <h4 className="font-semibold text-lg mb-2 text-green-800">Workspace Auto-Discovery</h4>
+              <p className="text-sm text-gray-600 mb-3">Automatic for VS Code users</p>
+              <p className="text-sm text-gray-700">Just open a workspace with a <InlineCode>dw.json</InlineCode> file – the server discovers it automatically!</p>
+              <p className="text-xs text-green-700 mt-2">✨ Recommended for VS Code/Copilot users</p>
+            </div>
+          </div>
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+            <strong>💡 How it works:</strong> When no CLI path or environment variables are set, the server starts in documentation-only mode. After VS Code connects, the MCP workspace roots capability automatically discovers your project's <InlineCode>dw.json</InlineCode> and upgrades to full mode with all 41 tools.
+          </div>
+      </div>
+
       <div className="mb-20 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl p-8 shadow-xl border border-emerald-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
@@ -272,12 +306,12 @@ const ConfigurationPage: React.FC = () => {
                 </ul>
               </div>
               <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <h4 className="font-semibold text-sm mb-2">dw.json Missing</h4>
+                <h4 className="font-semibold text-sm mb-2">dw.json Not Found</h4>
                 <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
-                  <li>Add <InlineCode>--dw-json /Users/username/sfcc-project/dw.json</InlineCode></li>
-                  <li>Create file in current dir</li>
-                  <li>Use env vars instead</li>
-                  <li>Check permissions (600)</li>
+                  <li>Open workspace with dw.json (auto-discovery)</li>
+                  <li>Or use <InlineCode>--dw-json /path/to/dw.json</InlineCode></li>
+                  <li>Or set env vars instead</li>
+                  <li>Check file permissions (600)</li>
                 </ul>
               </div>
               <div className="bg-white border border-gray-200 rounded-xl p-4">

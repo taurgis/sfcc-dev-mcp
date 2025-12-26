@@ -52,6 +52,31 @@ Create a `dw.json` file with your SFCC credentials:
 }
 ```
 
+### Option 3: Auto-Discovery (Recommended for VS Code users)
+Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp"]
+    }
+  }
+}
+```
+
+## 🔧 Configuration Discovery Priority
+
+The server discovers SFCC credentials in this order (highest priority first):
+
+| Priority | Source | Description |
+|----------|--------|-------------|
+| **1** | `--dw-json` CLI parameter | Explicit path to dw.json file |
+| **2** | Environment variables | `SFCC_HOSTNAME`, `SFCC_USERNAME`, `SFCC_PASSWORD`, `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET` |
+| **3** | MCP workspace roots | Automatically discovers dw.json in your VS Code workspace folder(s) |
+
+> **Note**: The server no longer searches the current working directory by default, as MCP servers often start with `cwd` set to the user's home directory. The MCP workspace roots mechanism provides reliable project context.
+
 ## 🎯 Operating Modes
 
 | Mode | Tools Available | SFCC Credentials Required |

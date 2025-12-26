@@ -2,8 +2,18 @@
  * Workspace Roots Management for SFCC MCP Server
  *
  * This module handles secure discovery and validation of workspace roots
- * provided by MCP clients, enabling automatic dw.json discovery in the
- * agent's working directory without requiring absolute paths.
+ * provided by MCP clients, enabling automatic dw.json discovery from the
+ * VS Code workspace without requiring absolute paths.
+ *
+ * Configuration Discovery Priority:
+ * 1. CLI parameter (--dw-json) - handled in main.ts
+ * 2. Environment variables (SFCC_*) - handled in main.ts
+ * 3. MCP workspace roots (this module) - called after client connects
+ *
+ * This discovery mechanism is preferred over CWD-based search because
+ * MCP servers often start with cwd set to the user's home directory,
+ * not the project directory. The MCP workspace roots capability provides
+ * the correct project context from VS Code/Copilot/Cursor.
  *
  * Security considerations:
  * - Only file:// URIs are accepted (per MCP spec)
@@ -16,6 +26,16 @@ import { existsSync, realpathSync, statSync } from 'fs';
 import { resolve, normalize, join, isAbsolute } from 'path';
 import { fileURLToPath } from 'url';
 import { Logger } from '../utils/logger.js';
+import { DwJsonConfig } from '../types/types.js';
+import { loadSecureDwJson } from './dw-json-loader.js';
+
+/**
+ * MCP client root from roots/list response
+ */
+export interface MCPClientRoot {
+  uri: string;
+  name?: string;
+}
 
 /**
  * Represents a validated workspace root
@@ -27,6 +47,24 @@ export interface ValidatedWorkspaceRoot {
   path: string;
   /** Optional name for the root */
   name?: string;
+}
+
+/**
+ * Result of workspace roots discovery
+ */
+export interface WorkspaceDiscoveryResult {
+  /** Whether discovery was successful */
+  success: boolean;
+  /** Discovered dw.json configuration if found */
+  config?: DwJsonConfig;
+  /** Path to the discovered dw.json file */
+  dwJsonPath?: string;
+  /** Reason for failure or skip */
+  reason?: string;
+  /** Number of workspace roots received from client */
+  rootsReceived?: number;
+  /** Number of valid roots after security validation */
+  validRoots?: number;
 }
 
 /**
@@ -376,6 +414,102 @@ export class WorkspaceRootsService {
   clear(): void {
     this.roots = [];
     this.logger.debug('Workspace roots cleared');
+  }
+
+  /**
+   * Discover dw.json from MCP client workspace roots
+   *
+   * This is the main entry point for workspace-based config discovery.
+   * It takes raw roots from the MCP client, validates them, searches for
+   * dw.json, and loads the configuration.
+   *
+   * @param clientRoots - Raw roots array from server.listRoots() response
+   * @returns Discovery result with config if found
+   */
+  discoverDwJson(clientRoots: MCPClientRoot[] | undefined): WorkspaceDiscoveryResult {
+    this.logger.log('[WorkspaceRoots] Starting dw.json discovery from client roots');
+
+    // Log what we received from the client
+    if (!clientRoots) {
+      this.logger.log('[WorkspaceRoots] No roots array received from client (undefined)');
+      return { success: false, reason: 'No roots array received from client' };
+    }
+
+    this.logger.log(`[WorkspaceRoots] Received ${clientRoots.length} root(s) from client`);
+
+    if (clientRoots.length === 0) {
+      this.logger.log('[WorkspaceRoots] Client returned empty roots array');
+      return { success: false, reason: 'Client returned empty roots array', rootsReceived: 0 };
+    }
+
+    // Log each root we received
+    clientRoots.forEach((root, index) => {
+      this.logger.log(`[WorkspaceRoots] Root ${index + 1}: uri="${root.uri}", name="${root.name ?? '(none)'}"`);
+    });
+
+    // Validate and store the workspace roots
+    const validRoots = this.updateRoots(clientRoots);
+    this.logger.log(`[WorkspaceRoots] After validation: ${validRoots.length} valid root(s)`);
+
+    if (validRoots.length === 0) {
+      this.logger.log('[WorkspaceRoots] No valid roots after security validation');
+      return {
+        success: false,
+        reason: 'No valid workspace roots after security validation',
+        rootsReceived: clientRoots.length,
+        validRoots: 0,
+      };
+    }
+
+    // Log validated roots
+    validRoots.forEach((root, index) => {
+      this.logger.log(`[WorkspaceRoots] Valid root ${index + 1}: path="${root.path}"`);
+    });
+
+    // Search for dw.json in workspace roots
+    this.logger.log('[WorkspaceRoots] Searching for dw.json in workspace roots...');
+    const dwJsonPath = this.findFile('dw.json');
+
+    if (!dwJsonPath) {
+      this.logger.log('[WorkspaceRoots] No dw.json found in any workspace root');
+      return {
+        success: false,
+        reason: 'No dw.json found in workspace roots',
+        rootsReceived: clientRoots.length,
+        validRoots: validRoots.length,
+      };
+    }
+
+    this.logger.log(`[WorkspaceRoots] Found dw.json at: ${dwJsonPath}`);
+
+    // Load and validate the dw.json
+    try {
+      const config = loadSecureDwJson(dwJsonPath);
+      this.logger.log('[WorkspaceRoots] Successfully loaded dw.json');
+      this.logger.log(`[WorkspaceRoots]   hostname: ${config.hostname}`);
+      this.logger.log(`[WorkspaceRoots]   username: ${config.username ? '(set)' : '(not set)'}`);
+      this.logger.log(`[WorkspaceRoots]   password: ${config.password ? '(set)' : '(not set)'}`);
+      this.logger.log(`[WorkspaceRoots]   client-id: ${config['client-id'] ? '(set)' : '(not set)'}`);
+      this.logger.log(`[WorkspaceRoots]   client-secret: ${config['client-secret'] ? '(set)' : '(not set)'}`);
+
+      return {
+        success: true,
+        config,
+        dwJsonPath,
+        rootsReceived: clientRoots.length,
+        validRoots: validRoots.length,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`[WorkspaceRoots] Failed to load dw.json: ${errorMessage}`);
+      return {
+        success: false,
+        reason: `Failed to load dw.json: ${errorMessage}`,
+        dwJsonPath,
+        rootsReceived: clientRoots.length,
+        validRoots: validRoots.length,
+      };
+    }
   }
 }
 

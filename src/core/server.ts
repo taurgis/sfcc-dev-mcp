@@ -12,9 +12,10 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { SFCCConfig } from '../types/types.js';
+import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
+import { WorkspaceRootsService } from '../config/workspace-roots.js';
 import {
   SFCC_DOCUMENTATION_TOOLS,
   BEST_PRACTICES_TOOLS,
@@ -50,6 +51,7 @@ export class SFCCDevServer {
   private config: SFCCConfig;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
   private handlers: BaseToolHandler[] = [];
+  private workspaceRootsService: WorkspaceRootsService;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -61,6 +63,7 @@ export class SFCCDevServer {
     this.config = config;
     this.logMethodEntry('constructor', { hostname: config.hostname });
     this.capabilities = ConfigurationFactory.getCapabilities(config);
+    this.workspaceRootsService = new WorkspaceRootsService(this.logger);
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
@@ -80,6 +83,13 @@ export class SFCCDevServer {
         },
       },
     );
+
+    // Set up callback for when client is fully initialized
+    // This is when we can request workspace roots from the client
+    this.server.oninitialized = async () => {
+      this.logger.log('[Server] oninitialized callback triggered - client handshake complete');
+      await this.discoverWorkspaceRoots();
+    };
   }
 
   private logMethodEntry(methodName: string, params?: any): void {
@@ -88,6 +98,107 @@ export class SFCCDevServer {
 
   private logMethodExit(methodName: string, result?: any): void {
     this.logger.methodExit(methodName, result);
+  }
+
+  /**
+   * Discover workspace roots from the MCP client and search for dw.json
+   *
+   * This method is called after the client is initialized. It uses the
+   * MCP roots/list capability to get the client's workspace directories,
+   * then delegates to WorkspaceRootsService for discovery and validation.
+   *
+   * Priority: This is only called when no CLI parameter or environment
+   * variables provided credentials (those take precedence).
+   */
+  private async discoverWorkspaceRoots(): Promise<void> {
+    this.logger.log('[Server] discoverWorkspaceRoots called');
+
+    // If we already have a fully configured server (hostname is set), skip discovery
+    // This respects the priority: CLI > ENV > MCP workspace roots
+    if (this.config.hostname && this.config.hostname !== 'Local Mode' && this.config.hostname !== '') {
+      this.logger.log(`[Server] Already configured via CLI or ENV (hostname="${this.config.hostname}"), skipping MCP workspace discovery`);
+      return;
+    }
+
+    this.logger.log('[Server] No hostname from CLI/ENV, attempting MCP workspace roots discovery...');
+
+    try {
+      this.logger.log('[Server] Calling server.listRoots()...');
+
+      // Request workspace roots from the MCP client
+      const rootsResponse = await this.server.listRoots();
+
+      this.logger.log(`[Server] listRoots() returned: ${JSON.stringify(rootsResponse)}`);
+
+      // Delegate discovery to the service (single responsibility)
+      const discoveryResult = this.workspaceRootsService.discoverDwJson(rootsResponse?.roots);
+
+      if (!discoveryResult.success || !discoveryResult.config) {
+        this.logger.log(`[Server] Discovery failed: ${discoveryResult.reason}`);
+        return;
+      }
+
+      // Reconfigure the server with the discovered credentials
+      await this.reconfigureWithCredentials(discoveryResult.config);
+
+      this.logger.log(`[Server] Successfully reconfigured with credentials from ${discoveryResult.dwJsonPath}`);
+    } catch (error) {
+      // The client might not support roots/list - this is not an error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : '';
+
+      this.logger.log(`[Server] listRoots() threw an error: ${errorMessage}`);
+      if (errorStack) {
+        this.logger.debug(`[Server] Error stack: ${errorStack}`);
+      }
+
+      // Check if the error is because the client doesn't support roots
+      if (errorMessage.includes('not supported') || errorMessage.includes('Method not found')) {
+        this.logger.log('[Server] Client does not support workspace roots capability');
+      }
+    }
+  }
+
+  /**
+   * Reconfigure the server with newly discovered SFCC credentials
+   *
+   * This updates the config, capabilities, and handlers when we discover
+   * a dw.json file in the workspace roots after initialization.
+   */
+  private async reconfigureWithCredentials(dwConfig: DwJsonConfig): Promise<void> {
+    this.logMethodEntry('reconfigureWithCredentials', { hostname: dwConfig.hostname });
+
+    // Dispose of existing handlers
+    await Promise.all(this.handlers.map((handler) => handler.dispose()));
+
+    // Map dw.json config to SFCCConfig format
+    this.config = ConfigurationFactory.mapDwJsonToConfig(dwConfig);
+
+    // Update capabilities
+    this.capabilities = ConfigurationFactory.getCapabilities(this.config);
+
+    this.logger.log('Server reconfigured with discovered credentials');
+    this.logger.log(`  Hostname: ${this.config.hostname}`);
+    this.logger.log(`  Can access logs: ${this.capabilities.canAccessLogs}`);
+    this.logger.log(`  Can access OCAPI: ${this.capabilities.canAccessOCAPI}`);
+
+    // Re-register handlers with new configuration
+    this.registerHandlers();
+
+    // Notify the client that the tools list has changed
+    // This is critical - without this notification, the client won't know
+    // that additional tools are now available
+    try {
+      this.logger.log('[Server] Sending tools/list_changed notification to client...');
+      await this.server.sendToolListChanged();
+      this.logger.log('[Server] Successfully sent tools/list_changed notification');
+    } catch (error) {
+      // Some clients may not support this notification - log but don't fail
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.log(`[Server] Failed to send tools/list_changed notification: ${errorMessage}`);
+    }
+
+    this.logMethodExit('reconfigureWithCredentials');
   }
 
   // Register modular handlers (each encapsulates its own responsibility)

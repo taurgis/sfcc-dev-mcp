@@ -99,16 +99,22 @@ const AIInterfacesPage: React.FC = () => {
       {/* Configuration Options */}
       <div id="configuration" className="mb-20 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200 p-8">
           <div className="text-center mb-10">
-            <H2 id="configuration-flags" className="text-3xl font-bold mb-4">⚙️ Configuration Flags</H2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">Minimal surface area – just two flags control operating mode & diagnostics.</p>
+            <H2 id="configuration-flags" className="text-3xl font-bold mb-4">⚙️ Configuration Options</H2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">Multiple ways to provide credentials – auto-discovery, CLI flags, or environment variables.</p>
           </div>
+          
+          <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl">
+            <h4 className="font-semibold text-green-800 mb-2">✨ Auto-Discovery (Recommended for VS Code)</h4>
+            <p className="text-sm text-green-700">Just open a VS Code workspace containing a <InlineCode>dw.json</InlineCode> file – the server automatically discovers and uses it. No configuration flags needed!</p>
+          </div>
+          
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center gap-3 mb-3">
                 <div className="bg-blue-100 rounded-full p-2"><svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg></div>
                 <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">--dw-json &lt;path&gt;</span>
               </div>
-              <p className="text-gray-700 text-sm">Add credentials for real-time log & job log analysis, system & custom object exploration, site preference searches & code version management.</p>
+              <p className="text-gray-700 text-sm">Explicit path to credentials file. Takes precedence over auto-discovery.</p>
             </div>
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center gap-3 mb-3">
@@ -227,7 +233,7 @@ const ModeTabs: React.FC = () => {
               <BenefitCard title="Safe & Local" color="purple" text="No credentials needed (no logs / objects)." />
             </div>
           </div>
-          <p className="text-xs text-gray-500">Upgrade any time by adding <InlineCode>--dw-json</InlineCode>.</p>
+          <p className="text-xs text-gray-500">Upgrade any time by opening a workspace with <InlineCode>dw.json</InlineCode> or adding <InlineCode>--dw-json</InlineCode>.</p>
         </div>
       )}
       {active === 'full' && (
@@ -416,7 +422,7 @@ const AssistantTabs: React.FC = () => {
             </div>
           </div>
           
-          <p className="text-xs text-gray-500 text-center">Docs-only mode: omit <InlineCode>--dw-json</InlineCode>. Enable verbose logging temporarily with <InlineCode>--debug true</InlineCode>.</p>
+          <p className="text-xs text-gray-500 text-center">Docs-only mode: omit <InlineCode>--dw-json</InlineCode> and open a workspace without dw.json. Enable verbose logging temporarily with <InlineCode>--debug true</InlineCode>.</p>
         </div>
         <div>
           <h4 className="font-semibold text-gray-900 mb-3">Key Strengths</h4>

@@ -194,8 +194,8 @@ const HomePage: React.FC = () => {
           
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 text-center">
-              💡 <strong>Want more features?</strong> Add SFCC credentials via <InlineCode>--dw-json</InlineCode> for 
-              real-time log analysis, system & custom object exploration, and advanced debugging tools.
+              💡 <strong>Want more features?</strong> Open a VS Code workspace with a <InlineCode>dw.json</InlineCode> file (auto-discovered), 
+              or use <InlineCode>--dw-json</InlineCode> for real-time log analysis, system & custom object exploration, and advanced debugging tools.
             </p>
           </div>
       </div>

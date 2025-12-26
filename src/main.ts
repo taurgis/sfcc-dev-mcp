@@ -9,29 +9,20 @@
  * - Secure path validation for configuration files
  * - Server initialization and lifecycle management
  *
- * Configuration discovery priority:
+ * Configuration discovery priority (highest to lowest):
  * 1. Explicit --dw-json command line argument
- * 2. Current working directory (./dw.json)
- * 3. Parent directories (../dw.json, ../../dw.json)
- * 4. User home directory (~/.dw.json or ~/dw.json)
- * 5. Environment variables (SFCC_HOSTNAME, etc.)
+ * 2. Environment variables (SFCC_HOSTNAME, etc.)
+ * 3. MCP workspace roots discovery (after client connection)
+ * 4. Current working directory fallback (disabled by default, unreliable)
+ *
+ * Note: CWD-based discovery is disabled because MCP servers often run
+ * with cwd set to the user's home directory, not the project directory.
+ * The MCP workspace roots mechanism provides the correct project context.
  */
 
 import { SFCCDevServer } from './core/server.js';
 import { ConfigurationFactory } from './config/configuration-factory.js';
 import { Logger } from './utils/logger.js';
-import { existsSync, realpathSync, statSync } from 'fs';
-import { resolve, normalize, join, isAbsolute } from 'path';
-
-/**
- * Maximum depth to search for dw.json in parent directories
- */
-const MAX_PARENT_SEARCH_DEPTH = 3;
-
-/**
- * Maximum file size for dw.json (1MB) - DoS prevention
- */
-const MAX_CONFIG_FILE_SIZE = 1024 * 1024;
 
 /**
  * Parse command line arguments to extract configuration options
@@ -60,145 +51,24 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
 }
 
 /**
- * Validates that a path is safe to use for configuration file access
- *
- * @param filePath - The path to validate
- * @returns Object with validation result and optional error message
+ * Check if environment variables provide SFCC credentials
  */
-function validateConfigPath(filePath: string): { isValid: boolean; error?: string } {
-  // Check for null bytes
-  if (filePath.includes('\0')) {
-    return { isValid: false, error: 'Path contains invalid characters' };
-  }
-
-  // Check for excessive length
-  if (filePath.length > 4096) {
-    return { isValid: false, error: 'Path is too long' };
-  }
-
-  try {
-    const normalizedPath = normalize(resolve(filePath));
-
-    // Must be absolute after resolution
-    if (!isAbsolute(normalizedPath)) {
-      return { isValid: false, error: 'Path must be absolute' };
-    }
-
-    // Must end with .json
-    if (!normalizedPath.toLowerCase().endsWith('.json')) {
-      return { isValid: false, error: 'Configuration file must be a .json file' };
-    }
-
-    // Check if file exists and is accessible
-    if (!existsSync(normalizedPath)) {
-      return { isValid: false, error: 'File does not exist' };
-    }
-
-    // Check file size
-    const stats = statSync(normalizedPath);
-    if (stats.size > MAX_CONFIG_FILE_SIZE) {
-      return { isValid: false, error: 'Configuration file is too large' };
-    }
-
-    if (!stats.isFile()) {
-      return { isValid: false, error: 'Path is not a file' };
-    }
-
-    // Resolve symlinks and verify the real path
-    const realPath = realpathSync(normalizedPath);
-
-    // Block access to sensitive system directories
-    const blockedPaths = ['/etc', '/proc', '/sys', '/dev', '/root', '/var/log'];
-    const lowerRealPath = realPath.toLowerCase();
-
-    for (const blocked of blockedPaths) {
-      if (lowerRealPath.startsWith(`${blocked  }/`) || lowerRealPath === blocked) {
-        return { isValid: false, error: 'Access to system directories is not allowed' };
-      }
-    }
-
-    return { isValid: true };
-  } catch (error) {
-    return {
-      isValid: false,
-      error: `Path validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    };
-  }
-}
-
-/**
- * Find dw.json file in common locations with secure path validation
- *
- * This function searches for dw.json in a secure manner, validating
- * each potential path before returning it.
- *
- * @returns The path to dw.json if found and valid, undefined otherwise
- */
-function findDwJsonFile(): string | undefined {
-  const logger = Logger.getInstance();
-  const candidatePaths: string[] = [];
-
-  // Get current working directory (agent's working directory)
-  const cwd = process.cwd();
-
-  // Add current directory
-  candidatePaths.push(join(cwd, 'dw.json'));
-
-  // Add parent directories up to MAX_PARENT_SEARCH_DEPTH
-  let parentDir = cwd;
-  for (let i = 0; i < MAX_PARENT_SEARCH_DEPTH; i++) {
-    const parent = resolve(parentDir, '..');
-    if (parent === parentDir) {
-      // Reached root, stop
-      break;
-    }
-    parentDir = parent;
-    candidatePaths.push(join(parentDir, 'dw.json'));
-  }
-
-  // Add common project subdirectories in current directory
-  const commonSubdirs = ['config', '.vscode', 'cartridges'];
-  for (const subdir of commonSubdirs) {
-    candidatePaths.push(join(cwd, subdir, 'dw.json'));
-  }
-
-  // Add user home directory paths
-  const homeDir = process.env.HOME ?? process.env.USERPROFILE;
-  if (homeDir) {
-    candidatePaths.push(join(homeDir, 'dw.json'));
-    candidatePaths.push(join(homeDir, '.dw.json')); // Hidden config file
-  }
-
-  // Search through candidates with validation
-  for (const candidatePath of candidatePaths) {
-    try {
-      const normalizedPath = normalize(resolve(candidatePath));
-
-      // Quick existence check first
-      if (!existsSync(normalizedPath)) {
-        continue;
-      }
-
-      // Validate the path is safe to use
-      const validation = validateConfigPath(normalizedPath);
-      if (!validation.isValid) {
-        logger.debug(`Skipping ${candidatePath}: ${validation.error}`);
-        continue;
-      }
-
-      logger.debug(`Found dw.json at: ${normalizedPath}`);
-      return normalizedPath;
-    } catch (error) {
-      // Skip paths that cause errors during validation
-      logger.debug(`Error checking ${candidatePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-
-  return undefined;
+function hasEnvironmentCredentials(): boolean {
+  const hasBasicAuth = !!(process.env.SFCC_USERNAME && process.env.SFCC_PASSWORD);
+  const hasOAuth = !!(process.env.SFCC_CLIENT_ID && process.env.SFCC_CLIENT_SECRET);
+  return !!(process.env.SFCC_HOSTNAME && (hasBasicAuth || hasOAuth));
 }
 
 /**
  * Main application entry point
+ *
+ * Configuration discovery priority:
+ * 1. CLI --dw-json parameter (explicit, highest priority)
+ * 2. Environment variables (SFCC_HOSTNAME, etc.)
+ * 3. MCP workspace roots (discovered after client connection - most reliable for project context)
+ *
+ * Note: CWD-based auto-discovery is intentionally NOT used because MCP servers
+ * often start with cwd=/Users/xxx (home directory), not the project directory.
  */
 async function main(): Promise<void> {
   try {
@@ -210,17 +80,33 @@ async function main(): Promise<void> {
     const logger = Logger.getInstance();
 
     logger.log('Starting SFCC Development MCP Server...');
+    logger.log(`[main] Current working directory: ${process.cwd()}`);
+    logger.log(`[main] Command line args: ${JSON.stringify(process.argv.slice(2))}`);
     if (debug) {
-      logger.log('Debug mode enabled');
+      logger.log('[main] Debug mode enabled');
     }
 
-    // Try to find dw.json if not explicitly provided
-    const dwJsonPath = options.dwJsonPath ?? findDwJsonFile();
+    // Priority 1: Explicit CLI parameter
+    if (options.dwJsonPath) {
+      logger.log(`[main] Using explicit dw.json path from CLI: ${options.dwJsonPath}`);
+    }
+
+    // Priority 2: Environment variables
+    const hasEnvCredentials = hasEnvironmentCredentials();
+    if (hasEnvCredentials) {
+      logger.log('[main] Environment variables provide SFCC credentials');
+    }
+
+    // Determine initial configuration source
+    // - If CLI path provided: use it
+    // - If env vars set: use them
+    // - Otherwise: start in local mode, MCP workspace discovery will upgrade later
+    const dwJsonPath = options.dwJsonPath; // Only use explicit CLI path, not auto-discovery
 
     // Create configuration using the factory
     const config = ConfigurationFactory.create({
       dwJsonPath,
-      // Add support for environment variables as fallback
+      // Environment variables as fallback (Priority 2)
       hostname: process.env.SFCC_HOSTNAME,
       username: process.env.SFCC_USERNAME,
       password: process.env.SFCC_PASSWORD,
@@ -228,19 +114,27 @@ async function main(): Promise<void> {
       clientSecret: process.env.SFCC_CLIENT_SECRET,
     });
 
+    logger.log(`[main] Config created - hostname: "${config.hostname}"`);
+
     // Log configuration summary (without sensitive data)
     const capabilities = ConfigurationFactory.getCapabilities(config);
+    logger.log(`[main] Capabilities: ${JSON.stringify(capabilities)}`);
 
     if (capabilities.isLocalMode) {
-      logger.log('Running in Local Mode - SFCC class documentation only');
-      logger.log('To access SFCC logs and OCAPI, provide hostname and credentials');
+      logger.log('[main] Starting in Local Mode - documentation only');
+      logger.log('[main] MCP workspace roots discovery will attempt to find dw.json after client connects');
+      logger.log('[main] To skip discovery, use --dw-json or set SFCC_* environment variables');
     } else {
-      logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
-      logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
+      const source = options.dwJsonPath ? 'CLI parameter' : 'environment variables';
+      logger.log(`[main] Configuration loaded from ${source}`);
+      logger.log(`[main] Hostname: ${config.hostname}`);
+      logger.log(`[main] Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
     }
 
     // Create and start the server
+    logger.log('[main] Creating SFCCDevServer...');
     const server = new SFCCDevServer(config);
+    logger.log('[main] Starting server.run()...');
     await server.run();
   } catch (error) {
     const logger = Logger.getInstance();
@@ -249,8 +143,8 @@ async function main(): Promise<void> {
     if (error instanceof Error) {
       if (error.message.includes('not found')) {
         logger.log('\nConfiguration Help:');
-        logger.log('1. Create a dw.json file with your SFCC credentials');
-        logger.log('2. Use --dw-json /path/to/dw.json');
+        logger.log('1. Open a VS Code workspace with a dw.json file (recommended - auto-discovered)');
+        logger.log('2. Use --dw-json /path/to/dw.json (explicit path)');
         logger.log('3. Set environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD');
       }
     }

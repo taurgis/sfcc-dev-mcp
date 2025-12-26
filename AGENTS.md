@@ -458,6 +458,15 @@ sfcc-dev-mcp/
 
 ### 🚀 Operating Modes
 
+#### **Configuration Discovery Priority**
+The server discovers SFCC credentials in this order (highest to lowest priority):
+
+1. **CLI parameter** (`--dw-json /path/to/dw.json`) - Explicit, highest priority
+2. **Environment variables** (`SFCC_HOSTNAME`, `SFCC_USERNAME`, `SFCC_PASSWORD`, `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET`)
+3. **MCP workspace roots discovery** - Automatically finds `dw.json` in VS Code workspace folders after client connection
+
+> **Note**: CWD-based auto-discovery is intentionally disabled because MCP servers often start with `cwd` set to the user's home directory, not the project directory. The MCP workspace roots mechanism provides reliable project context.
+
 #### **Documentation-Only Mode**
 - No SFCC credentials required
 - Access to all documentation and best practices
