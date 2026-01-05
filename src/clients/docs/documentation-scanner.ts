@@ -174,65 +174,81 @@ export class DocumentationScanner {
     }
   }
 
+  // Batch size for parallel file reads (avoid file descriptor exhaustion)
+  private static readonly PARALLEL_BATCH_SIZE = 50;
+
   /**
    * Scan a single package directory for documentation files
+   * Uses parallel batch processing for improved performance
    */
   private async scanPackageDirectory(
     packageName: string,
     packagePath: string,
     docsPath: string,
   ): Promise<SFCCClassInfo[]> {
-    const classInfos: SFCCClassInfo[] = [];
-
     try {
       const files = await fs.readdir(packagePath);
 
-      for (const file of files) {
-        // Validate file name type and basic content before processing
+      // Filter to only markdown files with valid names
+      const mdFiles = files.filter(file => {
         if (!file || typeof file !== 'string') {
           this.logger.warn(`Warning: Invalid file name type: ${file}`);
-          continue;
+          return false;
         }
+        return file.endsWith('.md');
+      });
 
-        if (file.endsWith('.md')) {
-          const classInfo = await this.readDocumentationFile(file, packagePath, packageName, docsPath);
-          if (classInfo) {
-            classInfos.push(classInfo);
+      // Process files in parallel batches to avoid fd exhaustion
+      const classInfos: SFCCClassInfo[] = [];
+      for (let i = 0; i < mdFiles.length; i += DocumentationScanner.PARALLEL_BATCH_SIZE) {
+        const batch = mdFiles.slice(i, i + DocumentationScanner.PARALLEL_BATCH_SIZE);
+        const results = await Promise.all(
+          batch.map(file => this.readDocumentationFile(file, packagePath, packageName, docsPath)),
+        );
+        // Filter out null results and add to classInfos
+        for (const result of results) {
+          if (result) {
+            classInfos.push(result);
           }
         }
       }
+
+      return classInfos;
     } catch (error) {
       this.logger.warn(`Warning: Could not read package ${packageName}: ${error}`);
+      return [];
     }
-
-    return classInfos;
   }
 
   /**
    * Scan the docs directory and index all SFCC classes
    * Only scans SFCC-specific directories, excluding best-practices and sfra
+   * Uses parallel processing for improved cold-start performance
    */
   async scanDocumentation(docsPath: string): Promise<Map<string, SFCCClassInfo>> {
     const classCache = new Map<string, SFCCClassInfo>();
     const packages = await fs.readdir(docsPath, { withFileTypes: true });
 
-    for (const packageDir of packages) {
+    // Filter to only SFCC directories
+    const sfccPackages = packages.filter(packageDir => {
       if (!packageDir.isDirectory()) {
-        continue;
+        return false;
       }
+      return this.isSFCCDirectory(packageDir.name);
+    });
 
+    // Scan all packages in parallel for faster initialization
+    const scanPromises = sfccPackages.map(async packageDir => {
       const packageName = packageDir.name;
-
-      // Only scan SFCC-specific directories (dw_ prefixed and TopLevel)
-      // Exclude best-practices and sfra directories which are handled by other tools
-      if (!this.isSFCCDirectory(packageName)) {
-        continue;
-      }
-
       const packagePath = path.join(docsPath, packageName);
       const classInfos = await this.scanPackageDirectory(packageName, packagePath, docsPath);
+      return { packageName, classInfos };
+    });
 
-      // Add to cache with normalized keys
+    const results = await Promise.all(scanPromises);
+
+    // Add all results to cache
+    for (const { packageName, classInfos } of results) {
       for (const classInfo of classInfos) {
         const cacheKey = `${packageName}.${classInfo.className}`;
         classCache.set(cacheKey, classInfo);

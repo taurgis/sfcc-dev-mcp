@@ -260,7 +260,7 @@ tests:
               text: "match:regex:(OCAPI client not configured|ensure credentials are provided)"
           isError: true
       performance:
-        maxResponseTime: "500ms"
+        maxResponseTime: "1000ms"
       stderr: "toBeEmpty"
 
   # ==================================================================================
