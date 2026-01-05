@@ -334,7 +334,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*(404|not found|invalid)[\\s\\S]*"
+              text: "match:contains:Invalid code version ID format"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -455,7 +455,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*(404|not found)[\\s\\S]*"
+              text: "match:contains:Invalid code version ID format"
           isError: true
       stderr: "toBeEmpty"
     performance:

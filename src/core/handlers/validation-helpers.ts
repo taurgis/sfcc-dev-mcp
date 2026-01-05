@@ -161,8 +161,21 @@ export function validateFilename(filename: string, toolName: string): void {
   if (!filename || filename.trim().length === 0) {
     throw new Error(`Filename is required for ${toolName}`);
   }
+  // Check for path traversal attempts
   if (filename.includes('..') || filename.includes('\\')) {
     throw new Error(`Invalid filename '${filename}' for ${toolName}. Path traversal not allowed`);
+  }
+  // Check for null byte injection
+  if (filename.includes('\0') || filename.includes('\x00')) {
+    throw new Error(`Invalid filename for ${toolName}. Contains invalid characters`);
+  }
+  // Check for absolute path attempts
+  if (filename.startsWith('/') && !filename.startsWith('/Logs/') && !filename.startsWith('/jobs/')) {
+    throw new Error(`Invalid filename '${filename}' for ${toolName}. Absolute paths outside /Logs/ are not allowed`);
+  }
+  // Check filename length to prevent DoS
+  if (filename.length > 1024) {
+    throw new Error(`Invalid filename for ${toolName}. Filename too long`);
   }
 }
 

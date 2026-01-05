@@ -46,17 +46,76 @@ export class CartridgeGenerationClient {
     const createdDirectories: string[] = [];
     const skippedFiles: string[] = [];
 
-    try {
-      this.logger.info(`Starting cartridge generation for: ${cartridgeName}`);
+    // Validate cartridge name to prevent directory traversal and command injection
+    if (!cartridgeName || cartridgeName.trim().length === 0) {
+      return {
+        success: false,
+        message: 'Cartridge name is required',
+        createdFiles,
+        createdDirectories,
+        skippedFiles,
+      };
+    }
 
-      const workingDir = this.normalizeTargetPath(targetPath ?? process.cwd());
+    // Cartridge names must be valid directory names without path separators or special characters
+    const sanitizedName = cartridgeName.trim();
+    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(sanitizedName)) {
+      return {
+        success: false,
+        message: 'Invalid cartridge name. Must start with a letter and contain only alphanumeric characters, underscores, and dashes.',
+        createdFiles,
+        createdDirectories,
+        skippedFiles,
+      };
+    }
+
+    // Prevent path traversal in cartridge name
+    if (sanitizedName.includes('..') || sanitizedName.includes('/') || sanitizedName.includes('\\')) {
+      return {
+        success: false,
+        message: 'Invalid cartridge name. Path traversal attempts are not allowed.',
+        createdFiles,
+        createdDirectories,
+        skippedFiles,
+      };
+    }
+
+    // Limit cartridge name length
+    if (sanitizedName.length > 64) {
+      return {
+        success: false,
+        message: 'Cartridge name too long. Maximum 64 characters allowed.',
+        createdFiles,
+        createdDirectories,
+        skippedFiles,
+      };
+    }
+
+    try {
+      this.logger.info(`Starting cartridge generation for: ${sanitizedName}`);
+
+      // Validate and normalize target path
+      const rawTargetPath = targetPath ?? process.cwd();
+
+      // Prevent null byte injection in target path
+      if (rawTargetPath.includes('\0') || rawTargetPath.includes('\x00')) {
+        return {
+          success: false,
+          message: 'Invalid target path. Contains invalid characters.',
+          createdFiles,
+          createdDirectories,
+          skippedFiles,
+        };
+      }
+
+      const workingDir = this.normalizeTargetPath(rawTargetPath);
 
       if (fullProjectSetup) {
-        return this.createFullProjectSetup(workingDir, cartridgeName, createdFiles, createdDirectories, skippedFiles);
+        return this.createFullProjectSetup(workingDir, sanitizedName, createdFiles, createdDirectories, skippedFiles);
       }
 
       return this.addCartridgeToExistingProject(
-        workingDir, cartridgeName, createdFiles, createdDirectories, skippedFiles,
+        workingDir, sanitizedName, createdFiles, createdDirectories, skippedFiles,
       );
     } catch (error) {
       this.logger.error('Error generating cartridge structure:', error);

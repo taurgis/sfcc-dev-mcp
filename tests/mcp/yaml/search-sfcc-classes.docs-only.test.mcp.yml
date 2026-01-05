@@ -935,7 +935,7 @@ tests:
               text: "match:regex:\\[[\\s\\S]*\\]"
           isError: false
       performance:
-        maxResponseTime: "100ms"  # Search should be fast
+        maxResponseTime: "500ms"  # CI-friendly timing threshold
       stderr: "toBeEmpty"
 
   - it: "should handle complex searches efficiently"

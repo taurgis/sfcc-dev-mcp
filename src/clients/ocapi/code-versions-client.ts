@@ -39,10 +39,16 @@ export class OCAPICodeVersionsClient extends OCAPIAuthClient {
   async activateCodeVersion(codeVersionId: string): Promise<any> {
     Validator.validateRequired({ codeVersionId }, ['codeVersionId']);
 
+    // Validate code version ID format to prevent URL injection
+    // Code version IDs should be alphanumeric with underscores, dashes, and dots
+    if (!/^[a-zA-Z0-9_.-]+$/.test(codeVersionId)) {
+      throw new Error('Invalid code version ID format. Must contain only alphanumeric characters, underscores, dashes, and dots.');
+    }
+
     const requestBody = {
       active: true,
     };
 
-    return this.patch(`/code_versions/${codeVersionId}`, requestBody);
+    return this.patch(`/code_versions/${encodeURIComponent(codeVersionId)}`, requestBody);
   }
 }

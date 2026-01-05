@@ -112,27 +112,45 @@ describe('activate_code_version Advanced Programmatic Tests (Full Mode)', () => 
     });
 
     test('should handle edge case codeVersionId values', async () => {
-      const edgeCases = [
-        'a'.repeat(1000),                    // Very long ID
-        'test-version-with-special-chars!@#$%^&*()', // Special characters
-        'version with spaces',                // Spaces
-        'UPPERCASE-VERSION',                  // Case variations
-        'version_nonexistent_test',          // Non-existent version
-        'version.with.dots',                 // Dots
-        '123-numeric-start',                 // Starting with numbers
-        'unicode-测试-version',               // Unicode characters
+      // Edge cases that pass client-side validation (valid format but non-existent)
+      // These should reach the SFCC API and get 404 errors
+      const validFormatEdgeCases = [
+        'a'.repeat(100),                     // Long but valid ID
+        'UPPERCASE-VERSION',                  // Case variations (valid)
+        'version_nonexistent_test',          // Non-existent version (valid format)
+        'version.with.dots',                 // Dots (valid)
+        '123-numeric-start',                 // Starting with numbers (valid)
       ];
 
-      for (const edgeCase of edgeCases) {
+      for (const edgeCase of validFormatEdgeCases) {
         const result = await client.callTool('activate_code_version', { codeVersionId: edgeCase });
         assert.equal(result.isError, true, `Should handle edge case: ${edgeCase}`);
         
-        // Should get 404 or similar SFCC error, not parameter validation error
+        // Should get 404 or similar SFCC error for valid-format but non-existent versions
         assert.ok(
           result.content[0].text.includes('404') || 
           result.content[0].text.includes('not found') ||
           result.content[0].text.includes('InvalidParameterException'),
           `Should get SFCC API error for edge case: ${edgeCase}, got: ${result.content[0].text}`
+        );
+      }
+
+      // Edge cases that fail client-side validation (invalid characters)
+      // These should be caught early with validation errors for security
+      const invalidFormatEdgeCases = [
+        'test-version-with-special-chars!@#$%^&*()', // Special characters
+        'version with spaces',                // Spaces
+        'unicode-测试-version',               // Unicode characters
+      ];
+
+      for (const edgeCase of invalidFormatEdgeCases) {
+        const result = await client.callTool('activate_code_version', { codeVersionId: edgeCase });
+        assert.equal(result.isError, true, `Should reject invalid format: ${edgeCase}`);
+        
+        // Should get client-side validation error for invalid format
+        assert.ok(
+          result.content[0].text.includes('Invalid code version ID format'),
+          `Should get validation error for invalid format: ${edgeCase}, got: ${result.content[0].text}`
         );
       }
     });

@@ -498,32 +498,30 @@ describe('TokenManager', () => {
   });
 
   describe('Edge cases and error handling', () => {
-    it('should handle zero expiration time', () => {
+    it('should reject zero expiration time with validation error', () => {
       const zeroExpirationToken: OAuthTokenResponse = {
         access_token: 'zero-expiration-token',
         token_type: 'bearer',
         expires_in: 0,
       };
 
-      tokenManager.storeToken(testHostname, testClientId, zeroExpirationToken);
-
-      // Should be invalid immediately due to buffer
-      expect(tokenManager.isTokenValid(testHostname, testClientId)).toBe(false);
-      expect(tokenManager.getValidToken(testHostname, testClientId)).toBeNull();
+      // Security: Should reject invalid token response with zero expiration
+      expect(() => {
+        tokenManager.storeToken(testHostname, testClientId, zeroExpirationToken);
+      }).toThrow('Invalid token response: missing or invalid expires_in');
     });
 
-    it('should handle negative expiration time', () => {
+    it('should reject negative expiration time with validation error', () => {
       const negativeExpirationToken: OAuthTokenResponse = {
         access_token: 'negative-expiration-token',
         token_type: 'bearer',
         expires_in: -100,
       };
 
-      tokenManager.storeToken(testHostname, testClientId, negativeExpirationToken);
-
-      // Should be invalid immediately
-      expect(tokenManager.isTokenValid(testHostname, testClientId)).toBe(false);
-      expect(tokenManager.getValidToken(testHostname, testClientId)).toBeNull();
+      // Security: Should reject invalid token response with negative expiration
+      expect(() => {
+        tokenManager.storeToken(testHostname, testClientId, negativeExpirationToken);
+      }).toThrow('Invalid token response: missing or invalid expires_in');
     });
 
     it('should handle very large expiration times', () => {
@@ -582,6 +580,103 @@ describe('TokenManager', () => {
 
       expect(tokenManager.isTokenValid(testHostname, testClientId)).toBe(true);
       expect(tokenManager.getValidToken(testHostname, testClientId)).toBe('fractional-expiration-token');
+    });
+
+    it('should reject missing access_token with validation error', () => {
+      const missingTokenResponse = {
+        access_token: '',
+        token_type: 'bearer',
+        expires_in: 3600,
+      } as OAuthTokenResponse;
+
+      expect(() => {
+        tokenManager.storeToken(testHostname, testClientId, missingTokenResponse);
+      }).toThrow('Invalid token response: missing or invalid access_token');
+    });
+
+    it('should reject null access_token with validation error', () => {
+      const nullTokenResponse = {
+        access_token: null,
+        token_type: 'bearer',
+        expires_in: 3600,
+      } as unknown as OAuthTokenResponse;
+
+      expect(() => {
+        tokenManager.storeToken(testHostname, testClientId, nullTokenResponse);
+      }).toThrow('Invalid token response: missing or invalid access_token');
+    });
+  });
+
+  describe('Security and cleanup functionality', () => {
+    it('should expose token count for monitoring', () => {
+      tokenManager.clearAllTokens();
+      expect(tokenManager.getTokenCount()).toBe(0);
+
+      const tokenResponse: OAuthTokenResponse = {
+        access_token: 'monitoring-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+      };
+
+      tokenManager.storeToken(testHostname, testClientId, tokenResponse);
+      expect(tokenManager.getTokenCount()).toBe(1);
+
+      tokenManager.storeToken(testHostname, 'another-client', tokenResponse);
+      expect(tokenManager.getTokenCount()).toBe(2);
+
+      tokenManager.clearAllTokens();
+      expect(tokenManager.getTokenCount()).toBe(0);
+    });
+
+    it('should clean up expired tokens on validation check', () => {
+      // Store a token that's already expired
+      const expiredTokenResponse: OAuthTokenResponse = {
+        access_token: 'expired-token',
+        token_type: 'bearer',
+        expires_in: 1, // 1 second - will be expired with 60s buffer
+      };
+
+      tokenManager.storeToken(testHostname, testClientId, expiredTokenResponse);
+
+      // Token should be invalid (due to 60s buffer) and cleaned up
+      expect(tokenManager.isTokenValid(testHostname, testClientId)).toBe(false);
+
+      // After cleanup, getValidToken should return null
+      expect(tokenManager.getValidToken(testHostname, testClientId)).toBeNull();
+    });
+
+    it('should manually clean up expired tokens', () => {
+      tokenManager.clearAllTokens();
+
+      // Store a token that will be expired
+      const shortLivedToken: OAuthTokenResponse = {
+        access_token: 'short-lived-token',
+        token_type: 'bearer',
+        expires_in: 1, // Effectively expired due to 60s buffer
+      };
+
+      tokenManager.storeToken(testHostname, testClientId, shortLivedToken);
+
+      // Manually trigger cleanup
+      tokenManager.cleanupExpiredTokens();
+
+      // Token should have been cleaned up
+      expect(tokenManager.getValidToken(testHostname, testClientId)).toBeNull();
+    });
+
+    it('should default token_type to Bearer when not provided', () => {
+      const tokenWithoutType: OAuthTokenResponse = {
+        access_token: 'default-type-token',
+        token_type: '',
+        expires_in: 3600,
+      };
+
+      // Should not throw and should store successfully
+      expect(() => {
+        tokenManager.storeToken(testHostname, testClientId, tokenWithoutType);
+      }).not.toThrow();
+
+      expect(tokenManager.getValidToken(testHostname, testClientId)).toBe('default-type-token');
     });
   });
 

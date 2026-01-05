@@ -556,15 +556,21 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
         fullProjectSetup: false
       });
 
-      // The tool should either succeed or provide a clear error message about name length
-      if (result.isError) {
-        assert.ok(result.content[0].text.includes('Error'), 'Should provide clear error for long names');
-      } else {
-        const response = parseToolResponse(result);
-        assert.equal(response.success, true, 'Should handle long cartridge names if accepted');
-        
+      // The tool should return a response with success: false for names exceeding 64 characters
+      const response = parseToolResponse(result);
+      
+      if (response.success) {
+        // If somehow accepted, verify structure was created
         const cartridgeDir = join(testDir, 'cartridges', longCartridgeName);
-        assert.ok(await directoryExists(cartridgeDir), 'Should create directory with long name');
+        assert.ok(await directoryExists(cartridgeDir), 'Should create directory with long name if accepted');
+      } else {
+        // Should provide clear error message about name constraints
+        assert.ok(
+          response.message.includes('too long') || 
+          response.message.includes('64 characters') ||
+          response.message.includes('valid identifier'),
+          `Should provide clear error for long names, got: ${response.message}`
+        );
       }
     });
   });

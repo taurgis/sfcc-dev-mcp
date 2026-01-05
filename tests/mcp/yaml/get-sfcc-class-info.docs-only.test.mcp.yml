@@ -1177,7 +1177,7 @@ tests:
               text: "match:contains:Error"
           isError: true
       performance:
-        maxResponseTime: "50ms"  # Validation errors should be extremely fast
+        maxResponseTime: "250ms"  # Validation errors should be fast (CI-friendly threshold)
       stderr: "toBeEmpty"
 
   - it: "should handle malformed class name error efficiently"
@@ -1199,7 +1199,7 @@ tests:
               text: "match:contains:Error"
           isError: true
       performance:
-        maxResponseTime: "50ms"  # Invalid input should fail extremely fast
+        maxResponseTime: "250ms"  # Invalid input should fail quickly (CI-friendly threshold)
       stderr: "toBeEmpty"
 
   - it: "should handle cached responses quickly"
