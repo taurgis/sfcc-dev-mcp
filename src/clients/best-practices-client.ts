@@ -106,6 +106,7 @@ export class SFCCBestPracticesClient {
 
   /**
    * Search across all best practices for specific terms
+   * Uses parallel guide loading for improved performance
    */
   async searchBestPractices(query: string): Promise<Array<{
     guide: string;
@@ -117,10 +118,19 @@ export class SFCCBestPracticesClient {
     if (cached) {return cached;}
 
     const guides = await this.getAvailableGuides();
-    const results = [];
 
-    for (const guide of guides) {
-      const guideContent = await this.getBestPracticeGuide(guide.name);
+    // Load all guides in parallel for faster search
+    const guideContents = await Promise.all(
+      guides.map(async guide => ({
+        guide,
+        content: await this.getBestPracticeGuide(guide.name),
+      })),
+    );
+
+    const results = [];
+    const queryLower = query.toLowerCase();
+
+    for (const { guide, content: guideContent } of guideContents) {
       if (!guideContent) {continue;}
 
       const matches = [];
@@ -134,7 +144,7 @@ export class SFCCBestPracticesClient {
           currentSection = line.replace('##', '').trim();
         }
 
-        if (line.toLowerCase().includes(query.toLowerCase())) {
+        if (line.toLowerCase().includes(queryLower)) {
           // Get context around the match
           const start = Math.max(0, i - 2);
           const end = Math.min(lines.length, i + 3);

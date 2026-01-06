@@ -262,8 +262,12 @@ export abstract class AbstractDocumentationClient<
 
   // ==================== Protected methods for subclass customization ====================
 
+  // Batch size for parallel file reads (avoid file descriptor exhaustion)
+  protected static readonly PARALLEL_BATCH_SIZE = 30;
+
   /**
    * Load all documents from the docs directory
+   * Uses parallel batch processing for improved performance
    */
   protected async loadAllDocuments(): Promise<TDocument[]> {
     if (this.documentsCache) {
@@ -282,12 +286,21 @@ export abstract class AbstractDocumentationClient<
 
       this.logger.debug(`Found ${mdFiles.length} documentation files`);
 
+      // Process files in parallel batches for faster loading
       const documents: TDocument[] = [];
-      for (const file of mdFiles) {
-        const filePath = path.join(this.docsPath, file);
-        const document = await this.parseDocumentFile(filePath, file);
-        if (document) {
-          documents.push(document);
+      for (let i = 0; i < mdFiles.length; i += AbstractDocumentationClient.PARALLEL_BATCH_SIZE) {
+        const batch = mdFiles.slice(i, i + AbstractDocumentationClient.PARALLEL_BATCH_SIZE);
+        const results = await Promise.all(
+          batch.map(async file => {
+            const filePath = path.join(this.docsPath, file);
+            return this.parseDocumentFile(filePath, file);
+          }),
+        );
+        // Filter out null results and add to documents
+        for (const result of results) {
+          if (result) {
+            documents.push(result);
+          }
         }
       }
 
