@@ -45,11 +45,11 @@ Operate as a senior TypeScript / Node.js engineer with deep MCP + SFCC (OCAPI, S
 - Keep architectural diagrams & tool categories consistent with `src/core/tool-definitions.ts`
 
 ### Testing Strategy
-- Always discover real response shape with `npx aegis query` (success, empty, error variants) before writing tests
-- Unit tests: core utilities, parsing, validation, token & client logic
-- YAML tests: broad tool surface, schema/shape validation, edge cases
-- Programmatic tests: multi-step flows, stderr management, stateful sequences
-- Performance assertions: CI‑tolerant (<500ms typical, variation <50×) – functional correctness first
+- Always discover response shapes with `npx aegis query` before writing tests (see `.github/skills/mcp-yaml-testing/` for detailed workflow)
+- Unit tests (Jest): core utilities, parsing, validation, token & client logic
+- YAML tests (Aegis): broad tool surface, schema validation (see `.github/skills/mcp-yaml-testing/`)
+- Programmatic tests (Node): multi-step flows, stateful sequences (see `.github/skills/mcp-programmatic-testing/`)
+- Performance assertions: CI‑tolerant (<500ms typical) – correctness first
 
 ### Implementation Workflow
 1. Define or adjust tool schema (if new) in `core/tool-definitions.ts`
@@ -60,28 +60,6 @@ Operate as a senior TypeScript / Node.js engineer with deep MCP + SFCC (OCAPI, S
 6. Verify counts & update docs (both files) atomically
 7. Run lint + tests; address failures before further edits
 8. Commit with concise, scope-focused message
-
-### YAML Test Development (Critical Process)
-**MANDATORY for all YAML test modifications**: Before writing or modifying ANY YAML test:
-
-1. **Discovery First**: Use `npx aegis query [tool_name] '[params]' --config "[config.json]"` to discover actual response formats
-2. **Test Success & Failure**: Query both successful and failure scenarios to understand all response variations
-3. **Document Findings**: Add comments to YAML tests showing discovery commands and expected formats
-4. **Choose Correct Patterns**: Use patterns that match the actual response structure, not assumptions
-
-**Common Mistakes to Avoid**:
-- Using `arrayLength` on JSON strings instead of actual arrays
-- Complex regex patterns instead of simpler `contains` or `regex` patterns
-- Assuming response structure without verification
-- Writing tests before understanding what the tool actually returns
-
-**Example Discovery Process**:
-```bash
-# Discover actual response
-npx aegis query get_available_best_practice_guides '{}' --config "./aegis.config.docs-only.json"
-# Response: {"content": [{"type": "text", "text": "[{\"name\":\"guide1\",...}]"}], "isError": false}
-# Pattern: text: "match:contains:guide1" (not arrayLength since it's a JSON string)
-```
 
 ### Performance & Stability
 - Optimize only after measuring; instrument where ambiguity exists
@@ -564,252 +542,59 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 
 **Remember**: These documentation files serve as the primary source of truth for understanding the project. `AGENTS.md` guides development practices and architecture, while `README.md` serves users and contributors. Keeping both current ensures consistent understanding across all stakeholders and maintains professional project standards.
 
-### 🔧 Common Development Tasks (Streamlined)
+### 🔧 Common Development Tasks
 
-- **Adding New Tools**: Define schema in `core/tool-schemas/[category]-tools.ts`, add to exports in `core/tool-schemas/index.ts`, implement handler in appropriate handler class in `core/handlers/`, or create new handler extending `BaseToolHandler`
-- **Creating New Handlers**: Extend `BaseToolHandler` class, implement `canHandle()` and `handle()` methods, register in `server.ts`
-- **Using ClientFactory**: Create clients using `ClientFactory` for centralized creation and dependency injection support
-- **Implementing Services**: Create service interfaces in `services/index.ts`, implement production versions, and provide mock implementations for testing
-- **Dependency Injection**: Use constructor injection for services, leverage `ClientFactory` for client creation with optional service injection
-- **Updating Documentation**: Modify files in `docs/` and run conversion scripts
-- **Enhancing Authentication**: Update `clients/base/oauth-token.ts` and client authentication logic
-- **Improving Caching**: Enhance `utils/cache.ts` for better performance and data freshness
-- **Adding Configuration Options**: Update `config/` modules for new configuration capabilities
-- **Adding Tests**: Create comprehensive test coverage in the `tests/` directory with proper service mocking
-- **MCP Test Execution**: Use `node --test` for individual MCP programmatic tests, NOT `npm test -- file.js` (which runs Jest)
-- **Test Types**: Jest for unit tests (`tests/` directory), Node.js test runner for MCP programmatic tests (`tests/mcp/node/`), Aegis for YAML tests (`tests/mcp/yaml/`)
-- **Adding Utilities**: Extend `utils/` modules for shared functionality
-- **Handler Development**: Follow the modular handler pattern - each handler is responsible for a specific tool category with clear separation of concerns
-- **Cartridge Generation**: Use `generate_cartridge_structure` tool for automated cartridge creation with direct file generation
-- **Job Log Analysis**: Use job log tools for debugging custom job steps - `get_latest_job_log_files`, `get_job_log_entries`, `search_job_logs`, `search_job_logs_by_name`, `get_job_execution_summary`
-- **Modular Log Development**: Work with individual log modules in `clients/logs/` for specific functionality - modify `log-analyzer.ts` for analysis improvements, `log-formatter.ts` for output changes, or `log-file-reader.ts` for reading optimizations
-- **Modular Documentation Development**: Work with individual documentation modules in `clients/docs/` for specific functionality - modify `documentation-scanner.ts` for file discovery improvements, `class-content-parser.ts` for parsing enhancements, `class-name-resolver.ts` for name resolution logic, or `referenced-types-extractor.ts` for type extraction algorithms
-- **Documentation Verification**: Use verification commands (see Maintenance) before changing numeric counts or structure claims
-- **CI-Friendly Performance Testing**: When writing performance tests, use lenient timeouts (500ms+) and variation ratios (50x+) to account for GitHub Actions CI environment variability. Prioritize functional validation over strict timing requirements to prevent flaky failures due to infrastructure differences.
+**Code Development:**
+- **Adding New Tools**: Define schema in `core/tool-schemas/[category]-tools.ts`, add to `index.ts`, implement in `core/handlers/`
+- **Creating New Handlers**: Extend `BaseToolHandler`, implement `canHandle()` and `handle()`, register in `server.ts`
+- **Using ClientFactory**: Create clients with `ClientFactory` for centralized creation and DI support
+- **Implementing Services**: Create interfaces in `services/index.ts`, implement production + mock versions
 
-### 🔍 Testing & Validation (Consolidated Summary)
-Detailed testing guidance lives in:
-- `tests/mcp/AGENTS.md` (umbrella & decision matrix)
-- `tests/mcp/yaml/AGENTS.md` (YAML discovery-first workflow & pattern catalog)
-- `tests/mcp/node/AGENTS.md` (programmatic multi-step, stderr management, performance tolerances)
+**Testing** (see `.github/skills/` for detailed guides):
+- **YAML Tests**: Use `mcp-yaml-testing` skill for declarative test creation
+- **Programmatic Tests**: Use `mcp-programmatic-testing` skill for complex workflows
+- **Unit Tests**: Jest for `tests/` directory; MCP tests use `node --test`
 
-Essentials:
-- Always discover success + empty/no-result + error responses with `npx aegis query` before writing tests.
-- Prefer YAML for broad coverage; use programmatic tests for stateful or multi-step logic.
-- Keep performance assertions lenient (<500ms typical; <50× variance) unless you have empirical baselines.
+**SFCC-Specific Tasks** (see `.github/skills/` for detailed guides):
+- **Cartridge Generation**: Use `sfcc-cartridge-generation` skill for scaffolding
+- **Log Debugging**: Use `sfcc-log-debugging` skill for error investigation
 
-Cheat Sheet:
+**Modular Development:**
+- **Log Modules**: Modify `clients/logs/` files for log functionality changes
+- **Doc Modules**: Modify `clients/docs/` files for documentation parsing changes
+- **Documentation**: Use verification commands before updating counts
+
+### 🔍 Testing & Validation
+
+**Skills Available**: For detailed testing workflows, use these Agent Skills (in `.github/skills/`):
+- `mcp-yaml-testing` - YAML test creation, patterns, discovery workflow
+- `mcp-programmatic-testing` - JavaScript tests, buffer management, multi-step workflows
+
+**Test Type Decision Matrix**:
+| Scenario | Recommended | Reason |
+|----------|-------------|--------|
+| Basic tool validation | YAML | Simple, declarative, CI-friendly |
+| Schema/shape testing | YAML | Pattern matching built-in |
+| Multi-step workflows | Programmatic | State management needed |
+| Complex business logic | Programmatic | Code execution required |
+
+**Essential Commands**:
 ```bash
-# List tools
-npx aegis query --config ./aegis.config.docs-only.json
+# Discovery (ALWAYS run before writing tests)
+npx aegis query [tool_name] '[params]' --config ./aegis.config.docs-only.json
 
-# Discovery examples
-npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
-npx aegis query get_sfra_document 'documentName:server' --config ./aegis.config.docs-only.json
-npx aegis query get_system_object_definitions '' --config ./aegis.config.with-dw.json
-
-# Complex dotted parameters
-npx aegis query search_system_object_attribute_definitions 'objectType:Product|searchRequest.query.match_all_query:{}' --config ./aegis.config.with-dw.json
-
-# Test suites
-npm run test:mcp:yaml        # YAML (docs-only)
-npm run test:mcp:yaml:full   # YAML (full mode)
-npm run test:mcp:node        # Programmatic
-jest                        # Unit tests
-npm test                    # Full suite
-
-# Single programmatic test
-node --test tests/mcp/node/get-latest-debug.full-mode.programmatic.test.js
+# Test execution
+npm run test:mcp:yaml        # YAML tests (docs-only)
+npm run test:mcp:yaml:full   # YAML tests (full mode)
+npm run test:mcp:node        # Programmatic tests
+npm test                     # Full suite (Jest + MCP)
 ```
 
-Troubleshooting Quick Tips:
-- Mismatch schema: re-run discovery; update both test + docs.
-- Flaky stderr assertions: ensure `client.clearStderr()` in programmatic tests (see node guide).
-- Empty arrays vs objects: record actual shape before choosing regex pattern.
-
-#### **Debugging Tool Responses**
-
-When developing or debugging tools, use aegis to inspect actual response formats:
-
-```bash
-# Capture full response structure for test validation (pipe format)
-npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json | head -50
-
-# Traditional method format (still supported)
-npx aegis query --config ./aegis.config.docs-only.json --method "tools/call" --params '{"name": "[tool-name]", "arguments": [args]}' | head -50
-
-# Test error handling (pipe format)
-npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
-
-# Verify JSON response structure (pipe format)
-npx aegis query get_sfcc_class_info 'className:dw.catalog.Product' --config ./aegis.config.docs-only.json | jq '.'
-```
-
-#### **Development Workflow Integration**
-
-1. **Tool Development**: After implementing a new tool, immediately test with aegis before writing unit tests
-2. **Response Validation**: Use aegis to capture actual response structures when writing test assertions
-3. **Error Testing**: Verify error handling behavior with invalid parameters through aegis
-4. **Configuration Testing**: Test both docs-only and full modes to ensure proper tool availability
-5. **Integration Testing**: Validate tool interactions and data flow using aegis before automated tests
-
-#### **Critical: Response Format Discovery Before Writing Tests**
-
-**ALWAYS use aegis query to understand actual response formats before writing YAML tests.** This prevents test failures due to incorrect assumptions about response structure.
-
-##### **Essential Pre-Test Discovery Process:**
-
-1. **Query the tool with sample arguments** to see actual response format:
-   ```bash
-   npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
-   ```
-
-2. **Test edge cases** (empty results, errors) to understand all response variations:
-   ```bash
-   npx aegis query search_sfcc_classes 'query:zzznothingfound' --config ./aegis.config.docs-only.json
-   npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
-   ```
-
-3. **Document the actual response structure** before writing test expectations:
-   - Is it a JSON object with metadata fields like `{classes: [], totalCount: 5, searchTerm: "query"}`?
-   - Or a simple JSON array like `["dw.catalog.Product", "dw.catalog.Catalog"]`?
-   - Does it return `[]` for no results or `{classes: [], totalCount: 0}`?
-
-4. **Use the correct validation patterns** based on actual responses:
-   ```yaml
-   # For JSON array responses
-   text: "match:regex:\\[[\\s\\S]*\\]"
-   
-   # For empty array responses  
-   text: "match:regex:^\\[\\s*\\]$"
-   
-   # For JSON object responses
-   text: "match:regex:\\{[\\s\\S]*\\}"
-   
-   # For specific content validation
-   text: "match:contains:dw.catalog.Product"
-   ```
-
-##### **Common Testing Mistakes to Avoid:**
-
-- **Assuming JSON structure without verification**: Don't expect `{classes: [], totalCount: 5}` if tool returns `["class1", "class2"]`
-- **Wrong empty result validation**: Using `match:exact:[]` instead of `match:regex:^\\[\\s*\\]$`
-- **Missing edge case testing**: Not testing empty queries, invalid parameters, or no-result scenarios
-- **Incorrect pattern syntax**: Using `contains:classes` instead of `match:contains:classes`
-
-##### **Response Format Discovery Examples:**
-
-```bash
-# Discover structure for class search (pipe format)
-npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
-# Result: ["dw.catalog.Catalog", "dw.catalog.Product", ...] (simple array)
-
-# Discover empty result format (pipe format)
-npx aegis query search_sfcc_classes 'query:zzznothingfound' --config ./aegis.config.docs-only.json
-# Result: [] (empty array)
-
-# Discover error response format (pipe format)
-npx aegis query search_sfcc_classes 'query:' --config ./aegis.config.docs-only.json
-# Result: {"content": [{"type": "text", "text": "Error: ..."}], "isError": true}
-```
-
-**Remember**: The time spent discovering actual response formats with aegis saves hours of debugging failed tests later. Always query first, then write tests based on reality, not assumptions.
-
-#### **Troubleshooting with Aegis**
-
-- **Tool Not Found**: Check configuration mode (docs-only vs full) and ensure tool is properly registered
-- **Invalid Arguments**: Use aegis to test parameter validation and see exact error messages
-- **Response Issues**: Compare aegis output with programmatic test expectations to identify format mismatches
-- **Performance Issues**: Use aegis timing information to identify slow tools
-- **Authentication Problems**: Test full-mode tools with aegis to validate OCAPI/WebDAV connections
-
-#### **Best Practices**
-
-- **CRITICAL: Always discover response formats first** - Use aegis query to understand actual response structure before writing any tests
-- **Always test new tools** with aegis before writing automated tests
-- **Use aegis output** to write accurate test assertions rather than guessing response formats  
-- **Test both success and error cases** with aegis during development
-- **Verify tool availability** in different configuration modes using aegis
-- **Debug programmatic test failures** by comparing with aegis CLI results
-- **Test parameter validation** using aegis with various input combinations
-- **Document actual response formats** in test file comments for future reference
-- **Test edge cases comprehensively** - empty results, invalid inputs, missing parameters
-- **Use correct YAML pattern syntax** - always prefix with `match:` for validation patterns
-
-#### **CI-Friendly Performance Testing Guidelines**
-
-When writing performance-related tests, especially for GitHub Actions CI environments, follow these critical guidelines:
-
-- **Use Lenient Timeouts**: Set timeout thresholds of **500ms or higher** instead of strict values (50ms-250ms). CI environments are slower and less predictable than local development machines.
-- **Account for Environment Variability**: CI runners experience resource contention, cold starts, network latency, and I/O scheduling delays that can significantly impact timing.
-- **Performance Variation Ratios**: For tests comparing min/max performance, use ratios of **50x or higher** instead of strict ratios (15x). CI environments can have extreme variations due to:
-  - Resource sharing with other processes
-  - JIT compilation and garbage collection delays  
-  - Network and file system variability
-  - Container initialization overhead
-- **Scaling Calculations**: When calculating expected performance based on result count, use generous base times (100ms+) and scaling factors (2ms+ per item) rather than tight calculations.
-- **Focus on Functional Validation**: Prioritize correctness over strict performance requirements. Performance tests should catch major regressions, not minor timing variations.
-- **Example CI-Friendly Assertions**:
-  ```javascript
-  // ❌ Too strict for CI
-  assert.ok(duration < 50, `Response time should be under 50ms`);
-  assert.ok(variationRatio < 15, `Performance variation should be under 15x`);
-  
-  // ✅ CI-friendly
-  assert.ok(duration < 500, `Response time should be under 500ms`);
-  assert.ok(variationRatio < 50, `Performance variation should be under 50x`);
-  ```
-
-**Remember**: The goal is reliable CI builds that catch real issues without flaky failures due to infrastructure timing differences.
-
-#### **Comprehensive Testing Documentation**
-
-For comprehensive MCP testing guidance, refer to the specialized AGENTS.md files in the testing directories:
-
-##### **YAML-Based Declarative Testing**
-The primary testing approach using human-readable YAML files with advanced pattern matching:
-
-- **30+ Advanced Pattern Matching**: String patterns, numeric comparisons, date validation, array operations, field extraction, cross-field validation, and pattern negation
-- **Declarative YAML Testing**: Human-readable test files with sophisticated validation patterns
-- **Interactive Tool Testing**: Quick commands for testing tools interactively with the aegis CLI
-- **Debugging Workflows**: Step-by-step approaches for troubleshooting test failures and server issues
-- **Real-World Examples**: Complete test suites for filesystem servers, multi-tool servers, and API testing scenarios
-- **Performance Testing**: Patterns for validating response times and system performance
-- **Error Handling Validation**: Comprehensive approaches to testing error scenarios and edge cases
-
-##### **Programmatic JavaScript/TypeScript Testing** 
-For complex testing scenarios requiring programmatic logic and integration with existing test suites:
-
-- **JavaScript/TypeScript API**: Full programmatic access to MCP server testing capabilities
-- **Advanced Workflows**: Multi-step testing, state management, and dynamic validation logic
-- **Framework Integration**: Jest, Mocha, and Node.js test runner integration patterns
-- **Performance Monitoring**: Built-in metrics collection and performance analysis
-- **Buffer Management**: Critical guidance on preventing test interference with proper `clearStderr()` usage
-- **Error Recovery Testing**: Comprehensive error handling and resilience validation
-- **TypeScript Support**: Full type safety for enterprise testing environments
-
-**Quick Interactive Testing Commands:**
-```bash
-# List all available tools
-aegis query --config ./aegis.config.docs-only.json
-
-# Test specific tool with arguments - Multiple formats supported:
-
-# Pipe format (recommended for CLI)
-aegis query read_file 'path:test.txt' --config ./aegis.config.docs-only.json
-aegis query calculator 'operation:add|a:5|b:3' --config ./aegis.config.docs-only.json
-
-# JSON format (complex structures)
-aegis query complex_tool '{"config": {"host": "localhost"}, "data": [1,2,3]}' --config ./aegis.config.docs-only.json
-
-# Method syntax with pipe format
-aegis query --method tools/call --params 'name:read_file|arguments.path:test.txt' --config ./aegis.config.docs-only.json
-
-# Debug with verbose output
-aegis query read_file 'path:test.txt' --config ./aegis.config.docs-only.json --verbose
-```
-
-**For AI Agents**: Both AGENTS.md files are specifically designed for AI assistants to understand how to create and execute comprehensive test suites for MCP servers. Choose YAML-based testing for declarative scenarios or programmatic testing for complex logic requirements. Both approaches can be directly applied to validate this SFCC Dev MCP server's functionality.
+**Critical Rules**:
+1. Always discover response formats with `aegis query` before writing tests
+2. Use `client.clearAllBuffers()` in programmatic test `beforeEach()` hooks
+3. Never use `Promise.all()` with MCP requests (causes buffer conflicts)
+4. Use CI-friendly timeouts (500ms+) for performance assertions
 
 ### 🧱 Architecture Advantages (Consolidated)
 Unified benefits of the directory structure, handler model, dependency injection, modular log system, and modular documentation system:
