@@ -461,6 +461,27 @@ Signs to update tool usage patterns:
 
 **MANDATORY**: Before generating ANY SFCC code involving ISML templates or models, you MUST use these MCP tools to ensure correct override paths and patterns:
 
+### 🚨 CRITICAL: Read ALL Relevant Skills
+
+**A single task often involves MULTIPLE skills.** For example, creating a controller that renders a template requires reading BOTH the controller skill AND the ISML skill.
+
+**Before writing ANY code, identify ALL artifact types being created/modified:**
+- Creating a controller? → Read `sfcc-sfra-controllers` skill
+- Creating/modifying ISML template? → Read `sfcc-isml-development` skill  
+- Creating/modifying a model? → Read `sfcc-sfra-models` skill
+- Adding client-side JS? → Read `sfcc-sfra-client-side-js` skill
+- Adding SCSS/styles? → Read `sfcc-sfra-scss` skill
+- Creating a service? → Read `sfcc-localserviceregistry` skill
+- Creating a job? → Read `sfcc-job-development` skill
+- Adding OCAPI hooks? → Read `sfcc-ocapi-hooks` skill
+- Adding SCAPI hooks? → Read `sfcc-scapi-hooks` skill
+
+**Example:** User asks "Create a controller that shows a hello world page"
+- ✅ CORRECT: Read `sfcc-sfra-controllers` AND `sfcc-isml-development` skills
+- ❌ WRONG: Only read `sfcc-sfra-controllers` skill
+
+**Read skills in PARALLEL when possible to save time.**
+
 ### **Required MCP Tool Chain for SFCC Override Code**
 
 #### **For ISML Template Generation**:
