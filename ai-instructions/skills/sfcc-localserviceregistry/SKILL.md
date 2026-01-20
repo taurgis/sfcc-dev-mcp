@@ -168,6 +168,7 @@ var myAPIService = LocalServiceRegistry.createService('int_myapi.http.customer',
 - Prefer `filterLogMessage` for any integration that may include secrets, tokens, passwords, or PII.
 - Keep `parseResponse` strict: if `client.statusCode >= 400`, throw an error so failures propagate through `result.ok === false`.
 - Use Business Manager service profiles for timeouts, rate limits, and circuit breaker behavior.
+- For comprehensive logging patterns including categories, custom log files, and log level checks, see **[sfcc-logging](../sfcc-logging/SKILL.md)**.
 
 // --- Public API ---
 module.exports = {

@@ -311,6 +311,10 @@ search_sfra_documentation("decorator")
 | Exposing API objects | Non-JSON, security risk | Extract specific properties |
 | Cloning in decorators | Breaks reference chain | Mutate in place |
 
+## Related Skills
+
+- **[sfcc-logging](../sfcc-logging/SKILL.md)** - Logging patterns for debugging models. Use log level checks before expensive debug logging.
+
 ## Detailed References
 
 - [Model Structure](references/MODEL-STRUCTURE.md) - Complete directory structure and categories

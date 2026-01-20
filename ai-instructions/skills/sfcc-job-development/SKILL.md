@@ -304,6 +304,10 @@ exports.getTotalCount = function() {
 | Transaction timeouts | Reduce chunk size, commit per chunk |
 | Job not visible in BM | Check code version is active |
 
+## Related Skills
+
+- **[sfcc-logging](../sfcc-logging/SKILL.md)** - Comprehensive logging patterns, custom log files, NDC tracing. Essential for job debugging and monitoring.
+
 ## Detailed References
 
 - [Task-Oriented Steps](references/TASK-ORIENTED.md) - Full task step patterns

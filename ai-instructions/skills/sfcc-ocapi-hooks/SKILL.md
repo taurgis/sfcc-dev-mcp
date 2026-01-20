@@ -268,7 +268,7 @@ exports.afterPOST = function (order) {
 ### Error Handling & Resilience
 
 - **DO** wrap all hook logic in `try/catch` blocks.
-- **DO** use `dw.system.Logger` with custom categories and include the `request.requestID` for easy tracing.
+- **DO** use `dw.system.Logger` with custom categories and include the `request.requestID` for easy tracing. See **[sfcc-logging](../sfcc-logging/SKILL.md)** for complete logging patterns.
 - **BE AWARE** of the Hook Circuit Breaker. If a hook fails more than 50% of the time in its last 100 executions, it will be disabled for 60 seconds, returning HTTP 503.
 
 ### Testing

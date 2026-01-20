@@ -388,3 +388,7 @@ var encryptedBase64 = aesGcmCipher.encrypt(plainText, base64Key, 'AES/GCM/NoPadd
 - **Unique IVs**: Always generate a unique, random IV for each encryption operation. Never reuse IVs with the same key.
 
 - **Avoid Weak Classes**: Never use WeakCipher, WeakMac, WeakMessageDigest, or any other deprecated cryptographic classes.
+
+## Related Skills
+
+- **[sfcc-logging](../sfcc-logging/SKILL.md)** - Logging best practices including avoiding sensitive data in logs. Essential for security auditing and incident forensics.

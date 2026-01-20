@@ -337,6 +337,7 @@ module.exports = server.exports();
 ## Related Skills
 
 - **[sfcc-localization](../sfcc-localization/SKILL.md)** - Essential for localizing controller responses. Use `Resource.msg()` for all user-facing messages, error strings, and JSON responses. Never hardcode text in controllers.
+- **[sfcc-logging](../sfcc-logging/SKILL.md)** - Comprehensive logging patterns including categories, custom log files, and log level checks for debugging controllers.
 
 ## Detailed References
 
