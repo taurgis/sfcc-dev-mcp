@@ -175,21 +175,6 @@ tests:
           value: "match:arrayContains:get_sfra_document"
       stderr: "toBeEmpty"
 
-  - it: "should have best practices tools available"
-    request:
-      jsonrpc: "2.0"
-      id: "best-practices-available"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "best-practices-available"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_best_practice_guide"
-      stderr: "toBeEmpty"
-
   - it: "should have cartridge generation tools available"
     request:
       jsonrpc: "2.0"
@@ -216,7 +201,7 @@ tests:
         jsonrpc: "2.0"
         id: "expected-tool-count"
         result:
-          tools: "match:arrayLength:20"  # 15 original + 5 ISML tools
+          tools: "match:arrayLength:17"  # docs (5) + SFRA (5) + ISML (5) + cartridge (1) + agent instructions (1)
       stderr: "toBeEmpty"
 
 # ==================================================================================

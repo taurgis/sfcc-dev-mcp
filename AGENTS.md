@@ -99,7 +99,6 @@ sfcc-dev-mcp/
 │   │   │   ├── index.ts          # Aggregates and re-exports all tool schemas
 │   │   │   ├── shared-schemas.ts # Reusable schema components (query, pagination, etc.)
 │   │   │   ├── documentation-tools.ts # SFCC documentation tools (5 tools)
-│   │   │   ├── best-practices-tools.ts # Best practices tools (4 tools)
 │   │   │   ├── sfra-tools.ts     # SFRA documentation tools (5 tools)
 │   │   │   ├── isml-tools.ts     # ISML documentation tools (5 tools)
 │   │   │   ├── log-tools.ts      # Log + Job log tools (8 + 5 tools)
@@ -113,7 +112,6 @@ sfcc-dev-mcp/
 │   │       ├── client-factory.ts # Centralized client creation with dependency injection
 │   │       ├── validation-helpers.ts # Common validation utilities for handlers
 │   │       ├── docs-handler.ts   # SFCC documentation tool handler
-│   │       ├── best-practices-handler.ts # Best practices tool handler
 │   │       ├── sfra-handler.ts   # SFRA documentation tool handler
 │   │       ├── isml-handler.ts   # ISML documentation tool handler
 │   │       ├── log-handler.ts    # Log analysis tool handler
@@ -156,7 +154,6 @@ sfcc-dev-mcp/
 │   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── isml-client.ts        # ISML element documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
-│   │   └── best-practices-client.ts # Best practices guide client
 │   ├── services/                 # Service layer with clean abstractions
 │   │   ├── index.ts              # Service exports and type definitions
 │   │   ├── file-system-service.ts # File system operations service
@@ -165,10 +162,8 @@ sfcc-dev-mcp/
 │   │   ├── configuration-factory.ts # Config factory for different modes
 │   │   └── dw-json-loader.ts     # dw.json configuration loader
 │   ├── constants/                # Application constants
-│   │   ├── index.ts              # Constants exports
-│   │   └── best-practices-guides.ts # Best practices guide definitions
+│   │   └── index.ts              # Constants exports
 │   ├── tool-configs/             # Tool configuration definitions
-│   │   ├── best-practices-tool-config.ts # Best practices tools configuration
 │   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
 │   │   ├── code-version-tool-config.ts # Code version tools configuration
 │   │   ├── docs-tool-config.ts   # Documentation tools configuration
@@ -308,6 +303,7 @@ sfcc-dev-mcp/
 - Manages configuration modes (documentation-only vs. full)
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
+- Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool
 
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
@@ -315,15 +311,15 @@ sfcc-dev-mcp/
 - **SimpleClientHandler** (`simple-client-handler.ts`): Simplified handler for single-client tools with less boilerplate
 - **ClientFactory** (`client-factory.ts`): Centralized client creation with dependency injection support for testing and clean architecture
 - **ValidationHelpers** (`validation-helpers.ts`): Common validation utilities shared across all handlers
-- **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
-- **BestPracticesToolHandler** (`best-practices-handler.ts`): Manages best practice guides, security recommendations, and hook reference tables
-- **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
+   - **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
+   - **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
 - **ISMLToolHandler** (`isml-handler.ts`): Handles ISML element documentation, search, and category browsing
 - **LogToolHandler** (`log-handler.ts`): Handles real-time log analysis, error monitoring, and system health summarization
 - **JobLogToolHandler** (`job-log-handler.ts`): Handles job log analysis, debugging, and execution summaries
 - **SystemObjectToolHandler** (`system-object-handler.ts`): Manages system object definitions, custom attributes, and site preferences
 - **CodeVersionToolHandler** (`code-version-handler.ts`): Handles code version listing, activation, and deployment management
 - **CartridgeToolHandler** (`cartridge-handler.ts`): Processes cartridge generation requests with complete project setup using dependency injection
+- **AgentInstructionsToolHandler** (`agent-instructions-handler.ts`): Installs or merges bundled AGENTS.md and skills into workspaces, user home, or temp directories
 
 #### **Client Architecture**
 
@@ -360,6 +356,7 @@ sfcc-dev-mcp/
 - **ISMLClient** (`isml-client.ts`): Provides ISML element documentation, category-based browsing, and search functionality for template development
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
 - **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, SFRA client-side JavaScript architecture (AJAX flows, validation, accessibility), custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+- **AgentInstructionsClient** (`agent-instructions-client.ts`): Plans and installs bundled AI assets (AGENTS.md + skills) into workspaces, user home, or temp directories with merge strategies and missing-only copy support
 
 ##### **Cartridge Generation** (`clients/cartridge/`)
 - **CartridgeGenerationClient** (`cartridge-generation-client.ts`): Generates complete cartridge structures with clean dependency injection for file system and path operations
@@ -389,50 +386,48 @@ sfcc-dev-mcp/
    - API search and discovery
    - Complete SFCC namespace coverage
 
-2. **Best Practices Guides** (4 tools)
-   - Curated development guidelines
-   - Security and performance recommendations
-   - SFRA client-side JavaScript architecture (AJAX, validation, accessibility)
-   - Hook reference tables and examples
-
-3. **Enhanced SFRA Documentation Tools** (5 tools)
+2. **Enhanced SFRA Documentation Tools** (5 tools)
    - **Dynamic Discovery**: Automatically finds all 26+ SFRA documents including core classes, extensive model documentation
    - **Smart Categorization**: Organizes documents into 7 logical categories (core, product, order, customer, pricing, store, other)
    - **Advanced Search**: Relevance-scored search across all documents with context highlighting
    - **Category Filtering**: Explore documents by functional areas for efficient discovery
    - **Complete Coverage**: Core SFRA classes (Server, Request, Response, QueryString, render) plus comprehensive model documentation (account, cart, products, pricing, billing, shipping, store, customer management, totals, categories, content, locale, addresses, and more)
 
-4. **ISML Documentation Tools** (5 tools)
+3. **ISML Documentation Tools** (5 tools)
    - Complete ISML element reference and documentation
    - Control flow elements (isif, isloop, isnext, etc.)
    - Output formatting (isprint) and includes (isinclude, iscomponent, isslot)
    - Scripting elements (isscript, isset) and caching (iscache)
    - Category-based browsing and advanced search capabilities
 
-5. **Cartridge Generation Tools** (1 tool)
+4. **Cartridge Generation Tools** (1 tool)
    - Automated cartridge structure creation with direct file generation
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-6. **Log Analysis Tools** (8 tools)
+5. **Log Analysis Tools** (8 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
 
-7. **Job Log Tools** (5 tools)
+6. **Job Log Tools** (5 tools)
    - Job log analysis and debugging
    - Job execution summaries
    - Custom job step monitoring
 
-8. **System Object Tools** (6 tools)
+7. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
    - Custom object attribute definitions search
 
-9. **Code Version Tools** (2 tools)
+8. **Code Version Tools** (2 tools)
    - Code version listing and management
    - Code version activation for deployment fixes
+
+9. **Agent Instruction Tools** (1 tool)
+   - Copy or merge AGENTS.md and bundled skills into the current workspace, user home, or a temp directory
+   - Supports dry-run planning, append/replace/skip strategies, and missing-only installs
 
 ### 🚀 Operating Modes
 
@@ -471,7 +466,7 @@ See Unified Engineering Principles section above for the authoritative guideline
 Before updating any documentation with tool counts or quantitative information, **ALWAYS** verify the actual numbers using command line tools:
 
 ```bash
-# Total tool count verification (41 tools across all categories)
+# Total tool count verification (38 tools across all categories)
 grep -c "name: '" src/core/tool-schemas/*.ts | grep -v ":0" | awk -F: '{sum+=$2} END {print "Total tools:", sum}'
 
 # Individual category counts (from modular schema files)

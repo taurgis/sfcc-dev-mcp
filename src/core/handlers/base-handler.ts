@@ -1,5 +1,6 @@
 import { Logger } from '../../utils/logger.js';
 import { SFCCConfig } from '../../types/types.js';
+import { WorkspaceRootsService } from '../../config/workspace-roots.js';
 
 export interface HandlerContext {
   logger: Logger;
@@ -8,6 +9,7 @@ export interface HandlerContext {
     canAccessLogs: boolean;
     canAccessOCAPI: boolean;
   };
+  workspaceRootsService?: WorkspaceRootsService;
 }
 
 export interface ToolExecutionResult {

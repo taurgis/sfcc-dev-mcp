@@ -10,7 +10,6 @@
 // Re-export all tool definitions from modular files
 export {
   SFCC_DOCUMENTATION_TOOLS,
-  BEST_PRACTICES_TOOLS,
   SFRA_DOCUMENTATION_TOOLS,
   ISML_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
@@ -18,6 +17,7 @@ export {
   SYSTEM_OBJECT_TOOLS,
   CARTRIDGE_GENERATION_TOOLS,
   CODE_VERSION_TOOLS,
+  AGENT_INSTRUCTION_TOOLS,
 } from './tool-schemas/index.js';
 
 // Re-export shared schemas for any external consumers

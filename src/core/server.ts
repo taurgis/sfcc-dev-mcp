@@ -18,7 +18,6 @@ import { ConfigurationFactory } from '../config/configuration-factory.js';
 import { WorkspaceRootsService } from '../config/workspace-roots.js';
 import {
   SFCC_DOCUMENTATION_TOOLS,
-  BEST_PRACTICES_TOOLS,
   SFRA_DOCUMENTATION_TOOLS,
   ISML_DOCUMENTATION_TOOLS,
   LOG_TOOLS,
@@ -26,6 +25,7 @@ import {
   SYSTEM_OBJECT_TOOLS,
   CARTRIDGE_GENERATION_TOOLS,
   CODE_VERSION_TOOLS,
+  AGENT_INSTRUCTION_TOOLS,
 } from './tool-definitions.js';
 
 // Modular tool handlers
@@ -33,12 +33,14 @@ import { BaseToolHandler, HandlerContext } from './handlers/base-handler.js';
 import { LogToolHandler } from './handlers/log-handler.js';
 import { JobLogToolHandler } from './handlers/job-log-handler.js';
 import { DocsToolHandler } from './handlers/docs-handler.js';
-import { BestPracticesToolHandler } from './handlers/best-practices-handler.js';
 import { SFRAToolHandler } from './handlers/sfra-handler.js';
 import { ISMLToolHandler } from './handlers/isml-handler.js';
 import { SystemObjectToolHandler } from './handlers/system-object-handler.js';
 import { CodeVersionToolHandler } from './handlers/code-version-handler.js';
 import { CartridgeToolHandler } from './handlers/cartridge-handler.js';
+import { AgentInstructionsToolHandler } from './handlers/agent-instructions-handler.js';
+import { InstructionAdvisor } from './instruction-advisor.js';
+import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -52,6 +54,7 @@ export class SFCCDevServer {
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
   private handlers: BaseToolHandler[] = [];
   private workspaceRootsService: WorkspaceRootsService;
+  private instructionAdvisor: InstructionAdvisor;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -64,6 +67,8 @@ export class SFCCDevServer {
     this.logMethodEntry('constructor', { hostname: config.hostname });
     this.capabilities = ConfigurationFactory.getCapabilities(config);
     this.workspaceRootsService = new WorkspaceRootsService(this.logger);
+    const advisorClient = new AgentInstructionsClient(this.workspaceRootsService, Logger.getChildLogger('AgentInstructionsAdvisor'));
+    this.instructionAdvisor = new InstructionAdvisor(advisorClient, this.logger);
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
@@ -207,12 +212,13 @@ export class SFCCDevServer {
       logger: this.logger,
       config: this.config,
       capabilities: this.capabilities,
+      workspaceRootsService: this.workspaceRootsService,
     };
     this.handlers = [
+      new AgentInstructionsToolHandler(context),
       new LogToolHandler(context, 'Log'),
       new JobLogToolHandler(context, 'JobLog'),
       new DocsToolHandler(context),
-      new BestPracticesToolHandler(context),
       new SFRAToolHandler(context),
       new ISMLToolHandler(context),
       new SystemObjectToolHandler(context, 'SystemObjects'),
@@ -229,8 +235,8 @@ export class SFCCDevServer {
       const tools = [];
 
       // Always available tools
+      tools.push(...AGENT_INSTRUCTION_TOOLS);
       tools.push(...SFCC_DOCUMENTATION_TOOLS);
-      tools.push(...BEST_PRACTICES_TOOLS);
       tools.push(...SFRA_DOCUMENTATION_TOOLS);
       tools.push(...ISML_DOCUMENTATION_TOOLS);
       tools.push(...CARTRIDGE_GENERATION_TOOLS);
@@ -256,12 +262,24 @@ export class SFCCDevServer {
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
+        const preflightNotice = await this.instructionAdvisor.getNotice();
         const handler = this.handlers.find((h) => h.canHandle(name));
         if (!handler) {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new Error(`Unknown tool: ${name}`);
         }
         const result = await handler.handle(name, args ?? {}, startTime);
+
+        if (preflightNotice) {
+          const mergedText = [
+            preflightNotice,
+            ...(result.content ?? []).map((entry) => entry.text ?? ''),
+          ].join('\n\n');
+
+          result.content = [
+            { type: 'text', text: mergedText },
+          ];
+        }
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {

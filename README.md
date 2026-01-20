@@ -3,17 +3,17 @@
 [![npm version](https://badge.fury.io/js/sfcc-dev-mcp.svg)](https://badge.fury.io/js/sfcc-dev-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
+An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools and documentation.
 
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
-- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
 - **� ISML Template Reference** - Complete ISML element documentation with examples and best practices
 - **�📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
+- **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
 
 ## 🚀 Quick Start
 
@@ -81,20 +81,20 @@ The server discovers SFCC credentials in this order (highest priority first):
 
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
-| **Documentation-Only** | 20 tools | ❌ No |
-| **Full Mode** | 41 tools | ✅ Yes |
+| **Documentation-Only** | 17 tools | ❌ No |
+| **Full Mode** | 38 tools | ✅ Yes |
 
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
-- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
 - ISML template documentation (5 tools)
 - Cartridge generation (1 tool)
+- Agent instruction bootstrap (1 tool) to copy/merge AGENTS.md and skills
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
-- All documentation-only features (20 tools)
+ - All documentation-only features (17 tools)
 - Real-time log analysis (13 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
@@ -104,9 +104,9 @@ Complete development experience with live SFCC instance access:
 This server is built around a **capability-gated, modular handler architecture** that cleanly separates tool routing from domain logic:
 
 ### Core Layers
-- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, best practices, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
+- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
 - **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
-- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, best practices, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
+- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
@@ -209,7 +209,7 @@ Quick Links:
 🤖 Analyzes recent error logs, identifies issues, and suggests fixes
 
 🧑‍💻 "Show me how to implement OCAPI hooks for order validation"
-🤖 Provides best practices guide with complete hook implementation examples
+🤖 Explains hook flow, required parameters, and sample implementations
 ```
 
 ## 🔒 Security Notes

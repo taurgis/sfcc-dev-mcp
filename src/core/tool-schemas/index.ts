@@ -17,10 +17,10 @@ export {
 
 // Re-export all tool definitions
 export { SFCC_DOCUMENTATION_TOOLS } from './documentation-tools.js';
-export { BEST_PRACTICES_TOOLS } from './best-practices-tools.js';
 export { SFRA_DOCUMENTATION_TOOLS } from './sfra-tools.js';
 export { ISML_DOCUMENTATION_TOOLS } from './isml-tools.js';
 export { LOG_TOOLS, JOB_LOG_TOOLS } from './log-tools.js';
 export { SYSTEM_OBJECT_TOOLS } from './system-object-tools.js';
 export { CARTRIDGE_GENERATION_TOOLS } from './cartridge-tools.js';
 export { CODE_VERSION_TOOLS } from './code-version-tools.js';
+export { AGENT_INSTRUCTION_TOOLS } from './agent-instruction-tools.js';

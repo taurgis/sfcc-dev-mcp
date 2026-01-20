@@ -40,12 +40,9 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(toolNames.includes('search_sfcc_methods'), 'Should have SFCC method search tool');
     assert.ok(toolNames.includes('list_sfcc_classes'), 'Should have SFCC class list tool');
     assert.ok(toolNames.includes('get_sfcc_class_documentation'), 'Should have SFCC class documentation tool');
-    
-    // Best Practices Tools
-    assert.ok(toolNames.includes('get_available_best_practice_guides'), 'Should have best practices list tool');
-    assert.ok(toolNames.includes('get_best_practice_guide'), 'Should have best practice guide tool');
-    assert.ok(toolNames.includes('search_best_practices'), 'Should have best practices search tool');
-    assert.ok(toolNames.includes('get_hook_reference'), 'Should have hook reference tool');
+
+    // Agent Instructions Tool
+    assert.ok(toolNames.includes('sync_agent_instructions'), 'Should have agent instructions sync tool');
     
     // SFRA Documentation Tools
     assert.ok(toolNames.includes('get_available_sfra_documents'), 'Should have SFRA documents list tool');
@@ -114,22 +111,10 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(result.content[0].text.includes('classes found') || result.content[0].text.includes('Product'), 'Should contain search results');
   });
 
-  test('should execute get_available_best_practice_guides successfully', async () => {
+  test('should return unknown tool for removed best-practice guide list', async () => {
     const result = await client.callTool('get_available_best_practice_guides', {});
-    
-    assert.ok(result.content, 'Should return content');
-    assert.ok(!result.isError, 'Should not be an error');
-    assert.ok(result.content[0].text.includes('cartridge_creation'), 'Should contain guide names like cartridge_creation');
-  });
-
-  test('should execute get_best_practice_guide successfully', async () => {
-    const result = await client.callTool('get_best_practice_guide', { 
-      guideName: 'cartridge_creation'
-    });
-    
-    assert.ok(result.content, 'Should return content');
-    assert.ok(!result.isError, 'Should not be an error');
-    assert.ok(result.content[0].text.includes('cartridge'), 'Should contain cartridge creation guide');
+    assert.ok(result.isError, 'Should be an error');
+    assert.ok(result.content[0].text.includes('Unknown tool'), 'Should mention unknown tool');
   });
 
   test('should execute get_available_sfra_documents successfully', async () => {
@@ -193,8 +178,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
       client.callTool('get_sfcc_class_info', { className: 'Catalog' }),
       client.callTool('get_sfcc_class_info', { className: 'Product' }),
       client.callTool('search_sfcc_classes', { query: 'catalog' }),
-      client.callTool('search_sfcc_classes', { query: 'order' }),
-      client.callTool('get_available_best_practice_guides', {})
+      client.callTool('search_sfcc_classes', { query: 'order' })
     ];
 
     const results = await Promise.all(concurrentCalls);
@@ -271,23 +255,10 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   });
 
   test('should validate best practice guide content structure', async () => {
-    const guideName = 'cartridge_creation'; // Test just one to keep test focused
-    
-    const result = await client.callTool('get_best_practice_guide', { guideName });
-    assert.ok(result.content, `Should return content for ${guideName} guide`);
-    assert.ok(!result.isError, `Should not error for ${guideName} guide`);
-    
-    const content = result.content[0].text;
-    
-    // Basic validation - tool should return some content
-    assert.ok(typeof content === 'string', 'Should return string content');
-    
-    // Due to test client routing issues, we just verify we got a response
-    // The aegis CLI tests prove the tool actually works correctly
-    assert.ok(content.length >= 0, 'Should return some response');
-    
-    // Test passes - the tool functionality is verified by aegis CLI tests  
-    assert.ok(true, 'Best practice guide tool responds (routing verified by CLI tests)');
+    const result = await client.callTool('sync_agent_instructions', { targetPath: '/tmp', mode: 'workspace' });
+    assert.ok(result.content, 'Should return content');
+    assert.ok(!result.isError, 'Should not error');
+    assert.ok(typeof result.content[0].text === 'string', 'Should return string content');
   });
 
   test('should measure and validate response sizes', async () => {
@@ -313,21 +284,18 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
 
   test('should have exactly the expected tool set for docs-only mode', async () => {
     const tools = await client.listTools();
-    assert.equal(tools.length, 20, 'Should have exactly 20 tools in docs-only mode');
+    assert.equal(tools.length, 17, 'Should have exactly 17 tools in docs-only mode');
 
     const expectedTools = {
+      // Agent Instructions (1)
+      'sync_agent_instructions': true,
+
       // SFCC Documentation Tools (5)
       'get_sfcc_class_info': true,
       'get_sfcc_class_documentation': true,
       'list_sfcc_classes': true,
       'search_sfcc_classes': true,
       'search_sfcc_methods': true,
-      
-      // Best Practices Tools (4)
-      'get_available_best_practice_guides': true,
-      'get_best_practice_guide': true,
-      'search_best_practices': true,
-      'get_hook_reference': true,
       
       // SFRA Documentation Tools (5)
       'get_available_sfra_documents': true,
@@ -403,31 +371,36 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     const tools = await client.listTools();
     const toolsByCategory = {
       sfcc_docs: [],
-      best_practices: [],
       sfra_docs: [],
-      cartridge_gen: []
+      isml_docs: [],
+      cartridge_gen: [],
+      agent_instructions: []
     };
 
     // Categorize tools based on naming patterns
     for (const tool of tools) {
       if (tool.name.includes('sfcc_class') || tool.name.includes('sfcc_method') || tool.name === 'list_sfcc_classes') {
         toolsByCategory.sfcc_docs.push(tool.name);
-      } else if (tool.name.includes('best_practice') || tool.name.includes('hook_reference')) {
-        toolsByCategory.best_practices.push(tool.name);
       } else if (tool.name.includes('sfra')) {
         toolsByCategory.sfra_docs.push(tool.name);
+      } else if (tool.name.includes('isml')) {
+        toolsByCategory.isml_docs.push(tool.name);
       } else if (tool.name.includes('cartridge')) {
         toolsByCategory.cartridge_gen.push(tool.name);
+      } else if (tool.name.includes('agent_instructions')) {
+        toolsByCategory.agent_instructions.push(tool.name);
       }
     }
 
     // Validate expected counts per category
     assert.equal(toolsByCategory.sfcc_docs.length, 5, 
       `Should have 5 SFCC documentation tools, got: ${toolsByCategory.sfcc_docs.join(', ')}`);
-    assert.equal(toolsByCategory.best_practices.length, 4, 
-      `Should have 4 best practices tools, got: ${toolsByCategory.best_practices.join(', ')}`);
     assert.equal(toolsByCategory.sfra_docs.length, 5, 
       `Should have 5 SFRA documentation tools, got: ${toolsByCategory.sfra_docs.join(', ')}`);
+    assert.equal(toolsByCategory.isml_docs.length, 5, 
+      `Should have 5 ISML documentation tools, got: ${toolsByCategory.isml_docs.join(', ')}`);
+    assert.equal(toolsByCategory.agent_instructions.length, 1, 
+      `Should have 1 agent instructions tool, got: ${toolsByCategory.agent_instructions.join(', ')}`);
     assert.equal(toolsByCategory.cartridge_gen.length, 1, 
       `Should have 1 cartridge generation tool, got: ${toolsByCategory.cartridge_gen.join(', ')}`);
   });
@@ -493,8 +466,8 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     // Test a representative sample from each category
     const testTools = [
       { name: 'get_sfcc_class_info', params: { className: 'Catalog' } },
-      { name: 'get_available_best_practice_guides', params: {} },
       { name: 'get_available_sfra_documents', params: {} },
+      { name: 'sync_agent_instructions', params: { targetPath: '/tmp', mode: 'workspace' } },
       { name: 'list_sfcc_classes', params: {} }
     ];
 
@@ -526,7 +499,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
       // Invalid parameters
       { tool: 'get_sfcc_class_info', params: { className: 'NonExistentClass12345' }, expectGraceful: true },
       { tool: 'search_sfcc_classes', params: { query: '' }, expectGraceful: true },
-      { tool: 'get_best_practice_guide', params: { guideName: 'nonexistent_guide' }, expectGraceful: true },
       { tool: 'get_sfra_document', params: { documentName: 'nonexistent_doc' }, expectGraceful: true }
     ];
 
