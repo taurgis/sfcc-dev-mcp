@@ -84,6 +84,24 @@ Optional but common directories:
 - `cartridge/scripts/jobs/`: Scripts for automated tasks scheduled in Business Manager.
 - `cartridge/properties/`: Localization string files (.properties).
 
+## 4.1 Cartridge `package.json` Capabilities (Often Missed)
+
+Beyond basic metadata, `package.json` can declare cartridge-owned configuration files that the platform consumes.
+
+- **Hooks**: add a `hooks` entry pointing to your `hooks.json` (commonly under `cartridge/scripts/hooks.json`).
+- **Custom Caches**: add a `caches` entry pointing to `caches.json` so `CacheMgr.getCache('<id>')` can resolve your cache.
+- **Custom SCAPI APIs**: custom endpoints live under `cartridge/rest-apis/{api-name}/` (with `schema.yaml`, `script.js`, `api.json`).
+
+Example snippet:
+
+```json
+{
+    "name": "plugin_my_custom_cartridge",
+    "hooks": "./cartridge/scripts/hooks.json",
+    "caches": "./caches.json"
+}
+```
+
 ## 5. Creating a New Cartridge
 
 ### Step 1: Generate the Cartridge Structure

@@ -44,11 +44,11 @@ This file points to your hooks configuration.
 ```json
 {
   "name": "int_scapi_hooks_extension",
-  "hooks": "./cartridge/hooks.json"
+  "hooks": "./cartridge/scripts/hooks.json"
 }
 ```
 
-### `hooks.json` (e.g., `/cartridge/hooks.json`)
+### `hooks.json` (e.g., `/cartridge/scripts/hooks.json`)
 
 This file maps the hook extension point name to your script file.
 
@@ -57,15 +57,15 @@ This file maps the hook extension point name to your script file.
   "hooks": [
     {
       "name": "dw.ocapi.shop.basket.items.beforePOST",
-      "script": "./basket/validateItems.js"
+      "script": "./hooks/basket/validateItems.js"
     },
     {
       "name": "dw.ocapi.shop.customer.modifyGETResponse",
-      "script": "./customer/enrichResponse.js"
+      "script": "./hooks/customer/enrichResponse.js"
     },
     {
       "name": "dw.ocapi.shop.order.afterPOST",
-      "script": "./order/notifyOms.js"
+      "script": "./hooks/order/notifyOms.js"
     }
   ]
 }
@@ -75,16 +75,18 @@ This file maps the hook extension point name to your script file.
 Organize hook scripts by the resource they modify for better maintainability.
 
 ```
-/cartridge
-├── hooks.json
-└──/scripts
-   └──/hooks
-      ├──/basket
-      │  └── validateItems.js
-      ├──/customer
-      │  └── enrichResponse.js
-      └──/order
-         └── notifyOms.js
+my_cartridge/
+├── package.json
+└── cartridge/
+  └── scripts/
+    ├── hooks.json
+    └── hooks/
+      ├── basket/
+      │   └── validateItems.js
+      ├── customer/
+      │   └── enrichResponse.js
+      └── order/
+        └── notifyOms.js
 ```
 
 ## 3. Core Implementation Patterns
@@ -127,6 +129,26 @@ return;
 
 ```javascript
 return new Status(Status.OK);
+
+### Passing Data Between Hooks
+
+If you need to compute something in `after*` and output it in `modify*Response`, use `request.custom` within the same request.
+
+```javascript
+exports.afterPOST = function (basket, doc) {
+  request.custom.myComputedValue = 'abc';
+  return new Status(Status.OK);
+};
+
+exports.modifyPOSTResponse = function (basket, responseDoc, doc) {
+  responseDoc.c_myComputedValue = request.custom.myComputedValue;
+  return new Status(Status.OK);
+};
+```
+
+### Detecting SCAPI vs OCAPI
+
+SCAPI and OCAPI share many hook extension points. When behavior must diverge, branch on `request.isSCAPI()`.
 ```
 
 ## 4. Code Examples

@@ -9,6 +9,39 @@ This guide provides a concise overview of best practices and examples for creati
 
 **IMPORTANT**: Before implementing custom SCAPI endpoints, consult the **Performance and Stability Best Practices** guide from this MCP server. Pay special attention to the external system integration guidelines, timeout requirements, and caching strategies for optimal endpoint performance.
 
+## Quick Checklist
+
+```text
+[ ] Cartridge contains `cartridge/rest-apis/{api-name}/` with `schema.yaml`, `script.js`, `api.json`
+[ ] `operationId` in `schema.yaml` matches an exported `exports.<operationId>.public = true` function
+[ ] Custom query/path params and scopes use the `c_` prefix
+[ ] Contract avoids unsupported schema features (see constraints below)
+[ ] Error handling prevents high failure rates (circuit breaker)
+[ ] Timeouts are respected (Shopper APIs have shorter runtime budgets)
+```
+
+## Contract Constraints (Non-Obvious)
+
+SCAPI Custom APIs are strict about the OpenAPI contract. In practice, these are common pitfalls:
+
+- **No `additionalProperties` in request body schemas**: keep request schemas explicit and closed.
+- **Only local `$ref`**: avoid remote/URL references; keep schema dependencies alongside the contract.
+- **Parameter correctness matters**: define every request parameter in the contract; custom parameters must use `c_`.
+- **System parameters**: if `siteId`/`locale` are used, keep them typed as non-empty strings (minimum length 1).
+
+## Registration & Runtime Behavior
+
+- **Endpoint registration is tied to code activation**: uploading files is not enough; activation of the code version containing your `rest-apis/` definitions triggers registration.
+- **Shopper vs Admin APIs**: choose the correct security scheme (`ShopperToken` vs `AmOAuth2`) and ensure you follow the expected presence/absence of `siteId`.
+
+## Circuit Breaker (Why Robust Errors Matter)
+
+Custom APIs can become temporarily unavailable if error rates spike. Practical implications:
+
+- Avoid throwing uncaught exceptions.
+- Prefer consistent RFC 9457-style error responses via `RESTResponseMgr`.
+- Be conservative with external callouts and always set aggressive timeouts.
+
 ## 1. Authentication Methodologies for Custom SCAPI Endpoints
 
 Custom SCAPI endpoints leverage the Shopper Login and API Access Service (SLAS) for authentication and authorization. Understanding SLAS authentication flows is critical for secure endpoint implementation.

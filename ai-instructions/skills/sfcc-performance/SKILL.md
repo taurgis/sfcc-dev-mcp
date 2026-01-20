@@ -207,8 +207,8 @@ Use custom caches for application-level data caching within dynamic requests (e.
    {
        "caches": [
            {
-               "name": "ExternalAPICache",
-               "ttl": 300
+               "id": "ExternalAPICache",
+               "expireAfterSeconds": 300
            }
        ]
    }
@@ -217,9 +217,35 @@ Use custom caches for application-level data caching within dynamic requests (e.
 2. **Register in `package.json`:**
    ```json
    {
-     "caches": "./cartridge/scripts/caches.json"
+     "caches": "./caches.json"
    }
    ```
+
+### Practical Constraints (Why Cache Design Matters)
+
+- Custom cache memory is limited (roughly tens of MB per app server for all custom caches combined).
+- Individual entries have size limits; store only primitives / arrays / plain objects (use `null`, not `undefined`).
+- Caches are **per app server** (no cross-node synchronization). Always handle cache misses gracefully.
+
+### Recommended Usage Pattern: `get(key, loader)`
+
+Prefer the loader form so the expensive work only runs on cache miss:
+
+```javascript
+var CacheMgr = require('dw/system/CacheMgr');
+var Site = require('dw/system/Site');
+
+var cache = CacheMgr.getCache('ExternalAPICache');
+
+function getSiteScopedValue(keySuffix, loader) {
+    var key = Site.current.ID + '_' + keySuffix;
+    return cache.get(key, loader);
+}
+```
+
+### Cache Invalidation Reality
+
+Custom caches can be cleared by operational events (code changes/activation, replications). Design code so cache eviction is safe and does not break core flows.
 
 ### The "Get-or-Load" Pattern (Required)
 

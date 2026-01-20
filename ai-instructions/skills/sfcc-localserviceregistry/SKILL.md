@@ -41,6 +41,21 @@ The `createService` method takes a configuration object with the following core 
 
 - **`mockFull(svc,...params)`**: Mocks the entire service call. No other callbacks are executed. Ideal for unit testing the consumer of the service (e.g., a controller).
 
+## 2.1 Understanding `dw.svc.Result` (What `service.call()` Returns)
+
+The Service Framework returns a `dw.svc.Result` object. Your calling code should branch on `result.ok` and also differentiate transport/config failures from HTTP/API failures.
+
+| Field | Meaning |
+|------|---------|
+| `ok` | `true` if the call succeeded and `parseResponse` did not error |
+| `status` | Typically `OK`, `ERROR`, or `SERVICE_UNAVAILABLE` |
+| `object` | Parsed value returned by `parseResponse` |
+| `error` / `errorMessage` | Error code/message (often HTTP status + message) |
+| `unavailableReason` | Why the framework refused to call (timeout, rate limit, circuit breaker, disabled, config issue) |
+| `mockResult` | Whether the response came from mock mode |
+
+**Practical rule**: treat `SERVICE_UNAVAILABLE` as a resilience signal (retry/fallback), and treat `ERROR` as a downstream/API problem (inspect HTTP status and body).
+
 ### Reusable Service Module Pattern
 
 Encapsulate all logic for an integration into a single script module. Use a singleton pattern to avoid re-creating the service definition on every call.
@@ -147,6 +162,12 @@ var myAPIService = LocalServiceRegistry.createService('int_myapi.http.customer',
         }
     }
 });
+
+## 2.2 Production Safety Notes
+
+- Prefer `filterLogMessage` for any integration that may include secrets, tokens, passwords, or PII.
+- Keep `parseResponse` strict: if `client.statusCode >= 400`, throw an error so failures propagate through `result.ok === false`.
+- Use Business Manager service profiles for timeouts, rate limits, and circuit breaker behavior.
 
 // --- Public API ---
 module.exports = {

@@ -52,11 +52,11 @@ This file points to your hooks configuration file.
 ```json
 {
   "name": "my-hooks-cartridge",
-  "hooks": "./cartridge/hooks.json"
+  "hooks": "./cartridge/scripts/hooks.json"
 }
 ```
 
-### `hooks.json` (e.g., `/cartridge/hooks.json`)
+### `hooks.json` (e.g., `/cartridge/scripts/hooks.json`)
 
 This file maps the official hook extension point name to your script file.
 
@@ -65,15 +65,15 @@ This file maps the official hook extension point name to your script file.
   "hooks": [
     {
       "name": "dw.ocapi.shop.customer.address.beforePATCH",
-      "script": "./customer/addressValidation.js"
+      "script": "./hooks/customer/addressValidation.js"
     },
     {
       "name": "dw.ocapi.shop.customer.modifyGETResponse",
-      "script": "./customer/enrichCustomerResponse.js"
+      "script": "./hooks/customer/enrichCustomerResponse.js"
     },
     {
       "name": "dw.ocapi.shop.order.afterPOST",
-      "script": "./order/notifyOms.js"
+      "script": "./hooks/order/notifyOms.js"
     }
   ]
 }
@@ -84,16 +84,23 @@ This file maps the official hook extension point name to your script file.
 Organize hook scripts by the resource they modify for better maintainability.
 
 ```
-/cartridge
-└──hooks.json
-└──/scripts
-   └──/hooks
-      ├──/customer
-      │  ├── addressValidation.js
-      │  └── enrichCustomerResponse.js
-      └──/order
-         └── notifyOms.js
+my_cartridge/
+├── package.json
+└── cartridge/
+  └── scripts/
+    ├── hooks.json
+    └── hooks/
+      ├── customer/
+      │   ├── addressValidation.js
+      │   └── enrichCustomerResponse.js
+      └── order/
+        └── notifyOms.js
 ```
+
+### Feature Switch (Required)
+
+OCAPI/SCAPI hook execution must be enabled in Business Manager:
+`Administration > Global Preferences > Feature Switches > Enable Salesforce Commerce Cloud API hook execution`.
 
 ## 3. Core Implementation Patterns
 
@@ -122,6 +129,29 @@ Use the Status object to control the execution flow.
 
 - **Success**: `return new Status(Status.OK);` or `return void` (for Shop API hooks, void is often preferred to allow other hooks in the cartridge path to run).
 - **Controlled Failure**: `return new Status(Status.ERROR, 'ERROR_CODE', 'Descriptive message.');` This halts execution, rolls back the transaction, and returns an HTTP 400 error with a fault document containing your code and message.
+
+### Passing Data Between Hooks
+
+When you need to compute data in an `after*` hook and emit it in `modify*Response`, pass it through `request.custom` for the duration of the request.
+
+```javascript
+// afterPOST
+exports.afterPOST = function (basket, doc) {
+  request.custom.externalResult = { status: 'ok' };
+  return new Status(Status.OK);
+};
+
+// modifyPOSTResponse
+exports.modifyPOSTResponse = function (basket, responseDoc, doc) {
+  responseDoc.c_externalStatus = request.custom.externalResult && request.custom.externalResult.status;
+  return new Status(Status.OK);
+};
+```
+
+### Reliability Notes
+
+- Keep hooks fast; slow hooks can cause timeouts and degrade API performance.
+- Avoid uncaught exceptions; prefer controlled errors (`Status.ERROR`) with stable error codes.
 
 ### Data Integrity (`dw.system.Transaction`)
 

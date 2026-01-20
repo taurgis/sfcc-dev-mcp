@@ -9,6 +9,24 @@ This guide provides comprehensive best practices for developing custom jobs with
 
 **IMPORTANT**: Before developing custom jobs, consult the **sfcc-performance** and **sfcc-security** skills. Understanding performance optimization strategies, database-friendly APIs, and security guidelines is essential for building production-ready job solutions.
 
+## Quick Checklist
+
+```text
+[ ] Choose the right model: task-oriented vs chunk-oriented
+[ ] `steptypes.json` exists at the cartridge ROOT (not under `cartridge/`)
+[ ] Step script exports the required functions for its step type
+[ ] All resources are closed (iterators, file readers/writers, queries) in `afterStep`
+[ ] Timeouts are explicit and realistic for the dataset
+[ ] Transactions are scoped intentionally (avoid giant single transactions)
+```
+
+## Non-Obvious Platform Constraints
+
+- **`steptypes.json` location**: the platform expects `steptypes.json` at the root of the cartridge folder. Only one `steptypes.json` is allowed per cartridge.
+- **Task step custom status codes**: custom codes are effectively only usable with `Status.OK` (error status codes collapse to `ERROR`). Keep codes simple and short.
+- **Chunk steps**: chunk-oriented steps generally complete as `OK` or `ERROR` and don’t provide the same custom exit-code flexibility as task steps.
+- **Context flags**: `@supports-site-context` and `@supports-organization-context` should not both be `true` or both be `false`—pick the appropriate execution context.
+
 ## Core Concepts
 
 ### The SFCC Job Framework Architecture
