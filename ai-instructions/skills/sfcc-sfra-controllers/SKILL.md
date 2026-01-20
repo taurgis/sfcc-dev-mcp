@@ -334,6 +334,10 @@ module.exports = server.exports();
 7. **Lazy load modules** - require inside functions, not at file top
 8. **Use page caching** via middleware or `res.cacheExpiration()`
 
+## Related Skills
+
+- **[sfcc-localization](../sfcc-localization/SKILL.md)** - Essential for localizing controller responses. Use `Resource.msg()` for all user-facing messages, error strings, and JSON responses. Never hardcode text in controllers.
+
 ## Detailed References
 
 For comprehensive patterns and examples:

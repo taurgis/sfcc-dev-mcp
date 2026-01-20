@@ -475,6 +475,7 @@ Signs to update tool usage patterns:
 - Creating a job? → Read `sfcc-job-development` skill
 - Adding OCAPI hooks? → Read `sfcc-ocapi-hooks` skill
 - Adding SCAPI hooks? → Read `sfcc-scapi-hooks` skill
+- Implementing multi-language support? → Read `sfcc-localization` skill
 
 **Example:** User asks "Create a controller that shows a hello world page"
 - ✅ CORRECT: Read `sfcc-sfra-controllers` AND `sfcc-isml-development` skills
@@ -488,9 +489,11 @@ Signs to update tool usage patterns:
 ```
 MANDATORY steps before creating any ISML template:
 1. Review the ISML templates guidance from the bundled skills.
-2. Analyze the "Template Directory Structure" section.
-3. Confirm exact override path from best practices.
-4. Generate code only after path verification.
+2. Review the localization skill for resource bundle patterns.
+3. Analyze the "Template Directory Structure" section.
+4. Confirm exact override path from best practices.
+5. Ensure all visible text uses Resource.msg() - never hardcode strings.
+6. Generate code only after path verification.
 ```
 
 #### **For Model Generation**:

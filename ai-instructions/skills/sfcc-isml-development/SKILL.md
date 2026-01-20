@@ -272,6 +272,10 @@ get_isml_element("isprint")      // Full documentation
 list_isml_elements()             // All elements by category
 ```
 
+## Related Skills
+
+- **[sfcc-localization](../sfcc-localization/SKILL.md)** - Essential companion skill for localizing template text. Covers resource bundles, `Resource.msg()`, parameterized messages, locale fallback, and internationalization best practices. **Always use resource bundles instead of hardcoded text in templates.**
+
 ## Detailed References
 
 - [Remote Includes](references/REMOTE-INCLUDES.md) - Local vs remote, caching, security
