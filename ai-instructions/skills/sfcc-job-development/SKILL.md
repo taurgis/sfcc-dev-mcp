@@ -1,8 +1,13 @@
+---
+name: sfcc-job-development
+description: Comprehensive guide for developing custom jobs in Salesforce B2C Commerce Job Framework. Use this when asked to create batch jobs, scheduled tasks, chunk-oriented processing, or task-oriented jobs.
+---
+
 # Salesforce B2C Commerce Job Framework: Best Practices & Development Guide
 
 This guide provides comprehensive best practices for developing custom jobs within the Salesforce B2C Commerce Cloud Job Framework. Master these principles to build robust, scalable, and high-performing batch processing solutions that can handle enterprise-scale data operations.
 
-**IMPORTANT**: Before developing custom jobs, consult the **Performance and Stability Best Practices** and **Security Best Practices** guides from this MCP server. Understanding performance optimization strategies, database-friendly APIs, and security guidelines is essential for building production-ready job solutions.
+**IMPORTANT**: Before developing custom jobs, consult the **sfcc-performance** and **sfcc-security** skills. Understanding performance optimization strategies, database-friendly APIs, and security guidelines is essential for building production-ready job solutions.
 
 ## Core Concepts
 
@@ -569,7 +574,7 @@ function getCachedCategory(categoryID) {
 }
 ```
 
-#### 3. 🔥 Critical Performance Pattern: Leverage SeekableIterator Built-in Count
+#### 3. Critical Performance Pattern: Leverage SeekableIterator Built-in Count
 
 **ALWAYS use the SeekableIterator's built-in count property instead of creating separate iterators for counting.** A common but severely inefficient anti-pattern is implementing getTotalCount() by creating a dedicated iterator just to count records (e.g., creating a second ProductMgr.queryAllSiteProducts() call). SFCC's SeekableIterator provides a getCount() method and count property that returns the total count without any additional database queries or iteration.
 
@@ -618,11 +623,11 @@ exports.read = function() {
 }
 ```
 
-##### 📊 Performance Impact
+##### Performance Impact
 
 The anti-pattern increases database load by **100%** and can add **1-5 minutes** to job startup for large catalogs. Using SeekableIterator.getCount() provides instant total count retrieval with zero additional overhead.
 
-##### 🎯 Key Insight
+##### Key Insight
 
 SFCC's query methods return SeekableIterator instances that already know their total count from the database query execution. Leveraging this built-in capability eliminates the need for manual counting entirely while providing accurate progress tracking for Business Manager users.
 

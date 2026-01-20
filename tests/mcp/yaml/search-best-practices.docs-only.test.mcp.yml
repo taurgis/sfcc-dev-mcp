@@ -1,10 +1,53 @@
-description: "SFCC Dev MCP Server - search_best_practices Tool Tests (Docs-Only Mode)"
+# ==================================================================================
+# SFCC MCP Server - search_best_practices Tool YAML Tests
+# Tests deprecation notice functionality - tools now return deprecation notices
+# pointing users to GitHub Copilot Agent Skills
+#
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/search-best-practices.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# ==================================================================================
+description: "SFCC MCP Server search_best_practices tool - deprecation notice validation (docs-only)"
+
 tests:
-  # Basic functionality tests
-  - it: "should return array of search results for validation query"
+  - it: "should list search_best_practices tool in available tools"
     request:
       jsonrpc: "2.0"
-      id: "search-validation-1"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:search_best_practices
+      stderr: "toBeEmpty"
+
+  - it: "should return deprecation notice when searching"
+    request:
+      jsonrpc: "2.0"
+      id: "deprecation-1"
+      method: "tools/call"
+      params:
+        name: "search_best_practices"
+        arguments:
+          query: "caching"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "deprecation-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:DEPRECATION NOTICE"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should mention GitHub Copilot Agent Skills in deprecation notice"
+    request:
+      jsonrpc: "2.0"
+      id: "deprecation-skills-1"
       method: "tools/call"
       params:
         name: "search_best_practices"
@@ -13,18 +56,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-validation-1"
+        id: "deprecation-skills-1"
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
+              text: "match:contains:Agent Skills"
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should find security-related content in best practices"
+  - it: "should include skills directory path in deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "search-security-1"
+      id: "deprecation-url-1"
       method: "tools/call"
       params:
         name: "search_best_practices"
@@ -33,18 +76,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-security-1"
+        id: "deprecation-url-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:security"
+              text: "match:contains:ai-instructions/skills"
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should find performance-related content"
+  - it: "should respond quickly with deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "search-performance-1"
+      id: "deprecation-perf-1"
       method: "tools/call"
       params:
         name: "search_best_practices"
@@ -53,603 +96,12 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-performance-1"
+        id: "deprecation-perf-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:performance"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find OCAPI hook references"
-    request:
-      jsonrpc: "2.0"
-      id: "search-ocapi-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "ocapi"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-ocapi-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:ocapi"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find SCAPI-related content"
-    request:
-      jsonrpc: "2.0"
-      id: "search-scapi-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "scapi"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-scapi-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:scapi"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find cartridge-related content"
-    request:
-      jsonrpc: "2.0"
-      id: "search-cartridge-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "cartridge"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-cartridge-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find ISML template references"
-    request:
-      jsonrpc: "2.0"
-      id: "search-isml-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "isml"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-isml-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:isml"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find controller-related content"
-    request:
-      jsonrpc: "2.0"
-      id: "search-controller-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "controller"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-controller-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:controller"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should surface SFRA client-side JavaScript guidance"
-    request:
-      jsonrpc: "2.0"
-      id: "search-client-js-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "javascript"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-client-js-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_client_side_js"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should surface SFRA SCSS override guidance"
-    request:
-      jsonrpc: "2.0"
-      id: "search-scss-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "scss"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-scss-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_scss"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find job framework references"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "job"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:job"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Edge cases and error handling
-  - it: "should return empty array for non-existent terms"
-    request:
-      jsonrpc: "2.0"
-      id: "search-empty-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "zzznomatchesexpected"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-empty-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"  # Empty array
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should handle empty query with error"
-    request:
-      jsonrpc: "2.0"
-      id: "search-error-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: ""
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-error-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:Error"
-          isError: true
-      stderr: "toBeEmpty"
-
-  - it: "should handle missing query parameter with error"
-    request:
-      jsonrpc: "2.0"
-      id: "search-missing-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-missing-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:Error"
-          isError: true
-      stderr: "toBeEmpty"
-
-  # Response structure validation tests
-  - it: "should validate detailed response structure for validation search"
-    request:
-      jsonrpc: "2.0"
-      id: "search-structure-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "validation"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-structure-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # JSON array format
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Content validation tests for specific guides
-  - it: "should find form validation in ISML templates guide"
-    request:
-      jsonrpc: "2.0"
-      id: "search-form-validation-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "form"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-form-validation-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:form"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find authorization patterns in hook guides"
-    request:
-      jsonrpc: "2.0"
-      id: "search-authorization-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "authorization"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-authorization-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:authorization"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find middleware patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-middleware-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "middleware"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-middleware-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:middleware"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find transaction handling patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-transaction-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "transaction"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-transaction-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:transaction"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find error handling patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-error-handling-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "error"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-error-handling-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:error"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Case sensitivity tests
-  - it: "should handle case insensitive search for SFRA"
-    request:
-      jsonrpc: "2.0"
-      id: "search-case-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "SFRA"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-case-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should handle lowercase search terms"
-    request:
-      jsonrpc: "2.0"
-      id: "search-lowercase-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "api"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-lowercase-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Multiple word search tests
-  - it: "should find authentication patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-auth-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "authentication"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-auth-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find encryption references"
-    request:
-      jsonrpc: "2.0"
-      id: "search-encryption-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "encryption"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-encryption-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Special characters handling
-  - it: "should handle search terms with special characters"
-    request:
-      jsonrpc: "2.0"
-      id: "search-special-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "REST"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-special-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should handle numeric search terms"
-    request:
-      jsonrpc: "2.0"
-      id: "search-numeric-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "HTTPS"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-numeric-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Common development terms
-  - it: "should find model-related patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-model-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "model"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-model-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:model"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find configuration patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-config-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "config"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-config-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should find database transaction patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-database-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "database"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-database-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"  # Valid JSON array
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Performance testing with timing
-  - it: "should respond quickly for validation search"
-    request:
-      jsonrpc: "2.0"
-      id: "search-perf-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "validation"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-perf-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"
+              text: "match:type:string"
           isError: false
       performance:
-        maxResponseTime: "2000ms"  # Documentation search should be fast
-      stderr: "toBeEmpty"
-
-  - it: "should respond quickly for empty results"
-    request:
-      jsonrpc: "2.0"
-      id: "search-perf-empty-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: "zzznomatchesexpected"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-perf-empty-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"
-          isError: false
-      performance:
-        maxResponseTime: "1000ms"  # Empty results should be very fast
-      stderr: "toBeEmpty"
-
-  - it: "should handle errors quickly"
-    request:
-      jsonrpc: "2.0"
-      id: "search-perf-error-1"
-      method: "tools/call"
-      params:
-        name: "search_best_practices"
-        arguments:
-          query: ""
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-perf-error-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:Error"
-          isError: true
-      performance:
-        maxResponseTime: "500ms"  # Error responses should be fastest
+        maxResponseTime: "300ms"
       stderr: "toBeEmpty"

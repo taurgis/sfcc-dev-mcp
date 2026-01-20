@@ -1,39 +1,15 @@
+---
+name: sfcc-localserviceregistry
+description: Guide for creating server-to-server integrations in Salesforce B2C Commerce using LocalServiceRegistry. Use this when asked to integrate external APIs, create HTTP services, implement OAuth flows, or configure service credentials.
+---
+
 # SFCC B2C Commerce: LocalServiceRegistry Best Practices
 
 This guide provides a concise overview of best practices for creating server-to-server integrations in Salesforce B2C Commerce Cloud using the `dw.svc.LocalServiceRegistry`.
 
 ## 1. Core Architecture: Configuration and Code
 
-Integrations use a two-par5. Click **Apply** to save the new profile.
-
-### Step 3: Create the Service Definition (Tying It All Together)
-
-The Service Definition links the Credential and Profile to create the final, named service that you will call from your code.
-
-1. Navigate to **Administration > Operations > Services**.
-2. Ensure you are on the **Services** tab and click **New**.
-3. Fill in the following fields on the New Service page:
-   - **Name (ID)**: Enter the unique ID for the service. This ID must exactly match the one used in your `LocalServiceRegistry.createService()` call.
-     
-     **Best Practice**: Use a period-delimited pattern like `{cartridge}.{protocol}.{service}.{operation}` (e.g., `int_myapi.http.customer.get`). This structure automatically organizes your service logs into a helpful hierarchy.
-   
-   - **Service Type**: Select the protocol, typically HTTP for REST APIs.
-   
-   - **Mode**:
-     - **Live**: For making real calls to the external API.
-     - **Mocked**: For testing. This mode will invoke the `mockCall` or `mockFull` function in your script instead of making a network request.
-   
-   - **Credential**: Select the Service Credential you created in Step 1 from the dropdown list.
-   
-   - **Profile**: Select the Service Profile you configured in Step 2 from the dropdown list.
-   
-   - **Log Name Prefix**: (Optional but recommended) Enter a prefix (e.g., `myapi`) to create a dedicated log file for this service (`service-myapi-....log`), which simplifies debugging.
-   
-   - **Communication Log Enabled**: Check this box to log the full request and response data. This is useful for debugging but should be used with caution in production if sensitive data is being transmitted. Always implement a `filterLogMessage` callback in your script to redact sensitive information from these logs.
-
-4. Click **Apply** to save the service definition.
-
-Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.rchitecture:
+Integrations use a two-part architecture:
 
 **Declarative Configuration (Business Manager)**: Defines the what, who, and how of the service call. This includes the endpoint, credentials, and operational policies like timeouts and circuit breakers.
 
@@ -181,6 +157,7 @@ module.exports = {
     }
 };
 ```
+
 ## 3. Practical Examples
 
 ### GET Request (SFRA Controller)
@@ -337,4 +314,6 @@ The Service Definition links the Credential and Profile to create the final, nam
 
    - **Credential**: Select the Service Credential you created in Step 1 from the dropdown list.
 
-4. Click **Apply** to save the service definition.Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.
+4. Click **Apply** to save the service definition.
+
+Your service is now fully configured in the Business Manager and ready to be implemented and called from your SFRA cartridge code.

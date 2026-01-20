@@ -1,3 +1,8 @@
+---
+name: sfcc-performance
+description: Performance optimization strategies for Salesforce B2C Commerce Cloud including caching, efficient data retrieval, index-friendly APIs, and job optimization. Use when asked about SFCC performance, caching strategies, or optimization.
+---
+
 # Salesforce B2C Commerce Cloud: Performance Best Practices
 
 This document outlines key performance optimization strategies for Salesforce B2C Commerce Cloud, focusing on caching and efficient data retrieval.

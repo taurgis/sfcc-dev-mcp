@@ -1,28 +1,33 @@
-description: "get_hook_reference docs-only tests"
-
-# Chosen as next untested docs-only tool (no existing YAML test file). Covers success (ocapi_hooks, scapi_hooks), empty result (invalid guideName), structure validation, field extraction, and performance.
+# ==================================================================================
+# SFCC MCP Server - get_hook_reference Tool YAML Tests
+# Tests deprecation notice functionality - tools now return deprecation notices
+# pointing users to GitHub Copilot Agent Skills
+#
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/get-hook-reference.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# ==================================================================================
+description: "SFCC MCP Server get_hook_reference tool - deprecation notice validation (docs-only)"
 
 tests:
-  - it: "should list tools include get_hook_reference"
+  - it: "should list get_hook_reference tool in available tools"
     request:
       jsonrpc: "2.0"
-      id: "list-hooks-tool"
+      id: "tool-list-1"
       method: "tools/list"
       params: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "list-hooks-tool"
+        id: "tool-list-1"
         result:
-          tools: "match:type:array"
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_hook_reference"
+          tools:
+            match:arrayContains:name:get_hook_reference
       stderr: "toBeEmpty"
 
-  - it: "should retrieve OCAPI hook reference with categories"
+  - it: "should return deprecation notice for ocapi_hooks"
     request:
       jsonrpc: "2.0"
-      id: "ocapi-hooks-1"
+      id: "deprecation-ocapi-1"
       method: "tools/call"
       params:
         name: "get_hook_reference"
@@ -31,68 +36,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "ocapi-hooks-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:contains:Shop API Hooks"
-          isError: false
-      performance:
-        maxResponseTime: "1200ms"
-      stderr: "toBeEmpty"
-
-  - it: "should retrieve SCAPI hook reference including signatures"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-hooks-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "scapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-hooks-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:contains:Shopper Baskets API Hooks"
-          isError: false
-      performance:
-        maxResponseTime: "1200ms"
-      stderr: "toBeEmpty"
-
-  - it: "should return empty array content for invalid guideName without error"
-    request:
-      jsonrpc: "2.0"
-      id: "invalid-hooks-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "invalid_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "invalid-hooks-1"
+        id: "deprecation-ocapi-1"
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"
+              text: "match:contains:DEPRECATION NOTICE"
           isError: false
-      performance:
-        maxResponseTime: "800ms"
       stderr: "toBeEmpty"
 
-  - it: "should contain at least one hook endpoint pattern in OCAPI response"
+  - it: "should point to sfcc-ocapi-hooks skill for ocapi_hooks"
     request:
       jsonrpc: "2.0"
-      id: "ocapi-hooks-endpoint-pattern"
+      id: "deprecation-ocapi-skill-1"
       method: "tools/call"
       params:
         name: "get_hook_reference"
@@ -101,21 +56,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "ocapi-hooks-endpoint-pattern"
+        id: "deprecation-ocapi-skill-1"
         result:
           content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*GET /products/\\{id\\}[\\s\\S]*"
+            - type: "text"
+              text: "match:contains:sfcc-ocapi-hooks"
           isError: false
-      performance:
-        maxResponseTime: "1200ms"
       stderr: "toBeEmpty"
 
-  - it: "should contain at least one SCAPI signature pattern in response"
+  - it: "should return deprecation notice for scapi_hooks"
     request:
       jsonrpc: "2.0"
-      id: "scapi-hooks-signature-pattern"
+      id: "deprecation-scapi-1"
       method: "tools/call"
       params:
         name: "get_hook_reference"
@@ -124,68 +76,38 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "scapi-hooks-signature-pattern"
+        id: "deprecation-scapi-1"
         result:
           content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:modifyPOSTResponse(basket : dw.order.Basket"
+            - type: "text"
+              text: "match:contains:DEPRECATION NOTICE"
           isError: false
-      performance:
-        maxResponseTime: "1200ms"
       stderr: "toBeEmpty"
 
-  - it: "should reject missing guideName with error flag and message"
+  - it: "should point to sfcc-scapi-hooks skill for scapi_hooks"
     request:
       jsonrpc: "2.0"
-      id: "missing-param-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "missing-param-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:contains:guideName must be a non-empty string"
-          isError: true
-      performance:
-        maxResponseTime: "600ms"
-      stderr: "toBeEmpty"
-
-  - it: "should reject empty guideName with same validation error"
-    request:
-      jsonrpc: "2.0"
-      id: "empty-param-1"
+      id: "deprecation-scapi-skill-1"
       method: "tools/call"
       params:
         name: "get_hook_reference"
         arguments:
-          guideName: ""
+          guideName: "scapi_hooks"
     expect:
       response:
         jsonrpc: "2.0"
-        id: "empty-param-1"
+        id: "deprecation-scapi-skill-1"
         result:
           content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:contains:guideName must be a non-empty string"
-          isError: true
-      performance:
-        maxResponseTime: "600ms"
+            - type: "text"
+              text: "match:contains:sfcc-scapi-hooks"
+          isError: false
       stderr: "toBeEmpty"
 
-  - it: "OCAPI response should include multiple categories"
+  - it: "should respond quickly with deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "ocapi-categories-1"
+      id: "deprecation-perf-1"
       method: "tools/call"
       params:
         name: "get_hook_reference"
@@ -194,128 +116,12 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "ocapi-categories-1"
+        id: "deprecation-perf-1"
         result:
           content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Data API Hooks"
+            - type: "text"
+              text: "match:type:string"
           isError: false
       performance:
-        maxResponseTime: "1200ms"
-      stderr: "toBeEmpty"
-
-  - it: "SCAPI response should include multiple categories"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-categories-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "scapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-categories-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Shopper Orders API Hooks"
-          isError: false
-      performance:
-        maxResponseTime: "1200ms"
-      stderr: "toBeEmpty"
-
-  - it: "SCAPI response should contain multiple distinct hook signatures"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-signatures-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "scapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-signatures-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*beforePOST\\(basket : dw.order.Basket[\\s\\S]*afterPOST\\(basket : dw.order.Basket[\\s\\S]*"
-          isError: false
-      performance:
-        maxResponseTime: "1500ms"
-      stderr: "toBeEmpty"
-
-  - it: "OCAPI response should have multiple hookPoints for basket POST"
-    request:
-      jsonrpc: "2.0"
-      id: "ocapi-multiple-hookpoints-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "ocapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "ocapi-multiple-hookpoints-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:[\\s\\S]*POST /baskets[\\s\\S]*modifyPOSTResponse[\\s\\S]*validateBasket[\\s\\S]*"
-          isError: false
-      performance:
-        maxResponseTime: "1500ms"
-      stderr: "toBeEmpty"
-
-  - it: "SCAPI response should NOT contain unrelated error text"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-negative-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "scapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-negative-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:not:contains:guideName must be a non-empty string"
-          isError: false
-      performance:
-        maxResponseTime: "1200ms"
-      stderr: "toBeEmpty"
-
-  - it: "SCAPI content payload should be reasonably large (length > 500 chars)"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-size-1"
-      method: "tools/call"
-      params:
-        name: "get_hook_reference"
-        arguments:
-          guideName: "scapi_hooks"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-size-1"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:^[\\s\\S]{500,}$"
-          isError: false
-      performance:
-        maxResponseTime: "1500ms"
+        maxResponseTime: "300ms"
       stderr: "toBeEmpty"

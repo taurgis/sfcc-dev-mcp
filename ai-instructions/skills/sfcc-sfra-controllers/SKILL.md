@@ -1,3 +1,8 @@
+---
+name: sfcc-sfra-controllers
+description: Guide for developing SFRA controllers in Salesforce B2C Commerce. Use this when asked to create controllers, extend base functionality, implement middleware chains, handle routing, or customize storefront behavior.
+---
+
 # Salesforce B2C Commerce SFRA Controllers: Best Practices & Examples
 
 This guide provides a condensed overview of best practices and code patterns for developing controllers within the Salesforce B2C Commerce Storefront Reference Architecture (SFRA).
@@ -55,6 +60,8 @@ The enhanced documentation system provides access to comprehensive model documen
 - **Pricing Models**: `price-default`, `price-range`, `price-tiered` - For pricing logic in controllers
 
 Always consult the relevant model documentation before implementing controller logic to understand available properties and methods.
+
+**IMPORTANT**: Before developing SFRA controllers, consult the **Performance and Stability Best Practices** skill. Review the storefront development guidelines, index-friendly APIs, and critical page performance requirements to ensure your controllers follow SFCC performance standards and avoid database-intensive operations.
 
 ## Core Concepts
 

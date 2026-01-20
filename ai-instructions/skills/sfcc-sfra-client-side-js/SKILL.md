@@ -1,7 +1,6 @@
 ---
-title: Mastering Client-Side JavaScript in SFRA
-description: Comprehensive best practices for extending, structuring, validating, and optimizing client-side JavaScript in Salesforce B2C Commerce SFRA storefronts.
-status: stable
+name: sfcc-sfra-client-side-js
+description: Comprehensive guide for extending, structuring, validating, and optimizing client-side JavaScript in SFRA storefronts. Use when asked to build AJAX flows, form validation, DOM interactions, or client-side customizations.
 ---
 
 # Mastering Client-Side JavaScript in Salesforce B2C Commerce (SFRA)
@@ -732,5 +731,4 @@ module.exports = base;
 ```
 
 ---
-Need deeper server-side extension patterns? See the `sfra_controllers` and `sfra_models` guides for parallel server strategies.
-
+Need deeper server-side extension patterns? See the **sfcc-sfra-controllers** and **sfcc-sfra-models** skills for parallel server strategies.

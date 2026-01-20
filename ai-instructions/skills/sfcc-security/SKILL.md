@@ -1,3 +1,8 @@
+---
+name: sfcc-security
+description: Secure coding best practices for Salesforce B2C Commerce Cloud including CSRF protection, authentication, authorization, cryptography, and secrets management. Use when asked about SFCC security, input validation, or secure coding patterns.
+---
+
 # Salesforce B2C Commerce Cloud: Secure Coding Best Practices
 
 This document provides a concise guide to security best practices for Salesforce B2C Commerce Cloud development, focusing on SFRA Controllers, OCAPI/SCAPI Hooks, and Custom SCAPI Endpoints.
@@ -57,7 +62,7 @@ server.post('UpdateProfile', userLoggedIn.validateLoggedIn, function (req, res, 
 
 module.exports = server.exports();
 
-````
+```
 
 ### Cross-Site Request Forgery (CSRF) Protection
 
@@ -72,7 +77,7 @@ Use the `csrfProtection` middleware for any state-changing POST request. [12, 13
     <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
     <button type="submit">Save</button>
 </form>
-````
+```
 
 ```javascript
 // In your controller
@@ -146,7 +151,7 @@ server.get('AccountWidget',
 );
 ```
 
-NEVER put `userLoggedIn.validateLoggedIn` before `server.middleware.include` – bots probing the route directly would still trigger authentication logic (unnecessary overhead) and you’d miss the explicit architectural contract.
+NEVER put `userLoggedIn.validateLoggedIn` before `server.middleware.include` – bots probing the route directly would still trigger authentication logic (unnecessary overhead) and you'd miss the explicit architectural contract.
 
 #### Identifying Remote Include Requests
 `req.includeRequest === true` inside the controller. Log defensively:

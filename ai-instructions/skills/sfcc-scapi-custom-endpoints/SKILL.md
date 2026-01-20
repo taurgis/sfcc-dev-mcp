@@ -1,3 +1,8 @@
+---
+name: sfcc-scapi-custom-endpoints
+description: Best practices for creating custom SCAPI endpoints in Salesforce B2C Commerce, including schema.yaml, script.js, api.json setup, authentication (SLAS), security schemes, path parameters, caching strategies, and endpoint versioning.
+---
+
 # Salesforce B2C Commerce: Custom SCAPI Endpoint Best Practices
 
 This guide provides a concise overview of best practices and examples for creating custom Salesforce Commerce API (SCAPI) endpoints in B2C Commerce Cloud.
@@ -961,3 +966,16 @@ This is a critical architectural decision.
 > **Note**: Choosing the wrong tool leads to technical debt. Do not use hooks to create net-new functionality.
 
 ---
+
+## Enhanced Documentation Access
+
+For deeper SFCC class documentation while implementing custom SCAPI endpoints, use these MCP tools:
+
+- **`get_sfcc_class_info`**: Get detailed information about SFCC classes like `RESTResponseMgr`, `CustomerMgr`, `ProductMgr`, etc.
+- **`search_sfcc_methods`**: Search for specific methods across all SFCC classes
+- **`search_sfcc_classes`**: Find classes by partial name when you're not sure of the exact class name
+
+Example queries:
+- "Get class info for dw.system.RESTResponseMgr" - Full documentation for the REST response manager
+- "Search methods for getCustomer" - Find all customer retrieval methods
+- "Get class info for dw.svc.ServiceRegistry" - Documentation for external service integration

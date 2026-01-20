@@ -1,8 +1,13 @@
+---
+name: sfcc-sfra-models
+description: Comprehensive guide for creating, extending, and customizing models within SFRA. Use this when asked to develop product models, cart models, customer models, or any JSON transformation layer in SFCC.
+---
+
 # Salesforce B2C Commerce SFRA Models: Best Practices & Implementation Guide
 
 This guide provides comprehensive best practices for creating, extending, and customizing models within the Salesforce B2C Commerce Storefront Reference Architecture (SFRA). Models are the JSON object layer that converts B2C Commerce Script API objects into pure JSON designed for storefront rendering.
 
-**IMPORTANT**: Before developing SFRA models, consult the **Performance and Stability Best Practices** guide from this MCP server. Review database optimization guidelines and index-friendly API usage to ensure your models follow SFCC performance standards.
+**IMPORTANT**: Before developing SFRA models, consult the **sfcc-performance** skill. Review database optimization guidelines and index-friendly API usage to ensure your models follow SFCC performance standards.
 
 ## 🚀 Enhanced SFRA Model Documentation Access
 
@@ -10,7 +15,7 @@ This MCP server provides comprehensive access to SFRA model documentation throug
 
 ### **Essential SFRA Model Documentation Tools**
 
-1. **`get_sfra_categories`** - Discover all available SFRA documentation categories including models
+1. **`list_sfra_documents`** - Discover all available SFRA documentation including models
 2. **`get_sfra_documents_by_category`** - Explore model documents by functional area:
    - `product` - Product models including product-full, product-tile, product-bundle
    - `order` - Cart, billing, shipping, payment, totals models
@@ -27,7 +32,7 @@ Before creating or extending models, use these tools to understand existing mode
 
 ```javascript
 // 1. Explore all available model categories
-get_sfra_categories()
+list_sfra_documents()
 
 // 2. Examine product models for complex data structures
 get_sfra_documents_by_category("product")
@@ -1139,4 +1144,4 @@ server.post('AddToCart', function (req, res, next) {
 });
 ```
 
-This comprehensive guide covers all aspects of SFRA model development, from basic patterns to advanced techniques. Use the SFRA documentation tools available through this MCP server to explore existing models and understand their implementations before creating your own customizations.
+This comprehensive guide covers all aspects of SFRA model development, from basic patterns to advanced techniques. Use this skill alongside the **sfcc-sfra-controllers** skill to understand how models integrate with the controller layer.

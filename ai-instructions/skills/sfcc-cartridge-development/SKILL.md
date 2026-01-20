@@ -1,8 +1,13 @@
+---
+name: sfcc-cartridge-development
+description: Guide for creating, configuring, and deploying custom SFRA cartridges in Salesforce B2C Commerce. Use this when asked to create a new cartridge, set up a cartridge structure, or work with cartridge paths.
+---
+
 # Instructions for Creating a Salesforce B2C Commerce (SFRA) Cartridge
 
 This document provides instructions to create, configure, and deploy a new custom cartridge for Salesforce B2C Commerce using the Storefront Reference Architecture (SFRA).
 
-**NOTE**: When doing this, also request best practices for controller creation from this MCP server. Additionally, consult the **Performance and Stability Best Practices** guide from this MCP server to ensure your cartridge follows performance optimization strategies and coding standards.
+**NOTE**: When doing this, also consult the **sfcc-sfra-controllers** skill for controller development patterns and the **sfcc-performance** skill to ensure your cartridge follows performance optimization strategies and coding standards.
 
 ## 1. Core Principles
 
@@ -86,7 +91,7 @@ Optional but common directories:
 !IMPORTANT!: Always do this step, don't attempt to create the cartridge structure manually. The MCP server ensures all necessary files and configurations are created correctly.
 
 **Using MCP Server (Recommended)**
-Use the `generate_cartridge_structure` tool from this MCP server to automatically create the cartridge structure:
+Use the `generate_cartridge_structure` tool from the sfcc-dev-mcp server to automatically create the cartridge structure:
 
 ```json
 {
@@ -190,14 +195,13 @@ For continuous development, use `npm run watch`.
 
 ## 9. MCP Integration Workflow
 
-When using this MCP server for cartridge development, follow this enhanced workflow:
+When using the sfcc-dev-mcp server for cartridge development, follow this enhanced workflow:
 
 1. **Generate Cartridge Structure**: Use the `generate_cartridge_structure` tool to create the initial cartridge with all necessary files and configurations
-2. **Get Best Practices**: Use `get_best_practice_guide` with "sfra_controllers" for controller development patterns
+2. **Consult Skills**: Use the relevant skills for controller development patterns (sfcc-sfra-controllers), security (sfcc-security), and performance (sfcc-performance)
 3. **Search Documentation**: Use `search_sfcc_classes` and `get_sfcc_class_info` for API reference
-4. **Validate Implementation**: Use `search_best_practices` to ensure your code follows security and performance guidelines
-5. **Debug Issues**: Use log analysis tools to troubleshoot deployment or runtime issues
-6. **Handle Deployment Issues**: If new cartridge features (jobs, SCAPI endpoints, hooks) don't appear after upload:
+4. **Debug Issues**: Use log analysis tools to troubleshoot deployment or runtime issues
+5. **Handle Deployment Issues**: If new cartridge features (jobs, SCAPI endpoints, hooks) don't appear after upload:
    - **Check Code Versions**: Use `get_code_versions` tool to see available versions
    - **Activate Version**: Use `activate_code_version` tool to ensure proper registration
    - **Alternative**: Manually switch code versions in Business Manager (Administration > Site Development > Code Deployment)

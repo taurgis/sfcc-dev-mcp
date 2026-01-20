@@ -1,8 +1,13 @@
+---
+name: sfcc-ocapi-hooks
+description: Guide for implementing OCAPI hooks in Salesforce B2C Commerce. Use this when asked to create OCAPI hooks, extend API endpoints, validate API requests, or modify API responses.
+---
+
 # Quick Guide: Salesforce B2C Commerce OCAPI Hooks
 
 This guide provides best practices and examples for implementing OCAPI hooks in Salesforce B2C Commerce Cloud.
 
-**IMPORTANT**: Before implementing OCAPI hooks, consult the **Performance and Stability Best Practices** guide from this MCP server. Pay special attention to the OCAPI-specific performance requirements and hook development guidelines to ensure optimal performance and avoid database-intensive operations.
+**IMPORTANT**: Before implementing OCAPI hooks, consult the **Performance and Stability Best Practices** guide. Pay special attention to the OCAPI-specific performance requirements and hook development guidelines to ensure optimal performance and avoid database-intensive operations.
 
 ## 1. Core Concepts
 

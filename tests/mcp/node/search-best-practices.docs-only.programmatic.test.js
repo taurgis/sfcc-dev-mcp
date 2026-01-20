@@ -1,573 +1,77 @@
 /**
  * Programmatic tests for search_best_practices tool
- * 
- * These tests provide advanced verification capabilities beyond YAML pattern matching,
- * including dynamic validation, comprehensive content analysis,
- * search quality metrics, cross-guide relationship analysis, pattern recognition,
- * and comprehensive error categorization for the SFCC best practices search functionality.
- * 
- * Response format discovered via aegis query:
- * - Success: { content: [{ type: "text", text: "[{"name":"guide_name","title":"Guide Title","matches":[...]}]" }], isError: false }
- * - Empty: { content: [{ type: "text", text: "[]" }], isError: false }
- * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
- * - Search results include guide metadata, match relevance, and content excerpts
+ *
+ * NOTE: This tool is DEPRECATED and now returns deprecation notices
+ * pointing users to GitHub Copilot Agent Skills instead of actual search results.
+ *
+ * Response format:
+ * - Success: { content: [{ type: "text", text: JSON with deprecation notice }], isError: false }
+ * - Error: { content: [{ type: "text", text: "Error: query must be a non-empty string" }], isError: true }
  */
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-aegis';
 
-
 /**
- * Search results analyzer for comprehensive search quality assessment
+ * Helper function to validate MCP response structure
  */
-class SearchResultsAnalyzer {
-  constructor() {
-    this.knownGuides = [
-      'cartridge_creation', 'isml_templates', 'job_framework', 'localserviceregistry',
-      'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_models',
-      'sfra_client_side_js', 'sfra_scss', 'scapi_custom_endpoint', 'performance', 'security'
-    ];
-    
-    this.searchTermPatterns = {
-      validation: {
-        expectedGuides: ['isml_templates', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'security'],
-        requiredTerms: ['validation', 'validate', 'check', 'verify'],
-        contextTerms: ['form', 'input', 'parameter', 'data', 'error']
-      },
-      security: {
-        expectedGuides: ['security', 'ocapi_hooks', 'scapi_hooks', 'sfra_controllers'],
-        requiredTerms: ['security', 'secure', 'auth', 'encrypt', 'protect'],
-        contextTerms: ['CSRF', 'XSS', 'authorization', 'authentication', 'cryptography']
-      },
-      performance: {
-        expectedGuides: ['performance', 'sfra_controllers', 'sfra_client_side_js', 'sfra_scss', 'cartridge_creation'],
-        requiredTerms: ['performance', 'optimize', 'cache', 'memory', 'speed'],
-        contextTerms: ['monitoring', 'metrics', 'throughput', 'latency', 'scalability']
-      },
-      controller: {
-        expectedGuides: ['sfra_controllers', 'sfra_models'],
-        requiredTerms: ['controller', 'middleware', 'route', 'endpoint'],
-        contextTerms: ['server.get', 'server.post', 'append', 'prepend', 'replace']
-      },
-      cartridge: {
-        expectedGuides: ['cartridge_creation'],
-        requiredTerms: ['cartridge', 'deployment', 'override', 'path'],
-        contextTerms: ['plugin', 'app_storefront_base', 'upload', 'structure']
-      }
-    };
-  }
-
-  analyzeResults(searchQuery, resultsArray) {
-    return {
-      searchMeta: this.analyzeSearchMetadata(searchQuery, resultsArray),
-      relevanceScoring: this.calculateRelevanceScores(searchQuery, resultsArray),
-      contentQuality: this.assessContentQuality(resultsArray),
-      crossGuideAnalysis: this.analyzeCrossGuideRelationships(resultsArray),
-      comprehensiveness: this.assessComprehensiveness(searchQuery, resultsArray),
-      searchEffectiveness: this.calculateSearchEffectiveness(searchQuery, resultsArray)
-    };
-  }
-
-  analyzeSearchMetadata(searchQuery, resultsArray) {
-    const uniqueGuides = new Set(resultsArray.map(result => result.guide));
-    const totalMatches = resultsArray.reduce((sum, result) => sum + result.matches.length, 0);
-    
-    return {
-      query: searchQuery,
-      resultCount: resultsArray.length,
-      uniqueGuides: uniqueGuides.size,
-      guidesFound: Array.from(uniqueGuides),
-      totalMatches,
-      avgMatchesPerGuide: resultsArray.length > 0 ? totalMatches / resultsArray.length : 0,
-      searchCoverage: (uniqueGuides.size / this.knownGuides.length) * 100
-    };
-  }
-
-  calculateRelevanceScores(searchQuery, resultsArray) {
-    const scores = resultsArray.map(result => {
-      const titleRelevance = this.calculateTextRelevance(searchQuery, result.title);
-      const contentRelevance = result.matches.map(match => 
-        this.calculateTextRelevance(searchQuery, match.content)
-      );
-      const avgContentRelevance = contentRelevance.length > 0 ? 
-        contentRelevance.reduce((a, b) => a + b, 0) / contentRelevance.length : 0;
-      
-      return {
-        guide: result.guide,
-        titleRelevance,
-        avgContentRelevance,
-        overallScore: (titleRelevance * 0.3) + (avgContentRelevance * 0.7),
-        matchCount: result.matches.length
-      };
-    });
-
-    return {
-      individualScores: scores,
-      avgRelevanceScore: scores.length > 0 ? 
-        scores.reduce((sum, score) => sum + score.overallScore, 0) / scores.length : 0,
-      mostRelevant: scores.reduce((best, current) => 
-        current.overallScore > best.overallScore ? current : best, scores[0] || {}),
-      relevanceDistribution: this.categorizeRelevanceScores(scores)
-    };
-  }
-
-  calculateTextRelevance(query, text) {
-    const queryTerms = query.toLowerCase().split(/\s+/);
-    const textLower = text.toLowerCase();
-    let score = 0;
-    
-    queryTerms.forEach(term => {
-      if (textLower.includes(term)) {
-        // Exact match
-        score += 1;
-        // Bonus for word boundaries
-        if (new RegExp(`\\b${term}\\b`).test(textLower)) {
-          score += 0.5;
-        }
-      }
-    });
-    
-    return score / queryTerms.length;
-  }
-
-  categorizeRelevanceScores(scores) {
-    const categories = { high: 0, medium: 0, low: 0 };
-    scores.forEach(score => {
-      if (score.overallScore >= 0.7) categories.high++;
-      else if (score.overallScore >= 0.3) categories.medium++;
-      else categories.low++;
-    });
-    return categories;
-  }
-
-  assessContentQuality(resultsArray) {
-    const qualityMetrics = resultsArray.map(result => {
-      const matches = result.matches;
-      const avgContentLength = matches.reduce((sum, match) => 
-        sum + match.content.length, 0) / Math.max(matches.length, 1);
-      
-      const hasCodeExamples = matches.some(match => 
-        /```|`[^`]+`/.test(match.content));
-      const hasStructuredContent = matches.some(match => 
-        /#{1,6}\s|\*\*|-\s|\d+\.\s/.test(match.content));
-      const hasTechnicalTerms = matches.some(match => 
-        /dw\.|SFRA|OCAPI|SCAPI|server\.|middleware/.test(match.content));
-      
-      return {
-        guide: result.guide,
-        avgContentLength,
-        hasCodeExamples,
-        hasStructuredContent,
-        hasTechnicalTerms,
-        matchQualityScore: this.calculateMatchQualityScore(matches)
-      };
-    });
-
-    return {
-      individualQuality: qualityMetrics,
-      avgContentLength: qualityMetrics.reduce((sum, q) => sum + q.avgContentLength, 0) / Math.max(qualityMetrics.length, 1),
-      guidesWithCode: qualityMetrics.filter(q => q.hasCodeExamples).length,
-      guidesWithStructure: qualityMetrics.filter(q => q.hasStructuredContent).length,
-      technicalAccuracy: qualityMetrics.filter(q => q.hasTechnicalTerms).length / Math.max(qualityMetrics.length, 1)
-    };
-  }
-
-  calculateMatchQualityScore(matches) {
-    let score = 0;
-    matches.forEach(match => {
-      if (match.content.length > 100) score += 1; // Substantial content
-      if (/```[\s\S]*?```/.test(match.content)) score += 2; // Code blocks
-      if (/#{1,6}\s/.test(match.content)) score += 1; // Headers
-      if (/\*\*[^*]+\*\*/.test(match.content)) score += 0.5; // Bold text
-      if (/`[^`]+`/.test(match.content)) score += 0.5; // Inline code
-    });
-    return score / Math.max(matches.length, 1);
-  }
-
-  analyzeCrossGuideRelationships(resultsArray) {
-    const sharedTopics = new Map();
-    
-    resultsArray.forEach(result => {
-      const guide = result.guide;
-      result.matches.forEach(match => {
-        // Extract technical terms and concepts
-        const terms = this.extractTechnicalTerms(match.content);
-        terms.forEach(term => {
-          if (!sharedTopics.has(term)) {
-            sharedTopics.set(term, new Set());
-          }
-          sharedTopics.get(term).add(guide);
-        });
-      });
-    });
-
-    // Find interconnected guides
-    const interconnections = [];
-    for (const [topic, guides] of sharedTopics.entries()) {
-      if (guides.size > 1) {
-        interconnections.push({
-          topic,
-          guides: Array.from(guides),
-          connectionStrength: guides.size
-        });
-      }
-    }
-
-    return {
-      totalSharedTopics: sharedTopics.size,
-      interconnections: interconnections.sort((a, b) => b.connectionStrength - a.connectionStrength),
-      mostConnectedTopic: interconnections[0] || null,
-      guideConnectivity: this.calculateGuideConnectivity(interconnections)
-    };
-  }
-
-  extractTechnicalTerms(content) {
-    const terms = new Set();
-    
-    // SFCC API patterns
-    const apiMatches = content.match(/dw\.\w+(\.\w+)*/g) || [];
-    apiMatches.forEach(match => terms.add(match));
-    
-    // SFRA patterns
-    const sfraMatches = content.match(/server\.\w+|middleware|controller|model/gi) || [];
-    sfraMatches.forEach(match => terms.add(match.toLowerCase()));
-    
-    // Technical concepts
-    const concepts = ['validation', 'authentication', 'authorization', 'encryption', 'caching', 'transaction', 'middleware', 'hook', 'endpoint'];
-    concepts.forEach(concept => {
-      if (new RegExp(concept, 'i').test(content)) {
-        terms.add(concept);
-      }
-    });
-    
-    return Array.from(terms);
-  }
-
-  calculateGuideConnectivity(interconnections) {
-    const guideConnections = new Map();
-    interconnections.forEach(connection => {
-      connection.guides.forEach(guide => {
-        if (!guideConnections.has(guide)) {
-          guideConnections.set(guide, 0);
-        }
-        guideConnections.set(guide, guideConnections.get(guide) + connection.connectionStrength);
-      });
-    });
-    
-    return Array.from(guideConnections.entries())
-      .map(([guide, connectivity]) => ({ guide, connectivity }))
-      .sort((a, b) => b.connectivity - a.connectivity);
-  }
-
-  assessComprehensiveness(searchQuery, resultsArray) {
-    const pattern = this.searchTermPatterns[searchQuery.toLowerCase()];
-    if (!pattern) {
-      return { patternRecognized: false, customAnalysis: this.performCustomComprehensiveness(searchQuery, resultsArray) };
-    }
-
-    const foundGuides = new Set(resultsArray.map(r => r.guide));
-    const expectedGuides = new Set(pattern.expectedGuides);
-    const missingGuides = pattern.expectedGuides.filter(guide => !foundGuides.has(guide));
-    const unexpectedGuides = resultsArray.filter(r => !expectedGuides.has(r.guide)).map(r => r.guide);
-
-    const termCoverage = this.assessTermCoverage(pattern, resultsArray);
-
-    return {
-      patternRecognized: true,
-      expectedGuides: pattern.expectedGuides,
-      foundGuides: Array.from(foundGuides),
-      missingGuides,
-      unexpectedGuides,
-      guideCoverage: (foundGuides.size - unexpectedGuides.length) / Math.max(expectedGuides.size, 1),
-      termCoverage,
-      comprehensivenessScore: this.calculateComprehensiveness(foundGuides, expectedGuides, termCoverage)
-    };
-  }
-
-  performCustomComprehensiveness(searchQuery, resultsArray) {
-    return {
-      message: `No predefined pattern for query: ${searchQuery}`,
-      resultCount: resultsArray.length,
-      uniqueGuides: new Set(resultsArray.map(r => r.guide)).size,
-      avgMatchesPerGuide: resultsArray.reduce((sum, r) => sum + r.matches.length, 0) / Math.max(resultsArray.length, 1)
-    };
-  }
-
-  assessTermCoverage(pattern, resultsArray) {
-    const allContent = resultsArray.flatMap(r => r.matches.map(m => m.content)).join(' ').toLowerCase();
-    
-    const requiredTermsFound = pattern.requiredTerms.filter(term => allContent.includes(term));
-    const contextTermsFound = pattern.contextTerms.filter(term => allContent.includes(term));
-
-    return {
-      requiredTerms: pattern.requiredTerms.length,
-      requiredTermsFound: requiredTermsFound.length,
-      requiredTermsCoverage: requiredTermsFound.length / Math.max(pattern.requiredTerms.length, 1),
-      contextTerms: pattern.contextTerms.length,
-      contextTermsFound: contextTermsFound.length,
-      contextTermsCoverage: contextTermsFound.length / Math.max(pattern.contextTerms.length, 1),
-      foundTerms: { required: requiredTermsFound, context: contextTermsFound }
-    };
-  }
-
-  calculateComprehensiveness(foundGuides, expectedGuides, termCoverage) {
-    const guideCoverage = foundGuides.size / Math.max(expectedGuides.size, 1);
-    const termScore = (termCoverage.requiredTermsCoverage * 0.7) + (termCoverage.contextTermsCoverage * 0.3);
-    return (guideCoverage * 0.6) + (termScore * 0.4);
-  }
-
-  calculateSearchEffectiveness(searchQuery, resultsArray) {
-    let totalMatches = 0;
-    let relevantMatches = 0;
-
-    resultsArray.forEach(result => {
-      result.matches.forEach(match => {
-        totalMatches++;
-        const matchRelevance = this.calculateTextRelevance(searchQuery, match.content);
-        if (matchRelevance > 0.3) relevantMatches++;
-      });
-    });
-
-    const precision = totalMatches > 0 ? relevantMatches / totalMatches : 0;
-    const diversityScore = new Set(resultsArray.map(r => r.guide)).size / Math.max(resultsArray.length, 1);
-
-    return {
-      totalMatches,
-      relevantMatches,
-      precision,
-      diversityScore,
-      effectivenessScore: (precision * 0.7) + (diversityScore * 0.3),
-      searchQuality: this.categorizeSearchQuality(precision, diversityScore)
-    };
-  }
-
-  categorizeSearchQuality(precision, diversityScore) {
-    const overallScore = (precision * 0.7) + (diversityScore * 0.3);
-    if (overallScore >= 0.8) return 'excellent';
-    if (overallScore >= 0.6) return 'good';
-    if (overallScore >= 0.4) return 'fair';
-    return 'poor';
-  }
-}
-
-/**
- * Query analyzer for intelligent query pattern recognition and optimization
- */
-class QueryAnalyzer {
-  constructor() {
-    this.queryPatterns = {
-      technical: /\b(dw\.|server\.|middleware|controller|model|API|endpoint|hook)\b/i,
-      security: /\b(security|auth|encrypt|CSRF|XSS|validation|sanitiz)\b/i,
-      performance: /\b(performance|optimize|cache|memory|speed|monitoring)\b/i,
-  framework: /\b(SFRA|OCAPI|SCAPI|cartridge|ISML|template|SCSS|SASS)\b/i,
-      development: /\b(development|coding|implementation|best practice|guideline)\b/i
-    };
-    
-    this.commonTerms = [
-      'validation', 'security', 'performance', 'controller', 'middleware',
-      'cartridge', 'template', 'hook', 'API', 'authentication', 'authorization',
-      'encryption', 'caching', 'transaction', 'error', 'configuration',
-      'scss', 'styling'
-    ];
-  }
-
-  analyzeQuery(query) {
-    return {
-      originalQuery: query,
-      queryLength: query.length,
-      wordCount: query.split(/\s+/).length,
-      patterns: this.identifyPatterns(query),
-      complexity: this.assessComplexity(query),
-      suggestions: this.generateQuerySuggestions(query),
-      expectedResultTypes: this.predictResultTypes(query)
-    };
-  }
-
-  identifyPatterns(query) {
-    const patterns = {};
-    for (const [patternName, regex] of Object.entries(this.queryPatterns)) {
-      patterns[patternName] = regex.test(query);
-    }
-    return patterns;
-  }
-
-  assessComplexity(query) {
-    const words = query.split(/\s+/);
-    let complexityScore = 0;
-    
-    if (words.length === 1) complexityScore = 1; // Simple
-    else if (words.length <= 3) complexityScore = 2; // Moderate
-    else complexityScore = 3; // Complex
-    
-    // Adjust for technical terms
-    if (this.queryPatterns.technical.test(query)) complexityScore += 1;
-    
-    return {
-      score: Math.min(complexityScore, 4),
-      category: this.categorizeComplexity(complexityScore),
-      factors: this.identifyComplexityFactors(query)
-    };
-  }
-
-  categorizeComplexity(score) {
-    if (score <= 1) return 'simple';
-    if (score <= 2) return 'moderate';
-    if (score <= 3) return 'complex';
-    return 'very_complex';
-  }
-
-  identifyComplexityFactors(query) {
-    const factors = [];
-    if (query.split(/\s+/).length > 3) factors.push('multiple_terms');
-    if (this.queryPatterns.technical.test(query)) factors.push('technical_terminology');
-    if (query.includes('"')) factors.push('quoted_phrases');
-    if (query.includes('AND') || query.includes('OR')) factors.push('boolean_operators');
-    return factors;
-  }
-
-  generateQuerySuggestions(query) {
-    const suggestions = [];
-    const queryLower = query.toLowerCase();
-    
-    // Find related terms
-    this.commonTerms.forEach(term => {
-      if (queryLower.includes(term.toLowerCase().substring(0, 3)) && !queryLower.includes(term.toLowerCase())) {
-        suggestions.push(`Try searching for: "${term}"`);
-      }
-    });
-    
-    // Pattern-based suggestions
-    if (this.queryPatterns.security.test(query)) {
-      suggestions.push('Consider also searching: "authentication", "authorization", "CSRF"');
-    }
-    if (this.queryPatterns.performance.test(query)) {
-      suggestions.push('Consider also searching: "caching", "optimization", "monitoring"');
-    }
-    
-    return suggestions;
-  }
-
-  predictResultTypes(query) {
-    const predictions = [];
-    
-    if (this.queryPatterns.security.test(query)) {
-      predictions.push({ type: 'security_guides', confidence: 0.9 });
-    }
-    if (this.queryPatterns.performance.test(query)) {
-      predictions.push({ type: 'performance_guides', confidence: 0.8 });
-    }
-    if (this.queryPatterns.framework.test(query)) {
-      predictions.push({ type: 'framework_documentation', confidence: 0.85 });
-    }
-    if (this.queryPatterns.development.test(query)) {
-      predictions.push({ type: 'development_practices', confidence: 0.7 });
-    }
-    
-    return predictions.sort((a, b) => b.confidence - a.confidence);
-  }
-}
-
-/**
- * Error categorization utility for comprehensive error analysis
- */
-class ErrorAnalyzer {
-  static categorizeError(errorText) {
-    const patterns = [
-      { type: 'validation', keywords: ['required', 'invalid', 'missing', 'empty string', 'non-empty'] },
-      { type: 'not_found', keywords: ['not found', 'does not exist', 'null'] },
-      { type: 'permission', keywords: ['permission', 'unauthorized', 'forbidden'] },
-      { type: 'network', keywords: ['connection', 'timeout', 'unreachable'] },
-      { type: 'format', keywords: ['format', 'parse', 'json', 'syntax'] }
-    ];
-    
-    const errorLower = errorText.toLowerCase();
-    for (const pattern of patterns) {
-      if (pattern.keywords.some(keyword => errorLower.includes(keyword))) {
-        return pattern.type;
-      }
-    }
-    return 'unknown';
-  }
-
-  static assessErrorQuality(errorText) {
-    const hasSpecificMessage = !errorText.includes('generic error');
-    const hasSuggestion = errorText.includes('should') || errorText.includes('try') || errorText.includes('use');
-    const isActionable = errorText.includes('required') || errorText.includes('must') || errorText.includes('invalid');
-    
-    return {
-      category: this.categorizeError(errorText),
-      isInformative: hasSpecificMessage && errorText.length > 20,
-      isActionable,
-      hasSuggestion,
-      qualityScore: [hasSpecificMessage, isActionable, hasSuggestion].filter(Boolean).length / 3
-    };
-  }
-}
-
-// Assertion helpers for comprehensive validation
 function assertValidMCPResponse(result, expectError = false) {
-  assert.ok(result.content, 'Should have content');
+  assert.ok(result.content, 'Response should have content');
   assert.ok(Array.isArray(result.content), 'Content should be array');
   assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
   assert.equal(result.isError, expectError, `isError should be ${expectError}`);
 }
 
-function assertSearchResults(result) {
+/**
+ * Helper to parse and validate deprecation notice structure
+ */
+function assertDeprecationNotice(result) {
   assertValidMCPResponse(result, false);
-  assert.equal(result.content[0].type, 'text');
-  
+  assert.equal(result.content[0].type, 'text', 'Content type should be text');
+
   const responseText = result.content[0].text;
-  assert.ok(responseText.startsWith('['), 'Response should be JSON array');
-  assert.ok(responseText.endsWith(']'), 'Response should end with ]');
-  
-  const resultsArray = JSON.parse(responseText);
-  assert.ok(Array.isArray(resultsArray), 'Parsed response should be array');
-  
-  // Validate result structure if not empty
-  if (resultsArray.length > 0) {
-    resultsArray.forEach(result => {
-      assert.ok(result.guide, 'Each result should have guide');
-      assert.ok(result.title, 'Each result should have title');
-      assert.ok(Array.isArray(result.matches), 'Each result should have matches array');
-      
-      result.matches.forEach(match => {
-        assert.ok(match.section, 'Each match should have section');
-        assert.ok(match.content, 'Each match should have content');
-      });
-    });
-  }
-  
-  return resultsArray;
+
+  // Should be valid JSON
+  let deprecationData;
+  assert.doesNotThrow(() => {
+    deprecationData = JSON.parse(responseText);
+  }, 'Response should be valid JSON');
+
+  // Validate deprecation notice structure
+  assert.equal(deprecationData.deprecated, true, 'Should have deprecated: true');
+  assert.ok(deprecationData.message, 'Should have message');
+  assert.ok(deprecationData.message.includes('DEPRECATION NOTICE'), 'Message should contain DEPRECATION NOTICE');
+  assert.ok(deprecationData.message.includes('Agent Skills'), 'Message should mention Agent Skills');
+  assert.ok(deprecationData.skillsUrl, 'Should have skillsUrl');
+  assert.ok(Array.isArray(deprecationData.availableSkills), 'Should have availableSkills array');
+
+  return deprecationData;
 }
 
+/**
+ * Helper to validate error response
+ */
 function assertErrorResponse(result, expectedErrorType) {
   assertValidMCPResponse(result, true);
   assert.equal(result.content[0].type, 'text');
-  
+
   const errorText = result.content[0].text;
   assert.ok(errorText.includes('Error:'), 'Should be error message');
-  
-  const errorAnalysis = ErrorAnalyzer.assessErrorQuality(errorText);
-  assert.ok(errorAnalysis.isInformative, 'Error should be informative');
-  
-  if (expectedErrorType) {
-    assert.equal(errorAnalysis.category, expectedErrorType, 
-      `Error should be categorized as ${expectedErrorType}`);
+
+  if (expectedErrorType === 'validation') {
+    assert.ok(errorText.includes('query must be a non-empty string'),
+      'Should mention query validation');
   }
-  
-  return errorAnalysis;
+
+  return errorText;
 }
 
-describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
+describe('search_best_practices Programmatic Tests (DEPRECATED)', () => {
   let client;
-  let searchAnalyzer;
-  let queryAnalyzer;
 
   before(async () => {
     client = await connect('./aegis.config.docs-only.json');
-    searchAnalyzer = new SearchResultsAnalyzer();
-    queryAnalyzer = new QueryAnalyzer();
   });
 
   after(async () => {
@@ -577,260 +81,131 @@ describe('search_best_practices Tool - Advanced Programmatic Tests', () => {
   });
 
   beforeEach(() => {
-    // CRITICAL: Clear all buffers to prevent leaking between tests
-    client.clearAllBuffers(); // Recommended - comprehensive protection
+    client.clearAllBuffers();
   });
 
-  describe('Basic Search Functionality', () => {
-    test('should handle common search terms with comprehensive analysis', async () => {
-  const searchTerms = ['validation', 'security', 'performance', 'controller', 'middleware', 'scss'];
-      
-      for (const term of searchTerms) {
-        const result = await client.callTool('search_best_practices', { query: term });
-        
-        const resultsArray = assertSearchResults(result);
-        const searchAnalysis = searchAnalyzer.analyzeResults(term, resultsArray);
-        
-        // Basic validation
-        assert.ok(resultsArray.length > 0, `Should find results for ${term}`);
-        
-        // More lenient analysis - allow for varied content quality
-        if (resultsArray.length > 0) {
-          assert.ok(searchAnalysis.relevanceScoring.avgRelevanceScore >= 0, 
-            `Results for ${term} should have valid relevance score (score: ${searchAnalysis.relevanceScoring.avgRelevanceScore})`);
-          // Some technical terms may not always be present in general searches
-        }
-      }
+  describe('Protocol Compliance', () => {
+    test('should be properly connected to MCP server', async () => {
+      assert.ok(client.connected, 'Client should be connected');
     });
 
-    test('should surface SFRA SCSS guide for styling queries', async () => {
-      const result = await client.callTool('search_best_practices', { query: 'scss' });
-      const resultsArray = assertSearchResults(result);
+    test('should have search_best_practices tool available', async () => {
+      const tools = await client.listTools();
+      const searchTool = tools.find(tool => tool.name === 'search_best_practices');
 
-      assert.ok(resultsArray.some(r => r.guide === 'sfra_scss'), 'Should include sfra_scss guide in results');
-      const sfraScssGuide = resultsArray.find(r => r.guide === 'sfra_scss');
-      assert.ok(sfraScssGuide?.matches?.length > 0, 'SFRA SCSS guide should provide match excerpts');
-
-      const analysis = searchAnalyzer.analyzeResults('scss', resultsArray);
-      assert.ok(analysis.searchMeta.guidesFound.includes('sfra_scss'), 'Search metadata should track sfra_scss guide');
-    });
-
-    test('should demonstrate search result quality with detailed metrics', async () => {
-      const testQuery = 'validation';
-      const result = await client.callTool('search_best_practices', { query: testQuery });
-      
-      const resultsArray = assertSearchResults(result);
-      const analysis = searchAnalyzer.analyzeResults(testQuery, resultsArray);
-      
-      // Comprehensive quality assertions
-      assert.ok(analysis.contentQuality.avgContentLength > 50, 'Content should be substantial');
-      assert.ok(analysis.contentQuality.guidesWithCode > 0, 'Should include code examples');
-      assert.ok(analysis.relevanceScoring.relevanceDistribution.high > 0, 'Should have highly relevant results');
-      assert.ok(analysis.searchEffectiveness.precision > 0.4, 'Search precision should be reasonable');
-      
-      // Cross-guide analysis
-      if (analysis.crossGuideAnalysis.interconnections.length > 0) {
-        assert.ok(analysis.crossGuideAnalysis.mostConnectedTopic, 'Should identify connected topics');
-      }
-      
-      // Comprehensiveness assessment
-      if (analysis.comprehensiveness.patternRecognized) {
-        assert.ok(analysis.comprehensiveness.guideCoverage >= 0, 'Guide coverage should be measurable');
-      }
+      assert.ok(searchTool, 'search_best_practices tool should be available');
+      assert.ok(searchTool.description, 'Tool should have description');
+      assert.ok(searchTool.description.includes('DEPRECATED'), 'Tool description should mention DEPRECATED');
     });
   });
 
-  describe('Advanced Search Pattern Recognition', () => {
-    test('should recognize and analyze technical search patterns', async () => {
-      const technicalQueries = [
-        { query: 'dw.crypto', expectedPattern: 'technical' },
-        { query: 'server.middleware', expectedPattern: 'framework' },
-        { query: 'OCAPI hooks', expectedPattern: 'framework' },
-        { query: 'authentication security', expectedPattern: 'security' }
-      ];
+  describe('Deprecation Notice Functionality', () => {
+    test('should return deprecation notice for any search query', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'validation'
+      });
 
-      for (const { query, expectedPattern } of technicalQueries) {
-        const queryAnalysis = queryAnalyzer.analyzeQuery(query);
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.deprecated === true);
+    });
+
+    test('should return same deprecation notice regardless of query', async () => {
+      const queries = ['validation', 'security', 'performance', 'caching', 'authentication'];
+
+      for (const query of queries) {
         const result = await client.callTool('search_best_practices', { query });
-        
-        const resultsArray = assertSearchResults(result);
-        const searchAnalysis = searchAnalyzer.analyzeResults(query, resultsArray);
-        
-        // Pattern recognition validation - more flexible matching
-        const hasExpectedPattern = queryAnalysis.patterns[expectedPattern];
-        
-        // Allow for pattern flexibility - if expected pattern isn't found, check if any technical pattern is found
-        const hasTechnicalPattern = Object.keys(queryAnalysis.patterns).some(p => queryAnalysis.patterns[p] && 
-          ['technical', 'framework', 'security', 'performance'].includes(p));
-        
-        assert.ok(hasExpectedPattern || hasTechnicalPattern, 
-          `Query "${query}" should match ${expectedPattern} pattern or another technical pattern`);
-        
-        // Result quality for technical queries - more lenient validation
-        if (resultsArray.length > 0) {
-          // Technical queries may or may not return technical content depending on the search algorithm
-          assert.ok(searchAnalysis.relevanceScoring.avgRelevanceScore >= 0, 
-            `Technical query "${query}" should have valid relevance score`);
-        }
-        
+        const deprecationData = assertDeprecationNotice(result);
+
+        assert.ok(deprecationData.message.includes('DEPRECATION NOTICE'),
+          `Query "${query}" should return deprecation notice`);
       }
     });
 
-    test('should provide intelligent query suggestions and predictions', async () => {
-      const ambiguousQueries = ['auth', 'perf', 'valid'];
-      
-      for (const query of ambiguousQueries) {
-        const queryAnalysis = queryAnalyzer.analyzeQuery(query);
-        
-        assert.ok(queryAnalysis.suggestions.length >= 0, 'Should provide suggestions for ambiguous queries');
-        assert.ok(queryAnalysis.expectedResultTypes.length >= 0, 'Should predict result types');
-        
-        if (queryAnalysis.suggestions.length > 0) {
-          assert.ok(queryAnalysis.suggestions.every(s => typeof s === 'string'), 'Suggestions should be strings');
-        }
-        
-        if (queryAnalysis.expectedResultTypes.length > 0) {
-          const topPrediction = queryAnalysis.expectedResultTypes[0];
-          assert.ok(topPrediction.type, 'Top prediction should have type');
-          assert.ok(topPrediction.confidence >= 0, 'Top prediction should have valid confidence');
-        }
-      }
+    test('should include skills directory path', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'security'
+      });
+
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.skillsUrl.includes('ai-instructions/skills'),
+        'Should include skills directory URL');
+    });
+
+    test('should list available skills', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'test'
+      });
+
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.availableSkills.length === 13, 'Should have 13 skills');
+      assert.ok(deprecationData.availableSkills.includes('sfcc-security'),
+        'Should include security skill');
+      assert.ok(deprecationData.availableSkills.includes('sfcc-performance'),
+        'Should include performance skill');
     });
   });
 
-
-  describe('Cross-Guide Relationship Analysis', () => {
-    test('should identify relationships between different guides', async () => {
-      const result = await client.callTool('search_best_practices', { query: 'validation' });
-      
-      const resultsArray = assertSearchResults(result);
-      const analysis = searchAnalyzer.analyzeResults('validation', resultsArray);
-      
-      if (analysis.crossGuideAnalysis.interconnections.length > 0) {
-        const interconnections = analysis.crossGuideAnalysis.interconnections;
-        
-        // Should identify shared concepts
-        assert.ok(interconnections.length > 0, 'Should find interconnected topics');
-        
-        // Analyze connection strength
-        const strongConnections = interconnections.filter(conn => conn.connectionStrength >= 3);
-        if (strongConnections.length > 0) {
-          assert.ok(strongConnections.every(conn => conn.topic && conn.guides.length > 0), 
-            'Strong connections should have valid structure');
-        }
-        
-        // Guide connectivity analysis
-        const connectivity = analysis.crossGuideAnalysis.guideConnectivity;
-        if (connectivity.length > 0) {
-          const mostConnected = connectivity[0];
-          assert.ok(mostConnected.guide && mostConnected.connectivity >= 0, 
-            'Most connected guide should have valid structure');
-        }
-      }
+  describe('Validation Errors', () => {
+    test('should return error when query is missing', async () => {
+      const result = await client.callTool('search_best_practices', {});
+      assertErrorResponse(result, 'validation');
     });
 
-    test('should analyze search comprehensiveness for known patterns', async () => {
-      const knownPatterns = ['validation', 'security', 'performance'];
-      
-      for (const pattern of knownPatterns) {
-        const result = await client.callTool('search_best_practices', { query: pattern });
-        
-        const resultsArray = assertSearchResults(result);
-        const analysis = searchAnalyzer.analyzeResults(pattern, resultsArray);
-        
-        if (analysis.comprehensiveness.patternRecognized) {
-          const comp = analysis.comprehensiveness;
-          
-          assert.ok(Array.isArray(comp.expectedGuides), 'Should have expected guides');
-          assert.ok(Array.isArray(comp.foundGuides), 'Should have found guides');
-          
-          // Analyze coverage
-          if (comp.missingGuides.length > 0) {
-            assert.ok(comp.missingGuides.every(g => typeof g === 'string'), 'Missing guides should be strings');
-          }
-          
-          if (comp.unexpectedGuides.length > 0) {
-            assert.ok(comp.unexpectedGuides.every(g => typeof g === 'string'), 'Unexpected guides should be strings');
-          }
-          
-          assert.ok(comp.guideCoverage >= 0, 'Guide coverage should be calculable');
-        }
-      }
+    test('should return error when query is empty string', async () => {
+      const result = await client.callTool('search_best_practices', { query: '' });
+      assertErrorResponse(result, 'validation');
+    });
+
+    test('should return error when query is whitespace only', async () => {
+      const result = await client.callTool('search_best_practices', { query: '   ' });
+      assertErrorResponse(result, 'validation');
     });
   });
 
-  describe('Error Handling and Edge Cases', () => {
-    test('should handle various error conditions gracefully', async () => {
-      const errorTestCases = [
-        { query: '', expectedError: 'validation', description: 'empty query' },
-        { query: '   ', expectedError: 'validation', description: 'whitespace only' },
-        { query: 'zzznomatchesexpected', expectedError: null, description: 'no matches' }
-      ];
+  describe('Edge Cases', () => {
+    test('should ignore extra parameters', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'validation',
+        extraParam: 'ignored',
+        anotherParam: 123
+      });
 
-      for (const { query, expectedError, description } of errorTestCases) {
-        const result = await client.callTool('search_best_practices', { query });
-        
-        if (expectedError) {
-          const errorAnalysis = assertErrorResponse(result, expectedError);
-          assert.ok(errorAnalysis.isInformative, `Error for ${description} should be informative`);
-          assert.ok(errorAnalysis.qualityScore > 0.5, `Error quality for ${description} should be good`);
-        } else {
-          // No matches case
-          assertValidMCPResponse(result, false);
-          const responseText = result.content[0].text;
-          const resultsArray = JSON.parse(responseText);
-          assert.equal(resultsArray.length, 0, `${description} should return empty array`);
-        }
-      }
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.deprecated === true);
     });
 
-    test('should handle missing parameters with detailed error analysis', async () => {
-      try {
-        const result = await client.callTool('search_best_practices', {});
-        const errorAnalysis = assertErrorResponse(result, 'validation');
-        
-        assert.ok(errorAnalysis.isActionable, 'Missing parameter error should be actionable');
-        assert.ok(errorAnalysis.category === 'validation', 'Should be categorized as validation error');
-      } catch (error) {
-        // Some implementations might throw instead of returning error result
-        assert.ok(error.message.includes('required') || error.message.includes('query'), 
-          'Error should mention required query parameter');
-      }
+    test('should handle special characters in query', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'dw.crypto.Cipher'
+      });
+
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.deprecated === true);
     });
-  });
 
-  describe('Search Effectiveness and Quality Metrics', () => {
-    test('should demonstrate high-quality search capabilities', async () => {
-      const qualityTestQueries = [
-        'validation patterns',
-        'security best practices',
-        'performance optimization',
-        'SFRA controller architecture',
-        'SFRA SCSS best practices'
-      ];
+    test('should handle very long queries', async () => {
+      const result = await client.callTool('search_best_practices', {
+        query: 'a'.repeat(1000)
+      });
 
-      for (const query of qualityTestQueries) {
-        const result = await client.callTool('search_best_practices', { query });
-        
-        const resultsArray = assertSearchResults(result);
-        const analysis = searchAnalyzer.analyzeResults(query, resultsArray);
-        
-        if (resultsArray.length > 0) {
-          // Quality assertions
-          assert.ok(analysis.searchEffectiveness.precision > 0.3, 
-            `Search precision for "${query}" should be reasonable`);
-          assert.ok(analysis.contentQuality.technicalAccuracy > 0.3,
-            `Technical accuracy for "${query}" should be good`);
-          
-          // Effectiveness categorization
-          const effectiveness = analysis.searchEffectiveness.searchQuality;
-          assert.ok(['poor', 'fair', 'good', 'excellent'].includes(effectiveness),
-            'Search quality should be categorized');
-          
-          assert.ok(analysis.searchEffectiveness.precision >= 0 && analysis.searchEffectiveness.precision <= 1,
-            'Search precision should be between 0 and 1');
-        }
-      }
+      const deprecationData = assertDeprecationNotice(result);
+      assert.ok(deprecationData.deprecated === true);
+    });
+
+    test('should respond quickly', async () => {
+      const startTime = Date.now();
+      await client.callTool('search_best_practices', { query: 'validation' });
+      const elapsed = Date.now() - startTime;
+
+      assert.ok(elapsed < 500, `Should respond quickly (took ${elapsed}ms)`);
+    });
+
+    test('should return consistent results', async () => {
+      const result1 = await client.callTool('search_best_practices', { query: 'test' });
+      const result2 = await client.callTool('search_best_practices', { query: 'test' });
+
+      assert.equal(result1.content[0].text, result2.content[0].text,
+        'Results should be consistent');
     });
   });
 });

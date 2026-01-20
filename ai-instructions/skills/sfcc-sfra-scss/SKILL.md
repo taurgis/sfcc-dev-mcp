@@ -1,3 +1,8 @@
+---
+name: sfcc-sfra-scss
+description: Best practices for styling and theming SFRA storefronts using SCSS. Use when asked to create style overrides, theming, responsive layouts, or CSS customizations in SFCC.
+---
+
 ## SFRA SCSS Best Practices (AI-Agent Optimized)
 
 Purpose: Provide a concise, implementation‑ready reference for styling and theming Salesforce B2C Commerce SFRA storefronts using SCSS. Optimized for automated reasoning, safe overrides, upgrade resilience, and performant output.

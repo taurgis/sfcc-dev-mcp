@@ -1,8 +1,13 @@
+---
+name: sfcc-isml-development
+description: Comprehensive guide for developing ISML templates in Salesforce B2C Commerce SFRA. Use this when asked to create, modify, or troubleshoot ISML templates, work with decorators, or implement template patterns.
+---
+
 # Salesforce B2C Commerce ISML Templates: Best Practices & Development Guide
 
 This guide provides comprehensive best practices for developing ISML (Internet Store Markup Language) templates within the Salesforce B2C Commerce Storefront Reference Architecture (SFRA). Master these principles to build secure, maintainable, and high-performing storefront experiences.
 
-**IMPORTANT**: Before developing ISML templates, consult the **Performance and Stability Best Practices** and **SFRA Controllers** guides from this MCP server. Understanding the MVC separation and controller patterns is essential for proper ISML development.
+**IMPORTANT**: Before developing ISML templates, consult the **sfcc-performance** and **sfcc-sfra-controllers** skills. Understanding the MVC separation and controller patterns is essential for proper ISML development.
 
 ## Core Principles
 
@@ -284,7 +289,7 @@ Avoid over-parameterization – each unique full URL becomes a distinct cache en
 Keep total remote includes per page conservative (<20 recommended) to avoid waterfall latency.
 
 #### 3.5 Performance Anti-Patterns
-| Anti-Pattern | Why It’s Harmful | Better Alternative |
+| Anti-Pattern | Why It's Harmful | Better Alternative |
 |--------------|------------------|--------------------|
 | One remote include per product tile in a grid | N extra HTTP requests, destroys cache efficiency | Single parent render with local includes |
 | Adding position/index params that change per render | Creates unique cache keys, low hit ratio | Omit non-functional varying params |
@@ -321,7 +326,7 @@ If you cannot satisfy most checklist items, prefer a local include.
 #### 3.9 When NOT to Use Remote Includes
 - Pure presentational partials (icons, button groups)
 - Iterative children of a paginated list
-- Form bodies that rely on parent controller’s validation context
+- Form bodies that rely on parent controller's validation context
 - Anything requiring access to parent `pdict` objects without trivial serialization
 
 ---
@@ -381,9 +386,9 @@ The `session` top-level variable exposes the current storefront or Business Mana
 
 | Method | Description |
 | --- | --- |
-| `formatDate(date)` → `String` | Formats a `Date` with the current site’s default date format. |
-| `formatInteger(number)` → `String` | Formats a number using the site’s default integer format; floats are coerced to integers. |
-| `formatNumber(number)` → `String` | Formats a number using the site’s default number format. |
+| `formatDate(date)` → `String` | Formats a `Date` with the current site's default date format. |
+| `formatInteger(number)` → `String` | Formats a number using the site's default integer format; floats are coerced to integers. |
+| `formatNumber(number)` → `String` | Formats a number using the site's default number format. |
 | `garble(str, replaceChar, suffixLength)` → `String` | Masks a string, leaving the last `suffixLength` characters intact. |
 | `pad(str, width)` → `String` | Pads a string to a target width (useful for alignment in tables). |
 | `stringToHtml(str)` → `String` | Converts a string to an HTML-safe representation. |
@@ -1820,7 +1825,7 @@ templates/default/
 ├── home/                    # Homepage templates
 │   └── homePage.isml        # Main homepage
 ├── product/                 # Product-related templates
-│   ├── productD etails.isml  # PDP template
+│   ├── productDetails.isml  # PDP template
 │   ├── productTile.isml     # Product tile component
 │   └── quickView.isml       # Quick view modal
 ├── cart/                    # Shopping cart templates

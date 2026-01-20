@@ -1,18 +1,13 @@
 # ==================================================================================
 # SFCC MCP Server - get_available_best_practice_guides Tool YAML Tests
-# Comprehensive testing for SFCC best practice guides discovery functionality
-# Tests structure validation, content verification, and performance requirements
-# 
+# Tests deprecation notice functionality - tools now return deprecation notices
+# pointing users to GitHub Copilot Agent Skills
+#
 # Quick Test Commands:
-# aegis "tests/mcp/yaml/get-available-best-practice-guides.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
-# aegis "tests/mcp/yaml/get-available-best-practice-guides.full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --debug --timing
-# aegis query get_available_best_practice_guides '{}' --config "aegis.config.with-dw.json"
+# aegis "tests/mcp/yaml/get-available-best-practice-guides.full-mode.test.mcp.yml" --config "aegis.config.json.json" --verbose
 # ==================================================================================
-description: "SFCC MCP Server get_available_best_practice_guides tool - comprehensive validation"
+description: "SFCC MCP Server get_available_best_practice_guides tool - deprecation notice validation (full-mode)"
 
-# ==================================================================================
-# BASIC TOOL STRUCTURE VALIDATION
-# ==================================================================================
 tests:
   - it: "should list get_available_best_practice_guides tool in available tools"
     request:
@@ -29,28 +24,10 @@ tests:
             match:arrayContains:name:get_available_best_practice_guides
       stderr: "toBeEmpty"
 
-  - it: "should define tool with correct structure and schema"
+  - it: "should return deprecation notice when called"
     request:
       jsonrpc: "2.0"
-      id: "tool-schema-1"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "tool-schema-1"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_available_best_practice_guides"
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# SUCCESSFUL GUIDE LISTING TESTS
-# ==================================================================================
-  - it: "should return available best practice guides with proper structure"
-    request:
-      jsonrpc: "2.0"
-      id: "guides-list-1"
+      id: "deprecation-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -58,20 +35,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "guides-list-1"
+        id: "deprecation-1"
         result:
           content:
             - type: "text"
-              text: "match:regex:\\[[\\s\\S]*\\]"
+              text: "match:contains:DEPRECATION NOTICE"
           isError: false
-      performance:
-        maxResponseTime: "300ms"
       stderr: "toBeEmpty"
 
-  - it: "should return valid JSON array of guides in text content"
+  - it: "should mention GitHub Copilot Agent Skills in deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "guides-json-1"
+      id: "deprecation-skills-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -79,21 +54,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "guides-json-1"
+        id: "deprecation-skills-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:cartridge_creation"
+              text: "match:contains:Agent Skills"
           isError: false
       stderr: "toBeEmpty"
 
-# ==================================================================================
-# GUIDE CONTENT STRUCTURE VALIDATION
-# ==================================================================================
-  - it: "should include required core best practice guides"
+  - it: "should include skills directory path in deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "core-guides-1"
+      id: "deprecation-url-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -101,18 +73,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "core-guides-1"
+        id: "deprecation-url-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:cartridge_creation"
+              text: "match:contains:ai-instructions/skills"
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should include SFRA-related best practice guides"
+  - it: "should list sfcc-cartridge-development skill in deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "sfra-guides-1"
+      id: "deprecation-cartridge-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -120,18 +92,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "sfra-guides-1"
+        id: "deprecation-cartridge-1"
         result:
           content:
             - type: "text"
-              text: "match:contains:sfra_controllers"
+              text: "match:contains:sfcc-cartridge-development"
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should include API hooks best practice guides"
+  - it: "should respond quickly with deprecation notice"
     request:
       jsonrpc: "2.0"
-      id: "hooks-guides-1"
+      id: "deprecation-perf-1"
       method: "tools/call"
       params:
         name: "get_available_best_practice_guides"
@@ -139,290 +111,7 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "hooks-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:ocapi_hooks"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include security and performance guides"
-    request:
-      jsonrpc: "2.0"
-      id: "security-perf-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "security-perf-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:security"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include job framework guidance"
-    request:
-      jsonrpc: "2.0"
-      id: "job-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:job_framework"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# GUIDE METADATA VALIDATION
-# ==================================================================================
-  - it: "should include guide names for programmatic access"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-names-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-names-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"name\":\\s*\"[a-z_]+\""
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include human-readable guide titles"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-titles-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-titles-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"title\":\\s*\"[^\"]+Best Practices[^\"]*\""
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include helpful guide descriptions"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-descriptions-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-descriptions-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"description\":\\s*\"[\\s\\S]{20,}\""
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# COMPREHENSIVE GUIDE COVERAGE VALIDATION
-# ==================================================================================
-  - it: "should include all expected core development guides"
-    request:
-      jsonrpc: "2.0"
-      id: "all-core-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "all-core-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include template development guides"
-    request:
-      jsonrpc: "2.0"
-      id: "template-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "template-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:isml_templates"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include service integration guides"
-    request:
-      jsonrpc: "2.0"
-      id: "service-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "service-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:localserviceregistry"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include SCAPI development guides"
-    request:
-      jsonrpc: "2.0"
-      id: "scapi-guides-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "scapi-guides-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:scapi_hooks"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# PARAMETER HANDLING TESTS
-# ==================================================================================
-  - it: "should handle empty parameters gracefully"
-    request:
-      jsonrpc: "2.0"
-      id: "empty-params-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "empty-params-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\\[\\s*\\{[\\s\\S]*\\}\\s*\\]"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should ignore invalid extra parameters"
-    request:
-      jsonrpc: "2.0"
-      id: "invalid-params-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments:
-          invalid_param: "should_be_ignored"
-          another_invalid: 123
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "invalid-params-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# RESPONSE FORMAT CONSISTENCY TESTS
-# ==================================================================================
-  - it: "should maintain consistent JSON structure across calls"
-    request:
-      jsonrpc: "2.0"
-      id: "consistency-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "consistency-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\\[\\s*\\{\\s*\"name\":\\s*\"[^\"]+\",\\s*\"title\":\\s*\"[^\"]+\",\\s*\"description\":\\s*\"[^\"]+\"\\s*\\}"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should return well-formatted JSON without syntax errors"
-    request:
-      jsonrpc: "2.0"
-      id: "json-format-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "json-format-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:^\\[[\\s\\S]*\\]$"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# PERFORMANCE AND RELIABILITY TESTS
-# ==================================================================================
-  - it: "should respond quickly for metadata operation"
-    request:
-      jsonrpc: "2.0"
-      id: "performance-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "performance-1"
+        id: "deprecation-perf-1"
         result:
           content:
             - type: "text"
@@ -430,456 +119,4 @@ tests:
           isError: false
       performance:
         maxResponseTime: "300ms"
-      stderr: "toBeEmpty"
-
-  - it: "should be reliable across multiple consecutive calls"
-    request:
-      jsonrpc: "2.0"
-      id: "reliability-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "reliability-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:best practices"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should return identical results for repeated calls"
-    request:
-      jsonrpc: "2.0"
-      id: "repeatability-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "repeatability-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# COMPREHENSIVE GUIDE ENUMERATION
-# ==================================================================================
-  - it: "should include expected total number of guides (13 guides minimum)"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-count-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-count-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\":[\\s\\S]*\"name\""
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include performance optimization guidance"
-    request:
-      jsonrpc: "2.0"
-      id: "performance-guide-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "performance-guide-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:performance"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# COMPREHENSIVE GUIDE EXISTENCE VALIDATION
-# Ensures all currently available guides remain in existence
-# ==================================================================================
-  - it: "should include cartridge_creation guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-cartridge-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-cartridge-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include isml_templates guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-isml-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-isml-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:isml_templates"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include job_framework guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-job-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-job-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:job_framework"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include localserviceregistry guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-lsr-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-lsr-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:localserviceregistry"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include ocapi_hooks guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-ocapi-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-ocapi-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:ocapi_hooks"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include scapi_hooks guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-scapi-hooks-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-scapi-hooks-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:scapi_hooks"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include scapi_custom_endpoint guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-scapi-endpoint-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-scapi-endpoint-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:scapi_custom_endpoint"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include sfra_controllers guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-sfra-controllers-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-sfra-controllers-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_controllers"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include sfra_models guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-sfra-models-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-sfra-models-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_models"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include sfra_client_side_js guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-sfra-client-js-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-sfra-client-js-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_client_side_js"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include sfra_scss guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-sfra-scss-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-sfra-scss-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:sfra_scss"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include performance guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-performance-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-performance-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:performance"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include security guide"
-    request:
-      jsonrpc: "2.0"
-      id: "guide-exists-security-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "guide-exists-security-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:security"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include exactly 13 current guides (comprehensive existence check)"
-    request:
-      jsonrpc: "2.0"
-      id: "all-guides-exist-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "all-guides-exist-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:cartridge_creation[\\s\\S]*isml_templates[\\s\\S]*job_framework[\\s\\S]*localserviceregistry[\\s\\S]*ocapi_hooks[\\s\\S]*scapi_hooks[\\s\\S]*scapi_custom_endpoint[\\s\\S]*sfra_controllers[\\s\\S]*sfra_models[\\s\\S]*sfra_client_side_js[\\s\\S]*sfra_scss[\\s\\S]*performance[\\s\\S]*security"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# ERROR RESILIENCE TESTS
-# ==================================================================================
-  - it: "should handle tool calls without arguments gracefully"
-    request:
-      jsonrpc: "2.0"
-      id: "no-args-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "no-args-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# GUIDE ACCESSIBILITY VALIDATION
-# ==================================================================================
-  - it: "should provide accessible guide names for automation"
-    request:
-      jsonrpc: "2.0"
-      id: "automation-names-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "automation-names-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"name\":\\s*\"[a-z][a-z0-9_]*\""
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should provide descriptive titles for human readers"
-    request:
-      jsonrpc: "2.0"
-      id: "human-titles-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "human-titles-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\"title\":\\s*\"[A-Z][\\s\\S]{10,}\""
-          isError: false
-      stderr: "toBeEmpty"
-
-# ==================================================================================
-# INTEGRATION READINESS TESTS
-# ==================================================================================
-  - it: "should provide data suitable for downstream tool integration"
-    request:
-      jsonrpc: "2.0"
-      id: "integration-ready-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "integration-ready-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:regex:\\{\\s*\"name\":\\s*\"[^\"]+\",\\s*\"title\":[\\s\\S]*,\\s*\"description\":[\\s\\S]*\\}"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should maintain consistent field naming across all guides"
-    request:
-      jsonrpc: "2.0"
-      id: "field-consistency-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "field-consistency-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:not:regex:\"Name\"|\"Title\"|\"Description\""
-          isError: false
       stderr: "toBeEmpty"
