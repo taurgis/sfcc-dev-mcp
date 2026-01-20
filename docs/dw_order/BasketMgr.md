@@ -123,13 +123,24 @@ This method returns the stored basket of the session customer or null if none is
  basket is returned in the following situation:
  
  During one visit, a customer-Q logs in and creates a basket-A by adding products to it.
- In a later visit, a second basket-B is created for a guest customer who then logs in as customer-Q. 
+ During a subsequent visit, a second basket-B is created for a guest customer who then logs in as
+ customer-Q.
  
- In this case basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. 
- Now it is possible to merge the information from the stored basket to the active basket.
+ In this case, basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this
+ method. It is now possible to merge the information from the stored basket (basket-A) to the active basket
+ (basket-B). If this method returns null in the previous scenario, verify that:
  
- A stored basket will exist only if the corresponding setting is selected in the Business Manager site
- preferences' baskets section. A basket is valid for the configured basket lifetime.
+ The session handling between the two visits is correct - the first visit and second visit must be in
+ different sessions. Furthermore, the second session must contain both basket creations: as guest and the customer
+ login.
+ The stored basket is not expired.
+ Basket persistence settings are configured correctly in the Business Manager.
+ 
+ 
+ 
+ A stored basket exists only if the corresponding setting is selected in Business Manager. preferences' baskets
+ section. A basket is valid for the configured basket lifetime.
+ 
  
  Typical usage:
 
@@ -138,6 +149,11 @@ This method returns the stored basket of the session customer or null if none is
  if (storedBasket) {
      // transfer all the data needed from the stored to the active basket
  }
+ 
+
+ A exhaustive example on how to use this method in the context of the Merge Basket functionality can be found
+ here: Merge Basket utility
+ functions using Script API
 
 ### temporaryBaskets
 
@@ -365,7 +381,7 @@ the basket, existing or newly created
 
 **Signature:** `static getStoredBasket() : Basket`
 
-**Description:** This method returns the stored basket of the session customer or null if none is found. A stored basket is returned in the following situation: During one visit, a customer-Q logs in and creates a basket-A by adding products to it. In a later visit, a second basket-B is created for a guest customer who then logs in as customer-Q. In this case basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. Now it is possible to merge the information from the stored basket to the active basket. A stored basket will exist only if the corresponding setting is selected in the Business Manager site preferences' baskets section. A basket is valid for the configured basket lifetime. Typical usage: var currentBasket : Basket = BasketMgr.getCurrentOrNewBasket(); var storedBasket : Basket = BasketMgr.getStoredBasket(); if (storedBasket) { // transfer all the data needed from the stored to the active basket }
+**Description:** This method returns the stored basket of the session customer or null if none is found. A stored basket is returned in the following situation: During one visit, a customer-Q logs in and creates a basket-A by adding products to it. During a subsequent visit, a second basket-B is created for a guest customer who then logs in as customer-Q. In this case, basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. It is now possible to merge the information from the stored basket (basket-A) to the active basket (basket-B). If this method returns null in the previous scenario, verify that: The session handling between the two visits is correct - the first visit and second visit must be in different sessions. Furthermore, the second session must contain both basket creations: as guest and the customer login. The stored basket is not expired. Basket persistence settings are configured correctly in the Business Manager. A stored basket exists only if the corresponding setting is selected in Business Manager. preferences' baskets section. A basket is valid for the configured basket lifetime. Typical usage: var currentBasket : Basket = BasketMgr.getCurrentOrNewBasket(); var storedBasket : Basket = BasketMgr.getStoredBasket(); if (storedBasket) { // transfer all the data needed from the stored to the active basket } A exhaustive example on how to use this method in the context of the Merge Basket functionality can be found here: Merge Basket utility functions using Script API
 
 **Returns:**
 

@@ -29,7 +29,7 @@ import {
 } from './tool-definitions.js';
 
 // Modular tool handlers
-import { BaseToolHandler, HandlerContext } from './handlers/base-handler.js';
+import { BaseToolHandler, HandlerContext, ToolExecutionResult } from './handlers/base-handler.js';
 import { LogToolHandler } from './handlers/log-handler.js';
 import { JobLogToolHandler } from './handlers/job-log-handler.js';
 import { DocsToolHandler } from './handlers/docs-handler.js';
@@ -269,27 +269,19 @@ export class SFCCDevServer {
           throw new Error(`Unknown tool: ${name}`);
         }
         const result = await handler.handle(name, args ?? {}, startTime);
-
-        if (preflightNotice) {
-          const mergedText = [
-            preflightNotice,
-            ...(result.content ?? []).map((entry) => entry.text ?? ''),
-          ].join('\n\n');
-
-          result.content = [
-            { type: 'text', text: mergedText },
-          ];
-        }
+        const decoratedResult = preflightNotice
+          ? this.attachError(result, preflightNotice)
+          : result;
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {
-          contentType: result.content?.[0]?.type,
-          contentLength: result.content?.[0]?.text?.length ?? 0,
-          responsePreview: result.content?.[0]?.text?.substring(0, 200) + (result.content?.[0]?.text?.length > 200 ? '...' : ''),
-          fullResponse: result.content?.[0]?.text,
+          contentType: decoratedResult.content?.[0]?.type,
+          contentLength: decoratedResult.content?.[0]?.text?.length ?? 0,
+          responsePreview: decoratedResult.content?.[0]?.text?.substring(0, 200) + (decoratedResult.content?.[0]?.text?.length > 200 ? '...' : ''),
+          fullResponse: decoratedResult.content?.[0]?.text,
         });
 
-        return result as any;
+        return decoratedResult as any;
       } catch (error) {
         this.logger.error(`Error handling tool "${name}":`, error);
         this.logger.timing(`${name}_error`, startTime);
@@ -338,5 +330,41 @@ export class SFCCDevServer {
 
     this.logger.log('SFCC Development MCP server shutdown complete');
     process.exit(0);
+  }
+
+  /**
+   * Inject a preflight error into JSON responses while preserving existing structure.
+   * Falls back to text concatenation if the payload is not valid JSON.
+   */
+  private attachError(result: ToolExecutionResult, errorMessage: string): ToolExecutionResult {
+    const content = result?.content ?? [];
+    const [first, ...rest] = content;
+
+    if (first?.type !== 'text' || typeof first.text !== 'string') {
+      return result;
+    }
+
+    try {
+      const parsed = JSON.parse(first.text);
+      const existingErrors = Array.isArray(parsed.error)
+        ? parsed.error
+        : parsed.error
+          ? [parsed.error]
+          : [];
+
+      const combinedErrors = [...existingErrors, errorMessage];
+      parsed.error = combinedErrors.length === 1 ? combinedErrors[0] : combinedErrors;
+
+      return {
+        ...result,
+        content: [{ ...first, text: JSON.stringify(parsed, null, 2) }, ...rest],
+      };
+    } catch {
+      const merged = [errorMessage, first.text].filter(Boolean).join('\n\n');
+      return {
+        ...result,
+        content: [{ ...first, text: merged }, ...rest],
+      };
+    }
   }
 }

@@ -74,14 +74,6 @@ Use these tools for any SFCC API or class-related questions:
 - **`list_sfcc_classes`** - Get complete list of available SFCC classes
 - **`get_sfcc_class_documentation`** - Get raw documentation for any SFCC class
 
-### 📚 Best Practices & Guidelines
-Use these for implementation guidance and best practices:
-
-- **`get_available_best_practice_guides`** - See what guides are available
-- **`get_best_practice_guide`** - Get complete guides for cartridges, hooks, controllers, etc.
-- **`search_best_practices`** - Find specific guidance on topics like security, performance
-- **`get_hook_reference`** - Get comprehensive OCAPI/SCAPI hook references
-
 ### 🏗️ SFRA Documentation Tools
 Use these for SFRA (Storefront Reference Architecture) related questions:
 
@@ -143,10 +135,7 @@ Use these for debugging and troubleshooting:
    ```
 
 3. **Implementation Best Practices**
-   ```
-   "How should I create a new cartridge?"
-   → Use: get_best_practice_guide with guideName: "cartridge_creation"
-   ```
+   Consult local best-practice skills and documentation before implementing features.
 
 4. **Understanding System Objects**
    ```
@@ -179,12 +168,6 @@ Use these for debugging and troubleshooting:
    
    "Need to do a code-switch fix for SCAPI endpoints"
    → Use: activate_code_version with versionId: "target_version"
-   ```
-
-7. **Hook Development**
-   ```
-   "What SCAPI hooks are available?"
-   → Use: get_hook_reference with guideName: "scapi_hooks"
    ```
 
 ### ❌ DON'T Guess About:
@@ -222,18 +205,6 @@ Use these for debugging and troubleshooting:
 
 4. Browse elements by category:
    → get_isml_elements_by_category with category: "control-flow"
-```
-
-### Implementing New Features
-```markdown
-1. Check best practices first:
-   → get_available_best_practice_guides
-
-2. Get specific implementation guide:
-   → get_best_practice_guide with guideName: "sfra_controllers"
-
-3. Search for specific guidance:
-   → search_best_practices with query: "validation"
 ```
 
 ### Debugging Problems
@@ -309,21 +280,6 @@ Question Type: "How do I work with [X] in SFCC?"
     └── → get_sfcc_class_documentation (className: "dw.namespace.Class")
 ```
 
-#### **When User Asks About Implementation**
-```
-Implementation Question
-├── "How to create/build [X]?"
-│   ├── → get_available_best_practice_guides (discover available guides)
-│   └── → get_best_practice_guide (guideName: specific guide)
-├── "Best way to [X]?"
-│   └── → search_best_practices (query: key concept)
-├── "What hooks are available for [X]?"
-│   └── → get_hook_reference (guideName: "ocapi_hooks" or "scapi_hooks")
-└── "SFRA related question?"
-    ├── → get_available_sfra_documents (discover what's available)
-    └── → get_sfra_document (documentName: specific module)
-```
-
 #### **When User Reports Problems/Errors**
 ```
 Problem/Error Scenario
@@ -332,8 +288,7 @@ Problem/Error Scenario
 │   ├── → get_latest_error (check recent errors)
 │   └── → search_logs (pattern: error keywords)
 └── "Performance issues"
-    ├── → get_latest_warn (check warnings)
-    └── → search_best_practices (query: "performance")
+   └── → get_latest_warn (check warnings)
 ```
 
 #### **When User Asks About Data Models/Objects**
@@ -352,27 +307,6 @@ Data Model Questions
 
 ### 🎪 Common Usage Scenarios & Tool Chains
 
-#### **Scenario 1: Creating a New Controller**
-```markdown
-Sequential Tool Chain:
-1. → get_best_practice_guide (guideName: "sfra_controllers")
-2. → get_sfra_document (documentName: "server")
-3. → get_sfra_document (documentName: "request") 
-4. → get_sfra_document (documentName: "response")
-5. → search_best_practices (query: "security") // for validation patterns
-6. → search_best_practices (query: "performance") // for optimization
-```
-
-#### **Scenario 2: Implementing OCAPI Hook**
-```markdown
-Sequential Tool Chain:
-1. → get_best_practice_guide (guideName: "ocapi_hooks")
-2. → get_hook_reference (guideName: "ocapi_hooks")
-3. → search_sfcc_classes (query: relevant domain like "order", "customer")
-4. → get_sfcc_class_info (className: discovered class)
-5. → search_best_practices (query: "validation")
-```
-
 #### **Scenario 3: Debugging Cart Issues**
 ```markdown
 Parallel Information Gathering:
@@ -381,25 +315,6 @@ Parallel Information Gathering:
 3. → get_sfcc_class_info (className: "dw.order.Basket")
 4. → search_system_object_attribute_definitions (objectType: "Product")
 5. → get_latest_error (date: today)
-```
-
-#### **Scenario 4: Building Custom SCAPI Endpoint**
-```markdown
-Sequential Tool Chain:
-1. → get_best_practice_guide (guideName: "scapi_custom_endpoint")
-2. → get_hook_reference (guideName: "scapi_hooks")
-3. → search_best_practices (query: "security")
-4. → search_sfcc_classes (query: relevant business domain)
-5. → get_sfcc_class_info (className: discovered classes)
-```
-
-#### **Scenario 5: Working with Site Preferences**
-```markdown
-Sequential Discovery Chain:
-1. → search_system_object_attribute_groups (objectType: "SitePreferences")
-2. → search_site_preferences (groupId: discovered group, instanceType: "sandbox")
-3. → search_best_practices (query: "configuration")
-4. → get_sfcc_class_info (className: "dw.system.Site")
 ```
 
 ### 🔍 Advanced Tool Usage Patterns
@@ -436,18 +351,15 @@ For Performance Investigation:
 #### **Information Layering Strategy**
 ```markdown
 1. **Start with Overview Tools**
-   - get_available_best_practice_guides
    - list_sfcc_classes
    - get_system_object_definitions
 
 2. **Narrow to Specific Tools**
-   - get_best_practice_guide
    - get_sfcc_class_info
    - search_system_object_attribute_definitions
 
 3. **Deep Dive with Detail Tools**
    - get_sfcc_class_documentation
-   - search_best_practices
    - search_logs
 ```
 
@@ -523,7 +435,7 @@ Measure success by:
 #### **Tool Usage Analytics**
 ```markdown
 Track which combinations work well:
-- Documentation → Best Practices → Implementation
+- Documentation → Implementation
 - Error Investigation → System Analysis → Solution
 - Planning → Research → Validation → Implementation
 
@@ -553,36 +465,36 @@ Signs to update tool usage patterns:
 
 #### **For ISML Template Generation**:
 ```
-MANDATORY sequence before creating any ISML template:
-1. → get_best_practice_guide(guideName: "isml_templates")
-2. → Analyze the "Template Directory Structure" section
-3. → Confirm exact override path from best practices
-4. → Generate code only after path verification
+MANDATORY steps before creating any ISML template:
+1. Review the ISML templates guidance from the bundled skills.
+2. Analyze the "Template Directory Structure" section.
+3. Confirm exact override path from best practices.
+4. Generate code only after path verification.
 ```
 
 #### **For Model Generation**:
 ```
-MANDATORY sequence before creating any SFRA model:
-1. → get_best_practice_guide(guideName: "sfra_models") 
-2. → Analyze the "Model Customization Strategies" section
-3. → Confirm proper superModule usage patterns
-4. → Generate code only after pattern verification
+MANDATORY steps before creating any SFRA model:
+1. Review the SFRA models guidance from the bundled skills.
+2. Analyze the "Model Customization Strategies" section.
+3. Confirm proper superModule usage patterns.
+4. Generate code only after pattern verification.
 ```
 
 #### **For Controller Generation**:
 ```
-MANDATORY sequence before creating any controller:
-1. → get_best_practice_guide(guideName: "sfra_controllers")
-2. → Analyze controller extension patterns
-3. → Confirm proper server.extend() usage
-4. → Generate code only after pattern verification
+MANDATORY steps before creating any controller:
+1. Review the SFRA controllers guidance from the bundled skills.
+2. Analyze controller extension patterns.
+3. Confirm proper server.extend() usage.
+4. Generate code only after pattern verification.
 ```
 
 ### **Override Path Verification Process**
 
 **NEVER generate SFCC override code without completing this checklist**:
 
-1. ✅ **Used MCP Tool**: Called appropriate `get_best_practice_guide` 
+1. ✅ **Used MCP Guidance**: Reviewed the relevant best-practice skill content
 2. ✅ **Path Confirmed**: Verified exact directory structure from guide
 3. ✅ **Pattern Validated**: Confirmed proper extension patterns (superModule, server.extend)
 4. ✅ **Security Checked**: Reviewed security guidelines from best practices
@@ -598,9 +510,9 @@ function Account() {
 }
 ```
 
-✅ **CORRECT - Generated after MCP tool consultation**:
+✅ **CORRECT - Generated after best-practice review**:
 ```javascript
-// Proper pattern from get_best_practice_guide("sfra_models")
+// Proper pattern from the SFRA models best-practice skill
 var base = module.superModule;
 function Account() {
     base.call(this, ...arguments);
@@ -623,7 +535,7 @@ function Account() {
 
 1. **Check Path Structure**: Verify the override path matches the base cartridge exactly
 2. **Consult Best Practices**: Reference ISML Templates and SFRA Models best practice guides
-3. **Use MCP Tools**: Leverage `get_best_practice_guide` for "isml_templates" and "sfra_models"
+3. **Use MCP Guidance**: Review the ISML templates and SFRA models best-practice skills
 4. **Validate Override Pattern**: Ensure proper use of `module.superModule` for models and `server.extend()` for controllers
 5. **Confirm Directory Structure**: Verify the complete directory path from cartridge root
 
@@ -643,7 +555,7 @@ cartridges/app_custom_mybrand/cartridge/templates/default/product/productDetails
 cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
 ```
 
-**Remember**: Always consult the ISML Templates and SFRA Models best practice guides from this MCP server before generating any override code to ensure proper patterns and security practices.
+**Remember**: Always consult the ISML Templates and SFRA Models best practice skill content before generating any override code to ensure proper patterns and security practices.
 
 ---
 

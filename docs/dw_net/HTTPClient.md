@@ -9,7 +9,7 @@
 
 ## Description
 
-The HTTPClient class supports the HTTP methods GET, POST, HEAD, PUT, PATCH, OPTIONS, and DELETE. If a secure connection via HTTPS is established the used server certificate or the signing CAs certificate needs to be imported into the customer key store via Business Manager. Note: when this class is used with sensitive data, be careful in persisting sensitive information. Key selection for mutual TLS: Check if there is an explicit identity requested setIdentity(KeyRef) Else, Check if there is a mapping for hostname in the keystore Deprecated: Select an arbitrary private key from the keystore var httpClient : HTTPClient = new HTTPClient(); var message : String; httpClient.open('GET', 'http://www.myinstance.com/feed.xml'); httpClient.setTimeout(3000); httpClient.send(); if (httpClient.statusCode == 200) { message = httpClient.text; } else { // error handling message="An error occurred with status code "+httpClient.statusCode; }
+The HTTPClient class supports the HTTP methods GET, POST, HEAD, PUT, PATCH, OPTIONS, and DELETE. If a secure connection via HTTPS is established the used server certificate or the signing CAs certificate needs to be imported into the customer key store via Business Manager. Note: when this class is used with sensitive data, be careful in persisting sensitive information. Key selection for mutual TLS: Check if there is an explicit identity requested setIdentity(KeyRef) Else, Check if there is a mapping for hostname in the keystore Deprecated: Select an arbitrary private key from the keystore var httpClient = new HTTPClient(); var message; httpClient.open('GET', 'http://www.myinstance.com/feed.xml'); httpClient.setTimeout(3000); httpClient.send(); if (httpClient.statusCode == 200) { message = httpClient.text; } else { // error handling message = "An error occurred with status code "+httpClient.statusCode; }
 
 ## Constants
 
@@ -77,6 +77,12 @@ Determines whether host name verification is enabled.
 
 Gets the identity used for mutual TLS (mTLS).
 
+### loggingConfig
+
+**Type:** HTTPClientLoggingConfig
+
+Gets the logging configuration for this HTTP client.
+
 ### responseHeaders
 
 **Type:** Map (Read Only)
@@ -110,7 +116,9 @@ The timeout for this client, in milliseconds.
 
 ## Constructor Summary
 
-HTTPClient()
+HTTPClient() Constructs the HTTPClient instance with the default configuration.
+
+HTTPClient(configMap : Object) Constructs the HTTPClient instance with the given configuration.
 
 ## Method Summary
 
@@ -161,6 +169,12 @@ Determines whether host name verification is enabled.
 **Signature:** `getIdentity() : KeyRef`
 
 Gets the identity used for mutual TLS (mTLS).
+
+### getLoggingConfig
+
+**Signature:** `getLoggingConfig() : HTTPClientLoggingConfig`
+
+Gets the logging configuration for this HTTP client.
 
 ### getResponseHeader
 
@@ -306,6 +320,12 @@ Sets whether certificate host name verification is enabled.
 
 Sets the identity (private key) to use when mutual TLS (mTLS) is configured.
 
+### setLoggingConfig
+
+**Signature:** `setLoggingConfig(config : HTTPClientLoggingConfig) : void`
+
+Sets the logging configuration for this HTTP client.
+
 ### setRequestHeader
 
 **Signature:** `setRequestHeader(key : String, value : String) : void`
@@ -421,6 +441,18 @@ true if verification is enabled, false otherwise
 **Returns:**
 
 Reference to the private key, or null if not configured
+
+---
+
+### getLoggingConfig
+
+**Signature:** `getLoggingConfig() : HTTPClientLoggingConfig`
+
+**Description:** Gets the logging configuration for this HTTP client.
+
+**Returns:**
+
+the current logging configuration
 
 ---
 
@@ -758,6 +790,18 @@ true if the returned code was a positive status code.
 **Parameters:**
 
 - `keyRef`: Reference to the private key
+
+---
+
+### setLoggingConfig
+
+**Signature:** `setLoggingConfig(config : HTTPClientLoggingConfig) : void`
+
+**Description:** Sets the logging configuration for this HTTP client.
+
+**Parameters:**
+
+- `config`: the logging configuration to use
 
 ---
 
