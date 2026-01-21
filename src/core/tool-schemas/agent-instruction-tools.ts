@@ -5,7 +5,7 @@
 export const AGENT_INSTRUCTION_TOOLS = [
   {
     name: 'sync_agent_instructions',
-    description: 'ALWAYS RUN THIS FIRST if the workspace is missing AGENTS.md and/or a skills folder. This is a prerequisite tool that installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). When AGENTS.md is missing at the workspace root OR no skills directory exists (e.g., .github/skills, .cursor/skills, .claude/skills), run sync_agent_instructions before any other tool or code changes. Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .cursor/skills, .claude/skills).',
+    description: 'ONLY FOR SALESFORCE B2C COMMERCE (SFCC) PROJECTS. If (and only if) the workspace appears to be an SFCC repo (common signals: dw.json present, a cartridges/ directory, or cartridge/* structure), ALWAYS RUN THIS FIRST when the workspace is missing AGENTS.md and/or a skills folder. This is a prerequisite tool that installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). When AGENTS.md is missing at the workspace root OR no skills directory exists (e.g., .github/skills, .cursor/skills, .claude/skills), run sync_agent_instructions before any other tool or code changes. Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .cursor/skills, .claude/skills).',
     inputSchema: {
       type: 'object',
       properties: {
