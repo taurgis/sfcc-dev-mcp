@@ -1,34 +1,49 @@
 ---
 name: sfcc-isml-development
-description: Guide for developing ISML templates in Salesforce B2C Commerce SFRA. Use this when asked to create, modify, or troubleshoot ISML templates, work with decorators, or implement template patterns.
+description: SFRA-first guide for developing ISML templates in Salesforce B2C Commerce (Bootstrap 4 conventions). Use this when creating, modifying, or troubleshooting SFRA templates, decorators, components, forms, includes, and caching.
 ---
 
-# ISML Development Skill
+# ISML Development (SFRA + Bootstrap 4)
 
-This skill guides you through creating and working with ISML templates in Salesforce B2C Commerce.
+This skill is **SFRA-only**. It intentionally avoids SiteGenesis patterns.
+
+SFRA storefront markup is built around **Bootstrap 4** (grid, forms, alerts, utilities). Keep your ISML consistent with existing SFRA markup and CSS conventions.
+
+## When to Use
+
+- You’re editing `templates/default/**` in an SFRA cartridge.
+- You need to apply/extend SFRA layout (`common/layout/page` / `common/layout/checkout`).
+- You’re building reusable components via `<isinclude>` and Bootstrap 4 markup.
+- You’re debugging output encoding, caching, or remote include behaviour.
+
+## When NOT to Use
+
+- For business logic, data fetching, persistence, or complex transformations (belongs in controllers/models/scripts).
+- For redesigning UI with a different framework (SFRA baseline expects Bootstrap 4).
 
 ## Quick Checklist
 
 ```text
 [ ] No business logic in ISML (no data fetches, no persistence)
-[ ] <isscript> used only for asset registration (CSS/JS)
+[ ] <isscript> used only for SFRA asset registration (CSS/JS)
 [ ] Output encoding is NOT disabled unless justified and safe
 [ ] <iscontent>/<isredirect>/<iscache> placement constraints respected
 [ ] Remote includes used sparingly with security middleware
 [ ] Template receives all data via pdict (controller owns data)
+[ ] Markup uses Bootstrap 4 classes (grid, forms, alerts)
 ```
 
-## File Location
+## Where Templates Live (SFRA)
 
 ```
 /my-cartridge/cartridge/templates/
-    /default                    # Default locale
+    /default                    # Default templates (SFRA)
         /product/detail.isml
-        /util/modules.isml      # Custom tag definitions
-    /fr_FR                      # French-specific templates
+        /util/modules.isml      # Optional: <ismodule> tag definitions
+    /fr_FR                      # Locale overrides (use sparingly)
 ```
 
-## The Golden Rule: Logic-Free Templates
+## SFRA Golden Rule: Templates Are Presentation-Only
 
 **NEVER use `<isscript>` for business logic.** The only exception is asset management:
 
@@ -37,6 +52,7 @@ This skill guides you through creating and working with ISML templates in Salesf
 <isscript>
     var assets = require('*/cartridge/scripts/assets.js');
     assets.addCss('/css/product.css');
+    assets.addJs('/js/product.js');
 </isscript>
 ```
 
@@ -44,20 +60,35 @@ All data comes from controllers via `pdict`:
 
 ```html
 <!-- ✅ Correct: Data from controller -->
-<div class="price">${pdict.product.price.sales.formatted}</div>
+<div class="price h5 mb-0">${pdict.product.price.sales.formatted}</div>
 ```
+
+## Bootstrap 4 Conventions (SFRA UI Baseline)
+
+Use these classes/patterns by default:
+
+| Goal | Bootstrap 4 pattern |
+|------|----------------------|
+| Layout | `container` → `row` → `col-*` |
+| Spacing | `mt-*`, `mb-*`, `py-*`, `px-*` |
+| Buttons | `btn btn-primary`, `btn btn-outline-primary` |
+| Alerts | `alert alert-danger`, `alert alert-success` |
+| Forms | `form-group`, `form-control`, `is-invalid`, `invalid-feedback` |
+| Responsive show/hide | `d-none d-md-block`, `d-md-none` |
+
+Avoid mixing Bootstrap 5-only classes (e.g. `g-*`, `row-cols-*`, `btn-close`, `badge bg-*`) into SFRA baseline templates.
 
 ## Essential Tags
 
 ### Conditional Logic
 
 ```html
-<isif condition="${product.available}">
-    <span class="in-stock">In Stock</span>
-<iselseif condition="${product.preorderable}">
-    <span class="preorder">Pre-order</span>
+<isif condition="${pdict.product.available}">
+    <span class="badge badge-success">${Resource.msg('label.instock','product',null)}</span>
+<iselseif condition="${pdict.product.preorderable}">
+    <span class="badge badge-info">${Resource.msg('label.preorder','product',null)}</span>
 <iselse>
-    <span class="out-of-stock">Out of Stock</span>
+    <span class="badge badge-secondary">${Resource.msg('label.outofstock','product',null)}</span>
 </isif>
 ```
 
@@ -65,11 +96,18 @@ All data comes from controllers via `pdict`:
 
 ```html
 <isloop items="${products}" var="product" status="loopstate">
-    <div class="product ${loopstate.odd ? 'odd' : 'even'}">
-        <span>${loopstate.count}. ${product.name}</span>
+    <div class="col-6 col-sm-4 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="small text-muted">#${loopstate.count}</div>
+                <div class="font-weight-bold">${product.name}</div>
+            </div>
         <isif condition="${loopstate.first}">
-            <span class="badge">Featured</span>
+            <div class="card-footer bg-transparent">
+                <span class="badge badge-warning">${Resource.msg('label.featured','common',null)}</span>
+            </div>
         </isif>
+        </div>
     </div>
 </isloop>
 ```
@@ -110,6 +148,8 @@ Scopes (required): `page`, `request`, `session`, `pdict`
 <isinclude url="${URLUtils.url('Product-GetPrice', 'pid', product.ID)}"/>
 ```
 
+Prefer local includes for components. Only use remote includes when you need an **independent cache policy** or **request isolation**; see the remote include reference.
+
 ## Decorator Pattern
 
 **Decorator template** (`common/layout/page.isml`):
@@ -136,9 +176,11 @@ Scopes (required): `page`, `request`, `session`, `pdict`
 </isdecorate>
 ```
 
-SFRA provides two default decorators:
+SFRA provides two primary decorators:
 - `common/layout/page` - Standard storefront pages
 - `common/layout/checkout` - Checkout process pages
+
+Use `<isdecorate>` on almost all storefront templates; keep full `<html>/<head>/<body>` only in layout templates.
 
 ## Tag Location Constraints
 
@@ -164,6 +206,8 @@ SFRA provides two default decorators:
 ```
 
 Place `<iscache>` at the beginning of the template.
+
+Prefer **controller caching middleware** (SFRA `*/cartridge/scripts/middleware/cache`) for page-level caching decisions; use `<iscache>` selectively for fragments.
 
 ## Content Type
 
@@ -191,6 +235,8 @@ Place `<iscache>` at the beginning of the template.
 <isproductcard product="${product}" showPrice="${true}"/>
 ```
 
+In SFRA, most reuse is done via `<isinclude template="...">`. Use `<ismodule>` custom tags only when it measurably improves readability/consistency.
+
 ## Security: XSS Prevention
 
 **Always rely on default encoding.** `<isprint>` automatically HTML-encodes:
@@ -210,6 +256,8 @@ For JavaScript context, use `SecureEncoder`:
     var term = "${require('dw/util/SecureEncoder').forJavaScript(pdict.searchPhrase)}";
 </script>
 ```
+
+For HTML attributes, prefer `SecureEncoder.forHTMLAttribute(...)`. Avoid `encoding="off"` unless the value is fully controlled and intentionally contains HTML.
 
 ## Built-in Utilities
 
@@ -256,13 +304,44 @@ ${firstName + ' ' + lastName}
 
 ## Best Practices
 
-1. Use `<iscomment>` instead of HTML comments for sensitive info
-2. Place `<iscontent>` first in templates that need it
-3. Define modules in `util/modules.isml` for consistency
-4. Keep templates simple - move logic to controllers/helpers
-5. Use decorators for consistent page layouts
-6. Enable caching on cacheable pages
-7. Default encoding prevents XSS
+1. Use Bootstrap 4 components/utilities for UI consistency
+2. Use `<isdecorate>` with SFRA layouts (`common/layout/page`, `common/layout/checkout`)
+3. Keep templates “dumb”: controllers/models prepare view models; templates render
+4. Use `<isinclude template>` for component composition; keep components small
+5. Default encoding prevents XSS; use `SecureEncoder` for JS/attribute contexts
+6. Minimize remote includes; when used, require `server.middleware.include` + explicit security + cache policy
+7. Prefer controller caching middleware; use `<iscache>` thoughtfully
+
+## Common SFRA Form Pattern (Bootstrap 4)
+
+```html
+<form action="${URLUtils.url('Account-Login')}" method="post" class="login">
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+    <div class="form-group">
+        <label class="form-control-label" for="login-email">
+            ${Resource.msg('label.login.email','login',null)}
+        </label>
+        <input
+            id="login-email"
+            type="email"
+            class="form-control <isif condition="${pdict.loginForm.username.invalid}">is-invalid</isif>"
+            name="${pdict.loginForm.username.htmlName}"
+            value="${pdict.loginForm.username.value}"
+            autocomplete="email"
+            required>
+        <isif condition="${pdict.loginForm.username.invalid}">
+            <div class="invalid-feedback">
+                <isprint value="${pdict.loginForm.username.error}"/>
+            </div>
+        </isif>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">
+        ${Resource.msg('button.login','login',null)}
+    </button>
+</form>
+```
 
 ## MCP ISML Tools
 
@@ -280,4 +359,12 @@ list_isml_elements()             // All elements by category
 
 - [Remote Includes](references/REMOTE-INCLUDES.md) - Local vs remote, caching, security
 - [Utilities & Expressions](references/UTILITIES-EXPRESSIONS.md) - Built-in objects, expression syntax
-- [SFRA Base Templates](references/SFRA-BASE-TEMPLATES-ARCHITECTURE.md) - Layout architecture
+- [SFRA Base Templates (Index)](references/sfra-base-templates-architecture.md) - Jumping-off point
+- [SFRA Layouts](references/SFRA-LAYOUTS.md) - Decorators, hooks, `<isreplace/>`
+- [SFRA Structure & Components](references/SFRA-STRUCTURE-COMPONENTS.md) - Where templates live, composition patterns
+- [SFRA Pages: Catalog/Search](references/SFRA-PAGES-CATALOG.md) - Homepage/PDP/search/category patterns
+- [SFRA Pages: Cart/Account/Auth](references/SFRA-PAGES-CART-ACCOUNT-AUTH.md) - Cart/account/login patterns
+
+## External Reference
+
+- Legacy long-form doc (for deeper examples): https://raw.githubusercontent.com/taurgis/sfcc-dev-mcp/refs/heads/main/docs/best-practices/isml_templates.md
