@@ -468,6 +468,7 @@ Signs to update tool usage patterns:
 **Before writing ANY code, identify ALL artifact types being created/modified:**
 - Creating a controller? → Read `sfcc-sfra-controllers` skill
 - Creating/modifying ISML template? → Read `sfcc-isml-development` skill  
+- Creating/modifying storefront forms (XML + handling + CSRF)? → Read `sfcc-forms-development` skill
 - Creating/modifying a model? → Read `sfcc-sfra-models` skill
 - Adding client-side JS? → Read `sfcc-sfra-client-side-js` skill
 - Adding SCSS/styles? → Read `sfcc-sfra-scss` skill
