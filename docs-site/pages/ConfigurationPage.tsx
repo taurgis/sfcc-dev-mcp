@@ -97,7 +97,7 @@ const ConfigurationPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-            <strong>💡 How it works:</strong> When no CLI path or environment variables are set, the server starts in documentation-only mode. After VS Code connects, the MCP workspace roots capability automatically discovers your project's <InlineCode>dw.json</InlineCode> and upgrades to full mode with all 41 tools.
+            <strong>💡 How it works:</strong> When no CLI path or environment variables are set, the server starts in documentation-only mode. After VS Code connects, the MCP workspace roots capability automatically discovers your project's <InlineCode>dw.json</InlineCode> and upgrades to full mode with all 38 tools.
           </div>
       </div>
 
@@ -161,7 +161,7 @@ const ConfigurationPage: React.FC = () => {
               <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug true`} />
             </Collapsible>
             </div>
-            <p className="text-[11px] text-gray-500 mt-2">Total surface: 36+ specialized tools spanning documentation, best practices, SFRA, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
+            <p className="text-[11px] text-gray-500 mt-2">Total surface: 38 tools spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
           </section>
           <section id="security" className="scroll-mt-24 space-y-6">
             <div className="mb-4 space-y-2">
@@ -251,12 +251,17 @@ const ConfigurationPage: React.FC = () => {
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 text-xs font-medium">Best Practices</td>
+                      <td className="px-3 py-2 text-xs font-medium">Agent Instructions (AGENTS.md + Skills)</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 text-xs font-medium">SFRA Docs</td>
+                      <td className="px-3 py-2 text-xs">✔</td>
+                      <td className="px-3 py-2 text-xs">✔</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 text-xs font-medium">ISML Docs</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                       <td className="px-3 py-2 text-xs">✔</td>
                     </tr>

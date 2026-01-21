@@ -45,11 +45,11 @@ const TroubleshootingPage: React.FC = () => {
                 { name: "Home", url: "/" },
                 { name: "Troubleshooting", url: "/troubleshooting/" }
             ]} />
-            <StructuredData data={troubleshootingStructuredData} />
+            <StructuredData structuredData={troubleshootingStructuredData} />
             
             <H1 id="troubleshooting">🐛 Troubleshooting & Debugging</H1>
             <PageSubtitle>Quick solutions to get you back to developing SFCC features with AI assistance.</PageSubtitle>
-            <p className="mt-2 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
+            <p className="mt-2 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>38 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
 
             {/* Quick Diagnostics Checklist */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">

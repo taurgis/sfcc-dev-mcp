@@ -28,7 +28,7 @@ export class DocumentationScanner {
   /**
    * Check if a directory name represents an SFCC-specific directory
    * SFCC directories include dw_ prefixed namespaces and TopLevel
-   * Excludes best-practices and sfra directories
+    * Excludes sfra and isml directories
    */
   private isSFCCDirectory(directoryName: string): boolean {
     // Include dw_ prefixed directories (SFCC namespaces)
@@ -39,11 +39,6 @@ export class DocumentationScanner {
     // Include TopLevel directory (contains core JavaScript classes)
     if (directoryName === 'TopLevel') {
       return true;
-    }
-
-    // Exclude best-practices directory (handled by best practices tools)
-    if (directoryName === 'best-practices') {
-      return false;
     }
 
     // Exclude sfra directory (handled by SFRA tools)
@@ -222,7 +217,7 @@ export class DocumentationScanner {
 
   /**
    * Scan the docs directory and index all SFCC classes
-   * Only scans SFCC-specific directories, excluding best-practices and sfra
+    * Only scans SFCC-specific directories, excluding sfra and isml
    * Uses parallel processing for improved cold-start performance
    */
   async scanDocumentation(docsPath: string): Promise<Map<string, SFCCClassInfo>> {

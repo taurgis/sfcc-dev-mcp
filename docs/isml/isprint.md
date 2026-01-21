@@ -872,4 +872,4 @@ Distinguish between trusted content and user input:
 - [StringUtils Class](../dw_util/StringUtils.md)
 - [SecureEncoder Class](../dw_util/SecureEncoder.md)
 - [Money Class](../dw_value/Money.md)
-- [B2C Commerce Security Best Practices](../best-practices/security.md)
+- [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)

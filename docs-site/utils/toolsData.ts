@@ -23,8 +23,8 @@ export interface ToolMeta {
 const p = (name: string, description: string, required = true): ToolParam => ({ name, description, required });
 
 export const TOOL_CATEGORIES = [
+  'Agent Instructions',
   'Documentation',
-  'Best Practices',
   'SFRA Docs',
   'ISML Docs',
   'Cartridge Generation',
@@ -34,6 +34,33 @@ export const TOOL_CATEGORIES = [
 ] as const;
 
 export const tools: ToolMeta[] = [
+  // Agent Instructions
+  {
+    id: 'sync-agent-instructions',
+    name: 'sync_agent_instructions',
+    category: 'Agent Instructions',
+    mode: 'both',
+    description: 'Copy/merge AGENTS.md and bundled SFCC skills into a project, user home, or a temp directory (supports dry-run planning and merge strategies).',
+    params: [
+      p('destinationType', 'project|user|temp (default: project)', false),
+      p('preferredRoot', 'Optional workspace root path or name when multiple roots exist', false),
+      p('skillsDir', 'Optional relative skills dir (.github/skills, .cursor/skills, .claude/skills)', false),
+      p('mergeStrategy', 'append|replace|skip (default: append)', false),
+      p('includeAgents', 'Copy AGENTS.md (boolean, default: true)', false),
+      p('includeSkills', 'Copy skills (boolean, default: true)', false),
+      p('installMissingOnly', 'Only copy missing skills (boolean, default: true)', false),
+      p('dryRun', 'Plan actions without writing (boolean, default: true)', false),
+      p('tempDir', 'Custom temp directory when destinationType=temp', false)
+    ],
+    examples: [
+      'Sync agent instructions into this SFCC project (dryRun=false)',
+      'Plan what sync_agent_instructions would change (dryRun=true)',
+      'Install skills into .github/skills for GitHub Copilot'
+    ],
+    tags: ['agents','skills','bootstrap','instructions'],
+    popular: true
+  },
+
   // Documentation (SFCC classes)
   {
     id: 'get-sfcc-class-info',
@@ -65,12 +92,6 @@ export const tools: ToolMeta[] = [
   { id: 'search-sfcc-methods', name: 'search_sfcc_methods', category: 'Documentation', mode: 'both', description: 'Search methods across all SFCC classes.', params: [p('methodName', 'Method name (single word)')], examples: ['Find get methods on system objects','Search for commit methods'], tags: ['methods','search'] },
   { id: 'list-sfcc-classes', name: 'list_sfcc_classes', category: 'Documentation', mode: 'both', description: 'List of all available SFCC classes.', examples: ['List all available SFCC classes'] },
   { id: 'get-sfcc-class-documentation', name: 'get_sfcc_class_documentation', category: 'Documentation', mode: 'both', description: 'Raw markdown documentation for an SFCC class.', params: [p('className','Exact class name')], examples: ['Get raw docs for dw.system.Logger'] },
-
-  // Best Practices
-  { id: 'get-available-best-practice-guides', name: 'get_available_best_practice_guides', category: 'Best Practices', mode: 'both', description: 'List all best practice guides.', examples: ['List available best practice guides'] },
-  { id: 'get-best-practice-guide', name: 'get_best_practice_guide', category: 'Best Practices', mode: 'both', description: 'Full best practice guide content.', params: [p('guideName','Guide name (cartridge_creation, sfra_client_side_js, sfra_scss, security, performance, etc.)')], examples: ['Open the performance best practice guide'], tags: ['guides'] },
-  { id: 'search-best-practices', name: 'search_best_practices', category: 'Best Practices', mode: 'both', description: 'Search within all best practice guides.', params: [p('query','Search term')], examples: ['Search best practices for caching'], tags: ['search'] },
-  { id: 'get-hook-reference', name: 'get_hook_reference', category: 'Best Practices', mode: 'both', description: 'Hook reference tables for OCAPI or SCAPI.', params: [p('guideName','ocapi_hooks | scapi_hooks')], examples: ['List SCAPI hooks for product'] },
 
   // SFRA Docs
   { id: 'get-available-sfra-documents', name: 'get_available_sfra_documents', category: 'SFRA Docs', mode: 'both', description: 'List all SFRA documents and models.', examples: ['List SFRA docs categories'] },

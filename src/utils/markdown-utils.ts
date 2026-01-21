@@ -2,7 +2,7 @@
  * Markdown Document Utilities
  *
  * Shared utilities for parsing and extracting content from markdown documentation files.
- * Used by SFRA, ISML, and Best Practices clients to avoid code duplication.
+ * Used by SFRA and ISML clients to avoid code duplication.
  */
 
 /**

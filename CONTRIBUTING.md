@@ -1,6 +1,6 @@
 # Contributing to SFCC Development MCP Server
 
-Thank you for your interest in contributing to the SFCC Development MCP Server! This project provides MCP tools for Salesforce B2C Commerce Cloud development assistance, including documentation access, best practices guides, log analysis, and system object definitions.
+Thank you for your interest in contributing to the SFCC Development MCP Server! This project provides MCP tools for Salesforce B2C Commerce Cloud development assistance, including documentation access, bundled agent skills, log analysis, and system object definitions.
 
 ## Table of Contents
 
@@ -75,23 +75,11 @@ For testing full mode features, create a `dw.json` file in the project root:
 ## Project Structure
 
 ```
-src/
-├── main.ts                    # Entry point
-├── server.ts                  # MCP server implementation
-├── tool-definitions.ts        # MCP tool definitions
-├── types.ts                   # TypeScript type definitions
-├── config.ts                  # Configuration management
-├── best-practices-client.ts   # Best practices guide client
-├── docs-client.ts            # SFCC documentation client
-├── log-client.ts             # SFCC log analysis client
-├── ocapi-client.ts           # OCAPI system object client
-└── utils.ts                  # Utility functions
-
-docs/
-├── best-practices/           # Best practice guides
-└── dw_*/                    # SFCC API documentation
-
-tests/                        # Test files
+src/                          # TypeScript MCP server
+docs/                         # SFCC docs sources (dw_* namespaces, sfra, isml)
+ai-instructions/              # AGENTS.md + bundled skills (ai-instructions/skills/*/SKILL.md)
+docs-site/                    # React + Vite documentation site
+tests/                        # Jest + MCP (Aegis) tests
 scripts/                      # Build and utility scripts
 ```
 
@@ -125,7 +113,7 @@ scripts/                      # Build and utility scripts
 
 ### 3. Documentation
 
-- Update best practice guides
+- Update bundled skills (ai-instructions/skills/*/SKILL.md)
 - Add new SFCC API documentation
 - Improve code comments and README
 
@@ -243,11 +231,11 @@ npm run lint:fix
 
 ## Documentation
 
-### Best Practice Guides
+### Agent Skills
 
-When adding or updating guides in `docs/best-practices/`:
+When adding or updating skills in `ai-instructions/skills/<skill>/SKILL.md`:
 
-1. Follow the existing markdown structure
+1. Include frontmatter (`name`, `description`)
 2. Include practical examples
 3. Reference relevant SFCC APIs
 4. Provide security considerations

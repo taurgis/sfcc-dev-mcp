@@ -1,8 +1,8 @@
 # SFCC Development MCP Server
 
-> A comprehensive Model Context Protocol (MCP) server that provides AI assistants with direct access to Salesforce B2C Commerce Cloud development tools, documentation, best practices, and real-time debugging capabilities.
+> A comprehensive Model Context Protocol (MCP) server that provides AI assistants with direct access to Salesforce B2C Commerce Cloud development tools, documentation, curated agent skills, and real-time debugging capabilities.
 
-This server bridges the gap between AI assistants and SFCC development workflows, offering both documentation-only mode (no credentials required) and full mode (with live SFCC instance access). It provides 36 tools across 8 categories including complete SFCC API documentation, curated best practices guides, enhanced SFRA documentation, real-time log analysis, system object exploration, and automated cartridge generation.
+This server bridges the gap between AI assistants and SFCC development workflows, offering both documentation-only mode (no credentials required) and full mode (with live SFCC instance access). It provides 38 tools across 8 categories including complete SFCC API documentation, curated agent instruction skills, enhanced SFRA documentation, real-time log and job log analysis, system object exploration, and automated cartridge generation.
 
 Key architectural principles:
 - **Capability-gated**: Tools requiring SFCC credentials are only exposed when valid configuration is provided
@@ -14,7 +14,8 @@ Key architectural principles:
 
 - [Installation Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/#/installation): Step-by-step setup instructions for different AI interfaces (Claude Desktop, Cursor, GitHub Copilot)
 - [Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration): Detailed configuration options for both documentation-only and full modes
-- [Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools): Comprehensive list of all 36 tools organized by category with usage examples
+- [Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools): Comprehensive list of all 38 tools organized by category with usage examples
+- [Agent Skills](https://sfcc-mcp-dev.rhino-inquisitor.com/#/skills): Bundled skill packs (guidance) that can be synced into repos for your AI assistant
 - [Features Overview](https://sfcc-mcp-dev.rhino-inquisitor.com/#/features): Complete feature breakdown including operating modes and capabilities
 
 ## Development Resources
@@ -23,7 +24,7 @@ Key architectural principles:
 - [Examples & Use Cases](https://sfcc-mcp-dev.rhino-inquisitor.com/#/examples): Practical examples for documentation access, log analysis, cartridge generation, and debugging workflows
 - [AI Interface Setup](https://sfcc-mcp-dev.rhino-inquisitor.com/#/ai-interfaces): Platform-specific setup guides for Claude Desktop, Cursor IDE, and GitHub Copilot integration
 
-## Security & Best Practices
+## Security
 
 - [Security Considerations](https://sfcc-mcp-dev.rhino-inquisitor.com/#/security): Credential management, local security practices, and network security guidelines
 - [Troubleshooting Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/#/troubleshooting): Common issues, debugging steps, and configuration validation
@@ -31,10 +32,10 @@ Key architectural principles:
 ## Tool Categories
 
 - **SFCC Documentation Tools (5 tools)**: Complete API class information, method search, and namespace exploration
-- **Best Practices Guides (4 tools)**: Curated development guidelines for cartridges, hooks, controllers, security, and performance
 - **SFRA Documentation Tools (5 tools)**: Enhanced Storefront Reference Architecture documentation with dynamic discovery
-- **Log Analysis Tools (8 tools)**: Real-time error monitoring, pattern matching, and system health analysis
-- **Job Log Tools (5 tools)**: Specialized job log analysis, execution summaries, and custom job step debugging
+- **ISML Documentation Tools (5 tools)**: ISML element reference, syntax, attributes, examples, and search
+- **Agent Instruction Tools (1 tool)**: Sync AGENTS.md + bundled skills into a workspace (supports dry-run planning and merge strategies)
+- **Log & Job Log Tools (13 tools)**: Real-time error monitoring, pattern matching, system health analysis, and job execution debugging
 - **System Object Tools (6 tools)**: Custom attribute discovery, site preference management, and schema exploration
 - **Cartridge Generation Tools (1 tool)**: Automated cartridge structure creation with complete project setup
 - **Code Version Tools (2 tools)**: Code version management and deployment activation

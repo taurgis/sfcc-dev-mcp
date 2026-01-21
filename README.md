@@ -9,8 +9,8 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **� ISML Template Reference** - Complete ISML element documentation with examples and best practices
-- **�📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
+- **🧾 ISML Template Reference** - Complete ISML element documentation with examples and patterns
+- **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
@@ -187,6 +187,8 @@ The server writes logs to your system's temporary directory:
 // The exact path varies by system - to find yours:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 
+```
+
 ## 📖 Documentation
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
@@ -196,6 +198,7 @@ Quick Links:
 - **[AI Interface Setup](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces)** - Configure Claude Desktop, GitHub Copilot, or Cursor
 - **[Configuration Guide](https://taurgis.github.io/sfcc-dev-mcp/configuration)** - SFCC credentials and Data API setup
 - **[Available Tools](https://taurgis.github.io/sfcc-dev-mcp/tools)** - Complete tool reference
+- **[Agent Skills](https://taurgis.github.io/sfcc-dev-mcp/skills)** - Bundled skill packs (guidance) and how to sync them into your repo
 - **[Examples](https://taurgis.github.io/sfcc-dev-mcp/examples)** - Real-world usage patterns
 - **[Troubleshooting](https://taurgis.github.io/sfcc-dev-mcp/troubleshooting)** - Common issues and solutions
 
@@ -235,7 +238,7 @@ Have ideas for new features or improvements? We'd love to hear from you!
 - **💡 Feature Requests**: Open an issue to discuss your ideas
 - **🐛 Bug Reports**: Help us improve by reporting any issues you encounter  
 - **🔧 Pull Requests**: Contribute code, documentation, or examples
-- **📚 Documentation**: Help expand our guides and best practices
+- **📚 Documentation**: Help expand our docs and bundled agent skills
 
 Check out our [Contributing Guide](CONTRIBUTING.md) to get started, or browse our [open issues](https://github.com/taurgis/sfcc-dev-mcp/issues) to see where you can help.
 

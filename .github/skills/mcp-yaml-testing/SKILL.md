@@ -128,8 +128,8 @@ npx aegis query --config ./aegis.config.docs-only.json
 npx aegis query search_sfcc_classes 'query:catalog' --config ./aegis.config.docs-only.json
 npx aegis query get_sfcc_class_info 'className:dw.catalog.Product' --config ./aegis.config.docs-only.json
 
-# Best practices
-npx aegis query get_available_best_practice_guides --config ./aegis.config.docs-only.json
+# Agent instructions / skills bootstrap
+npx aegis query sync_agent_instructions 'destinationType:temp|dryRun:true' --config ./aegis.config.docs-only.json
 
 # Full mode tools (requires credentials)
 npx aegis query get_system_object_definitions --config ./aegis.config.with-dw.json

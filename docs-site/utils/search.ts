@@ -14,9 +14,9 @@ export interface SearchResult {
 // Fallback search index (manually maintained for development/emergency use)
 const FALLBACK_SEARCH_INDEX: SearchableItem[] = [
   // HomePage
-  { path: '/', pageTitle: 'Introduction', heading: 'SFCC Development MCP Server', content: 'AI-powered Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation, log analysis, best practices, and cartridge generation tools.' },
+  { path: '/', pageTitle: 'Introduction', heading: 'SFCC Development MCP Server', content: 'AI-powered Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation, log analysis, agent skills, and cartridge generation tools.' },
   { path: '/', pageTitle: 'Introduction', heading: 'Quick Start', content: 'Get up and running with SFCC Development MCP Server in minutes. Install and configure to start using AI-assisted SFCC development tools.' },
-  { path: '/', pageTitle: 'Introduction', heading: 'Key Features', content: 'SFCC Documentation Access, Log Analysis, Best Practices Guides, Cartridge Generation, System Object Management, Code Version Control.' },
+  { path: '/', pageTitle: 'Introduction', heading: 'Key Features', content: 'SFCC Documentation Access, Log Analysis, Agent Skills, Cartridge Generation, System Object Management, Code Version Control.' },
   { path: '/', pageTitle: 'Introduction', heading: 'Why Choose SFCC Development MCP Server?', content: 'The comprehensive solution for AI-assisted SFCC development. Complete SFCC API Coverage, Real-time Log Analysis, Production Ready, Developer Friendly.' },
 
   // AIInterfacesPage

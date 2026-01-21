@@ -6,19 +6,7 @@
  * and advanced error categorization for the SFCC class listing functionality.
  * 
  * Response format discovered via aegis query:
- * - Succ      // Core SFCC namespaces should have good coverage
-      const coreNamespaces = ['dw.catalog', 'dw.customer', 'dw.order', 'dw.system'];
-      coreNamespaces.forEach(namespace => {
-        const classCount = analysis.classsByNamespace[namespace].length;
-        assert.ok(classCount >= 5, 
-          `Core namespace ${namespace} should have at least 5 classes (got ${classCount})`);
-      });
-      
-      // TopLevel namespace should have good coverage for utility classes
-      const topLevelCount = analysis.classsByNamespace['TopLevel'].length;
-      assert.ok(topLevelCount >= 10, 
-        `TopLevel namespace should have substantial coverage (got ${topLevelCount})`);
-    });t: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
+ * - Success: { content: [{ type: "text", text: "[\"class1\", \"class2\", ...]" }] }
  * - Always successful: No isError field or error conditions 
  * - Ignores extra parameters: Gracefully handles unexpected parameters
  * - Comprehensive: Returns 500+ classes across all SFCC namespaces
@@ -38,7 +26,7 @@ import { connect } from 'mcp-aegis';
 class ContentAnalyzer {
   constructor() {
     // SFCC tools should only return actual SFCC classes (dw.* and TopLevel)
-    // best-practices and sfra content belong to their respective specialized tools
+    // SFRA and ISML content are handled by their respective specialized tools
     this.expectedNamespaces = [
       'TopLevel',
       'dw.campaign',
@@ -73,9 +61,6 @@ class ContentAnalyzer {
       'dw.util.ArrayList',
       'dw.web.URL'
     ];
-
-    // Best practice guides are handled by dedicated best-practice tools, not SFCC tools
-    this.bestPracticeGuides = [];
   }
 
   analyzeClassList(classArray) {
@@ -85,7 +70,6 @@ class ContentAnalyzer {
       missingNamespaces: [],
       missingCriticalClasses: [],
       foundCriticalClasses: [],
-      foundBestPractices: [],
       duplicates: [],
       invalidFormats: [],
       classsByNamespace: {}
@@ -135,11 +119,6 @@ class ContentAnalyzer {
       // Check critical classes
       if (this.criticalClasses.includes(className)) {
         analysis.foundCriticalClasses.push(className);
-      }
-
-      // Check best practice guides
-      if (this.bestPracticeGuides.includes(className)) {
-        analysis.foundBestPractices.push(className);
       }
     });
 
@@ -310,16 +289,6 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       
       assert.ok(analysis.foundCriticalClasses.length >= contentAnalyzer.criticalClasses.length * 0.9,
         'Should include at least 90% of critical classes');
-    });
-
-    test('should include best practice guides', async () => {
-      const result = await client.callTool('list_sfcc_classes', {});
-      const classArray = JSON.parse(result.content[0].text);
-      
-      contentAnalyzer.bestPracticeGuides.forEach(guide => {
-        assert.ok(classArray.includes(guide), 
-          `Missing best practice guide: ${guide}`);
-      });
     });
 
     test('should have proper class naming format', async () => {

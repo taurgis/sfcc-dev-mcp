@@ -28,12 +28,12 @@ tests/mcp/
 ### Documentation-Only Mode
 - **File**: `aegis.config.docs-only.json`
 - **Command**: `node dist/index.js` (no credentials)
-- **Tools**: 15 tools (documentation, best practices, SFRA, cartridge generation)
+- **Tools**: 17 tools (documentation, SFRA, ISML, cartridge generation, agent instruction bootstrap)
 
 ### Full Mode with Credentials  
 - **File**: `aegis.config.with-dw.json`
 - **Command**: `node dist/index.js --dw-json ./tests/mcp/test-fixtures/dw.json`
-- **Tools**: 36 tools (includes log analysis, system objects, job logs, code versions)
+- **Tools**: 38 tools (includes log + job log analysis, system objects, code versions)
 
 ## Available Test Commands
 
@@ -79,15 +79,15 @@ npm run test:mcp:ci
 
 ### 2. Documentation-Only Mode Tests
 - **SFCC Documentation Tools** (5 tools): Class info, search, method discovery
-- **Best Practices Tools** (4 tools): Guides, search, hook references  
 - **SFRA Documentation Tools** (5 tools): Documents, search, categories
+- **ISML Documentation Tools** (5 tools): Element docs, category browsing, search
+- **Agent Instruction Tools** (1 tool): Sync AGENTS.md + bundled skills into a workspace
 - **Cartridge Generation Tools** (1 tool): Structure generation
 - **Tool Availability**: Verifies log/OCAPI tools are NOT available
 
 ### 3. Full Mode Tests
 - **All Documentation Tools**: Same as documentation-only mode
-- **Log Analysis Tools** (8 tools): Error/warn/info/debug logs, search, summarization
-- **Job Log Tools** (5 tools): Job log files, entries, search, execution summaries
+- **Log & Job Log Tools** (13 tools): Runtime log tails + search, plus job log discovery/entries/search/execution summaries
 - **System Object Tools** (6 tools): System objects, attributes, site preferences
 - **Code Version Tools** (2 tools): List and activate code versions
 - **Authentication Testing**: Graceful handling of connection failures
@@ -163,24 +163,26 @@ To test full functionality:
 
 ## Test Coverage
 
-### Tools Tested in Documentation-Only Mode (15 tools)
+### Tools Tested in Documentation-Only Mode (17 tools)
 1. `get_sfcc_class_info` - SFCC class information
 2. `search_sfcc_classes` - SFCC class search
 3. `search_sfcc_methods` - SFCC method search  
 4. `list_sfcc_classes` - Complete SFCC class list
 5. `get_sfcc_class_documentation` - Raw SFCC class documentation
-6. `get_available_best_practice_guides` - Best practices list
-7. `get_best_practice_guide` - Specific best practice guide
-8. `search_best_practices` - Best practices search
-9. `get_hook_reference` - Hook reference tables
-10. `get_available_sfra_documents` - SFRA documents list
-11. `get_sfra_document` - Specific SFRA document
-12. `search_sfra_documentation` - SFRA documentation search
-13. `get_sfra_documents_by_category` - SFRA documents by category
-14. `get_sfra_categories` - SFRA document categories
-15. `generate_cartridge_structure` - Cartridge generation
+6. `sync_agent_instructions` - Agent instruction bootstrap (AGENTS.md + bundled skills)
+7. `get_available_sfra_documents` - SFRA documents list
+8. `get_sfra_document` - Specific SFRA document
+9. `search_sfra_documentation` - SFRA documentation search
+10. `get_sfra_documents_by_category` - SFRA documents by category
+11. `get_sfra_categories` - SFRA document categories
+12. `list_isml_elements` - ISML element listing
+13. `get_isml_element` - ISML element documentation
+14. `search_isml_elements` - ISML element search
+15. `get_isml_elements_by_category` - ISML elements by category
+16. `get_isml_categories` - ISML categories
+17. `generate_cartridge_structure` - Cartridge generation
 
-### Additional Tools in Full Mode (+21 tools = 36 total)
+### Additional Tools in Full Mode (+21 tools = 38 total)
 
 **Log Analysis Tools (8)**:
 - `get_latest_error`, `get_latest_warn`, `get_latest_info`, `get_latest_debug`

@@ -16,7 +16,7 @@ const FeaturesPage: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "Features & Capabilities - SFCC Development MCP Server",
-  "description": "Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools.",
+  "description": "Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, agent skills, and AI-powered development tools.",
     "author": {
       "@type": "Person",
       "name": "Thomas Theunen"
@@ -58,7 +58,7 @@ const FeaturesPage: React.FC = () => {
   "Real-time Log & Job Log Analysis", 
   "System & Custom Object Exploration",
         "Cartridge Generation",
-        "Best Practices Guides",
+        "Agent Skills",
         "AI Assistant Integration"
       ]
     }
@@ -68,8 +68,8 @@ const FeaturesPage: React.FC = () => {
     <div className="max-w-6xl mx-auto px-6 py-12">
       <SEO 
         title="Features & Capabilities"
-  description="Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, best practices, and AI-powered development tools."
-        keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC best practices, AI development features"
+  description="Comprehensive overview of SFCC Development MCP Server features: documentation access, real-time log & job log analysis, system & custom object exploration, site preferences, cartridge generation, agent skills, and AI-powered development tools."
+        keywords="SFCC MCP features, Commerce Cloud development tools, SFCC documentation access, log analysis tools, system object tools, cartridge generation, SFCC agent skills, AI development features"
         canonical="/features/"
         ogType="article"
       />
@@ -94,7 +94,7 @@ const FeaturesPage: React.FC = () => {
           {badge('Docs')}
           {badge('SFRA')}
           {badge('ISML')}
-          {badge('Best Practices')}
+              {badge('Skills')}
           {badge('Logs')}
           {badge('Jobs')}
     {badge('Objects')}
@@ -131,42 +131,36 @@ const FeaturesPage: React.FC = () => {
           </div>
         </Collapsible>
 
-    <Collapsible id="sfcc-best-practices-guides" title="📚 Best Practices, Guides & Hook References">
-      <p className="text-sm mb-2">Structured guidance across 13 core development domains plus searchable OCAPI / SCAPI hook reference tables with extension point signatures.</p>
-            <div className="grid sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-1">Guides</h4>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>Cartridge creation & architecture</li>
-                  <li>ISML templates (security & performance)</li>
-                  <li>Job framework patterns</li>
-                  <li>LocalServiceRegistry integrations</li>
-                  <li>SFRA controllers & models</li>
-                  <li>SFRA client-side JavaScript architecture</li>
-                  <li>SFRA SCSS theming & override discipline</li>
-                  <li>Custom SCAPI endpoints</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-1">Also Covers</h4>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>OCAPI & SCAPI hooks</li>
-                  <li>Security hardening (OWASP)</li>
-                  <li>Performance & scalability tactics</li>
-                  <li>Search across all guides</li>
-                  <li>Hook reference tables (OCAPI / SCAPI)</li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-slate-600">
-              <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
-              <ul className="list-disc pl-4 space-y-1">
-                <li>"Show me security recommendations for ISML templates."</li>
-                <li>"List OCAPI hook points for product import and explain when to use each."</li>
-                <li>"Summarize performance best practices relevant to checkout."</li>
-              </ul>
-            </div>
-        </Collapsible>
+    <Collapsible id="agent-skills" title="🧩 Agent Skills (Guidance Packs)">
+      <p className="text-sm mb-2">
+        The curated best-practice guides have been migrated into portable <strong>skills</strong>.
+        Each skill is a versioned instruction pack (Markdown) your AI assistant can load to follow consistent SFCC patterns.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <h4 className="font-semibold mb-1">What you get</h4>
+          <ul className="list-disc pl-4 space-y-1">
+            <li>Cartridge development patterns</li>
+            <li>SFRA controllers, models, and client-side JS</li>
+            <li>ISML development patterns</li>
+            <li>OCAPI & SCAPI hooks guidance</li>
+            <li>Security and performance skills</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold mb-1">How to use</h4>
+          <ul className="list-disc pl-4 space-y-1">
+            <li>Install/merge skills into your repo using <code>sync_agent_instructions</code></li>
+            <li>Or browse and copy a specific skill from GitHub</li>
+            <li>Pick the smallest relevant skill to reduce noise</li>
+          </ul>
+        </div>
+      </div>
+      <div className="mt-4 text-xs text-slate-600">
+        <p className="font-semibold mb-1 text-slate-700">Next step:</p>
+        <NavLink to="/skills/" className="text-orange-700 hover:text-orange-900 font-medium">Browse available skills →</NavLink>
+      </div>
+    </Collapsible>
 
         <Collapsible id="sfcc-documentation" title="🔍 SFCC API Documentation">
           <p className="text-sm">Query the entire <code>dw.*</code> namespace surface area.</p>

@@ -157,16 +157,18 @@ const AIInterfacesPage: React.FC = () => {
 
       {/* Universal Config */}
       <div id="universal" className="mb-24">
-        <div className="text-center mb-8">
-          <H2 id="universal-mcp-configuration" className="text-3xl font-bold mb-4">Universal MCP Configuration</H2>
-          <p className="text-gray-600 max-w-3xl mx-auto">Works across any MCP-compatible AI (desktop, IDE plugin, CLI agent).</p>
-        </div>
-        <SectionCard>
-          <CodeBlock language="json" code={`{\n  "mcpServers": {\n    "sfcc-dev": {\n      "command": "npx",\n      "args": ["sfcc-dev-mcp", "--dw-json", "/Users/username/sfcc-project/dw.json", "--debug", "false"]\n    }\n  }\n}`} />
-          <ul className="list-disc pl-5 text-sm text-gray-700 mt-6 space-y-1">
-            <li><InlineCode>--dw-json</InlineCode> optional for docs-only mode</li>
-            <li><InlineCode>--debug</InlineCode> set true when diagnosing tool behavior</li>
-          </ul>
+        <SectionCard className="border-blue-200">
+          <div className="text-center mb-8">
+            <H2 id="universal-mcp-configuration" className="text-3xl font-bold mb-4">Universal MCP Configuration</H2>
+                <p className="mt-2 text-sm text-gray-600">
+                  The server ships with curated documentation + agent skills so your assistant can answer questions using the same source material
+                  you use to build SFCC.
+                </p>
+            <ul className="list-disc pl-5 text-sm text-gray-700 mt-6 space-y-1">
+              <li><InlineCode>--dw-json</InlineCode> optional for docs-only mode</li>
+              <li><InlineCode>--debug</InlineCode> set true when diagnosing tool behavior</li>
+            </ul>
+          </div>
         </SectionCard>
       </div>
 
@@ -228,7 +230,7 @@ const ModeTabs: React.FC = () => {
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Benefits</h4>
             <div className="grid md:grid-cols-3 gap-4">
-              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA docs & best practices." />
+              <BenefitCard title="Zero Setup" color="blue" text="Immediate access to SFCC API docs, SFRA/ISML docs, and bundled agent skills." />
               <BenefitCard title="Fast Onboarding" color="green" text="Great for new devs or quick reference sessions." />
               <BenefitCard title="Safe & Local" color="purple" text="No credentials needed (no logs / objects)." />
             </div>
@@ -598,7 +600,7 @@ const InstructionFilesTabs: React.FC = () => {
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <h5 className="font-semibold text-blue-700 mb-2 text-sm">🔧 MCP Tool Awareness</h5>
-              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of 36+ MCP tools (docs, SFRA, best practices, logs, job logs, objects, code versions)</p>
+              <p className="text-xs text-blue-600 leading-relaxed">Built-in knowledge of 38 MCP tools (docs, SFRA, ISML, agent instructions, logs, job logs, objects, code versions)</p>
             </div>
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
               <h5 className="font-semibold text-purple-700 mb-2 text-sm">⚡ Faster Development</h5>

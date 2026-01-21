@@ -1,7 +1,7 @@
 {
   "name": "SFCC Development MCP Server",
   "short_name": "SFCC MCP",
-  "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with AI-powered documentation access, log analysis, and development best practices",
+  "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with AI-powered documentation access, log analysis, and curated agent skills",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

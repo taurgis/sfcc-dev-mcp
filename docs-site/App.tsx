@@ -11,6 +11,7 @@ import ExamplesPage from './pages/ExamplesPage';
 import SecurityPage from './pages/SecurityPage';
 import DevelopmentPage from './pages/DevelopmentPage';
 import TroubleshootingPage from './pages/TroubleshootingPage';
+import SkillsPage from './pages/SkillsPage';
 
 export const routes: RouteRecord[] = [
   {
@@ -41,6 +42,10 @@ export const routes: RouteRecord[] = [
       {
         path: 'examples/',
         element: <ExamplesPage />,
+      },
+      {
+        path: 'skills/',
+        element: <SkillsPage />,
       },
       {
         path: 'security/',
@@ -74,6 +79,10 @@ export const routes: RouteRecord[] = [
       {
         path: 'examples',
         element: <Navigate to="/examples/" replace />,
+      },
+      {
+        path: 'skills',
+        element: <Navigate to="/skills/" replace />,
       },
       {
         path: 'security',

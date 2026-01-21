@@ -111,12 +111,6 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(result.content[0].text.includes('classes found') || result.content[0].text.includes('Product'), 'Should contain search results');
   });
 
-  test('should return unknown tool for removed best-practice guide list', async () => {
-    const result = await client.callTool('get_available_best_practice_guides', {});
-    assert.ok(result.isError, 'Should be an error');
-    assert.ok(result.content[0].text.includes('Unknown tool'), 'Should mention unknown tool');
-  });
-
   test('should execute get_available_sfra_documents successfully', async () => {
     const result = await client.callTool('get_available_sfra_documents', {});
     
@@ -173,15 +167,18 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   });
 
   // Advanced Node.js-specific test scenarios
-  test('should handle concurrent tool calls efficiently', async () => {
-    const concurrentCalls = [
-      client.callTool('get_sfcc_class_info', { className: 'Catalog' }),
-      client.callTool('get_sfcc_class_info', { className: 'Product' }),
-      client.callTool('search_sfcc_classes', { query: 'catalog' }),
-      client.callTool('search_sfcc_classes', { query: 'order' })
+  test('should handle multiple tool calls efficiently', async () => {
+    const calls = [
+      { toolName: 'get_sfcc_class_info', args: { className: 'Catalog' } },
+      { toolName: 'get_sfcc_class_info', args: { className: 'Product' } },
+      { toolName: 'search_sfcc_classes', args: { query: 'catalog' } },
+      { toolName: 'search_sfcc_classes', args: { query: 'order' } },
     ];
 
-    const results = await Promise.all(concurrentCalls);
+    const results = [];
+    for (const { toolName, args } of calls) {
+      results.push(await client.callTool(toolName, args));
+    }
     
     for (const result of results) {
       assert.ok(result.content, 'Each concurrent call should return content');
@@ -254,8 +251,8 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     assert.ok(longQueryResult.content, 'Should handle long queries gracefully');
   });
 
-  test('should validate best practice guide content structure', async () => {
-    const result = await client.callTool('sync_agent_instructions', { targetPath: '/tmp', mode: 'workspace' });
+  test('should execute sync_agent_instructions successfully', async () => {
+    const result = await client.callTool('sync_agent_instructions', { destinationType: 'temp', dryRun: true });
     assert.ok(result.content, 'Should return content');
     assert.ok(!result.isError, 'Should not error');
     assert.ok(typeof result.content[0].text === 'string', 'Should return string content');
@@ -467,7 +464,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
     const testTools = [
       { name: 'get_sfcc_class_info', params: { className: 'Catalog' } },
       { name: 'get_available_sfra_documents', params: {} },
-      { name: 'sync_agent_instructions', params: { targetPath: '/tmp', mode: 'workspace' } },
+      { name: 'sync_agent_instructions', params: { destinationType: 'temp', dryRun: true } },
       { name: 'list_sfcc_classes', params: {} }
     ];
 

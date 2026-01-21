@@ -2,7 +2,7 @@
 
 ### Tool Overview
 **Tool Name:** `mcp_sfcc-dev_[tool_name]`
-**Category:** <!-- SFCC Documentation / Best Practices / Log Analysis / System Objects -->
+**Category:** <!-- SFCC Documentation / SFRA Docs / ISML Docs / Agent Instructions / Log Analysis / Job Logs / System Objects / Cartridge Generation / Code Versions -->
 **Description:** 
 
 ### Implementation Details

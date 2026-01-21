@@ -109,7 +109,7 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
   test('should have exactly 38 tools available in full mode', async () => {
     const tools = toolsCache || await client.listTools();
     
-    // Full mode should have exactly 38 tools after removing best-practices category
+    // Full mode should have exactly 38 tools
     assert.equal(tools.length, 38, `Should have exactly 38 tools, got ${tools.length}`);
   });
 

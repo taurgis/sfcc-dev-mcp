@@ -57,11 +57,11 @@ This project uses the **SFCC Development MCP Server** to provide accurate, up-to
 
 ## 🎯 Why Use the MCP Tools
 
-- **Accuracy**: Get current, verified SFCC API documentation and best practices
+- **Accuracy**: Get current, verified SFCC API documentation and skills
 - **Completeness**: Access comprehensive class information, methods, and properties
 - **Real-time**: Query live SFCC system objects and attributes from the actual instance
 - **Debugging**: Access actual SFCC logs for troubleshooting and error analysis
-- **Best Practices**: Get current SFCC development guidelines and security recommendations
+- **Skills**: Get current SFCC development guidelines and security recommendations
 
 ## 📋 Available Tool Categories
 
@@ -92,6 +92,11 @@ Use these for ISML (Internet Store Markup Language) template development:
 - **`get_isml_elements_by_category`** - Get ISML elements filtered by category (control-flow, output, includes, scripting, cache, etc.)
 - **`get_isml_categories`** - Get all ISML element categories with descriptions and counts
 
+### 🧩 Agent Instructions / Skills
+Use this to install or merge bundled instructions (AGENTS.md + skills) into a workspace, user home, or temp directory:
+
+- **`sync_agent_instructions`** - Copy/merge bundled AGENTS.md + skills into the chosen destination
+
 ### 🔧 System Object Definitions
 Use these for understanding SFCC data models and custom attributes:
 
@@ -102,17 +107,19 @@ Use these for understanding SFCC data models and custom attributes:
 - **`search_system_object_attribute_groups`** - Search for attribute groups (essential for finding site preference groups)
 - **`search_custom_object_attribute_definitions`** - Search for attributes in custom object types
 
-### � Code Version Management
+### 🔁 Code Version Management
 Use these for deployment and code version operations:
 
 - **`get_code_versions`** - Get all code versions on the SFCC instance
 - **`activate_code_version`** - Activate a specific code version (useful for code-switch fixes)
 
-### �📊 Log Analysis Tools
+### 📊 Log Analysis Tools
 Use these for debugging and troubleshooting:
 
-- **`get_latest_errors`** - Get recent error messages from SFCC logs
-- **`get_latest_warnings`** - Get recent warnings from SFCC logs
+- **`get_latest_error`** - Get recent error messages from SFCC logs
+- **`get_latest_warn`** - Get recent warnings from SFCC logs
+- **`get_latest_info`** - Get recent info messages from SFCC logs
+- **`get_latest_debug`** - Get recent debug messages from SFCC logs
 - **`search_logs`** - Search logs for specific patterns or keywords
 - **`summarize_logs`** - Get overview of log activity and issues
 - **`list_log_files`** - List available log files with metadata
@@ -125,7 +132,7 @@ Use these for debugging and troubleshooting:
 1. **API Documentation Questions**
    ```
    "What methods are available on dw.catalog.Product?"
-   → Use: get_sfcc_class_methods with className: "dw.catalog.Product"
+   → Use: get_sfcc_class_info with className: "dw.catalog.Product"
    ```
 
 2. **Finding the Right Class**
@@ -135,18 +142,18 @@ Use these for debugging and troubleshooting:
    ```
 
 3. **Implementation Best Practices**
-   Consult local best-practice skills and documentation before implementing features.
+   Consult relevant bundled skills and documentation before implementing features.
 
 4. **Understanding System Objects**
    ```
    "What custom attributes are on the Product object?"
-   → Use: get_system_object_attribute_definitions with objectType: "Product"
+   → Use: search_system_object_attribute_definitions with objectType: "Product" and a searchRequest (e.g., match_all_query)
    ```
 
 5. **Debugging Issues**
    ```
    "Are there any recent errors in the logs?"
-   → Use: get_latest_errors
+   → Use: get_latest_error
    
    "What log files are available for today?"
    → Use: list_log_files
@@ -167,7 +174,7 @@ Use these for debugging and troubleshooting:
    → Use: get_code_versions
    
    "Need to do a code-switch fix for SCAPI endpoints"
-   → Use: activate_code_version with versionId: "target_version"
+   → Use: activate_code_version with codeVersionId: "target_version"
    ```
 
 ### ❌ DON'T Guess About:
@@ -189,7 +196,7 @@ Use these for debugging and troubleshooting:
    → get_sfcc_class_info with className: "dw.order.Order"
 
 3. Explore specific methods or properties:
-   → get_sfcc_class_methods with className: "dw.order.Order"
+   → get_sfcc_class_info with className: "dw.order.Order"
 ```
 
 ### Understanding ISML Elements
@@ -237,16 +244,16 @@ Use these for debugging and troubleshooting:
 
 Some tools require specific SFCC credentials:
 
-- **Documentation & Best Practices**: Always available
-- **Log Analysis**: Requires SFCC instance credentials (hostname, username, password)
-- **System Objects & Code Versions**: Requires OCAPI credentials (clientId, clientSecret)
+- **Documentation, SFRA, ISML, Agent Instructions**: Always available
+- **Log Analysis + Job Logs**: Requires hostname + WebDAV credentials (username/password OR clientId/clientSecret)
+- **System Objects & Code Versions**: Requires hostname + OCAPI credentials (clientId, clientSecret)
 
 If a tool isn't available, the MCP server will provide clear error messages about what credentials are needed.
 
 ## 💡 Pro Tips
 
 1. **Start Broad, Then Narrow**: Use search tools first, then get detailed information
-2. **Check Best Practices Early**: Always consult best practice guides before implementing
+2. **Check Skills Early**: Consult relevant skill packs before implementing
 3. **Use Real Data**: Query actual system objects rather than assuming structure
 4. **Debug with Logs**: Use log analysis tools for troubleshooting real issues
 5. **Stay Current**: MCP tools provide current information, not outdated documentation
@@ -256,7 +263,7 @@ If a tool isn't available, the MCP server will provide clear error messages abou
 - **Always prefer MCP tools** over guessing or using potentially outdated information
 - **Use specific tool calls** rather than making assumptions about SFCC APIs
 - **Check logs and system objects** from the actual SFCC instance when debugging
-- **Follow best practices** from the guides rather than improvising solutions
+- **Follow skills + docs** rather than improvising solutions
 - **Verify class and method names** using the documentation tools
 
 ---
@@ -382,7 +389,7 @@ Use SEQUENTIALLY when:
 ```markdown
 Always Include:
 - Practical code examples using the discovered information
-- Security considerations from best practices
+- Security considerations from relevant skills/guidelines
 - Performance implications
 - Error handling patterns
 - Related classes/methods that might be relevant
@@ -492,7 +499,7 @@ MANDATORY steps before creating any ISML template:
 1. Review the ISML templates guidance from the bundled skills.
 2. Review the localization skill for resource bundle patterns.
 3. Analyze the "Template Directory Structure" section.
-4. Confirm exact override path from best practices.
+4. Confirm exact override path from the relevant skill guidance.
 5. Ensure all visible text uses Resource.msg() - never hardcode strings.
 6. Generate code only after path verification.
 ```
@@ -519,10 +526,10 @@ MANDATORY steps before creating any controller:
 
 **NEVER generate SFCC override code without completing this checklist**:
 
-1. ✅ **Used MCP Guidance**: Reviewed the relevant best-practice skill content
+1. ✅ **Used MCP Guidance**: Reviewed the relevant skill content
 2. ✅ **Path Confirmed**: Verified exact directory structure from guide
 3. ✅ **Pattern Validated**: Confirmed proper extension patterns (superModule, server.extend)
-4. ✅ **Security Checked**: Reviewed security guidelines from best practices
+4. ✅ **Security Checked**: Reviewed security guidance from skills
 5. ✅ **Structure Match**: Ensured override path exactly matches base cartridge structure
 
 ### **Common Override Mistakes - Prevent with MCP Tools**
@@ -535,9 +542,9 @@ function Account() {
 }
 ```
 
-✅ **CORRECT - Generated after best-practice review**:
+✅ **CORRECT - Generated after skill review**:
 ```javascript
-// Proper pattern from the SFRA models best-practice skill
+// Proper pattern from the SFRA models skill
 var base = module.superModule;
 function Account() {
     base.call(this, ...arguments);
@@ -559,8 +566,8 @@ function Account() {
 **Before providing any SFCC code that involves templates or models**:
 
 1. **Check Path Structure**: Verify the override path matches the base cartridge exactly
-2. **Consult Best Practices**: Reference ISML Templates and SFRA Models best practice guides
-3. **Use MCP Guidance**: Review the ISML templates and SFRA models best-practice skills
+2. **Consult Skills**: Reference the ISML and SFRA skills for override patterns
+3. **Use MCP Guidance**: Review the ISML and SFRA skills
 4. **Validate Override Pattern**: Ensure proper use of `module.superModule` for models and `server.extend()` for controllers
 5. **Confirm Directory Structure**: Verify the complete directory path from cartridge root
 
@@ -580,7 +587,7 @@ cartridges/app_custom_mybrand/cartridge/templates/default/product/productDetails
 cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
 ```
 
-**Remember**: Always consult the ISML Templates and SFRA Models best practice skill content before generating any override code to ensure proper patterns and security practices.
+**Remember**: Always consult the ISML and SFRA skill content before generating any override code to ensure proper patterns and security practices.
 
 ---
 
@@ -593,14 +600,14 @@ cartridges/app_custom_mybrand/cartridge/models/product/fullProduct.js
 - [ ] Planned information layering strategy
 
 ### When Providing Implementation Guidance:
-- [ ] Started with best practice guides
+- [ ] Started with relevant skills
 - [ ] Retrieved current SFCC API information
 - [ ] Included security considerations
 - [ ] Added performance optimization notes
 - [ ] Included proper error handling
 
 ### When Debugging/Troubleshooting:
-- [ ] Checked system logs for actual errors (use `get_latest_error`, `get_latest_warn`) Note: Job logs are not supported yet
+- [ ] Checked system logs for actual errors (use `get_latest_error`, `get_latest_warn`)
 - [ ] Listed available log files to understand scope (use `list_log_files`)
 - [ ] Analyzed specific log files for detailed context (use `get_log_file_contents`)
 - [ ] Searched logs for patterns related to the issue (use `search_logs`)

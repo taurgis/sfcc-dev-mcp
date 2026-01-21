@@ -721,5 +721,5 @@ Don't over-optimize by removing every variable immediately:
 - [isset Element](./isset.md)
 - [ISML Variables and Scope](./variables.md)
 - [Session Management](../dw_system/Session.md)
-- [Security Best Practices](../best-practices/security.md)
-- [Performance Optimization](../best-practices/performance.md)
+- [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)
+- [Performance Skill](../../ai-instructions/skills/sfcc-performance/SKILL.md)

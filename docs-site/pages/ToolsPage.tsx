@@ -14,6 +14,11 @@ const ToolsPage: React.FC = () => {
   const [search, setSearch] = React.useState('');
   const [showPopularExpanded, setShowPopularExpanded] = React.useState(true);
 
+  const popularQuickActions = React.useMemo(
+    () => popularTools.filter((tool) => tool.id !== 'sync-agent-instructions'),
+    []
+  );
+
   const filtered = tools.filter(t => {
     const inCat = activeCategory === 'All' || t.category === activeCategory;
     if (!inCat) return false;
@@ -64,7 +69,7 @@ const ToolsPage: React.FC = () => {
       <SEO 
         title="Available Tools & APIs"
         description="Interactive reference of SFCC Development MCP Server tools with filtering, search, examples, and quick start actions."
-        keywords="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, best practices"
+        keywords="SFCC MCP tools, Commerce Cloud APIs, log analysis, system objects, cartridge generation, agent instructions, skills"
         canonical="/tools/"
         ogType="article"
       />
@@ -72,7 +77,7 @@ const ToolsPage: React.FC = () => {
         { name: "Home", url: "/" },
         { name: "Tools", url: "/tools/" }
       ]} />
-      <StructuredData data={toolsStructuredData} />
+      <StructuredData structuredData={toolsStructuredData} />
       
       {/* Hero */}
       <div className="text-center mb-14">
@@ -81,7 +86,7 @@ const ToolsPage: React.FC = () => {
         </div>
         <H1 id="available-tools" className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Interactive Tool Explorer</H1>
         <PageSubtitle className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          36+ specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
+          {tools.length} specialized tools. Filter by category, search prompts, copy examples, and get productive in seconds.
         </PageSubtitle>
       </div>
 
@@ -98,7 +103,7 @@ const ToolsPage: React.FC = () => {
           </div>
           {showPopularExpanded && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4">
-              {popularTools.map(tool => (
+              {popularQuickActions.map(tool => (
                 <div key={tool.id} className="relative rounded-xl border border-gray-200 bg-white/90 p-4 shadow-sm group">
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-mono text-xs font-semibold text-gray-800">{tool.name}</p>
@@ -117,20 +122,19 @@ const ToolsPage: React.FC = () => {
                   <a href={`#${tool.id}`} className="absolute inset-0" aria-label={`Jump to ${tool.name}`}></a>
                 </div>
               ))}
-              {/* Added Hook Reference Quick Action */}
               <div className="relative rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-4 shadow-sm group">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-mono text-xs font-semibold text-amber-700">get_hook_reference</p>
+                  <p className="font-mono text-xs font-semibold text-amber-700">sync_agent_instructions</p>
                   <button
-                    onClick={() => navigator.clipboard.writeText('Ask: "List available SCAPI hook extension points for product search"')}
+                    onClick={() => navigator.clipboard.writeText('Run sync_agent_instructions (dryRun=false) to install AGENTS.md + skills into this SFCC workspace')}
                     className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-700 px-2 py-0.5 rounded transition"
                   >Copy</button>
                 </div>
                 <p className="text-[11px] text-amber-800 line-clamp-2 group-hover:line-clamp-none transition-all">
-                  Discover all available OCAPI or SCAPI hook extension points to select the correct customization surface.
+                  Bootstrap your project with AGENTS.md + the bundled SFCC skills so your AI assistant follows consistent patterns.
                 </p>
-                <p className="mt-2 text-[11px] text-amber-600 italic">Ask: "List available SCAPI hook extension points for product search"</p>
-                <a href="#get_hook_reference" className="absolute inset-0" aria-label="Jump to get_hook_reference"></a>
+                <p className="mt-2 text-[11px] text-amber-600 italic">Run sync_agent_instructions (dryRun=false) to install AGENTS.md + skills</p>
+                <a href="#sync-agent-instructions" className="absolute inset-0" aria-label="Jump to sync_agent_instructions"></a>
               </div>
             </div>
           )}

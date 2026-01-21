@@ -56,7 +56,7 @@ const DevelopmentPage: React.FC = () => {
                 { name: "Home", url: "/" },
                 { name: "Development", url: "/development/" }
             ]} />
-            <StructuredData data={developmentStructuredData} />
+            <StructuredData structuredData={developmentStructuredData} />
             
             <H1 id="development-guide">👨‍💻 Development Guide</H1>
             <PageSubtitle>Contributing to the SFCC Development MCP Server project</PageSubtitle>
@@ -92,7 +92,7 @@ npm run dev -- --dw-json /Users/username/sfcc-project/dw.json
 
             <H2 id="project-architecture">🏗️ Project Architecture</H2>
             
-            <p className="text-[11px] text-gray-500 mb-4">Surface: <strong>36+ specialized tools</strong> spanning documentation, best practices, SFRA, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
+            <p className="text-[11px] text-gray-500 mb-4">Surface: <strong>38 tools</strong> spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
             <H3 id="directory-structure">Directory Structure</H3>
             <CodeBlock language="text" code={`
 sfcc-dev-mcp/
@@ -105,13 +105,14 @@ sfcc-dev-mcp/
 │   │   └── handlers/              # Modular tool handlers
 │   │       ├── base-handler.ts
 │   │       ├── docs-handler.ts
-│   │       ├── best-practices-handler.ts
+│   │       ├── isml-handler.ts
 │   │       ├── sfra-handler.ts
 │   │       ├── log-handler.ts
 │   │       ├── job-log-handler.ts
 │   │       ├── system-object-handler.ts
 │   │       ├── code-version-handler.ts
-│   │       └── cartridge-handler.ts
+│   │       ├── cartridge-handler.ts
+│   │       └── agent-instructions-handler.ts
 │   ├── clients/                   # API & domain clients (logic, not routing)
 │   │   ├── base/                  # Shared HTTP + auth
 │   │   │   ├── http-client.ts
@@ -135,14 +136,14 @@ sfcc-dev-mcp/
 │   │   │   └── index.ts
 │   │   ├── docs-client.ts
 │   │   ├── sfra-client.ts
-│   │   ├── best-practices-client.ts
-│   │   ├── cartridge-generation-client.ts
+│   │   ├── isml-client.ts
+│   │   ├── agent-instructions-client.ts
+│   │   ├── cartridge/
 │   │   ├── ocapi/
 │   │   │   ├── site-preferences-client.ts
 │   │   │   └── system-objects-client.ts
 │   │   ├── ocapi-client.ts
 │   │   ├── log-client.ts              # Backwards compat wrapper
-│   └── best-practices-client.ts   # (already listed above? keep once)
 │   ├── services/                 # Dependency injection service layer
 │   │   ├── file-system-service.ts
 │   │   ├── path-service.ts
@@ -150,7 +151,8 @@ sfcc-dev-mcp/
 │   ├── tool-configs/             # Tool grouping & category configs
 │   │   ├── docs-tool-config.ts
 │   │   ├── sfra-tool-config.ts
-│   │   ├── best-practices-tool-config.ts
+│   │   ├── isml-tool-config.ts
+│   │   ├── agent-instructions-tool-config.ts
 │   │   ├── log-tool-config.ts
 │   │   ├── job-log-tool-config.ts
 │   │   ├── system-object-tool-config.ts
@@ -173,17 +175,17 @@ sfcc-dev-mcp/
 │   ├── mcp/yaml/*.mcp.yml        # Declarative tool tests
 │   ├── mcp/node/*.programmatic.test.js
 │   └── servers/webdav/           # Mock WebDAV server fixtures
-├── docs/                         # SFCC & best practices markdown sources
+├── docs/                         # SFCC documentation sources
 ├── docs-site/                    # React + Vite documentation site
 ├── scripts/                      # Conversion & build scripts
-└── ai-instructions/              # AI platform instruction sets
+└── ai-instructions/              # AI platform instruction sets + bundled skills
             `} />
 
             <H3 id="configuration-system">Configuration & Capability Gating (<InlineCode>src/config/</InlineCode>)</H3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>configuration-factory.ts</strong>: Determines operating mode & derives capabilities (<InlineCode>canAccessLogs</InlineCode>, <InlineCode>canAccessJobLogs</InlineCode>, <InlineCode>canAccessOCAPI</InlineCode>, <InlineCode>canAccessSitePrefs</InlineCode>).</li>
               <li><strong>dw-json-loader.ts</strong>: Safe credential ingestion, prevents accidental misuse.</li>
-              <li><strong>Capability Gating</strong>: No credentials → docs & best practice tools only; WebDAV creds → runtime + job logs; Data API creds → system & custom objects, site preferences, code versions.</li>
+              <li><strong>Capability Gating</strong>: No credentials → docs-only toolset (docs, SFRA, ISML, cartridge generation, agent instruction bootstrap); WebDAV creds → runtime + job logs; Data API creds → system & custom objects, site preferences, code versions.</li>
               <li><strong>Least Privilege</strong>: Tools requiring unavailable capabilities never registered.</li>
             </ul>
 
@@ -411,7 +413,7 @@ const createMockSFCCResponse = (overrides = {}) => ({
 
             <H3 id="testing-files-available">Testing Coverage Overview</H3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Unit Clients</strong>: HTTP/auth, OCAPI subclients, docs, SFRA, best practices, cartridge generation.</li>
+              <li><strong>Unit Clients</strong>: HTTP/auth, OCAPI subclients, docs, SFRA, ISML, agent instructions, cartridge generation.</li>
               <li><strong>Handlers</strong>: Each modular handler has focused tests (error shaping, capability filtering).</li>
               <li><strong>Log System</strong>: Discovery, reader, processor, analyzer, formatter modules.</li>
               <li><strong>Job Logs</strong>: Parsing & multi-level consolidation logic.</li>
@@ -470,7 +472,7 @@ git push origin main --tags
             <H3 id="release-checklist">Release Checklist</H3>
             <p><strong>1. Update Documentation</strong></p>
             <ul className="list-disc pl-6 space-y-1">
-                <li>README.md tool counts & feature surface (36+ phrasing)</li>
+                <li>README.md tool counts & feature surface (38 tools; skills vs legacy best-practices wording)</li>
                 <li><InlineCode>ai-instructions/github-copilot/copilot-instructions.md</InlineCode> architecture updates</li>
                 <li><InlineCode>.github/copilot-instructions.md</InlineCode> (sync architecture + counts)</li>
                 <li>Configuration & Features pages updated if capability surface changed</li>

@@ -14,7 +14,7 @@ interface SEOProps {
 
 const SEO: React.FC<SEOProps> = ({
   title = 'SFCC Development MCP Server',
-  description = 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance.',
+  description = 'Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and use curated agent skills with AI assistance.',
   keywords = 'SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development',
   canonical,
   ogImage = 'https://sfcc-mcp-dev.rhino-inquisitor.com/explain-product-pricing-methods.png',

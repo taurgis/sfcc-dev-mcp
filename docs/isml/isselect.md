@@ -901,8 +901,8 @@ Don't expose sensitive information in option values:
 
 ## See Also
 
-- [HTML Forms Best Practices](../best-practices/isml_templates.md)
-- [SFRA Form Handling](../best-practices/sfra_controllers.md)
-- [Form Validation](../best-practices/security.md)
+- [SFCC Forms Development Skill](../../ai-instructions/skills/sfcc-forms-development/SKILL.md)
+- [SFRA Controllers Skill](../../ai-instructions/skills/sfcc-sfra-controllers/SKILL.md)
+- [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)
 - [isloop Element](./isloop.md)
 - [isset Element](./isset.md)

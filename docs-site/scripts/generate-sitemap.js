@@ -58,6 +58,12 @@ const pages = [
     description: 'Examples and Use Cases',
   },
   {
+    path: '/skills/',
+    priority: '0.8',
+    changefreq: 'monthly',
+    description: 'Agent Skills',
+  },
+  {
     path: '/security/',
     priority: '0.7',
     changefreq: 'monthly',

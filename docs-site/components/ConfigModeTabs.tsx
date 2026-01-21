@@ -16,7 +16,7 @@ export const ConfigModeTabs: React.FC = () => {
           <p className="text-sm text-gray-600">No credentials required. Add the server to your AI client:</p>
           <CodeBlock language="json" code={`{\n  \"mcpServers\": {\n    \"sfcc-dev\": {\n      \"command\": \"npx\",\n      \"args\": [\"sfcc-dev-mcp\"]\n    }\n  }\n}`} />
           <ul className="text-xs text-gray-600 list-disc pl-5 space-y-1">
-            <li>Enables documentation, best practices & cartridge generation</li>
+            <li>Enables documentation, agent instruction bootstrap & cartridge generation</li>
             <li>Upgrade anytime by adding <InlineCode>--dw-json</InlineCode></li>
           </ul>
         </div>

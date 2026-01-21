@@ -29,6 +29,7 @@ const ROUTE_MAPPINGS = {
   'FeaturesPage.tsx': '/features/',
   'ToolsPage.tsx': '/tools/',
   'ExamplesPage.tsx': '/examples/',
+  'SkillsPage.tsx': '/skills/',
   'SecurityPage.tsx': '/security/',
   'DevelopmentPage.tsx': '/development/',
   'TroubleshootingPage.tsx': '/troubleshooting/',

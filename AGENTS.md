@@ -180,21 +180,7 @@ sfcc-dev-mcp/
 │   │   └── path-resolver.ts      # File path resolution utilities
 │   └── types/                    # TypeScript type definitions
 │       └── types.ts              # Comprehensive type definitions
-├── docs/                         # SFCC documentation and guides
-│   ├── best-practices/           # Development best practice guides
-│   │   ├── cartridge_creation.md
-│   │   ├── isml_templates.md     
-│   │   ├── job_framework.md
-│   │   ├── localserviceregistry.md # LocalServiceRegistry integration patterns
-│   │   ├── ocapi_hooks.md
-│   │   ├── scapi_hooks.md
-│   │   ├── sfra_controllers.md
-│   │   ├── sfra_models.md        # SFRA models best practices
-│   │   ├── sfra_client_side_js.md # SFRA client-side JavaScript patterns
-│   │   ├── sfra_scss.md           # SFRA SCSS override and theming guidance
-│   │   ├── scapi_custom_endpoint.md
-│   │   ├── performance.md
-│   │   └── security.md
+├── docs/                         # SFCC documentation sources
 │   ├── sfra/                    # SFRA documentation
 │   │   ├── server.md
 │   │   ├── request.md
@@ -274,7 +260,11 @@ sfcc-dev-mcp/
 │   │   └── explain-product-pricing-methods-no-mcp.png # Demo screenshot without MCP
 │   ├── dist/                    # Built website output (Vite build)
 │   └── node_modules/            # Node.js dependencies
-├── ai-instructions/             # AI instruction files for different platforms
+├── ai-instructions/             # AI instruction files + bundled skills
+│   ├── AGENTS.md
+│   ├── skills/
+│   │   ├── <skill>/
+│   │   │   └── SKILL.md
 │   ├── claude-desktop/          # Claude Desktop specific instructions
 │   │   └── claude_custom_instructions.md
 │   ├── cursor/                  # Cursor editor specific instructions
@@ -355,7 +345,7 @@ sfcc-dev-mcp/
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **ISMLClient** (`isml-client.ts`): Provides ISML element documentation, category-based browsing, and search functionality for template development
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
-- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, SFRA client-side JavaScript architecture (AJAX flows, validation, accessibility), custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
+- **Bundled Skills** (`ai-instructions/skills/*/SKILL.md`): Curated guidance packs for SFCC development (architecture patterns, testing guides, security/performance practices) that can be synced into workspaces via `sync_agent_instructions`
 - **AgentInstructionsClient** (`agent-instructions-client.ts`): Plans and installs bundled AI assets (AGENTS.md + skills) into workspaces, user home, or temp directories with merge strategies and missing-only copy support
 
 ##### **Cartridge Generation** (`clients/cartridge/`)
@@ -442,7 +432,7 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 
 #### **Documentation-Only Mode**
 - No SFCC credentials required
-- Access to all documentation and best practices
+- Access to all documentation and bundled agent skills
 - Perfect for learning and reference
 
 #### **Full Mode**
@@ -466,18 +456,14 @@ See Unified Engineering Principles section above for the authoritative guideline
 Before updating any documentation with tool counts or quantitative information, **ALWAYS** verify the actual numbers using command line tools:
 
 ```bash
-# Total tool count verification (38 tools across all categories)
-grep -c "name: '" src/core/tool-schemas/*.ts | grep -v ":0" | awk -F: '{sum+=$2} END {print "Total tools:", sum}'
+# Tool count verification (authoritative)
+# Note: some tool schemas are generated via helper functions (e.g., get_latest_*), so simple grep counting is not reliable.
 
-# Individual category counts (from modular schema files)
-echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
-echo "Best practices tools:" && grep -c "name: '" src/core/tool-schemas/best-practices-tools.ts
-echo "SFRA tools:" && grep -c "name: '" src/core/tool-schemas/sfra-tools.ts
-echo "ISML tools:" && grep -c "name: '" src/core/tool-schemas/isml-tools.ts
-echo "Log + Job log tools:" && grep -c "name: '" src/core/tool-schemas/log-tools.ts
-echo "System object tools:" && grep -c "name: '" src/core/tool-schemas/system-object-tools.ts
-echo "Cartridge tools:" && grep -c "name: '" src/core/tool-schemas/cartridge-tools.ts
-echo "Code version tools:" && grep -c "name: '" src/core/tool-schemas/code-version-tools.ts
+# 1) Build (keeps dist/ in sync)
+npm run build
+
+# 2) Count exported tool schemas from the built output
+node -e "(async ()=>{ const m = await import('./dist/core/tool-schemas/index.js'); const keys = ['SFCC_DOCUMENTATION_TOOLS','SFRA_DOCUMENTATION_TOOLS','ISML_DOCUMENTATION_TOOLS','LOG_TOOLS','JOB_LOG_TOOLS','SYSTEM_OBJECT_TOOLS','CARTRIDGE_GENERATION_TOOLS','CODE_VERSION_TOOLS','AGENT_INSTRUCTION_TOOLS']; const counts = Object.fromEntries(keys.map(k=>[k,(m[k]||[]).length])); const total = Object.values(counts).reduce((a,b)=>a+b,0); console.log('Counts:', counts); console.log('Total tools:', total); })().catch(e=>{ console.error(e); process.exit(1); });"
 
 # Verify file structure changes
 find src -name "*.ts" -type f | wc -l  # Count TypeScript files

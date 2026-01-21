@@ -17,7 +17,7 @@ body:
       options:
         - README.md
         - API Documentation (docs/ folder)
-        - Best Practices Guides
+        - Agent Skills (ai-instructions/skills)
         - Code Comments/JSDoc
         - Setup/Installation Instructions
         - Configuration Guide
@@ -53,7 +53,7 @@ body:
       label: Location
       description: Where is the documentation issue located?
       placeholder: |
-        - File path: docs/best-practices/cartridge_creation.md
+        - File path: ai-instructions/skills/sfcc-cartridge-development/SKILL.md
         - Section: "Setting up Authentication"
         - Line number: 45
         - URL: (if applicable)

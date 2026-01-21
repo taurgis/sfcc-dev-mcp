@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools",
-    "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation access, log analysis, and development best practices.",
+    "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with comprehensive documentation access, log analysis, and curated agent skills.",
     "url": "https://sfcc-mcp-dev.rhino-inquisitor.com/",
     "mainEntity": {
       "@type": "SoftwareApplication",
@@ -89,8 +89,8 @@ const HomePage: React.FC = () => {
     <div className="max-w-6xl mx-auto px-6 py-8">
       <SEO 
         title="SFCC Development MCP Server - AI-Powered Commerce Cloud Development Tools"
-        description="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and get best practices with AI assistance."
-        keywords="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC best practices"
+        description="Model Context Protocol server for Salesforce B2C Commerce Cloud development. Access comprehensive documentation, analyze logs, explore system objects, and use curated agent skills with AI assistance."
+        keywords="SFCC, Salesforce Commerce Cloud, Model Context Protocol, MCP server, AI development tools, SFCC documentation, Commerce Cloud development, SFCC debugging, AI-assisted development, SFCC agent skills"
         canonical="/"
         ogType="website"
       />
@@ -116,7 +116,7 @@ const HomePage: React.FC = () => {
         
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
           Supercharge your Salesforce B2C Commerce Cloud development with AI-powered documentation access, 
-          real-time log analysis, and intelligent best practices guidance
+          real-time log analysis, and curated agent skills guidance
         </PageSubtitle>
       </div>
       {/* Quick Start Section */}
@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
             <H2 id="quick-start" className="text-3xl font-bold mb-4">🚀 Zero-Config Quick Start</H2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">
               Jump straight into SFCC development with AI assistance. Get access to comprehensive documentation, 
-              best practices, and cartridge generation tools instantly.
+              agent skills, and cartridge generation tools instantly.
             </p>
           </div>
           
@@ -186,7 +186,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mt-0">Full Documentation</h4>
-                  <p className="text-gray-600 text-sm">Complete SFCC API docs, SFRA guides, and best practices</p>
+                  <p className="text-gray-600 text-sm">Complete SFCC API docs, SFRA docs, and agent skills</p>
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ const HomePage: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-1">Get Complete Examples</h4>
-                      <p className="text-sm text-gray-600">AI generates proper SFCC patterns with best practices</p>
+                      <p className="text-sm text-gray-600">AI generates proper SFCC patterns using curated agent skills</p>
                       <div className="text-xs text-green-600 font-medium mt-1">⏱️ 1-2 minutes</div>
                     </div>
                   </div>
@@ -509,7 +509,7 @@ const HomePage: React.FC = () => {
                 <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-gray-700">SFRA guides and best practices</span>
+                <span className="text-gray-700">SFRA documentation and agent skills</span>
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -581,7 +581,7 @@ const HomePage: React.FC = () => {
         <div className="text-center mb-8">
           <H2 id="key-features" className="text-3xl font-bold mb-4">✨ Everything You Need</H2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            36+ specialized tools for comprehensive SFCC development support
+            38 specialized tools for comprehensive SFCC development support
           </p>
         </div>
         
@@ -1019,7 +1019,7 @@ const HomePage: React.FC = () => {
                       <ul className="text-sm text-green-700 space-y-1">
                         <li>Syntactically correct SFCC code</li>
                         <li>Proper ProductPriceModel usage</li>
-                        <li>Current SFRA best practices</li>
+                        <li>Current SFRA patterns</li>
                         <li>Real-time documentation access</li>
                       </ul>
                     </div>

@@ -712,5 +712,5 @@ res.render('template', {
 - [Response Class](../dw_web/Response.md)
 - [ISML Conditional Statements](./isif.md)
 - [ISML Cache Element](./iscache.md)
-- [SFRA Controllers](../best-practices/sfra_controllers.md)
-- [Security Best Practices](../best-practices/security.md)
+- [SFRA Controllers Skill](../../ai-instructions/skills/sfcc-sfra-controllers/SKILL.md)
+- [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)

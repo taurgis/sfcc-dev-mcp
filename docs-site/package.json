@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "npm run build:css && vite-react-ssg dev",
-    "build": "npm run build:css && npm run generate:search-index && npm run generate:sitemap && vite-react-ssg build",
+    "build": "npm run build:css && npm run generate:skills-index && npm run generate:search-index && npm run generate:sitemap && vite-react-ssg build",
     "preview": "vite preview",
     "build:css": "tailwindcss -i ./src/styles/input.css -o ./public/index.css",
     "build:css:watch": "tailwindcss -i ./src/styles/input.css -o ./public/index.css --watch",
+    "generate:skills-index": "node scripts/generate-skills-index.js",
     "generate:search-index": "node scripts/generate-search-index.js",
     "generate:sitemap": "node scripts/generate-sitemap.js",
     "search-dev": "node scripts/search-dev.js",

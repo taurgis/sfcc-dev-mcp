@@ -93,7 +93,7 @@ const ExamplesPage: React.FC = () => {
                 { name: "Home", url: "/" },
                 { name: "Examples", url: "/examples/" }
             ]} />
-            <StructuredData data={examplesStructuredData} />
+            <StructuredData structuredData={examplesStructuredData} />
             
             <div className="text-center mb-14">
                 <H1 id="examples">💡 Prompt-First Examples</H1>
@@ -102,7 +102,7 @@ const ExamplesPage: React.FC = () => {
                     request, the tool usage behind the scenes, and the kind of response you should expect.
                 </PageSubtitle>
                 <p className="text-sm text-slate-500 max-w-2xl mx-auto">No repetition of feature marketing here—only concrete, minimal, high-signal examples.</p>
-                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>36+ specialized tools</strong> (docs, best practices, SFRA, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
+                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>38 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
             </div>
 
             <SectionCard
@@ -254,7 +254,7 @@ module.exports = server.exports();`} />
                 <div className="mb-4 flex flex-wrap gap-2"><ModeBadge>Docs Mode</ModeBadge></div>
                 <StepsList steps={[
                     { label: 'Generate skeleton', tool: 'generate_cartridge_structure {"cartridgeName": "int_tracking"}', mode: 'docs' },
-                    { label: 'Request best practice follow-up', tool: 'get_best_practice_guide {"guideName": "cartridge_creation"}', mode: 'docs', note: 'Assistant merges guidance' }
+                    { label: 'Ensure skills are available (bootstrap)', tool: 'sync_agent_instructions {"destinationType": "temp", "dryRun": true}', mode: 'docs', note: 'Assistant applies relevant skill packs (e.g., sfcc-cartridge-development)' }
                 ]} />
                 <div className="mt-6 space-y-8">
                     <div>
@@ -296,7 +296,7 @@ module.exports = server.exports();`} />
                     { label: 'Daily context snapshot', tool: 'summarize_logs {"date": "20250916"}', mode: 'full', note: 'High-level counts first' },
                     { label: 'Attempt error retrieval', tool: 'get_latest_error {"limit": 15}', mode: 'full', note: 'May return none → fall back to warnings' },
                     { label: 'Focus on recurring warning pattern', tool: 'search_logs {"pattern": "cookie_hint", "logLevel": "warn", "limit": 5}', mode: 'full', note: 'Isolate noisy asset issue' },
-                    { label: 'Cross-check security guidelines (token lifecycle / logging hygiene)', tool: 'get_best_practice_guide {"guideName": "security"}', mode: 'docs' }
+                    { label: 'Ensure security skill is available (bootstrap)', tool: 'sync_agent_instructions {"destinationType": "temp", "dryRun": true}', mode: 'docs', note: 'Assistant cross-checks against the sfcc-security skill' }
                 ]} />
                 <div className="mt-6">
                     <p className="text-sm font-semibold text-slate-700 mb-2">Assistant Narrative (validated with real tool set):</p>
@@ -315,7 +315,7 @@ Recommended Actions:
 • Keep error path watch in place; re-run summarize_logs after remediation to confirm warning reduction.
 
 If Errors Had Been Present (Pattern Skeleton):
-• Step 1 would still be summarize_logs for counts → then targeted search_logs for signatures (e.g., AUTH_TIMEOUT, TOKEN_EXPIRED) followed by best practice cross-reference.
+• Step 1 would still be summarize_logs for counts → then targeted search_logs for signatures (e.g., AUTH_TIMEOUT, TOKEN_EXPIRED) followed by skill cross-reference.
 `} />
                 </div>
             </SectionCard>
