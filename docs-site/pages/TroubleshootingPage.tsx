@@ -314,7 +314,7 @@ get_latest_error({ date: "12/18/2024" })`} />
                                                     <li>Confirm <InlineCode>definition_search</InlineCode> endpoints are present (POST) – not just wildcard GET.</li>
                                                     <li>Remove filters: use <InlineCode>match_all_query</InlineCode> then refine client-side.</li>
                                                     <li>Check attribute group existence with <InlineCode>search_system_object_attribute_groups</InlineCode>.</li>
-                                                    <li>Validate client_id matches dw.json entry (no trailing spaces).</li>
+                                                    <li>Validate your dw.json <InlineCode>client-id</InlineCode> matches the Account Manager <InlineCode>client_id</InlineCode> (no trailing spaces), and the secret is current.</li>
                                                     <li>Rare replication lag? Wait 1–2 minutes after BM changes.</li>
                                                 </ul>
                                         </div>

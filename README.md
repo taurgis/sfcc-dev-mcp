@@ -29,7 +29,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-### Option 2: Full Mode (With SFCC credentials for log and job analysis)  
+### Option 2: Authenticated Mode (dw.json)
 ```json
 {
   "mcpServers": {
@@ -41,7 +41,18 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-Create a `dw.json` file with your SFCC credentials:
+Create a `dw.json` file with your SFCC credentials.
+
+Minimal (enables WebDAV tools: runtime logs + job logs):
+```json
+{
+  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
+  "username": "your-username",
+  "password": "your-password"
+}
+```
+
+Add OAuth credentials to enable OCAPI Data API tools (system objects, site prefs, code versions):
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
@@ -53,7 +64,7 @@ Create a `dw.json` file with your SFCC credentials:
 ```
 
 ### Option 3: Auto-Discovery (Recommended for VS Code users)
-Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:
+Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover it and expose tools based on the credentials present (capability-gated):
 ```json
 {
   "mcpServers": {
@@ -79,10 +90,13 @@ The server discovers SFCC credentials in this order (highest priority first):
 
 ## 🎯 Operating Modes
 
+Tool exposure is **capability-gated**: the server only advertises tools your current configuration can support.
+
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
 | **Documentation-Only** | 17 tools | ❌ No |
-| **Full Mode** | 38 tools | ✅ Yes |
+| **WebDAV Mode (Logs + Job Logs)** | 30 tools | ✅ `hostname` + `username/password` |
+| **Full Mode (WebDAV + OCAPI)** | 38 tools | ✅ `hostname` + `client-id/client-secret` |
 
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
@@ -94,10 +108,12 @@ Perfect for learning and development - no SFCC instance required:
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
- - All documentation-only features (17 tools)
-- Real-time log analysis (13 tools)
-- System object definitions (6 tools)
+- All documentation-only features (17 tools)
+- Real-time log analysis + job logs (13 tools)
+- System object definitions + site preference search (6 tools)
 - Code version management (2 tools)
+
+> Note: If you provide only `hostname` + `username/password`, you'll get log + job log tools but not OCAPI Data API tools.
 
 ## 🏗️ Architecture Overview
 

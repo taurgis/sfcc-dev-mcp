@@ -97,7 +97,7 @@ const ConfigurationPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-            <strong>💡 How it works:</strong> When no CLI path or environment variables are set, the server starts in documentation-only mode. After VS Code connects, the MCP workspace roots capability automatically discovers your project's <InlineCode>dw.json</InlineCode> and upgrades to full mode with all 38 tools.
+            <strong>💡 How it works:</strong> When no CLI path or environment variables are set, the server starts in documentation-only mode. After VS Code connects, the MCP workspace roots capability automatically discovers your project's <InlineCode>dw.json</InlineCode> and unlocks authenticated tools based on your available credentials (logs/job logs with <InlineCode>username/password</InlineCode>; Data API tools when <InlineCode>client-id</InlineCode>/<InlineCode>client-secret</InlineCode> are present).
           </div>
       </div>
 
@@ -241,7 +241,7 @@ const ConfigurationPage: React.FC = () => {
                     <tr>
                       <th className="px-3 py-2 text-left font-semibold text-gray-900 border-b">Category</th>
                       <th className="px-3 py-2 text-left font-semibold text-gray-900 border-b">Docs Only</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-900 border-b">Full Mode</th>
+                      <th className="px-3 py-2 text-left font-semibold text-gray-900 border-b">Authenticated (Capability-Gated)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -273,22 +273,22 @@ const ConfigurationPage: React.FC = () => {
                     <tr>
                       <td className="px-3 py-2 text-xs font-medium">Log Analysis (runtime)</td>
                       <td className="px-3 py-2 text-xs">—</td>
-                      <td className="px-3 py-2 text-xs">✔</td>
+                      <td className="px-3 py-2 text-xs">✔ (requires WebDAV-capable creds)</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 text-xs font-medium">Job Logs</td>
                       <td className="px-3 py-2 text-xs">—</td>
-                      <td className="px-3 py-2 text-xs">✔</td>
+                      <td className="px-3 py-2 text-xs">✔ (requires WebDAV-capable creds)</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 text-xs font-medium">System & Custom Objects / Site Prefs</td>
                       <td className="px-3 py-2 text-xs">—</td>
-                      <td className="px-3 py-2 text-xs">✔</td>
+                      <td className="px-3 py-2 text-xs">✔ (requires client-id/client-secret)</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 text-xs font-medium">Code Versions</td>
                       <td className="px-3 py-2 text-xs">—</td>
-                      <td className="px-3 py-2 text-xs">✔</td>
+                      <td className="px-3 py-2 text-xs">✔ (requires client-id/client-secret)</td>
                     </tr>
                   </tbody>
                 </table>

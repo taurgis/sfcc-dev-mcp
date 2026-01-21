@@ -242,7 +242,7 @@ const FeaturesPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-            <strong className="font-semibold">Requires full mode:</strong> WebDAV / log tools need sandbox <code>username</code> & <code>password</code> (basic auth) plus any required realm access.
+            <strong className="font-semibold">Requires full mode:</strong> WebDAV / log tools need a hostname plus either <code>username</code>/<code>password</code> or <code>client-id</code>/<code>client-secret</code> (the server uses these as basic auth when talking to WebDAV).
           </div>
           <div className="mt-4 text-xs text-slate-600">
             <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
@@ -263,7 +263,7 @@ const FeaturesPage: React.FC = () => {
             <li>Site preference group & value exploration</li>
           </ul>
           <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-            <strong className="font-semibold">Requires full mode:</strong> OCAPI system object & preference tools need <code>client_id</code> and <code>client_secret</code> with proper scopes (Data API + Shop as applicable).
+            <strong className="font-semibold">Requires full mode:</strong> OCAPI system object & preference tools need <code>client-id</code> and <code>client-secret</code> (dw.json keys) with Data API permissions configured in Business Manager.
           </div>
           <div className="mt-4 text-xs text-slate-600">
             <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
@@ -283,7 +283,7 @@ const FeaturesPage: React.FC = () => {
             <li>AI can propose switches based on log diagnostics</li>
           </ul>
           <div className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-            <strong className="font-semibold">Requires full mode:</strong> Code version tools require OCAPI <code>client_id</code> and <code>client_secret</code> authorized for code/version management.
+            <strong className="font-semibold">Requires full mode:</strong> Code version tools require OCAPI <code>client-id</code> and <code>client-secret</code> (dw.json keys) with code version resources enabled in Business Manager.
           </div>
           <div className="mt-4 text-xs text-slate-600">
             <p className="font-semibold mb-1 text-slate-700">Try asking:</p>
