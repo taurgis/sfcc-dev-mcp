@@ -6,6 +6,8 @@ This document describes the MCP (Model Context Protocol) tests for the SFCC Deve
 
 The project includes comprehensive MCP tests using both **YAML** and **Node.js** approaches with the [mcp-aegis](https://aegis.rhino-inquisitor.com/) testing library. The tests verify both **documentation-only mode** and **full mode with credentials**.
 
+> Note: The server is capability-gated. In real usage there is also an intermediate “WebDAV-only” surface (30 tools) when `hostname` + `username/password` are present (logs + job logs), but `client-id/client-secret` are not (so OCAPI Data API tools are not exposed). The test configs in this folder currently cover docs-only (17) and full (38).
+
 ## Test Structure
 
 ```
