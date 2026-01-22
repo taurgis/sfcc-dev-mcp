@@ -161,7 +161,7 @@ const ConfigurationPage: React.FC = () => {
               <CodeBlock language="bash" code={`npx sfcc-dev-mcp --dw-json /Users/username/sfcc-project/dw.json --debug true`} />
             </Collapsible>
             </div>
-            <p className="text-[11px] text-gray-500 mt-2">Total surface: 38 tools spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
+            <p className="text-[11px] text-gray-500 mt-2">Total surface: 39 tools spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, code versions, and script debugger.</p>
           </section>
           <section id="security" className="scroll-mt-24 space-y-6">
             <div className="mb-4 space-y-2">

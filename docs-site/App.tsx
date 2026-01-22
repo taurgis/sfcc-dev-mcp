@@ -12,6 +12,7 @@ import SecurityPage from './pages/SecurityPage';
 import DevelopmentPage from './pages/DevelopmentPage';
 import TroubleshootingPage from './pages/TroubleshootingPage';
 import SkillsPage from './pages/SkillsPage';
+import ScriptDebuggerPage from './pages/ScriptDebuggerPage';
 
 export const routes: RouteRecord[] = [
   {
@@ -59,6 +60,10 @@ export const routes: RouteRecord[] = [
         path: 'troubleshooting/',
         element: <TroubleshootingPage />,
       },
+      {
+        path: 'script-debugger/',
+        element: <ScriptDebuggerPage />,
+      },
       // Redirects from non-trailing slash URLs to trailing slash URLs
       {
         path: 'configuration',
@@ -95,6 +100,10 @@ export const routes: RouteRecord[] = [
       {
         path: 'troubleshooting',
         element: <Navigate to="/troubleshooting/" replace />,
+      },
+      {
+        path: 'script-debugger',
+        element: <Navigate to="/script-debugger/" replace />,
       },
       // Redirect old installation path to AI interfaces
       {

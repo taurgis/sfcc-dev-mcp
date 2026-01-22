@@ -102,7 +102,7 @@ const SecurityPage: React.FC = () => {
         <PageSubtitle className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
           Opinionated local-only design: minimal credential footprint, scoped API access, defensive parsing. Use this page as a <strong>practical hardening checklist</strong>, not a marketing overview.
         </PageSubtitle>
-        <p className="mt-4 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>38 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
+        <p className="mt-4 text-[11px] uppercase tracking-wide text-gray-400">Surface: <strong>39 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions, script debugger)</p>
       </header>
 
       {/* Quick Essentials */}

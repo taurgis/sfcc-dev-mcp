@@ -21,6 +21,7 @@ export const NAVIGATION_LINKS: NavGroup[] = [
       { label: 'Features Overview', path: '/features/' },
       { label: 'Available Tools', path: '/tools/' },
       { label: 'Examples & Use Cases', path: '/examples/' },
+      { label: 'Script Debugger', path: '/script-debugger/' },
       { label: 'Agent Skills', path: '/skills/' },
       { label: 'Security Guidelines', path: '/security/' },
     ],

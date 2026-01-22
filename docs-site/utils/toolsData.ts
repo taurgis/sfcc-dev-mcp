@@ -30,7 +30,8 @@ export const TOOL_CATEGORIES = [
   'Cartridge Generation',
   'Log Analysis',
   'System Objects',
-  'Code Versions'
+  'Code Versions',
+  'Script Debugger'
 ] as const;
 
 export const tools: ToolMeta[] = [
@@ -150,7 +151,30 @@ export const tools: ToolMeta[] = [
 
   // Code Versions
   { id: 'get-code-versions', name: 'get_code_versions', category: 'Code Versions', mode: 'full', description: 'List all code versions.', examples: ['List available code versions'], popular: true },
-  { id: 'activate-code-version', name: 'activate_code_version', category: 'Code Versions', mode: 'full', description: 'Activate a specific code version.', params: [p('codeVersionId','ID of code version')], examples: ['Activate code version int_2025_09'] }
+  { id: 'activate-code-version', name: 'activate_code_version', category: 'Code Versions', mode: 'full', description: 'Activate a specific code version.', params: [p('codeVersionId','ID of code version')], examples: ['Activate code version int_2025_09'] },
+
+  // Script Debugger
+  {
+    id: 'evaluate-script',
+    name: 'evaluate_script',
+    category: 'Script Debugger',
+    mode: 'full',
+    description: 'Execute JavaScript code on the SFCC instance for quick testing and POC validation. Creates a debugger session, sets a breakpoint, triggers a controller, evaluates your expression, and cleans up automatically.',
+    params: [
+      p('script', 'The JavaScript code to execute (use dw.* APIs directly)'),
+      p('siteId', 'Site ID to execute against (default: RefArch)', false),
+      p('timeout', 'Max execution time in ms (default: 30000)', false),
+      p('breakpointFile', 'Custom controller path for breakpoint (auto-detected by default)', false),
+      p('breakpointLine', 'Line number for breakpoint (default: auto-detected)', false)
+    ],
+    examples: [
+      'Execute dw.system.Site.current.ID to get the current site ID',
+      'Test ProductMgr.getProduct("12345")?.name on my sandbox',
+      'Run a quick script to check if a product exists in the catalog'
+    ],
+    tags: ['debugger', 'testing', 'script', 'evaluation', 'sandbox'],
+    popular: true
+  }
 ];
 
 export const popularTools = tools.filter(t => t.popular);

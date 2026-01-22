@@ -24,7 +24,7 @@ export const SKILLS: SkillMeta[] = [
   },
   {
     "name": "sfcc-isml-development",
-    "description": "Guide for developing ISML templates in Salesforce B2C Commerce SFRA. Use this when asked to create, modify, or troubleshoot ISML templates, work with decorators, or implement template patterns.",
+    "description": "SFRA-first guide for developing ISML templates in Salesforce B2C Commerce (Bootstrap 4 conventions). Use this when creating, modifying, or troubleshooting SFRA templates, decorators, components, forms, includes, and caching.",
     "dirName": "sfcc-isml-development",
     "githubUrl": "https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-isml-development/SKILL.md"
   },
@@ -81,6 +81,12 @@ export const SKILLS: SkillMeta[] = [
     "description": "Guide for implementing SCAPI hooks in Salesforce B2C Commerce. Use this when asked to create SCAPI hooks, extend Shopper API endpoints, validate API requests, or modify API responses for headless commerce.",
     "dirName": "sfcc-scapi-hooks",
     "githubUrl": "https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-scapi-hooks/SKILL.md"
+  },
+  {
+    "name": "sfcc-script-evaluation",
+    "description": "Guide for using the evaluate_script tool to execute JavaScript on SFCC instances via the script debugger",
+    "dirName": "sfcc-script-evaluation",
+    "githubUrl": "https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-script-evaluation/SKILL.md"
   },
   {
     "name": "sfcc-security",

@@ -354,18 +354,18 @@ JSON.stringify({
 | `invalid return` | Using `return` at top level | Remove `return`, use expression or IIFE |
 | `Cannot call method of null` | Using `require()` | Use `dw.*` global namespace |
 | `Cannot set property of null` | `var x = {}` returns null | Use IIFE or inline object literal |
-| `Timeout waiting for breakpoint` | Wrong siteId or debugger not enabled | Verify siteId, enable script debugging in BM |
+| `Timeout waiting for breakpoint` | Wrong siteId or instance unreachable | Verify siteId, check instance connectivity |
 | `Unexpected token '<'` | Auth/connectivity issue | Check dw.json credentials, verify instance is accessible |
-| `NotAuthorizedException` | Missing permissions | Enable Script Debugger permission for BM user |
+| `Unauthorized` / `401` | Username case mismatch | **Username is case-sensitive** - match exactly from BM user |
 | `No compatible storefront cartridge` | Missing SFRA or SiteGenesis | Deploy app_storefront_base or specify custom breakpoint |
 
 ## Pre-Flight Checklist
 
 Before using `evaluate_script`:
 
-1. ✅ Script debugging enabled in Business Manager (Administration > Site Development > Development Setup)
-2. ✅ BM user has Script Debugger / WebDAV permissions
-3. ✅ Instance is accessible (check dw.json credentials)
+1. ✅ Valid credentials in dw.json configuration
+2. ✅ **Username matches BM user exactly (case-sensitive!)**
+3. ✅ Sandbox instance is accessible
 4. ✅ Storefront cartridge deployed (app_storefront_base or app_storefront_controllers)
 5. ✅ Script uses `dw.*` namespace, not `require()`
 6. ✅ Complex logic wrapped in IIFE
@@ -373,7 +373,7 @@ Before using `evaluate_script`:
 
 ## Requirements
 
-- SFCC sandbox instance with script debugging enabled
-- Business Manager user with "Modules - Script Debugger" functional permission
+- SFCC sandbox instance
 - Either `app_storefront_base` (SFRA) or `app_storefront_controllers` (SiteGenesis) deployed
 - Valid credentials in dw.json configuration
+- **Important:** Username in dw.json must match BM user exactly (case-sensitive)

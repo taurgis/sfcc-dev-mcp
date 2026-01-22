@@ -92,7 +92,7 @@ npm run dev -- --dw-json /Users/username/sfcc-project/dw.json
 
             <H2 id="project-architecture">🏗️ Project Architecture</H2>
             
-            <p className="text-[11px] text-gray-500 mb-4">Surface: <strong>38 tools</strong> spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, and code versions.</p>
+            <p className="text-[11px] text-gray-500 mb-4">Surface: <strong>39 tools</strong> spanning documentation, SFRA, ISML, agent instructions, cartridge generation, runtime logs, job logs, system & custom objects, site preferences, code versions, and script debugger.</p>
             <H3 id="directory-structure">Directory Structure</H3>
             <CodeBlock language="text" code={`
 sfcc-dev-mcp/
@@ -472,7 +472,7 @@ git push origin main --tags
             <H3 id="release-checklist">Release Checklist</H3>
             <p><strong>1. Update Documentation</strong></p>
             <ul className="list-disc pl-6 space-y-1">
-                <li>README.md tool counts & feature surface (38 tools; skills vs legacy best-practices wording)</li>
+                <li>README.md tool counts & feature surface (39 tools; skills vs legacy best-practices wording)</li>
                 <li><InlineCode>ai-instructions/github-copilot/copilot-instructions.md</InlineCode> architecture updates</li>
                 <li><InlineCode>.github/copilot-instructions.md</InlineCode> (sync architecture + counts)</li>
                 <li>Configuration & Features pages updated if capability surface changed</li>

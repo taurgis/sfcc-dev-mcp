@@ -2,7 +2,7 @@
 
 > A comprehensive Model Context Protocol (MCP) server that provides AI assistants with direct access to Salesforce B2C Commerce Cloud development tools, documentation, curated agent skills, and real-time debugging capabilities.
 
-This server bridges the gap between AI assistants and SFCC development workflows, offering both documentation-only mode (no credentials required) and full mode (with live SFCC instance access). It provides 38 tools across 8 categories including complete SFCC API documentation, curated agent instruction skills, enhanced SFRA documentation, real-time log and job log analysis, system object exploration, and automated cartridge generation.
+This server bridges the gap between AI assistants and SFCC development workflows, offering both documentation-only mode (no credentials required) and full mode (with live SFCC instance access). It provides 39 tools across 9 categories including complete SFCC API documentation, curated agent instruction skills, enhanced SFRA documentation, real-time log and job log analysis, system object exploration, automated cartridge generation, and script debugging.
 
 Key architectural principles:
 - **Capability-gated**: Tools requiring SFCC credentials are only exposed when valid configuration is provided
@@ -14,7 +14,7 @@ Key architectural principles:
 
 - [Installation Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/#/installation): Step-by-step setup instructions for different AI interfaces (Claude Desktop, Cursor, GitHub Copilot)
 - [Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/#/configuration): Detailed configuration options for both documentation-only and full modes
-- [Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools): Comprehensive list of all 38 tools organized by category with usage examples
+- [Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/#/tools): Comprehensive list of all 39 tools organized by category with usage examples
 - [Agent Skills](https://sfcc-mcp-dev.rhino-inquisitor.com/#/skills): Bundled skill packs (guidance) that can be synced into repos for your AI assistant
 - [Features Overview](https://sfcc-mcp-dev.rhino-inquisitor.com/#/features): Complete feature breakdown including operating modes and capabilities
 
@@ -39,6 +39,7 @@ Key architectural principles:
 - **System Object Tools (6 tools)**: Custom attribute discovery, site preference management, and schema exploration
 - **Cartridge Generation Tools (1 tool)**: Automated cartridge structure creation with complete project setup
 - **Code Version Tools (2 tools)**: Code version management and deployment activation
+- **Script Debugger Tools (1 tool)**: Execute JavaScript on SFCC sandbox via debugger API for quick testing and POC validation
 
 ## Optional
 

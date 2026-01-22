@@ -102,7 +102,7 @@ const ExamplesPage: React.FC = () => {
                     request, the tool usage behind the scenes, and the kind of response you should expect.
                 </PageSubtitle>
                 <p className="text-sm text-slate-500 max-w-2xl mx-auto">No repetition of feature marketing here—only concrete, minimal, high-signal examples.</p>
-                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>38 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions)</p>
+                <p className="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Surface: <strong>39 tools</strong> (docs, SFRA, ISML, agent instructions, cartridge gen, runtime logs, job logs, system & custom objects, site preferences, code versions, script debugger)</p>
             </div>
 
             <SectionCard
@@ -360,6 +360,56 @@ Recommendations (priority order):
 
 Healthy Case Note: If error search returns 0 (common for maintenance/cleanup jobs) emit concise summary only and skip remediation suggestions.
 `} />
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                id="script-evaluation"
+                title="Quick Script Evaluation on Sandbox"
+                icon="🧪"
+                gradient="from-violet-50 via-white to-purple-50"
+                subtitle="Execute JavaScript directly on your SFCC instance for rapid testing and POC validation." >
+                <PromptBlock prompt="Check if product 25518704M exists on my sandbox and return its name and price." intent="Quick data verification without deploying code" />
+                <div className="flex flex-wrap gap-2 mb-4"><ModeBadge variant="full">Full Mode</ModeBadge></div>
+                <StepsList steps={[
+                    { label: 'Execute script on sandbox', tool: 'evaluate_script {"script": "var p = require(\'dw/catalog/ProductMgr\').getProduct(\'25518704M\'); p ? JSON.stringify({id: p.ID, name: p.name, price: p.getPriceModel()?.getPrice()?.value}) : \'Product not found\'"}', mode: 'full', note: 'Uses debugger API to evaluate expression' }
+                ]} />
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Example Result:</p>
+                    <CodeBlock language="json" code={`{"id":"25518704M","name":"Striped Silk Tie","price":29.99}`} />
+                </div>
+                <div className="mt-6">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">More Examples:</p>
+                    <CodeBlock language="javascript" code={`// Get current site ID
+evaluate_script({ script: "require('dw/system/Site').current.ID" })
+// Result: "RefArch"
+
+// Check customer count
+evaluate_script({ script: "require('dw/customer/CustomerMgr').queryProfiles('').count" })
+// Result: 42
+
+// Verify a site preference exists
+evaluate_script({ 
+  script: "require('dw/system/Site').current.getCustomPreferenceValue('enableWishlist')" 
+})
+// Result: true
+
+// Complex query with IIFE for multiple statements
+evaluate_script({ 
+  script: \`(function() {
+    var ProductMgr = require('dw/catalog/ProductMgr');
+    var p = ProductMgr.getProduct('25518704M');
+    if (!p) return 'Not found';
+    return JSON.stringify({
+      id: p.ID,
+      online: p.onlineFlag,
+      inStock: p.getAvailabilityModel().isInStock()
+    });
+  })()\`
+})`} />
+                </div>
+                <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-sm text-amber-800"><strong>Requirements:</strong> Script debugging must be enabled on your sandbox (Administration → Site Development → Development Setup). Your BM user needs "Modules - Script Debugger" permission. Works with both SFRA and SiteGenesis storefronts.</p>
                 </div>
             </SectionCard>
 
