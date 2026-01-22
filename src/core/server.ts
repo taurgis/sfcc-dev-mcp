@@ -26,6 +26,7 @@ import {
   CARTRIDGE_GENERATION_TOOLS,
   CODE_VERSION_TOOLS,
   AGENT_INSTRUCTION_TOOLS,
+  SCRIPT_DEBUGGER_TOOLS,
 } from './tool-definitions.js';
 
 // Modular tool handlers
@@ -39,6 +40,7 @@ import { SystemObjectToolHandler } from './handlers/system-object-handler.js';
 import { CodeVersionToolHandler } from './handlers/code-version-handler.js';
 import { CartridgeToolHandler } from './handlers/cartridge-handler.js';
 import { AgentInstructionsToolHandler } from './handlers/agent-instructions-handler.js';
+import { ScriptDebuggerToolHandler } from './handlers/script-debugger-handler.js';
 import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
 /**
@@ -224,6 +226,7 @@ export class SFCCDevServer {
       new SystemObjectToolHandler(context, 'SystemObjects'),
       new CodeVersionToolHandler(context, 'CodeVersions'),
       new CartridgeToolHandler(context, 'Cartridge'),
+      new ScriptDebuggerToolHandler(context, 'ScriptDebugger'),
     ];
   }
 
@@ -245,6 +248,7 @@ export class SFCCDevServer {
       if (this.capabilities.canAccessLogs) {
         tools.push(...LOG_TOOLS);
         tools.push(...JOB_LOG_TOOLS);
+        tools.push(...SCRIPT_DEBUGGER_TOOLS);
       }
 
       if (this.capabilities.canAccessOCAPI) {

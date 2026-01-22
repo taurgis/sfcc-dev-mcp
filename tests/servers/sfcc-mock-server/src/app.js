@@ -10,6 +10,8 @@ const { createCorsMiddleware } = require('./middleware/cors');
 const { createRequestLogger, createResponseLogger, createErrorLogger } = require('./middleware/logging');
 const AuthenticationManager = require('./middleware/auth');
 const WebDAVRouteHandler = require('./routes/webdav');
+const CartridgeWebDAVHandler = require('./routes/cartridge-webdav');
+const StorefrontHandler = require('./routes/storefront');
 const OCAPIRouteHandler = require('./routes/ocapi');
 
 class SFCCMockApp {
@@ -80,9 +82,22 @@ class SFCCMockApp {
             const webdavHandler = new WebDAVRouteHandler(this.config);
             this.app.use(webdavHandler.getRouter());
             
+            // Cartridge WebDAV routes for script debugger controller verification
+            const cartridgeWebdavHandler = new CartridgeWebDAVHandler(this.config);
+            this.app.use(cartridgeWebdavHandler.getRouter());
+            
             if (this.config.isDevMode) {
                 console.log('✅ WebDAV routes enabled');
+                console.log('✅ Cartridge WebDAV routes enabled');
             }
+        }
+
+        // Storefront routes (for debugger trigger)
+        const storefrontHandler = new StorefrontHandler(this.config);
+        this.app.use(storefrontHandler.getRouter());
+        
+        if (this.config.isDevMode) {
+            console.log('✅ Storefront routes enabled');
         }
 
         // OCAPI routes (if enabled)

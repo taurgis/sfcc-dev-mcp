@@ -106,11 +106,11 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
   // 3. This test suite is designed to verify tool PRESENCE, not functionality
   // 4. Tool functionality testing should be done against real SFCC development instances
 
-  test('should have exactly 39 tools available in full mode', async () => {
+  test('should have exactly 40 tools available in full mode', async () => {
     const tools = toolsCache || await client.listTools();
     
-    // Full mode should have exactly 39 tools
-    assert.equal(tools.length, 39, `Should have exactly 39 tools, got ${tools.length}`);
+    // Full mode should have exactly 40 tools
+    assert.equal(tools.length, 40, `Should have exactly 40 tools, got ${tools.length}`);
   });
 
   test('should have WebDAV-dependent tools (log analysis)', async () => {

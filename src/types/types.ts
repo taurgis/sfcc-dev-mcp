@@ -22,6 +22,8 @@ export interface SFCCConfig {
   clientSecret?: string;
   /** Site ID for SFCC instance */
   siteId?: string;
+  /** Code version for cartridge deployment */
+  codeVersion?: string;
 }
 
 /**

@@ -1,0 +1,209 @@
+---
+description: "Test evaluate_script tool for script debugger functionality"
+tests:
+  # Basic functionality tests
+  - it: "should evaluate simple arithmetic expression"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-simple"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          siteId: "RefArch"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-simple"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:\"result\":\\s*\"2\"|success.*true"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  - it: "should include success status in response"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-success"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-success"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  - it: "should include execution time in response"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-timing"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-timing"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:executionTimeMs"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  # Site parameter tests  
+  - it: "should accept different siteId values"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-site"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          siteId: "RefArchGlobal"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-site"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  # Timeout parameter tests
+  - it: "should accept custom timeout value"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-timeout"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          timeout: 15000
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-timeout"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  # Custom breakpoint tests
+  - it: "should accept custom breakpoint file and line"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-custom-bp"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          breakpointFile: "/app_storefront_base/cartridge/controllers/Default.js"
+          breakpointLine: 26
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-custom-bp"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  # SFCC API simulation tests
+  - it: "should evaluate Site.current.ID expression"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-site-api"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "var Site = require('dw/system/Site'); return Site.current.ID;"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-site-api"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:MockSiteID|success.*true"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  # Tool schema validation
+  - it: "should be listed in tools/list with correct schema"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-schema"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-schema"
+        result:
+          tools: "match:arrayContains:name:evaluate_script"
+      stderr: "toBeEmpty"
+
+  # Error handling - missing required parameter
+  - it: "should fail when script parameter is missing"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-no-script"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-no-script"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:required|missing|script"
+          isError: true
+      stderr: "toBeEmpty"

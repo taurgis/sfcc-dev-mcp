@@ -24,3 +24,4 @@ export { SYSTEM_OBJECT_TOOLS } from './system-object-tools.js';
 export { CARTRIDGE_GENERATION_TOOLS } from './cartridge-tools.js';
 export { CODE_VERSION_TOOLS } from './code-version-tools.js';
 export { AGENT_INSTRUCTION_TOOLS } from './agent-instruction-tools.js';
+export { SCRIPT_DEBUGGER_TOOLS } from './script-debugger-tools.js';

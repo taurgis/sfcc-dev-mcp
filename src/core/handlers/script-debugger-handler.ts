@@ -1,0 +1,46 @@
+import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { AbstractClientHandler } from './abstract-client-handler.js';
+import { ClientFactory } from './client-factory.js';
+import { ScriptDebuggerClient } from '../../clients/script-debugger/index.js';
+import {
+  SCRIPT_DEBUGGER_TOOL_CONFIG,
+  ScriptDebuggerToolName,
+  SCRIPT_DEBUGGER_TOOL_NAMES_SET,
+} from '../../tool-configs/script-debugger-tool-config.js';
+
+/**
+ * Handler for script debugger tools using config-driven dispatch.
+ * Provides script evaluation capabilities via the SFCC Script Debugger API.
+ */
+export class ScriptDebuggerToolHandler extends AbstractClientHandler<
+  ScriptDebuggerToolName,
+  ScriptDebuggerClient
+> {
+  constructor(context: HandlerContext, subLoggerName: string) {
+    super(context, subLoggerName);
+  }
+
+  protected createClient(): ScriptDebuggerClient | null {
+    return this.clientFactory.createScriptDebuggerClient();
+  }
+
+  protected getClientContextKey(): string {
+    return 'scriptDebuggerClient';
+  }
+
+  protected getClientDisplayName(): string {
+    return 'Script Debugger';
+  }
+
+  protected getClientRequiredError(): string {
+    return ClientFactory.getClientRequiredError('ScriptDebugger');
+  }
+
+  protected getToolNameSet(): Set<ScriptDebuggerToolName> {
+    return SCRIPT_DEBUGGER_TOOL_NAMES_SET;
+  }
+
+  protected getToolConfig(): Record<ScriptDebuggerToolName, GenericToolSpec<ToolArguments, any>> {
+    return SCRIPT_DEBUGGER_TOOL_CONFIG;
+  }
+}

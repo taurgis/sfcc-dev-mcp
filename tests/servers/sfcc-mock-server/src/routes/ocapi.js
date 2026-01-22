@@ -13,6 +13,7 @@ const OAuthHandler = require('./ocapi/oauth-handler');
 const SystemObjectsHandler = require('./ocapi/system-objects-handler');
 const SitePreferencesHandler = require('./ocapi/site-preferences-handler');
 const CodeVersionsHandler = require('./ocapi/code-versions-handler');
+const DebuggerHandler = require('./ocapi/debugger-handler');
 
 class OCAPIRouteHandler {
     constructor(config, authManager) {
@@ -29,9 +30,13 @@ class OCAPIRouteHandler {
         const systemObjectsHandler = new SystemObjectsHandler(this.config, this.dataLoader);
         const sitePreferencesHandler = new SitePreferencesHandler(this.config, this.dataLoader);
         const codeVersionsHandler = new CodeVersionsHandler(this.config, this.dataLoader);
+        const debuggerHandler = new DebuggerHandler(this.config);
 
         // OAuth routes (no authentication required)
         this.router.use('/', oAuthHandler.getRouter());
+
+        // Debugger routes (uses Basic auth, handled separately)
+        this.router.use('/', debuggerHandler.getRouter());
 
         // Apply authentication middleware to all OCAPI data endpoints
         const requireAuth = this.authManager.requireAuth();

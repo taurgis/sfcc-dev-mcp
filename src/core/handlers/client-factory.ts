@@ -3,6 +3,7 @@ import { SFCCLogClient } from '../../clients/log-client.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
 import { OCAPICodeVersionsClient } from '../../clients/ocapi/code-versions-client.js';
 import { CartridgeGenerationClient } from '../../clients/cartridge/index.js';
+import { ScriptDebuggerClient } from '../../clients/script-debugger/index.js';
 import { Logger } from '../../utils/logger.js';
 import { IFileSystemService, IPathService, FileSystemService, PathService } from '../../services/index.js';
 
@@ -95,14 +96,43 @@ export class ClientFactory {
   }
 
   /**
+   * Create a Script Debugger Client if full credentials are available
+   */
+  createScriptDebuggerClient(): ScriptDebuggerClient | null {
+    if (!this.hasScriptDebuggerAccess()) {
+      this.logger.debug('Script Debugger client not created: missing credentials');
+      return null;
+    }
+
+    this.logger.debug('Creating Script Debugger Client');
+    return new ScriptDebuggerClient(this.context.config!, this.logger);
+  }
+
+  /**
+   * Check if Script Debugger access is available
+   * Requires hostname and either basic auth or client credentials
+   */
+  private hasScriptDebuggerAccess(): boolean {
+    const config = this.context.config;
+    if (!config?.hostname) {return false;}
+
+    const hasBasicAuth = !!(config.username && config.password);
+    const hasClientAuth = !!(config.clientId && config.clientSecret);
+
+    return hasBasicAuth || hasClientAuth;
+  }
+
+  /**
    * Get the required error message for a client type
    */
-  static getClientRequiredError(clientType: 'OCAPI' | 'Log'): string {
+  static getClientRequiredError(clientType: 'OCAPI' | 'Log' | 'ScriptDebugger'): string {
     switch (clientType) {
       case 'OCAPI':
         return 'OCAPI client not configured - ensure credentials are provided in full mode.';
       case 'Log':
         return 'Log client not configured - ensure log access is enabled.';
+      case 'ScriptDebugger':
+        return 'Script Debugger client not configured - ensure SFCC credentials (hostname + username/password or clientId/clientSecret) are provided.';
       default:
         return 'Required client not configured.';
     }

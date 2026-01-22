@@ -18,6 +18,7 @@ export {
   CARTRIDGE_GENERATION_TOOLS,
   CODE_VERSION_TOOLS,
   AGENT_INSTRUCTION_TOOLS,
+  SCRIPT_DEBUGGER_TOOLS,
 } from './tool-schemas/index.js';
 
 // Re-export shared schemas for any external consumers

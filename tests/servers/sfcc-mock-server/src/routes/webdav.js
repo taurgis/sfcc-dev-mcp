@@ -26,13 +26,15 @@ class WebDAVRouteHandler {
     }
 
     setupRoutes() {
-        // Handle PROPFIND method (custom method support)
+        // Handle PROPFIND method for Logs paths only
         this.router.use((req, res, next) => {
             if (req.method === 'PROPFIND') {
-                this.handlePropfind(req, res);
-            } else {
-                next();
+                // Only handle PROPFIND for Logs paths
+                if (req.path.includes('/Logs')) {
+                    return this.handlePropfind(req, res);
+                }
             }
+            next();
         });
 
         // WebDAV base path routes

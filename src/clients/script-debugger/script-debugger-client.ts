@@ -1,0 +1,672 @@
+/**
+ * SFCC Script Debugger Client
+ *
+ * Provides script evaluation capabilities using the SFCC Script Debugger API.
+ * This client handles the complete workflow: creating debug sessions, setting breakpoints,
+ * triggering script execution, evaluating expressions, and cleanup.
+ *
+ * This implementation uses the existing Default-Start endpoint from app_storefront_base,
+ * eliminating the need to upload custom scripts.
+ */
+
+import { createClient, WebDAVClient } from 'webdav';
+import { Logger } from '../../utils/logger.js';
+import { SFCCConfig } from '../../types/types.js';
+
+/** Default timeout for script evaluation in milliseconds */
+const DEFAULT_TIMEOUT_MS = 30000;
+
+/** Default site ID if none provided */
+const DEFAULT_SITE_ID = 'RefArch';
+
+/** Polling interval when waiting for halted thread */
+const POLL_INTERVAL_MS = 500;
+
+/** Timeout for the storefront trigger request */
+const TRIGGER_TIMEOUT_MS = 60000;
+
+/**
+ * Result of a script evaluation
+ */
+export interface ScriptEvaluationResult {
+  success: boolean;
+  result?: string;
+  error?: string;
+  executionTimeMs?: number;
+  warnings?: string[];
+}
+
+/**
+ * Script thread from debugger API
+ */
+interface ScriptThread {
+  id: number;
+  status: 'halted' | 'running';
+  call_stack?: Array<{
+    index: number;
+    location: {
+      function_name: string;
+      line_number: number;
+      script_path: string;
+    };
+  }>;
+}
+
+/**
+ * Debugger API response types
+ */
+interface ThreadsResponse {
+  _v: string;
+  script_threads?: ScriptThread[];
+}
+
+interface EvalResponse {
+  _v: string;
+  expression: string;
+  result: string;
+}
+
+interface FaultResponse {
+  _v: string;
+  fault?: {
+    type: string;
+    message: string;
+  };
+}
+
+/**
+ * Cartridge configuration for breakpoint targeting
+ */
+interface CartridgeConfig {
+  cartridge: string;
+  controllerPath: string;
+  breakpointLine: number;
+  type: 'sfra' | 'sitegenesis';
+}
+
+/** SFRA cartridge configuration */
+const SFRA_CONFIG: CartridgeConfig = {
+  cartridge: 'app_storefront_base',
+  controllerPath: '/cartridge/controllers/Default.js',
+  breakpointLine: 26, // Inside server.get('Start', ...) handler
+  type: 'sfra',
+};
+
+/** SiteGenesis cartridge configuration */
+const SITEGENESIS_CONFIG: CartridgeConfig = {
+  cartridge: 'app_storefront_controllers',
+  controllerPath: '/cartridge/controllers/Default.js',
+  breakpointLine: 10, // var app = require line
+  type: 'sitegenesis',
+};
+
+/**
+ * SFCC Script Debugger Client
+ *
+ * Orchestrates script evaluation through the Script Debugger API workflow:
+ * 1. Create debugger client session
+ * 2. Set breakpoint on Default.js controller
+ * 3. Trigger Default-Start via HTTP
+ * 4. Wait for thread to halt at breakpoint
+ * 5. Evaluate user's expression in halted context
+ * 6. Resume thread and cleanup
+ *
+ * Supports both SFRA (app_storefront_base) and SiteGenesis (app_storefront_controllers).
+ */
+export class ScriptDebuggerClient {
+  private readonly config: SFCCConfig;
+  private readonly logger: Logger;
+  private readonly debuggerClientId = 'sfcc-mcp-evaluator';
+  private readonly debuggerBaseUrl: string;
+  private readonly protocol: 'http' | 'https';
+  private cachedAuthHeader: string | null = null;
+  private webdavClient: WebDAVClient | null = null;
+  private isDebuggerEnabled = false;
+
+  // Active cartridge config - determined at runtime based on what exists
+  private activeCartridgeConfig: CartridgeConfig | null = null;
+
+  constructor(config: SFCCConfig, logger?: Logger) {
+    this.config = config;
+    this.logger = logger ?? Logger.getChildLogger('ScriptDebugger');
+    this.protocol = config.hostname?.startsWith('localhost') ? 'http' : 'https';
+    this.debuggerBaseUrl = `${this.protocol}://${config.hostname}/s/-/dw/debugger/v2_0`;
+  }
+
+  /**
+   * Evaluate a script/expression on the SFCC instance
+   *
+   * This method handles the entire workflow automatically:
+   * - Sets up debugger session
+   * - Sets breakpoint on Default-Start (or custom file/line)
+   * - Triggers execution and captures result
+   * - Cleans up all resources
+   *
+   * @param script The JavaScript code to evaluate
+   * @param options Optional configuration for the evaluation
+   */
+  async evaluateScript(
+    script: string,
+    options: {
+      timeout?: number;
+      siteId?: string;
+      breakpointFile?: string;
+      breakpointLine?: number;
+    } = {},
+  ): Promise<ScriptEvaluationResult> {
+    const startTime = Date.now();
+    const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
+    const siteId = options.siteId ?? DEFAULT_SITE_ID;
+    const warnings: string[] = [];
+
+    this.logger.debug('Starting script evaluation', {
+      scriptLength: script.length,
+      timeout,
+      siteId,
+      customBreakpoint: options.breakpointFile ? `${options.breakpointFile}:${options.breakpointLine}` : undefined,
+    });
+
+    try {
+      // Step 1: Use custom breakpoint or detect storefront cartridge
+      if (options.breakpointFile && options.breakpointLine) {
+        // Use custom breakpoint configuration
+        this.activeCartridgeConfig = {
+          cartridge: '', // Not used for custom - path is complete
+          controllerPath: options.breakpointFile,
+          breakpointLine: options.breakpointLine,
+          type: 'sfra', // Doesn't matter for custom
+        };
+        this.logger.debug('Using custom breakpoint', {
+          file: options.breakpointFile,
+          line: options.breakpointLine,
+        });
+      } else {
+        // Auto-detect storefront cartridge (SFRA or SiteGenesis)
+        const cartridgeConfig = await this.detectStorefrontCartridge();
+        if (!cartridgeConfig) {
+          return {
+            success: false,
+            error: 'No compatible storefront cartridge found. Ensure either app_storefront_base (SFRA) or app_storefront_controllers (SiteGenesis) is deployed to your code version.',
+            executionTimeMs: Date.now() - startTime,
+            warnings: [
+              'Verify that your storefront cartridge exists in your active code version',
+              'Supported cartridges: app_storefront_base (SFRA), app_storefront_controllers (SiteGenesis)',
+              'Check that the code version is correctly deployed via WebDAV',
+              'Or specify custom breakpointFile and breakpointLine parameters',
+            ],
+          };
+        }
+
+        this.activeCartridgeConfig = cartridgeConfig;
+        this.logger.debug('Using detected cartridge config', {
+          cartridge: cartridgeConfig.cartridge,
+          type: cartridgeConfig.type,
+          breakpointLine: cartridgeConfig.breakpointLine,
+        });
+      }
+
+      // Step 2: Enable the debugger (create client)
+      await this.enableDebugger();
+
+      // Step 3: Set breakpoint on Default.js controller
+      await this.setBreakpoint();
+
+      // Step 4: Trigger Default-Start via HTTP (async - don't await fully)
+      const triggerPromise = this.triggerDefaultStart(siteId);
+
+      // Step 5: Poll for halted thread
+      const thread = await this.waitForHaltedThread(timeout);
+
+      if (!thread) {
+        // Cleanup and return error
+        await this.cleanup();
+        return {
+          success: false,
+          error: 'Timeout waiting for script to hit breakpoint. The Default-Start endpoint may not have been triggered correctly.',
+          executionTimeMs: Date.now() - startTime,
+          warnings: [
+            `Ensure the site "${siteId}" exists and has app_storefront_base in its cartridge path`,
+            'Check that the Default-Start route is accessible',
+            'Verify script debugging is enabled',
+          ],
+        };
+      }
+
+      // Step 6: Evaluate the user's expression in the halted context
+      const evalResult = await this.evaluateInContext(thread.id, script);
+
+      // Step 7: Resume the thread
+      await this.resumeThread(thread.id);
+
+      // Wait for trigger to complete (ignore errors - thread already resumed)
+      try {
+        await triggerPromise;
+      } catch {
+        // Expected - the request may timeout or error after we resume
+      }
+
+      // Step 8: Cleanup
+      await this.cleanup();
+
+      return {
+        success: true,
+        result: evalResult,
+        executionTimeMs: Date.now() - startTime,
+        warnings: warnings.length > 0 ? warnings : undefined,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error('Script evaluation failed', { error: errorMessage });
+
+      // Always try to cleanup
+      try {
+        await this.cleanup();
+      } catch (cleanupError) {
+        this.logger.debug('Cleanup after error failed', { cleanupError });
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+        executionTimeMs: Date.now() - startTime,
+        warnings: this.getErrorGuidance(errorMessage),
+      };
+    }
+  }
+
+  /**
+   * Build and cache authentication header for debugger API
+   */
+  private getAuthHeader(): string {
+    if (this.cachedAuthHeader) {
+      return this.cachedAuthHeader;
+    }
+
+    let credentials: string;
+    if (this.config.username && this.config.password) {
+      credentials = `${this.config.username}:${this.config.password}`;
+    } else if (this.config.clientId && this.config.clientSecret) {
+      credentials = `${this.config.clientId}:${this.config.clientSecret}`;
+    } else {
+      throw new Error('No authentication credentials available');
+    }
+
+    this.cachedAuthHeader = `Basic ${Buffer.from(credentials).toString('base64')}`;
+    return this.cachedAuthHeader;
+  }
+
+  /**
+   * Get WebDAV client credentials
+   */
+  private getWebDAVCredentials(): { username: string; password: string } {
+    if (this.config.username && this.config.password) {
+      return { username: this.config.username, password: this.config.password };
+    }
+    if (this.config.clientId && this.config.clientSecret) {
+      return { username: this.config.clientId, password: this.config.clientSecret };
+    }
+    throw new Error('No authentication credentials available for WebDAV');
+  }
+
+  /**
+   * Get or create WebDAV client for cartridge verification
+   */
+  private getWebDAVClient(): WebDAVClient {
+    if (!this.webdavClient) {
+      const webdavUrl = `${this.protocol}://${this.config.hostname}/on/demandware.servlet/webdav/Sites/Cartridges/`;
+      this.webdavClient = createClient(webdavUrl, this.getWebDAVCredentials());
+    }
+    return this.webdavClient;
+  }
+
+  /**
+   * Check if a specific controller exists in the code version
+   */
+  private async controllerExists(config: CartridgeConfig): Promise<boolean> {
+    try {
+      const client = this.getWebDAVClient();
+      const codeVersion = this.config.codeVersion ?? 'version1';
+      const controllerPath = `/${codeVersion}/${config.cartridge}${config.controllerPath}`;
+
+      this.logger.debug('Checking controller exists', { controllerPath, type: config.type });
+
+      return await client.exists(controllerPath);
+    } catch (error) {
+      this.logger.debug('Controller check failed', {
+        cartridge: config.cartridge,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return false;
+    }
+  }
+
+  /**
+   * Detect which storefront cartridge is available (SFRA or SiteGenesis)
+   * Returns the cartridge config to use, or null if none found
+   */
+  private async detectStorefrontCartridge(): Promise<CartridgeConfig | null> {
+    // Try SFRA first (preferred)
+    if (await this.controllerExists(SFRA_CONFIG)) {
+      this.logger.debug('Detected SFRA storefront');
+      return SFRA_CONFIG;
+    }
+
+    // Fall back to SiteGenesis
+    if (await this.controllerExists(SITEGENESIS_CONFIG)) {
+      this.logger.debug('Detected SiteGenesis storefront');
+      return SITEGENESIS_CONFIG;
+    }
+
+    this.logger.debug('No compatible storefront cartridge found');
+    return null;
+  }
+
+  /**
+   * Make a request to the debugger API
+   */
+  private async debuggerRequest<T>(
+    method: string,
+    endpoint: string,
+    body?: unknown,
+  ): Promise<T> {
+    const url = `${this.debuggerBaseUrl}${endpoint}`;
+
+    this.logger.debug(`Debugger API ${method} ${endpoint}`);
+
+    const options: RequestInit = {
+      method,
+      headers: {
+        Authorization: this.getAuthHeader(),
+        'x-dw-client-id': this.debuggerClientId,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, options);
+
+    // 204 No Content is success for some operations
+    if (response.status === 204) {
+      return {} as T;
+    }
+
+    if (!response.ok) {
+      let errorMessage = `Debugger API error: ${response.status} ${response.statusText}`;
+      try {
+        const errorBody = (await response.json()) as FaultResponse;
+        if (errorBody.fault) {
+          errorMessage = `${errorBody.fault.type}: ${errorBody.fault.message}`;
+        }
+      } catch {
+        // Could not parse error body
+      }
+      throw new Error(errorMessage);
+    }
+
+    // Some endpoints return no body on success
+    const text = await response.text();
+    if (!text) {
+      return {} as T;
+    }
+
+    return JSON.parse(text) as T;
+  }
+
+  /**
+   * Enable the debugger by creating a client session
+   */
+  private async enableDebugger(): Promise<void> {
+    this.logger.debug('Enabling debugger');
+
+    try {
+      await this.debuggerRequest('POST', '/client');
+      this.isDebuggerEnabled = true;
+      this.logger.debug('Debugger enabled successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Check if another client already has the debugger
+      if (errorMessage.includes('DebuggerAlreadyEnabled') || errorMessage.includes('already')) {
+        this.logger.debug('Debugger already enabled by another client, attempting to take over');
+
+        // Delete existing client and retry
+        try {
+          await this.debuggerRequest('DELETE', '/client');
+          await this.debuggerRequest('POST', '/client');
+          this.isDebuggerEnabled = true;
+          this.logger.debug('Took over debugger session');
+          return;
+        } catch (retryError) {
+          throw new Error(`Failed to take over debugger session: ${retryError instanceof Error ? retryError.message : String(retryError)}`);
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Set a breakpoint on the controller
+   */
+  private async setBreakpoint(): Promise<number> {
+    if (!this.activeCartridgeConfig) {
+      throw new Error('No active cartridge config - call detectStorefrontCartridge first');
+    }
+
+    // For custom breakpoints, controllerPath is the full path
+    // For auto-detected, we combine cartridge + controllerPath
+    const scriptPath = this.activeCartridgeConfig.cartridge
+      ? `/${this.activeCartridgeConfig.cartridge}${this.activeCartridgeConfig.controllerPath}`
+      : this.activeCartridgeConfig.controllerPath;
+    const lineNumber = this.activeCartridgeConfig.breakpointLine;
+
+    this.logger.debug('Setting breakpoint', { scriptPath, line: lineNumber });
+
+    const response = await this.debuggerRequest<{ breakpoints: Array<{ id: number }> }>('POST', '/breakpoints', {
+      breakpoints: [
+        {
+          line_number: lineNumber,
+          script_path: scriptPath,
+        },
+      ],
+    });
+
+    if (!response.breakpoints || response.breakpoints.length === 0) {
+      throw new Error('Failed to create breakpoint');
+    }
+
+    const breakpointId = response.breakpoints[0].id;
+    this.logger.debug('Breakpoint set', { breakpointId });
+
+    return breakpointId;
+  }
+
+  /**
+   * Trigger the Default-Start endpoint via HTTP
+   */
+  private async triggerDefaultStart(siteId: string): Promise<void> {
+    // Use the simpler /s/{siteId}/ URL format
+    const url = `${this.protocol}://${this.config.hostname}/s/${siteId}/`;
+
+    this.logger.debug('Triggering Default-Start', { url, siteId });
+
+    try {
+      // Use AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TRIGGER_TIMEOUT_MS);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          Accept: 'text/html,application/xhtml+xml',
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      this.logger.debug('Default-Start trigger response', { status: response.status });
+    } catch (error) {
+      // This is expected - the request may hang while we're debugging
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (!errorMessage.includes('abort')) {
+        this.logger.debug('Trigger error (may be expected)', { error: errorMessage });
+      }
+    }
+  }
+
+  /**
+   * Wait for a thread to halt at our breakpoint
+   */
+  private async waitForHaltedThread(timeout: number): Promise<ScriptThread | null> {
+    const startTime = Date.now();
+
+    this.logger.debug('Waiting for halted thread', { timeout });
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        const response = await this.debuggerRequest<ThreadsResponse>('GET', '/threads');
+
+        if (response.script_threads && response.script_threads.length > 0) {
+          const haltedThread = response.script_threads.find((t) => t.status === 'halted');
+
+          if (haltedThread) {
+            this.logger.debug('Found halted thread', { threadId: haltedThread.id });
+
+            // Reset timeout to give us more time
+            await this.debuggerRequest('POST', '/threads/reset');
+
+            return haltedThread;
+          }
+        }
+      } catch (error) {
+        // Ignore errors during polling - thread might not exist yet
+        this.logger.debug('Thread poll error (may be normal)', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      // Wait before next poll
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    }
+
+    this.logger.debug('Timeout waiting for halted thread');
+    return null;
+  }
+
+  /**
+   * Evaluate an expression in the context of a halted thread
+   */
+  private async evaluateInContext(threadId: number, expression: string): Promise<string> {
+    // Frame 0 is the current execution point
+    const frameIndex = 0;
+
+    // URL encode the expression
+    const encodedExpr = encodeURIComponent(expression);
+
+    this.logger.debug('Evaluating expression', { threadId, frameIndex });
+
+    const response = await this.debuggerRequest<EvalResponse>(
+      'GET',
+      `/threads/${threadId}/frames/${frameIndex}/eval?expr=${encodedExpr}`,
+    );
+
+    return response.result ?? 'undefined';
+  }
+
+  /**
+   * Resume a halted thread
+   */
+  private async resumeThread(threadId: number): Promise<void> {
+    this.logger.debug('Resuming thread', { threadId });
+
+    try {
+      await this.debuggerRequest('POST', `/threads/${threadId}/resume`);
+    } catch (error) {
+      // Thread may have already completed
+      this.logger.debug('Resume thread error (may be expected)', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  /**
+   * Cleanup: remove breakpoints, disable debugger
+   */
+  private async cleanup(): Promise<void> {
+    this.logger.debug('Starting cleanup');
+
+    // Remove all breakpoints
+    try {
+      await this.debuggerRequest('DELETE', '/breakpoints');
+    } catch {
+      // Ignore errors
+    }
+
+    // Disable debugger (also resumes any halted threads)
+    if (this.isDebuggerEnabled) {
+      try {
+        await this.debuggerRequest('DELETE', '/client');
+        this.isDebuggerEnabled = false;
+      } catch {
+        // Ignore errors
+      }
+    }
+
+    this.logger.debug('Cleanup complete');
+  }
+
+  /**
+   * Get guidance based on error message
+   */
+  private getErrorGuidance(errorMessage: string): string[] {
+    const guidance: string[] = [];
+
+    if (errorMessage.includes('NotAuthorizedException')) {
+      guidance.push('Ensure your Business Manager user has the "Modules - Script Debugger" functional permission');
+      guidance.push('Check that script debugging is enabled in Administration > Development Setup');
+    }
+
+    if (errorMessage.includes('ClientIdRequiredException')) {
+      guidance.push('The x-dw-client-id header is required for the Script Debugger API');
+    }
+
+    if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
+      guidance.push('The script execution may have timed out');
+      guidance.push('Ensure the site ID is correct and the Default-Start route is accessible');
+      guidance.push('Check that app_storefront_base is in the site\'s cartridge path');
+    }
+
+    if (guidance.length === 0) {
+      guidance.push('Check SFCC instance connectivity');
+      guidance.push('Verify your credentials are correct');
+      guidance.push('Ensure script debugging is enabled in Business Manager');
+    }
+
+    return guidance;
+  }
+
+  /**
+   * Test connectivity to the debugger API
+   */
+  async testConnection(): Promise<{ success: boolean; message: string }> {
+    try {
+      // Try to create and immediately delete a client to test connectivity
+      await this.enableDebugger();
+      await this.cleanup();
+
+      return {
+        success: true,
+        message: 'Successfully connected to Script Debugger API',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+}

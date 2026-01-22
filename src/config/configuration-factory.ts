@@ -100,6 +100,11 @@ export class ConfigurationFactory {
       config.siteId = dwConfig['site-id'];
     }
 
+    // Map code version if present
+    if (dwConfig['code-version']) {
+      config.codeVersion = dwConfig['code-version'];
+    }
+
     return config;
   }
 

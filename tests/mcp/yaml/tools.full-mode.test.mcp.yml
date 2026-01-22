@@ -15,7 +15,7 @@ description: "SFCC MCP Server - Full Mode comprehensive metadata validation and 
 # TOOL COUNT & AVAILABILITY VALIDATION
 # ==================================================================================
 tests:
-  - it: "should have exactly 39 tools available in full mode"
+  - it: "should have exactly 40 tools available in full mode"
     request:
       jsonrpc: "2.0"
       id: "full-tools-count"
@@ -26,7 +26,7 @@ tests:
         jsonrpc: "2.0"
         id: "full-tools-count"
         result:
-          tools: "match:arrayLength:39"
+          tools: "match:arrayLength:40"
       stderr: "toBeEmpty"
 
   - it: "should have significantly more tools than docs-only mode"
@@ -40,7 +40,7 @@ tests:
         jsonrpc: "2.0"
         id: "full-vs-docs-count"
         result:
-          tools: "match:arrayLength:39"  # More than docs-only 18 tools
+          tools: "match:arrayLength:40"  # More than docs-only 18 tools
       stderr: "toBeEmpty"
 
   - it: "should have proper tool structure with required fields"
