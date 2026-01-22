@@ -69,6 +69,7 @@ describe('ISMLToolHandler', () => {
     it('should not handle non-ISML tools', () => {
       expect(handler.canHandle('get_latest_error')).toBe(false);
       expect(handler.canHandle('sync_agent_instructions')).toBe(false);
+      expect(handler.canHandle('disable_agent_sync')).toBe(false);
       expect(handler.canHandle('unknown_tool')).toBe(false);
     });
   });

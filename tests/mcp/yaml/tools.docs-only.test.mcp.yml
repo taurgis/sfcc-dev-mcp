@@ -29,7 +29,7 @@ tests:
           tools: "match:type:array"
       stderr: "toBeEmpty"
 
-  - it: "should provide exactly 17 tools in docs-only mode"
+  - it: "should provide exactly 18 tools in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "tool-count-exact"
@@ -40,7 +40,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-exact"
         result:
-          tools: "match:arrayLength:17"
+          tools: "match:arrayLength:18"
       stderr: "toBeEmpty"
 
   - it: "should have non-empty tools array"
@@ -68,7 +68,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-range"
         result:
-          tools: "match:arrayLength:17"
+          tools: "match:arrayLength:18"
       stderr: "toBeEmpty"
 
   # ==================================================================================

@@ -93,9 +93,11 @@ Use these for ISML (Internet Store Markup Language) template development:
 - **`get_isml_categories`** - Get all ISML element categories with descriptions and counts
 
 ### 🧩 Agent Instructions / Skills
-Use this to install or merge bundled instructions (AGENTS.md + skills) into a workspace, user home, or temp directory:
+Use this to install or merge bundled instructions (AGENTS.md + skills) into a workspace, user home, or temp directory.
+**IMPORTANT**: Always ask the user for permission before calling sync_agent_instructions. If they decline, call disable_agent_sync instead.
 
-- **`sync_agent_instructions`** - Copy/merge bundled AGENTS.md + skills into the chosen destination
+- **`sync_agent_instructions`** - Copy/merge bundled AGENTS.md + skills into the chosen destination (ask user first!)
+- **`disable_agent_sync`** - Create mcp-dev.json with {"disableAgentSync": true} to permanently disable sync suggestions
 
 ### 🔧 System Object Definitions
 Use these for understanding SFCC data models and custom attributes:

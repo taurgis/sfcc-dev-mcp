@@ -281,11 +281,12 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
 
   test('should have exactly the expected tool set for docs-only mode', async () => {
     const tools = await client.listTools();
-    assert.equal(tools.length, 17, 'Should have exactly 17 tools in docs-only mode');
+    assert.equal(tools.length, 18, 'Should have exactly 18 tools in docs-only mode');
 
     const expectedTools = {
-      // Agent Instructions (1)
+      // Agent Instructions (2)
       'sync_agent_instructions': true,
+      'disable_agent_sync': true,
 
       // SFCC Documentation Tools (5)
       'get_sfcc_class_info': true,

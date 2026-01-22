@@ -83,7 +83,7 @@ npm run test:mcp:ci
 - **SFCC Documentation Tools** (5 tools): Class info, search, method discovery
 - **SFRA Documentation Tools** (5 tools): Documents, search, categories
 - **ISML Documentation Tools** (5 tools): Element docs, category browsing, search
-- **Agent Instruction Tools** (1 tool): Sync AGENTS.md + bundled skills into a workspace
+- **Agent Instruction Tools** (2 tools): Sync AGENTS.md + bundled skills into a workspace, disable sync suggestions
 - **Cartridge Generation Tools** (1 tool): Structure generation
 - **Tool Availability**: Verifies log/OCAPI tools are NOT available
 

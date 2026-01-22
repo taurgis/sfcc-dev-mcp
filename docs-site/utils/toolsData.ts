@@ -40,7 +40,7 @@ export const tools: ToolMeta[] = [
     name: 'sync_agent_instructions',
     category: 'Agent Instructions',
     mode: 'both',
-    description: 'Copy/merge AGENTS.md and bundled SFCC skills into a project, user home, or a temp directory (supports dry-run planning and merge strategies).',
+    description: 'Copy/merge AGENTS.md and bundled SFCC skills into a project, user home, or a temp directory. AI agents should ask user permission before calling this tool. Users can disable this suggestion by creating mcp-dev.json with {"disableAgentSync": true}.',
     params: [
       p('destinationType', 'project|user|temp (default: project)', false),
       p('preferredRoot', 'Optional workspace root path or name when multiple roots exist', false),
@@ -59,6 +59,21 @@ export const tools: ToolMeta[] = [
     ],
     tags: ['agents','skills','bootstrap','instructions'],
     popular: true
+  },
+  {
+    id: 'disable-agent-sync',
+    name: 'disable_agent_sync',
+    category: 'Agent Instructions',
+    mode: 'both',
+    description: 'Creates mcp-dev.json with {"disableAgentSync": true} to permanently disable agent sync suggestions. Call when user declines to install AGENTS.md and skills.',
+    params: [
+      p('preferredRoot', 'Optional workspace root path or name when multiple roots exist', false)
+    ],
+    examples: [
+      'Disable agent sync suggestions for this project',
+      'Create mcp-dev.json to opt out of sync prompts'
+    ],
+    tags: ['agents','config','disable']
   },
 
   // Documentation (SFCC classes)

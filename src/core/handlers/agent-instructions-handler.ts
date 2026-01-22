@@ -1,6 +1,7 @@
-import { HandlerContext } from './base-handler.js';
+import { HandlerContext, ToolExecutionContext } from './base-handler.js';
 import { SimpleClientHandler } from './simple-client-handler.js';
 import { AgentInstructionsClient } from '../../clients/agent-instructions-client.js';
+import { InstructionAdvisor } from '../instruction-advisor.js';
 import {
   AGENT_INSTRUCTION_TOOL_CONFIG,
   AgentInstructionToolName,
@@ -15,14 +16,33 @@ export class AgentInstructionsToolHandler extends SimpleClientHandler<
   AgentInstructionToolName,
   AgentInstructionsClient
 > {
+  private readonly instructionAdvisor: InstructionAdvisor;
+  private agentInstructionsClient: AgentInstructionsClient | null = null;
+
   constructor(context: HandlerContext) {
     const rootsService = context.workspaceRootsService ?? new WorkspaceRootsService(context.logger);
+    const client = new AgentInstructionsClient(rootsService);
     super(context, 'AgentInstructions', {
       toolConfig: AGENT_INSTRUCTION_TOOL_CONFIG,
       toolNameSet: AGENT_INSTRUCTION_TOOL_NAMES_SET,
       clientContextKey: 'agentInstructionsClient',
       clientDisplayName: 'Agent instructions',
-      createClient: () => new AgentInstructionsClient(rootsService),
+      createClient: () => {
+        this.agentInstructionsClient = client;
+        return client;
+      },
     });
+    this.instructionAdvisor = new InstructionAdvisor(client, context.logger);
+  }
+
+  /**
+   * Override to add instructionAdvisor to execution context
+   */
+  protected override async createExecutionContext(): Promise<ToolExecutionContext> {
+    const baseContext = await super.createExecutionContext();
+    return {
+      ...baseContext,
+      instructionAdvisor: this.instructionAdvisor,
+    };
   }
 }

@@ -5,7 +5,7 @@
 export const AGENT_INSTRUCTION_TOOLS = [
   {
     name: 'sync_agent_instructions',
-    description: 'ONLY FOR SALESFORCE B2C COMMERCE (SFCC) PROJECTS. If (and only if) the workspace appears to be an SFCC repo (common signals: dw.json present, a cartridges/ directory, or cartridge/* structure), ALWAYS RUN THIS FIRST when the workspace is missing AGENTS.md and/or a skills folder. This is a prerequisite tool that installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). When AGENTS.md is missing at the workspace root OR no skills directory exists (e.g., .github/skills, .cursor/skills, .claude/skills), run sync_agent_instructions before any other tool or code changes. Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .cursor/skills, .claude/skills).',
+    description: 'ONLY FOR SALESFORCE B2C COMMERCE (SFCC) PROJECTS. IMPORTANT: Before calling this tool, ALWAYS ASK THE USER if they want to install AGENTS.md and bundled SFCC skills into their project. If the user declines, do NOT call this tool - instead call disable_agent_sync to permanently disable this suggestion. This tool installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .cursor/skills, .claude/skills).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -52,6 +52,19 @@ export const AGENT_INSTRUCTION_TOOLS = [
         tempDir: {
           type: 'string',
           description: 'Custom directory to use when destinationType is temp.',
+        },
+      },
+    },
+  },
+  {
+    name: 'disable_agent_sync',
+    description: 'Creates or updates mcp-dev.json in the project root with {"disableAgentSync": true} to permanently disable agent sync suggestions. Call this when the user declines to install AGENTS.md and skills, so they will not be prompted again.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        preferredRoot: {
+          type: 'string',
+          description: 'Optional workspace root path or name to target when multiple roots are available.',
         },
       },
     },

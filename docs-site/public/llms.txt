@@ -34,7 +34,7 @@ Key architectural principles:
 - **SFCC Documentation Tools (5 tools)**: Complete API class information, method search, and namespace exploration
 - **SFRA Documentation Tools (5 tools)**: Enhanced Storefront Reference Architecture documentation with dynamic discovery
 - **ISML Documentation Tools (5 tools)**: ISML element reference, syntax, attributes, examples, and search
-- **Agent Instruction Tools (1 tool)**: Sync AGENTS.md + bundled skills into a workspace (supports dry-run planning and merge strategies)
+- **Agent Instruction Tools (2 tools)**: Sync AGENTS.md + bundled skills into a workspace (AI agents should ask user permission first), disable sync suggestions
 - **Log & Job Log Tools (13 tools)**: Real-time error monitoring, pattern matching, system health analysis, and job execution debugging
 - **System Object Tools (6 tools)**: Custom attribute discovery, site preference management, and schema exploration
 - **Cartridge Generation Tools (1 tool)**: Automated cartridge structure creation with complete project setup

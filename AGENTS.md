@@ -415,8 +415,9 @@ sfcc-dev-mcp/
    - Code version listing and management
    - Code version activation for deployment fixes
 
-9. **Agent Instruction Tools** (1 tool)
-   - Copy or merge AGENTS.md and bundled skills into the current workspace, user home, or a temp directory
+9. **Agent Instruction Tools** (2 tools)
+   - **sync_agent_instructions**: Copy or merge AGENTS.md and bundled skills into the current workspace (AI agents should ask user permission first)
+   - **disable_agent_sync**: Create mcp-dev.json to permanently disable sync suggestions when user declines
    - Supports dry-run planning, append/replace/skip strategies, and missing-only installs
 
 ### 🚀 Operating Modes
