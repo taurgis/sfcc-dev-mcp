@@ -166,7 +166,7 @@ export const tools: ToolMeta[] = [
       p('locale', 'Storefront locale segment for the trigger request (default: default)', false),
       p('timeout', 'Max execution time in ms (default: 30000)', false),
       p('breakpointFile', 'Custom controller path for breakpoint (auto-detected by default)', false),
-      p('breakpointLine', 'Line number for breakpoint (default: 1)', false)
+      p('breakpointLine', 'Specific line for single breakpoint (default: lines 1-50)', false)
     ],
     examples: [
       'Execute dw.system.Site.current.ID to get the current site ID',

@@ -25,8 +25,8 @@ const DEFAULT_LOCALE = 'default';
 /** Polling interval when waiting for halted thread */
 const POLL_INTERVAL_MS = 500;
 
-/** Timeout for the storefront trigger request */
-const TRIGGER_TIMEOUT_MS = 60000;
+/** Timeout for the storefront trigger request (short - we expect it to hang at breakpoint) */
+const TRIGGER_TIMEOUT_MS = 10000;
 
 /**
  * Result of a script evaluation
@@ -77,13 +77,17 @@ interface FaultResponse {
   };
 }
 
+/** Strategic breakpoint lines to catch executable code without overhead */
+const DEFAULT_BREAKPOINT_LINES = [1, 10, 20, 30, 40, 50];
+
 /**
  * Cartridge configuration for breakpoint targeting
  */
 interface CartridgeConfig {
   cartridge: string;
   controllerPath: string;
-  breakpointLine: number;
+  /** Single line or array of lines for breakpoints */
+  breakpointLines: number | number[];
   type: 'sfra' | 'sitegenesis';
 }
 
@@ -91,7 +95,7 @@ interface CartridgeConfig {
 const SFRA_CONFIG: CartridgeConfig = {
   cartridge: 'app_storefront_base',
   controllerPath: '/cartridge/controllers/Default.js',
-  breakpointLine: 1, // Default to top-of-file breakpoint unless overridden
+  breakpointLines: DEFAULT_BREAKPOINT_LINES, // Lines 1-50 to catch executable code
   type: 'sfra',
 };
 
@@ -99,7 +103,7 @@ const SFRA_CONFIG: CartridgeConfig = {
 const SITEGENESIS_CONFIG: CartridgeConfig = {
   cartridge: 'app_storefront_controllers',
   controllerPath: '/cartridge/controllers/Default.js',
-  breakpointLine: 1, // Default to top-of-file breakpoint unless overridden
+  breakpointLines: DEFAULT_BREAKPOINT_LINES, // Lines 1-50 to catch executable code
   type: 'sitegenesis',
 };
 
@@ -174,16 +178,17 @@ export class ScriptDebuggerClient {
     try {
       // Step 1: Use custom breakpoint or detect storefront cartridge
       if (options.breakpointFile) {
-        // Use custom breakpoint configuration
+        // Use custom breakpoint configuration - single line or default to lines 1-50
+        const customLines = options.breakpointLine ? [options.breakpointLine] : DEFAULT_BREAKPOINT_LINES;
         this.activeCartridgeConfig = {
           cartridge: '', // Not used for custom - path is complete
           controllerPath: options.breakpointFile,
-          breakpointLine: options.breakpointLine ?? 1,
+          breakpointLines: customLines,
           type: 'sfra', // Doesn't matter for custom
         };
         this.logger.debug('Using custom breakpoint', {
           file: options.breakpointFile,
-          line: options.breakpointLine ?? 1,
+          lines: options.breakpointLine ?? '1-50',
         });
       } else {
         // Auto-detect storefront cartridge (SFRA or SiteGenesis)
@@ -206,15 +211,15 @@ export class ScriptDebuggerClient {
         this.logger.debug('Using detected cartridge config', {
           cartridge: cartridgeConfig.cartridge,
           type: cartridgeConfig.type,
-          breakpointLine: cartridgeConfig.breakpointLine,
+          breakpointLines: '1-50',
         });
       }
 
       // Step 2: Enable the debugger (create client)
       await this.enableDebugger();
 
-      // Step 3: Set breakpoint on Default.js controller
-      await this.setBreakpoint();
+      // Step 3: Set breakpoints on Default.js controller (lines 1-50 by default)
+      await this.setBreakpoints();
 
       // Step 4: Trigger Default-Start via HTTP (async - don't await fully)
       const triggerPromise = this.triggerDefaultStart(siteId, locale);
@@ -240,18 +245,30 @@ export class ScriptDebuggerClient {
       // Step 6: Evaluate the user's expression in the halted context
       const evalResult = await this.evaluateInContext(thread.id, script);
 
-      // Step 7: Resume the thread
-      await this.resumeThread(thread.id);
-
-      // Wait for trigger to complete (ignore errors - thread already resumed)
+      // Step 7: Delete breakpoints immediately (we have our result)
       try {
-        await triggerPromise;
+        await this.debuggerRequest('DELETE', '/breakpoints');
       } catch {
-        // Expected - the request may timeout or error after we resume
+        // Ignore - best effort cleanup
       }
 
-      // Step 8: Cleanup
-      await this.cleanup();
+      // Step 8: Resume the thread
+      await this.resumeThread(thread.id);
+
+      // Step 9: Disable debugger client (don't wait for trigger - it will complete/timeout on its own)
+      if (this.isDebuggerEnabled) {
+        try {
+          await this.debuggerRequest('DELETE', '/client');
+          this.isDebuggerEnabled = false;
+        } catch {
+          // Ignore
+        }
+      }
+
+      // Don't await triggerPromise - let it complete/timeout in background
+      triggerPromise.catch(() => {
+        // Expected - request may timeout after thread resumes
+      });
 
       return {
         success: true,
@@ -454,9 +471,10 @@ export class ScriptDebuggerClient {
   }
 
   /**
-   * Set a breakpoint on the controller
+   * Set breakpoints on the controller.
+   * Creates multiple breakpoints (lines 1-50 by default) to ensure we catch executable code.
    */
-  private async setBreakpoint(): Promise<number> {
+  private async setBreakpoints(): Promise<number[]> {
     if (!this.activeCartridgeConfig) {
       throw new Error('No active cartridge config - call detectStorefrontCartridge first');
     }
@@ -466,27 +484,32 @@ export class ScriptDebuggerClient {
     const scriptPath = this.activeCartridgeConfig.cartridge
       ? `/${this.activeCartridgeConfig.cartridge}${this.activeCartridgeConfig.controllerPath}`
       : this.activeCartridgeConfig.controllerPath;
-    const lineNumber = this.activeCartridgeConfig.breakpointLine;
 
-    this.logger.debug('Setting breakpoint', { scriptPath, line: lineNumber });
+    // Normalize to array of line numbers
+    const lineNumbers = Array.isArray(this.activeCartridgeConfig.breakpointLines)
+      ? this.activeCartridgeConfig.breakpointLines
+      : [this.activeCartridgeConfig.breakpointLines];
+
+    this.logger.debug('Setting breakpoints', { scriptPath, lines: lineNumbers.length > 5 ? `${lineNumbers[0]}-${lineNumbers[lineNumbers.length - 1]}` : lineNumbers });
+
+    // Create breakpoint objects for all lines
+    const breakpointRequests = lineNumbers.map((line) => ({
+      line_number: line,
+      script_path: scriptPath,
+    }));
 
     const response = await this.debuggerRequest<{ breakpoints: Array<{ id: number }> }>('POST', '/breakpoints', {
-      breakpoints: [
-        {
-          line_number: lineNumber,
-          script_path: scriptPath,
-        },
-      ],
+      breakpoints: breakpointRequests,
     });
 
     if (!response.breakpoints || response.breakpoints.length === 0) {
-      throw new Error('Failed to create breakpoint');
+      throw new Error('Failed to create breakpoints');
     }
 
-    const breakpointId = response.breakpoints[0].id;
-    this.logger.debug('Breakpoint set', { breakpointId });
+    const breakpointIds = response.breakpoints.map((bp) => bp.id);
+    this.logger.debug('Breakpoints set', { count: breakpointIds.length });
 
-    return breakpointId;
+    return breakpointIds;
   }
 
   /**

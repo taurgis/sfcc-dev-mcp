@@ -189,8 +189,8 @@ const ScriptDebuggerPage: React.FC = () => {
               <tr>
                 <td className="p-3 border border-slate-200 font-mono text-purple-700">breakpointLine</td>
                 <td className="p-3 border border-slate-200"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium">No</span></td>
-                <td className="p-3 border border-slate-200 font-mono text-sm">1</td>
-                <td className="p-3 border border-slate-200">Line number for breakpoint (defaults to 1 when not provided)</td>
+                <td className="p-3 border border-slate-200 font-mono text-sm">1-50</td>
+                <td className="p-3 border border-slate-200">Specific line for a single breakpoint; if omitted, lines 1-50 are used</td>
               </tr>
             </tbody>
           </table>

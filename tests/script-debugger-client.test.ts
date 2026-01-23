@@ -313,12 +313,12 @@ describe('ScriptDebuggerClient', () => {
       expect(mockExists).not.toHaveBeenCalled();
     });
 
-    it('should default custom breakpoint line to 1 when not provided', async () => {
+    it('should default to lines 1-50 when breakpointLine not provided', async () => {
       global.fetch = createMockFetch({
         'GET /eval': () => ({
           ok: true,
           status: 200,
-          text: async () => JSON.stringify({ result: 'custom-default-line' }),
+          text: async () => JSON.stringify({ result: 'custom-default-lines' }),
         }),
       });
 
@@ -328,7 +328,7 @@ describe('ScriptDebuggerClient', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.result).toBe('custom-default-line');
+      expect(result.result).toBe('custom-default-lines');
       expect(mockExists).not.toHaveBeenCalled();
     });
 
