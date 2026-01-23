@@ -170,6 +170,15 @@ describe('evaluate_script - Full Mode Programmatic Tests', () => {
       assertSuccessResponse(result);
     });
 
+    test('should accept custom breakpoint file without line (defaults to 1)', async () => {
+      const result = await client.callTool('evaluate_script', {
+        script: '1 + 1',
+        breakpointFile: '/app_storefront_base/cartridge/controllers/Default.js'
+      });
+
+      assertSuccessResponse(result);
+    });
+
     test('should use default siteId when not provided', async () => {
       const result = await client.callTool('evaluate_script', {
         script: '1 + 1'

@@ -36,10 +36,17 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
         toolName,
       );
 
-      // If breakpointFile is provided, breakpointLine must also be provided
-      if (args.breakpointFile && !args.breakpointLine) {
-        throw new Error('breakpointLine is required when breakpointFile is specified');
-      }
+      // Optional breakpointLine (defaults to 1 when breakpointFile is provided)
+      ValidationHelpers.validateArguments(
+        args,
+        CommonValidations.optionalField(
+          'breakpointLine',
+          'number',
+          (value: number) => Number.isInteger(value) && value >= 1,
+          'breakpointLine must be an integer >= 1 when provided',
+        ),
+        toolName,
+      );
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.scriptDebuggerClient as ScriptDebuggerClient;

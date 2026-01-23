@@ -313,6 +313,25 @@ describe('ScriptDebuggerClient', () => {
       expect(mockExists).not.toHaveBeenCalled();
     });
 
+    it('should default custom breakpoint line to 1 when not provided', async () => {
+      global.fetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'custom-default-line' }),
+        }),
+      });
+
+      const result = await client.evaluateScript('test', {
+        breakpointFile: '/my_cartridge/cartridge/controllers/Test.js',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('custom-default-line');
+      expect(mockExists).not.toHaveBeenCalled();
+    });
+
     it('should handle debugger already enabled by taking over session', async () => {
       mockExists.mockResolvedValue(true);
 

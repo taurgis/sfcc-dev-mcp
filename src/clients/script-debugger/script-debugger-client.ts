@@ -91,7 +91,7 @@ interface CartridgeConfig {
 const SFRA_CONFIG: CartridgeConfig = {
   cartridge: 'app_storefront_base',
   controllerPath: '/cartridge/controllers/Default.js',
-  breakpointLine: 26, // Inside server.get('Start', ...) handler
+  breakpointLine: 1, // Default to top-of-file breakpoint unless overridden
   type: 'sfra',
 };
 
@@ -99,7 +99,7 @@ const SFRA_CONFIG: CartridgeConfig = {
 const SITEGENESIS_CONFIG: CartridgeConfig = {
   cartridge: 'app_storefront_controllers',
   controllerPath: '/cartridge/controllers/Default.js',
-  breakpointLine: 10, // var app = require line
+  breakpointLine: 1, // Default to top-of-file breakpoint unless overridden
   type: 'sitegenesis',
 };
 
@@ -173,17 +173,17 @@ export class ScriptDebuggerClient {
 
     try {
       // Step 1: Use custom breakpoint or detect storefront cartridge
-      if (options.breakpointFile && options.breakpointLine) {
+      if (options.breakpointFile) {
         // Use custom breakpoint configuration
         this.activeCartridgeConfig = {
           cartridge: '', // Not used for custom - path is complete
           controllerPath: options.breakpointFile,
-          breakpointLine: options.breakpointLine,
+          breakpointLine: options.breakpointLine ?? 1,
           type: 'sfra', // Doesn't matter for custom
         };
         this.logger.debug('Using custom breakpoint', {
           file: options.breakpointFile,
-          line: options.breakpointLine,
+          line: options.breakpointLine ?? 1,
         });
       } else {
         // Auto-detect storefront cartridge (SFRA or SiteGenesis)

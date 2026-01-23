@@ -196,6 +196,30 @@ tests:
     performance:
       maxResponseTime: "10000ms"
 
+  - it: "should accept custom breakpoint file without line (defaults to 1)"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-custom-bp-default-line"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          breakpointFile: "/app_storefront_base/cartridge/controllers/Default.js"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-custom-bp-default-line"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
   # SFCC API simulation tests
   - it: "should evaluate Site.current.ID expression"
     request:
