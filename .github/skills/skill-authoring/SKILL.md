@@ -31,7 +31,7 @@ description: Brief description of what the skill does
 ```
 
 - **name**: Unique identifier (lowercase, hyphens)
-- **description**: One-line summary (loaded at startup for all skills)
+- **description**: One-line summary (loaded at startup for all skills - a maximum of 1000 characters)
 
 ### Instructions Body
 
@@ -216,7 +216,7 @@ For complete API documentation, see [Official Docs](https://example.com/docs).
 Before publishing a skill:
 
 - [ ] Frontmatter has `name` and `description`
-- [ ] SKILL.md under 500 lines
+- [ ] SKILL.md under 400 lines
 - [ ] Key information appears early
 - [ ] Examples are concrete and runnable
 - [ ] Reference links are valid
