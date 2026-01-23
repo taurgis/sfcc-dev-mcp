@@ -22,7 +22,8 @@ The `evaluate_script` tool allows you to execute arbitrary JavaScript code on an
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
 | `script` | Yes | - | The JavaScript code to execute |
-| `siteId` | No | `RefArch` | The site ID (formatted automatically as `Sites-{siteId}-Site`) |
+| `siteId` | No | `RefArch` | The site ID (accepts either `RefArch` or `Sites-RefArch-Site`) |
+| `locale` | No | `default` | Storefront locale segment used when triggering the controller (tries without locale first, then retries with `/{locale}` if needed) |
 | `timeout` | No | `30000` | Maximum execution time in milliseconds |
 | `breakpointFile` | No | Auto-detected | Custom controller path for breakpoint |
 | `breakpointLine` | No | `26` | Line number for breakpoint |
