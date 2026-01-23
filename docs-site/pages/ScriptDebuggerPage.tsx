@@ -169,6 +169,12 @@ const ScriptDebuggerPage: React.FC = () => {
                 <td className="p-3 border border-slate-200">Site ID (auto-formatted as <code>Sites-&#123;siteId&#125;-Site</code>)</td>
               </tr>
               <tr>
+                <td className="p-3 border border-slate-200 font-mono text-purple-700">locale</td>
+                <td className="p-3 border border-slate-200"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium">No</span></td>
+                <td className="p-3 border border-slate-200 font-mono text-sm">default</td>
+                <td className="p-3 border border-slate-200">Storefront locale segment for the trigger request (locale-less trigger is attempted first, then locale is used as fallback)</td>
+              </tr>
+              <tr>
                 <td className="p-3 border border-slate-200 font-mono text-purple-700">timeout</td>
                 <td className="p-3 border border-slate-200"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium">No</span></td>
                 <td className="p-3 border border-slate-200 font-mono text-sm">30000</td>

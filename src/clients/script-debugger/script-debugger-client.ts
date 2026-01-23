@@ -19,6 +19,9 @@ const DEFAULT_TIMEOUT_MS = 30000;
 /** Default site ID if none provided */
 const DEFAULT_SITE_ID = 'RefArch';
 
+/** Default locale if none provided */
+const DEFAULT_LOCALE = 'default';
+
 /** Polling interval when waiting for halted thread */
 const POLL_INTERVAL_MS = 500;
 
@@ -150,6 +153,7 @@ export class ScriptDebuggerClient {
     options: {
       timeout?: number;
       siteId?: string;
+      locale?: string;
       breakpointFile?: string;
       breakpointLine?: number;
     } = {},
@@ -157,6 +161,7 @@ export class ScriptDebuggerClient {
     const startTime = Date.now();
     const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
     const siteId = options.siteId ?? DEFAULT_SITE_ID;
+    const locale = this.normalizeLocale(options.locale ?? DEFAULT_LOCALE);
     const warnings: string[] = [];
 
     this.logger.debug('Starting script evaluation', {
@@ -212,7 +217,7 @@ export class ScriptDebuggerClient {
       await this.setBreakpoint();
 
       // Step 4: Trigger Default-Start via HTTP (async - don't await fully)
-      const triggerPromise = this.triggerDefaultStart(siteId);
+      const triggerPromise = this.triggerDefaultStart(siteId, locale);
 
       // Step 5: Poll for halted thread
       const thread = await this.waitForHaltedThread(timeout);
@@ -485,16 +490,58 @@ export class ScriptDebuggerClient {
   }
 
   /**
+   * Normalize site ID - extract the ID from "Sites-{id}-Site" format if needed
+   */
+  private normalizeSiteId(siteId: string): string {
+    const match = siteId.match(/^Sites-(.+)-Site$/i);
+    return match ? match[1] : siteId;
+  }
+
+  /**
+   * Normalize locale value by trimming and removing leading/trailing slashes
+   */
+  private normalizeLocale(locale: string): string {
+    const trimmed = locale.trim();
+    const cleaned = trimmed.replace(/^\/+/, '').replace(/\/+$/, '');
+    return cleaned.length > 0 ? cleaned : DEFAULT_LOCALE;
+  }
+
+  /**
    * Trigger the Default-Start endpoint via HTTP
    */
-  private async triggerDefaultStart(siteId: string): Promise<void> {
-    // Use the simpler /s/{siteId}/ URL format
-    const url = `${this.protocol}://${this.config.hostname}/s/${siteId}/`;
+  private async triggerDefaultStart(siteId: string, locale: string): Promise<void> {
+    // Normalize site ID in case it's passed as "Sites-{id}-Site"
+    const normalizedSiteId = this.normalizeSiteId(siteId);
+    const normalizedLocale = this.normalizeLocale(locale);
 
-    this.logger.debug('Triggering Default-Start', { url, siteId });
+    // Some instances require the classic storefront URL format.
+    // First try without locale (may redirect), then fall back to explicit locale.
+    const siteSegment = `Sites-${normalizedSiteId}-Site`;
+    const baseUrl = `${this.protocol}://${this.config.hostname}/on/demandware.store/${siteSegment}`;
+    const urlWithoutLocale = `${baseUrl}/`;
+    const urlWithLocale = `${baseUrl}/${normalizedLocale}`;
 
+    this.logger.debug('Triggering Default-Start', {
+      siteId: normalizedSiteId,
+      locale: normalizedLocale,
+      urlWithoutLocale,
+      urlWithLocale,
+    });
+
+    const shouldRetryWithLocale = await this.triggerStorefrontUrl(urlWithoutLocale);
+    if (shouldRetryWithLocale) {
+      await this.triggerStorefrontUrl(urlWithLocale);
+    }
+  }
+
+  /**
+   * Trigger a storefront URL. Returns true if caller should retry with a fallback URL.
+   *
+   * Important: When debugging is active, the request may hang (and get aborted by timeout)
+   * after successfully hitting the breakpoint. In that case we should NOT retry.
+   */
+  private async triggerStorefrontUrl(url: string): Promise<boolean> {
     try {
-      // Use AbortController for timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), TRIGGER_TIMEOUT_MS);
 
@@ -508,13 +555,25 @@ export class ScriptDebuggerClient {
 
       clearTimeout(timeoutId);
 
-      this.logger.debug('Default-Start trigger response', { status: response.status });
+      if (!response.ok) {
+        this.logger.debug('Storefront trigger non-OK response', { url, status: response.status });
+        return true;
+      }
+
+      this.logger.debug('Storefront trigger response', { url, status: response.status });
+      return false;
     } catch (error) {
       // This is expected - the request may hang while we're debugging
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (!errorMessage.includes('abort')) {
-        this.logger.debug('Trigger error (may be expected)', { error: errorMessage });
+      const isAbort = (error instanceof Error && error.name === 'AbortError') || errorMessage.toLowerCase().includes('abort');
+
+      if (isAbort) {
+        // Treat as success: likely hit the breakpoint and is now halted
+        return false;
       }
+
+      this.logger.debug('Storefront trigger error', { url, error: errorMessage });
+      return true;
     }
   }
 

@@ -61,6 +61,11 @@ Examples:
           description: 'The site ID to execute the script against (e.g., "RefArch", "RefArchGlobal").',
           default: 'RefArch',
         },
+        locale: {
+          type: 'string',
+          description: 'Storefront locale segment to use when triggering the Default-Start request (default: "default"). If the instance supports locale-less trigger, it will be tried first and locale will be used as fallback.',
+          default: 'default',
+        },
         breakpointFile: {
           type: 'string',
           description: `Optional: Custom controller file path for the breakpoint. Use this if automatic detection fails.

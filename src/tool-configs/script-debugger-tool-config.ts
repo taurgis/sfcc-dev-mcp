@@ -24,6 +24,18 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
         toolName,
       );
 
+      // Optional locale
+      ValidationHelpers.validateArguments(
+        args,
+        CommonValidations.optionalField(
+          'locale',
+          'string',
+          (value: string) => value.trim().length > 0,
+          'locale must be a non-empty string when provided',
+        ),
+        toolName,
+      );
+
       // If breakpointFile is provided, breakpointLine must also be provided
       if (args.breakpointFile && !args.breakpointLine) {
         throw new Error('breakpointLine is required when breakpointFile is specified');
@@ -34,6 +46,7 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
       const result = await client.evaluateScript(args.script as string, {
         timeout: args.timeout as number | undefined,
         siteId: args.siteId as string | undefined,
+        locale: args.locale as string | undefined,
         breakpointFile: args.breakpointFile as string | undefined,
         breakpointLine: args.breakpointLine as number | undefined,
       });

@@ -163,6 +163,7 @@ export const tools: ToolMeta[] = [
     params: [
       p('script', 'The JavaScript code to execute (use dw.* APIs directly)'),
       p('siteId', 'Site ID to execute against (default: RefArch)', false),
+      p('locale', 'Storefront locale segment for the trigger request (default: default)', false),
       p('timeout', 'Max execution time in ms (default: 30000)', false),
       p('breakpointFile', 'Custom controller path for breakpoint (auto-detected by default)', false),
       p('breakpointLine', 'Line number for breakpoint (default: auto-detected)', false)

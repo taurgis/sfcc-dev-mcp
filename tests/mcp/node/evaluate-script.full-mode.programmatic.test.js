@@ -133,6 +133,24 @@ describe('evaluate_script - Full Mode Programmatic Tests', () => {
       assertSuccessResponse(result);
     });
 
+    test('should accept siteId in Sites-{id}-Site format', async () => {
+      const result = await client.callTool('evaluate_script', {
+        script: '1 + 1',
+        siteId: 'Sites-RefArchGlobal-Site'
+      });
+
+      assertSuccessResponse(result);
+    });
+
+    test('should accept locale parameter', async () => {
+      const result = await client.callTool('evaluate_script', {
+        script: '1 + 1',
+        locale: 'default'
+      });
+
+      assertSuccessResponse(result);
+    });
+
     test('should accept timeout parameter', async () => {
       const result = await client.callTool('evaluate_script', {
         script: '1 + 1',
@@ -264,6 +282,7 @@ describe('evaluate_script - Full Mode Programmatic Tests', () => {
       const props = evalTool.inputSchema.properties;
       assert.ok(props.script, 'Should have script property');
       assert.ok(props.siteId, 'Should have siteId property');
+      assert.ok(props.locale, 'Should have locale property');
       assert.ok(props.timeout, 'Should have timeout property');
     });
 

@@ -26,7 +26,24 @@ function createMockFetch(responses: Record<string, () => any>) {
     const defaultResponse = (data: any) => data as unknown as Response;
 
     // Handle storefront trigger (not part of debugger API)
-    if (urlStr.includes('/s/') && !urlStr.includes('/dw/debugger')) {
+    // The client may use either the modern /s/{siteId}/ URL or the classic /on/demandware.store/ URL.
+    const isStorefrontTrigger =
+      (urlStr.includes('/s/') || urlStr.includes('/on/demandware.store/')) && !urlStr.includes('/dw/debugger');
+
+    if (isStorefrontTrigger) {
+      // Allow tests to override storefront behavior
+      const isClassicNoLocale =
+        urlStr.includes('/on/demandware.store/') && /\/Sites-[^/]+-Site\/$/.test(urlStr);
+
+      if (isClassicNoLocale && responses['GET /storefront/no-locale']) {
+        return defaultResponse(responses['GET /storefront/no-locale']());
+      }
+
+      const isClassicWithLocale = urlStr.includes('/on/demandware.store/') && !/\/Sites-[^/]+-Site\/$/.test(urlStr);
+      if (isClassicWithLocale && responses['GET /storefront/with-locale']) {
+        return defaultResponse(responses['GET /storefront/with-locale']());
+      }
+
       return defaultResponse({ ok: true, status: 200, text: async () => '<html></html>' });
     }
 
@@ -183,12 +200,63 @@ describe('ScriptDebuggerClient', () => {
 
       const result = await client.evaluateScript('1 + 1', {
         siteId: 'RefArch',
+        locale: 'default',
         timeout: 5000,
       });
 
       expect(result.success).toBe(true);
       expect(result.result).toBe('2');
       expect(result.executionTimeMs).toBeDefined();
+    });
+
+    it('should accept siteId in "Sites-{id}-Site" format', async () => {
+      mockExists.mockResolvedValue(true);
+      global.fetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'ok' }),
+        }),
+      });
+
+      const result = await client.evaluateScript('test', {
+        siteId: 'Sites-RefArchGlobal-Site',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('ok');
+    });
+
+    it('should retry storefront trigger with locale when no-locale request returns non-OK', async () => {
+      mockExists.mockResolvedValue(true);
+      global.fetch = createMockFetch({
+        'GET /storefront/no-locale': () => ({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          text: async () => '',
+        }),
+        'GET /storefront/with-locale': () => ({
+          ok: true,
+          status: 200,
+          text: async () => '<html></html>',
+        }),
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'fallback' }),
+        }),
+      });
+
+      const result = await client.evaluateScript('test', {
+        siteId: 'RefArchGlobal',
+        locale: 'default',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('fallback');
     });
 
     it('should return error when no storefront cartridge found', async () => {

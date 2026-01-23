@@ -97,6 +97,54 @@ tests:
     performance:
       maxResponseTime: "10000ms"
 
+  - it: "should accept siteId in Sites-{id}-Site format"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-site-sites-format"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          siteId: "Sites-RefArchGlobal-Site"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-site-sites-format"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
+  - it: "should accept locale parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "eval-locale"
+      method: "tools/call"
+      params:
+        name: "evaluate_script"
+        arguments:
+          script: "1 + 1"
+          locale: "default"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "eval-locale"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:success"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "10000ms"
+
   # Timeout parameter tests
   - it: "should accept custom timeout value"
     request:
