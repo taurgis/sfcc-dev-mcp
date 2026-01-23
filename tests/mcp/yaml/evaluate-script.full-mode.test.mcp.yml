@@ -196,7 +196,7 @@ tests:
     performance:
       maxResponseTime: "10000ms"
 
-  - it: "should accept custom breakpoint file without line (defaults to lines 1-50)"
+  - it: "should accept custom breakpoint file without line (defaults to strategic lines)"
     request:
       jsonrpc: "2.0"
       id: "eval-custom-bp-default-line"

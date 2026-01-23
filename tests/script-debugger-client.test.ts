@@ -313,7 +313,7 @@ describe('ScriptDebuggerClient', () => {
       expect(mockExists).not.toHaveBeenCalled();
     });
 
-    it('should default to lines 1-50 when breakpointLine not provided', async () => {
+    it('should default to strategic lines when breakpointLine not provided', async () => {
       global.fetch = createMockFetch({
         'GET /eval': () => ({
           ok: true,

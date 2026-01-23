@@ -74,7 +74,7 @@ Example: "/app_storefront_base/cartridge/controllers/Default.js"`,
         },
         breakpointLine: {
           type: 'number',
-          description: 'Optional: Specific line number for a single breakpoint. If omitted, breakpoints are set on lines 1-50 to catch executable code reliably.',
+          description: 'Optional: Specific line number for a single breakpoint. If omitted, breakpoints are set on strategic lines (1, 10, 20, 30, 40, 50) to catch executable code.',
         },
       },
       required: ['script'],

@@ -188,7 +188,7 @@ export class ScriptDebuggerClient {
         };
         this.logger.debug('Using custom breakpoint', {
           file: options.breakpointFile,
-          lines: options.breakpointLine ?? '1-50',
+          lines: options.breakpointLine ?? 'strategic (1,10,20,30,40,50)',
         });
       } else {
         // Auto-detect storefront cartridge (SFRA or SiteGenesis)
@@ -211,7 +211,7 @@ export class ScriptDebuggerClient {
         this.logger.debug('Using detected cartridge config', {
           cartridge: cartridgeConfig.cartridge,
           type: cartridgeConfig.type,
-          breakpointLines: '1-50',
+          breakpointLines: 'strategic (1,10,20,30,40,50)',
         });
       }
 

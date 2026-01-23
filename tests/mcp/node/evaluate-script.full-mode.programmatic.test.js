@@ -170,7 +170,7 @@ describe('evaluate_script - Full Mode Programmatic Tests', () => {
       assertSuccessResponse(result);
     });
 
-    test('should accept custom breakpoint file without line (defaults to lines 1-50)', async () => {
+    test('should accept custom breakpoint file without line (defaults to strategic lines)', async () => {
       const result = await client.callTool('evaluate_script', {
         script: '1 + 1',
         breakpointFile: '/app_storefront_base/cartridge/controllers/Default.js'

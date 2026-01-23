@@ -26,7 +26,7 @@ The `evaluate_script` tool allows you to execute arbitrary JavaScript code on an
 | `locale` | No | `default` | Storefront locale segment used when triggering the controller (tries without locale first, then retries with `/{locale}` if needed) |
 | `timeout` | No | `30000` | Maximum execution time in milliseconds |
 | `breakpointFile` | No | Auto-detected | Custom controller path for breakpoint |
-| `breakpointLine` | No | `1-50` | Specific line for a single breakpoint; if omitted, lines 1-50 are used to maximize chances of hitting executable code |
+| `breakpointLine` | No | `1,10,20,30,40,50` | Specific line for a single breakpoint; if omitted, strategic lines (1,10,20,30,40,50) are used |
 
 ## Script Syntax Rules
 
