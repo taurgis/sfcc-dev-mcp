@@ -25,19 +25,11 @@ This skill is for architecture decisions and recurring operational pitfalls:
 [ ] Include channel_id in guest token requests when required
 ```
 
-## OCAPI vs SCAPI: Practical Criteria
+## OCAPI vs SCAPI: Official distinctions
 
-| Consideration | OCAPI | SCAPI |
-|---|---:|---:|
-| Shopper APIs | OCAPI endpoints can accept SLAS JWTs when the SLAS client is allowed | Shopper APIs are SLAS-first |
-| Admin APIs | OCAPI uses OCAPI client configuration | Admin APIs use Account Manager (AM), not SLAS |
-| Coverage | Often broader legacy coverage | Growing; may have gaps |
-| Rate limiting | OCAPI client limits | SLAS and shopper endpoints return 429 + Retry-After |
-
-Rule of thumb:
-- If you're building a **headless storefront**, SCAPI + SLAS is typically the default.
-- If you need an API that SCAPI doesn't provide, OCAPI may still be necessary.
-- For admin operations, use SCAPI Admin APIs with AM tokens and avoid shopper SLAS tokens.
+- Shopper APIs use SLAS tokens. SLAS JWTs can be accepted by OCAPI endpoints when the SLAS client is allowed.
+- Admin APIs use Account Manager (AM) tokens, not shopper SLAS tokens.
+- Do not mix shopper SLAS clients with admin API access; request only the scopes required by the API family.
 
 ## SLAS: Token Lifecycle (The Most Common Failure)
 
@@ -82,6 +74,16 @@ Practical default:
 ### Service protection (409)
 SLAS may return 409 responses when the same endpoint is called repeatedly with the same USID in a short time. This usually indicates token churn or retry storms. Reduce token issuance and serialize refresh requests.
 
+### Troubleshooting quick map
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| 429 Too Many Requests + `Retry-After` | SLAS rate limit hit | Honor `Retry-After`, reuse tokens, and reduce token requests |
+| 400 `invalid_request` on guest token | Missing `channel_id` requirement | Include `channel_id` on guest token requests |
+| 400 `invalid_grant` or `Invalid Refresh Token` | Reused refresh token or wrong client type | Store the newly returned refresh token and validate client type/flow |
+| 409 Conflict | Service protection due to repeated calls with same USID | Throttle calls and serialize refreshes |
+| 401 Unauthorized | Access token expired or wrong audience/client | Refresh or re-auth with the correct client and scopes |
+
 ## Hybrid SFRA + Headless
 
 Older approach: cartridge-based bridging (e.g. `plugin_slas`) can introduce:
@@ -100,9 +102,7 @@ Newer approach: platform-native hybrid authentication (B2C Commerce 25.3+) reduc
   - https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization.html
 - Salesforce: Hybrid Auth (Commerce API)
   - https://developer.salesforce.com/docs/commerce/commerce-api/guide/hybrid-authentication.html
-- Rhino Inquisitor: OCAPI versus SCAPI
-  - https://www.rhino-inquisitor.com/in-the-ring-ocapi-versus-scapi/
-- Rhino Inquisitor: SLAS in SFRA or SiteGenesis (Hybrid Auth + security mandates)
-  - https://www.rhino-inquisitor.com/slas-in-sfra-or-sitegenesis/
 - Salesforce: Hybrid Auth overview
   - https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/hybrid-auth.html
+- Salesforce: Commerce API release notes (channel_id enforcement)
+  - https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#03182025
