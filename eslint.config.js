@@ -132,6 +132,8 @@ export default tseslint.config(
       '*.config.js',
       'jest.config.js',
       'tests/servers/**',
+      '.github/skills/salesforce-developer-site-scraper/scripts/**',
+      '.github/skills/salesforce-help-site-scraper/scripts/**',
     ],
   },
 );

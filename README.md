@@ -3,14 +3,15 @@
 [![npm version](https://badge.fury.io/js/sfcc-dev-mcp.svg)](https://badge.fury.io/js/sfcc-dev-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools and documentation.
+An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
 
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
+- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **🧾 ISML Template Reference** - Complete ISML element documentation with examples and patterns
-- **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
+- **� ISML Template Reference** - Complete ISML element documentation with examples and best practices
+- **�📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
@@ -29,7 +30,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-### Option 2: Authenticated Mode (dw.json)
+### Option 2: Full Mode (With SFCC credentials for log and job analysis)  
 ```json
 {
   "mcpServers": {
@@ -41,18 +42,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-Create a `dw.json` file with your SFCC credentials.
-
-Minimal (enables WebDAV tools: runtime logs + job logs):
-```json
-{
-  "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
-  "username": "your-username",
-  "password": "your-password"
-}
-```
-
-Add OAuth credentials to enable OCAPI Data API tools (system objects, site prefs, code versions):
+Create a `dw.json` file with your SFCC credentials:
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
@@ -64,7 +54,7 @@ Add OAuth credentials to enable OCAPI Data API tools (system objects, site prefs
 ```
 
 ### Option 3: Auto-Discovery (Recommended for VS Code users)
-Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover it and expose tools based on the credentials present (capability-gated):
+Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:
 ```json
 {
   "mcpServers": {
@@ -90,17 +80,15 @@ The server discovers SFCC credentials in this order (highest priority first):
 
 ## 🎯 Operating Modes
 
-Tool exposure is **capability-gated**: the server only advertises tools your current configuration can support.
-
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
-| **Documentation-Only** | 17 tools | ❌ No |
-| **WebDAV Mode (Logs + Job Logs)** | 30 tools | ✅ `hostname` + `username/password` |
-| **Full Mode (WebDAV + OCAPI)** | 38 tools | ✅ `hostname` + `client-id/client-secret` |
+| **Documentation-Only** | 21 tools | ❌ No |
+| **Full Mode** | 38 tools | ✅ Yes |
 
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
+- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
 - ISML template documentation (5 tools)
 - Cartridge generation (1 tool)
@@ -108,21 +96,19 @@ Perfect for learning and development - no SFCC instance required:
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
-- All documentation-only features (17 tools)
-- Real-time log analysis + job logs (13 tools)
-- System object definitions + site preference search (6 tools)
+- All documentation-only features (21 tools)
+- Real-time log analysis (13 tools)
+- System object definitions (6 tools)
 - Code version management (2 tools)
-
-> Note: If you provide only `hostname` + `username/password`, you'll get log + job log tools but not OCAPI Data API tools.
 
 ## 🏗️ Architecture Overview
 
 This server is built around a **capability-gated, modular handler architecture** that cleanly separates tool routing from domain logic:
 
 ### Core Layers
-- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
+- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, best practices, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
 - **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
-- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
+- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, best practices, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
@@ -203,8 +189,6 @@ The server writes logs to your system's temporary directory:
 // The exact path varies by system - to find yours:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 
-```
-
 ## 📖 Documentation
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
@@ -214,7 +198,6 @@ Quick Links:
 - **[AI Interface Setup](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces)** - Configure Claude Desktop, GitHub Copilot, or Cursor
 - **[Configuration Guide](https://taurgis.github.io/sfcc-dev-mcp/configuration)** - SFCC credentials and Data API setup
 - **[Available Tools](https://taurgis.github.io/sfcc-dev-mcp/tools)** - Complete tool reference
-- **[Agent Skills](https://taurgis.github.io/sfcc-dev-mcp/skills)** - Bundled skill packs (guidance) and how to sync them into your repo
 - **[Examples](https://taurgis.github.io/sfcc-dev-mcp/examples)** - Real-world usage patterns
 - **[Troubleshooting](https://taurgis.github.io/sfcc-dev-mcp/troubleshooting)** - Common issues and solutions
 
@@ -228,7 +211,7 @@ Quick Links:
 🤖 Analyzes recent error logs, identifies issues, and suggests fixes
 
 🧑‍💻 "Show me how to implement OCAPI hooks for order validation"
-🤖 Explains hook flow, required parameters, and sample implementations
+🤖 Provides best practices guide with complete hook implementation examples
 ```
 
 ## 🔒 Security Notes
@@ -254,7 +237,7 @@ Have ideas for new features or improvements? We'd love to hear from you!
 - **💡 Feature Requests**: Open an issue to discuss your ideas
 - **🐛 Bug Reports**: Help us improve by reporting any issues you encounter  
 - **🔧 Pull Requests**: Contribute code, documentation, or examples
-- **📚 Documentation**: Help expand our docs and bundled agent skills
+- **📚 Documentation**: Help expand our guides and best practices
 
 Check out our [Contributing Guide](CONTRIBUTING.md) to get started, or browse our [open issues](https://github.com/taurgis/sfcc-dev-mcp/issues) to see where you can help.
 
