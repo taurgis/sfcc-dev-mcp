@@ -170,6 +170,39 @@ var myAPIService = LocalServiceRegistry.createService('int_myapi.http.customer',
 - Use Business Manager service profiles for timeouts, rate limits, and circuit breaker behavior.
 - For comprehensive logging patterns including categories, custom log files, and log level checks, see **[sfcc-logging](../sfcc-logging/SKILL.md)**.
 
+## 2.3 HTTP Response Caching (Service Framework)
+
+For third-party APIs with stable responses (for short periods), you can enable response caching at the HTTP client level inside your service definition.
+
+### Enabling caching
+
+Enable caching inside `createRequest` (or later callbacks), after the client is initialized:
+
+```javascript
+createRequest: function (svc, operation, params) {
+    // Only access svc.client inside createRequest/parseResponse/etc.
+    // NOTE: TTL units depend on the underlying API you call; validate against your SFCC version docs.
+    svc.client.enableCaching(1000);
+
+    svc.setRequestMethod('GET');
+    // ... set URL/headers/body ...
+    return null;
+}
+```
+
+### Clearing the cache
+
+You can clear the HTTP client response cache in Business Manager:
+- **Administration → Operations → Service Maintenance**
+- Use the **Invalidate** action for **HTTP Client Response Cache**
+
+Constraints to design around:
+- Cache invalidation is typically **global** (not per-service).
+- Avoid caching error responses.
+- Cached calls can still affect service-level statistics (rate limiting/circuit breaker) depending on configuration.
+
+For broader cache strategy (page cache vs custom caches vs service caching), see **[sfcc-caching](../sfcc-caching/SKILL.md)**.
+
 // --- Public API ---
 module.exports = {
     OPERATION_GET_CUSTOMER: 'getCustomer',

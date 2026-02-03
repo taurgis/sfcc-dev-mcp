@@ -295,6 +295,19 @@ exports.getTotalCount = function() {
 | File I/O operations | 200-500 |
 | General operations | 250 |
 
+### How to Choose a Chunk Size (Beyond Rules of Thumb)
+
+- **Processing complexity**: complex per-record logic (extra lookups, multiple writes) usually needs smaller chunks.
+- **Memory behavior**: if memory grows with chunk size, shrink chunks and ensure references are released after `write`.
+- **Optimistic locking risk**: for “high contention” objects (e.g., profiles that can be updated by storefront traffic), smaller chunks reduce the blast radius of failures and make retries cheaper.
+
+### `transactional` Setting Guidance
+
+Keep `"transactional": false` in `steptypes.json` unless you have a very specific requirement.
+
+- When `transactional` is enabled, the platform can treat the step as one large transaction, increasing rollback risk on errors.
+- Prefer explicit, local `Transaction.wrap()` scopes inside `process` or `write` to control what is committed and when.
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -313,3 +326,9 @@ exports.getTotalCount = function() {
 - [Task-Oriented Steps](references/TASK-ORIENTED.md) - Full task step patterns
 - [Chunk-Oriented Steps](references/CHUNK-ORIENTED.md) - Full chunk step patterns
 - [steptypes.json Reference](references/STEPTYPES-JSON.md) - Complete schema
+
+External reading:
+- Rhino Inquisitor: Mastering Chunk-Oriented Job Steps
+    - https://www.rhino-inquisitor.com/mastering-chunk-oriented-job-steps-in-salesforce-b2c-commerce-cloud/
+- Salesforce Docs: Custom job steps (chunk-oriented)
+    - https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-custom-job-steps.html
