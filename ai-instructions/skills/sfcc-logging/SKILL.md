@@ -96,8 +96,8 @@ Write to dedicated log files instead of the standard custom log files:
 var Logger = require('dw/system/Logger');
 
 // Get logger with custom file prefix
-var orderExportLog = Logger.getLogger('orderexport', 'export');
-var feedLog = Logger.getLogger('productfeed', 'feed');
+var orderExportLog = Logger.getLogger('export', 'orderexport');
+var feedLog = Logger.getLogger('feed', 'productfeed');
 
 // Messages go to custom-orderexport-*.log
 orderExportLog.info('Exporting order {0}', orderNo);
