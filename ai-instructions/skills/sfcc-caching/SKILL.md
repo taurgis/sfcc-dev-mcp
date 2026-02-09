@@ -18,6 +18,7 @@ Caching in SFCC has multiple layers. The most common failures come from:
 [ ] Design keys with site + locale scoping where needed
 [ ] Use atomic get-or-load patterns (avoid double loaders)
 [ ] Cache POJOs/DTOs, not dw.* API objects
+[ ] Treat cache values as immutable snapshots; re-put updated copies
 [ ] Design around TTL, not cross-node invalidation
 [ ] Monitor hit ratios and write failures in Business Manager
 ```
@@ -52,11 +53,15 @@ Prefer `cache.get(key, loader)` (single step). Avoid:
 Don’t cache `dw.catalog.Product`, `dw.order.Order`, etc.
 Map to a lightweight object with only the fields you need.
 
-### 4) TTL over invalidation
+### 4) Treat cached values as immutable
+Values returned by `cache.get` are immutable copies. Do not mutate them in-place.
+If you need to update cached data, write a new object back with `cache.put(key, newValue)`.
+
+### 5) TTL over invalidation
 Per-key invalidation across all nodes is unreliable.
 Design for a small staleness window using `expireAfterSeconds`.
 
-### 5) Watch size limits and monitoring
+### 6) Watch size limits and monitoring
 - Large entries can fail to store without throwing exceptions.
 - Use Business Manager stats (hit ratio, write failures) to validate effectiveness.
 
@@ -78,5 +83,7 @@ Key warnings:
   - https://www.rhino-inquisitor.com/third-party-api-caching-in-commerce-cloud/
 - SFCC Docs: Custom Caches
   - https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-custom-caches.html
+- SFCC Script API: `dw.system.Cache` (immutable copies + value constraints)
+  - https://salesforcecommercecloud.github.io/b2c-dev-doc/docs/current/scriptapi/html/api/class_dw_system_Cache.html
 - SFCC Script API: `dw.system.CacheMgr` (cartridge `package.json` cache registration)
   - https://salesforcecommercecloud.github.io/b2c-dev-doc/docs/current/scriptapi/html/api/class_dw_system_CacheMgr.html
