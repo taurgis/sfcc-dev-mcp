@@ -65,6 +65,7 @@ dw.json
 webpack.config.js           
 cartridges/
 └── plugin_my_custom_cartridge/
+    |── package.json
     └── cartridge/
         ├── client/             
         │   └── default/
@@ -87,6 +88,7 @@ Optional but common directories:
 ## 4.1 Cartridge `package.json` Capabilities (Often Missed)
 
 Beyond basic metadata, `package.json` can declare cartridge-owned configuration files that the platform consumes.
+  The `package.json` must be in the cartridge root (cartridges/{{mycartridge}}/package.json), and paths are relative to that.
 
 - **Hooks**: add a `hooks` entry pointing to your `hooks.json` (commonly under `cartridge/scripts/hooks.json`).
 - **Custom Caches**: add a `caches` entry pointing to `caches.json` so `CacheMgr.getCache('<id>')` can resolve your cache.

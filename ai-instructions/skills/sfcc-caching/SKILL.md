@@ -42,6 +42,7 @@ Never store user-specific data in a global custom cache.
 
 ### 1) Define caches in `caches.json` and register in cartridge `package.json`
 - Cache IDs must be globally unique across the cartridge path.
+- The `package.json` that declares `"caches"` must live in the cartridge root (cartridges/{{mycartridge}}/package.json), and the `caches.json` path is relative to that.
 
 ### 2) Use atomic “get-or-load”
 Prefer `cache.get(key, loader)` (single step). Avoid:
@@ -77,3 +78,5 @@ Key warnings:
   - https://www.rhino-inquisitor.com/third-party-api-caching-in-commerce-cloud/
 - SFCC Docs: Custom Caches
   - https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-custom-caches.html
+- SFCC Script API: `dw.system.CacheMgr` (cartridge `package.json` cache registration)
+  - https://salesforcecommercecloud.github.io/b2c-dev-doc/docs/current/scriptapi/html/api/class_dw_system_CacheMgr.html

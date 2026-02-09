@@ -220,6 +220,7 @@ Use custom caches for application-level data caching within dynamic requests (e.
      "caches": "./caches.json"
    }
    ```
+    The `package.json` must be in the cartridge root (cartridges/{{mycartridge}}/package.json), and the `caches.json` path is relative to that.
 
 ### Practical Constraints (Why Cache Design Matters)
 
