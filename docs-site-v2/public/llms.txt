@@ -12,17 +12,17 @@ Key architectural principles:
 
 ## Core Documentation
 
-- [Getting Started](https://sfcc-mcp-dev.rhino-inquisitor.com/guide): Introduction and modes
-- [AI Interface Setup](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces): Platform-specific setup for Copilot, Claude, and Cursor
-- [Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/configuration): dw.json, environment variables, and auto-discovery
-- [Features Overview](https://sfcc-mcp-dev.rhino-inquisitor.com/features): Complete feature breakdown
-- [Tools Catalog](https://sfcc-mcp-dev.rhino-inquisitor.com/tools): All tools organized by category with examples
-- [Examples](https://sfcc-mcp-dev.rhino-inquisitor.com/examples): Practical prompts and workflows
-- [Script Debugger](https://sfcc-mcp-dev.rhino-inquisitor.com/script-debugger): Sandbox evaluation via debugger API
-- [Skills](https://sfcc-mcp-dev.rhino-inquisitor.com/skills): Bundled skills and instruction packs
-- [Security](https://sfcc-mcp-dev.rhino-inquisitor.com/security): Credential and data handling guidance
-- [Development Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/development): Architecture, testing, and contribution workflow
-- [Troubleshooting](https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting): Common issues and fixes
+- [Getting Started](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/): Introduction and modes
+- [AI Interface Setup](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/): Platform-specific setup for Copilot, Claude, and Cursor
+- [Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/configuration/): dw.json, environment variables, and auto-discovery
+- [Features Overview](https://sfcc-mcp-dev.rhino-inquisitor.com/features/): Complete feature breakdown
+- [Tools Catalog](https://sfcc-mcp-dev.rhino-inquisitor.com/tools/): All tools organized by category with examples
+- [Examples](https://sfcc-mcp-dev.rhino-inquisitor.com/examples/): Practical prompts and workflows
+- [Script Debugger](https://sfcc-mcp-dev.rhino-inquisitor.com/script-debugger/): Sandbox evaluation via debugger API
+- [Skills](https://sfcc-mcp-dev.rhino-inquisitor.com/skills/): Bundled skills and instruction packs
+- [Security](https://sfcc-mcp-dev.rhino-inquisitor.com/security/): Credential and data handling guidance
+- [Development Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/development/): Architecture, testing, and contribution workflow
+- [Troubleshooting](https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting/): Common issues and fixes
 
 ## Tool Categories
 

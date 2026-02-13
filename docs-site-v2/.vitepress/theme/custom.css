@@ -742,16 +742,29 @@
   gap: 6px;
   padding: 10px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(0, 112, 210, 0.35);
-  background: transparent;
-  color: #e5e7eb;
+  border: 1px solid var(--vp-button-brand-border);
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text);
   font-weight: 600;
   text-decoration: none !important;
 }
 
 .home-button:hover,
 .home-button:focus {
+  background: var(--vp-button-brand-hover-bg);
+  border-color: var(--vp-button-brand-hover-border);
+  color: var(--vp-button-brand-hover-text);
   text-decoration: none !important;
+}
+
+.home-button:active {
+  background: var(--vp-button-brand-active-bg);
+  border-color: var(--vp-button-brand-active-border);
+  color: var(--vp-button-brand-active-text);
+}
+
+.home-button:visited {
+  color: var(--vp-button-brand-text);
 }
 
 .home-button * {
@@ -770,28 +783,22 @@
   text-decoration: none !important;
 }
 
-.home-button:not(.home-button--primary):not(.home-button--success):not(.home-button--danger) {
-  color: #cbd5f5;
-  background: rgba(15, 23, 42, 0.35);
-  border-color: rgba(0, 112, 210, 0.25);
-}
-
 .home-button--primary {
-  background: linear-gradient(135deg, #00a1e0, #0070d2);
-  border-color: transparent;
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  border-color: var(--vp-button-brand-border);
+  color: var(--vp-button-brand-text);
 }
 
 .home-button--danger {
-  background: linear-gradient(135deg, #00a1e0, #0070d2);
-  border-color: transparent;
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  border-color: var(--vp-button-brand-border);
+  color: var(--vp-button-brand-text);
 }
 
 .home-button--success {
-  background: linear-gradient(135deg, #00a1e0, #0070d2);
-  border-color: transparent;
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  border-color: var(--vp-button-brand-border);
+  color: var(--vp-button-brand-text);
 }
 
 .home-warning {
@@ -1166,30 +1173,35 @@
 }
 
 .dark .home-button {
-  background: transparent;
-  border-color: rgba(0, 161, 224, 0.35);
-  color: #e5e7eb;
-}
-
-.dark .home-button:not(.home-button--primary):not(.home-button--success):not(.home-button--danger) {
-  color: #e5e7eb;
-  background: rgba(15, 23, 42, 0.4);
-  border-color: rgba(0, 161, 224, 0.35);
+  background: var(--vp-button-brand-bg);
+  border-color: var(--vp-button-brand-border);
+  color: var(--vp-button-brand-text);
 }
 
 .dark .home-button--primary {
-  background: linear-gradient(135deg, #33b4e6, #00a1e0);
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text);
 }
 
 .dark .home-button--danger {
-  background: linear-gradient(135deg, #33b4e6, #00a1e0);
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text);
 }
 
 .dark .home-button--success {
-  background: linear-gradient(135deg, #33b4e6, #00a1e0);
-  color: #ffffff;
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text);
+}
+
+.vp-doc .home-button,
+.vp-doc .home-button:visited {
+  color: var(--vp-button-brand-text);
+}
+
+.vp-doc .home-button:hover,
+.vp-doc .home-button:focus,
+.vp-doc .home-button:active {
+  color: var(--vp-button-brand-hover-text);
 }
 
 .dark .home-callout {
