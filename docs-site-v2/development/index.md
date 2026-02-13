@@ -1,3 +1,8 @@
+---
+title: Development Guide
+description: Build, test, and contribute to SFCC Dev MCP with architecture notes, capability gating, and release workflow details.
+---
+
 # Development guide
 
 This project is a TypeScript MCP server with modular handlers and clients.

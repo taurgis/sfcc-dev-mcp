@@ -1,3 +1,8 @@
+---
+title: Troubleshooting
+description: Diagnose SFCC Dev MCP startup, authentication, logs, OCAPI access, and client connection issues with quick fixes.
+---
+
 # Troubleshooting
 
 ## Quick checks

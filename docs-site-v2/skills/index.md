@@ -1,3 +1,8 @@
+---
+title: Agent Skills
+description: Install and use reusable SFCC instruction packs to keep AI assistants consistent across Copilot, Claude, and Cursor.
+---
+
 # Agent skills
 
 Skills are portable instruction packs that help your AI assistant follow consistent SFCC patterns.

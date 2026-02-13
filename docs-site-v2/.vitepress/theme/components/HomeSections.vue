@@ -267,8 +267,8 @@
       </div>
       <div class="testdrive-actions">
         <button class="home-button home-button--primary" type="button" @click="copyPrompt">Copy prompt</button>
-        <button class="home-button home-button--danger" type="button" @click="isWithoutModalOpen = true">View without MCP</button>
-        <button class="home-button home-button--success" type="button" @click="isWithModalOpen = true">View with MCP</button>
+        <button class="home-button home-button--danger" type="button" @click="openWithoutModal">View without MCP</button>
+        <button class="home-button home-button--success" type="button" @click="openWithModal">View with MCP</button>
       </div>
     </div>
 
@@ -309,11 +309,18 @@
     </div>
   </section>
 
-  <div v-if="isWithoutModalOpen" class="image-modal" @click.self="isWithoutModalOpen = false">
-    <div class="image-modal__content">
+  <div v-if="isWithoutModalOpen" class="image-modal" @click.self="closeWithoutModal">
+    <div
+      ref="withoutModalRef"
+      class="image-modal__content"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="without-mcp-modal-title"
+      tabindex="-1"
+    >
       <header>
-        <h3>AI response without MCP</h3>
-        <button @click="isWithoutModalOpen = false">Close</button>
+        <h3 id="without-mcp-modal-title">AI response without MCP</h3>
+        <button ref="withoutCloseButtonRef" aria-label="Close without MCP modal" @click="closeWithoutModal">Close</button>
       </header>
       <div class="image-modal__image">
         <img
@@ -332,11 +339,18 @@
     </div>
   </div>
 
-  <div v-if="isWithModalOpen" class="image-modal" @click.self="isWithModalOpen = false">
-    <div class="image-modal__content">
+  <div v-if="isWithModalOpen" class="image-modal" @click.self="closeWithModal">
+    <div
+      ref="withModalRef"
+      class="image-modal__content"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="with-mcp-modal-title"
+      tabindex="-1"
+    >
       <header>
-        <h3>AI response with MCP</h3>
-        <button @click="isWithModalOpen = false">Close</button>
+        <h3 id="with-mcp-modal-title">AI response with MCP</h3>
+        <button ref="withCloseButtonRef" aria-label="Close with MCP modal" @click="closeWithModal">Close</button>
       </header>
       <div class="image-modal__image">
         <img
@@ -357,7 +371,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import NewcomerCTA from './NewcomerCTA.vue';
 
 const promptText = 'Explain how to get the sale price for a product variant in SFCC. Keep it short and a quick example';
@@ -369,6 +383,11 @@ const copyPrompt = async () => {
 
 const isWithoutModalOpen = ref(false);
 const isWithModalOpen = ref(false);
+const withoutModalRef = ref<HTMLElement | null>(null);
+const withModalRef = ref<HTMLElement | null>(null);
+const withoutCloseButtonRef = ref<HTMLButtonElement | null>(null);
+const withCloseButtonRef = ref<HTMLButtonElement | null>(null);
+const previouslyFocusedElement = ref<HTMLElement | null>(null);
 
 const zooming1 = ref(false);
 const zooming2 = ref(false);
@@ -376,6 +395,130 @@ const zoomPosition1 = ref({ x: 0, y: 0 });
 const zoomPosition2 = ref({ x: 0, y: 0 });
 const imageRef1 = ref<HTMLImageElement | null>(null);
 const imageRef2 = ref<HTMLImageElement | null>(null);
+
+const getActiveModalElement = () => {
+  if (isWithoutModalOpen.value) return withoutModalRef.value;
+  if (isWithModalOpen.value) return withModalRef.value;
+  return null;
+};
+
+const openWithoutModal = () => {
+  isWithoutModalOpen.value = true;
+};
+
+const openWithModal = () => {
+  isWithModalOpen.value = true;
+};
+
+const closeWithoutModal = () => {
+  isWithoutModalOpen.value = false;
+};
+
+const closeWithModal = () => {
+  isWithModalOpen.value = false;
+};
+
+const closeAllModals = () => {
+  isWithoutModalOpen.value = false;
+  isWithModalOpen.value = false;
+};
+
+const focusModalCloseButton = async () => {
+  await nextTick();
+  if (isWithoutModalOpen.value) {
+    withoutCloseButtonRef.value?.focus();
+    return;
+  }
+  if (isWithModalOpen.value) {
+    withCloseButtonRef.value?.focus();
+  }
+};
+
+const trapFocusInModal = (event: KeyboardEvent) => {
+  if (event.key !== 'Tab') return;
+  const modalElement = getActiveModalElement();
+  if (!modalElement) return;
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  const focusableElements = Array.from(modalElement.querySelectorAll<HTMLElement>(focusableSelectors))
+    .filter((element) => !element.hasAttribute('disabled'));
+
+  if (!focusableElements.length) {
+    event.preventDefault();
+    modalElement.focus();
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  const activeElement = document.activeElement;
+
+  if (event.shiftKey && activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+    return;
+  }
+
+  if (!event.shiftKey && activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
+  }
+};
+
+const onWindowKeydown = (event: KeyboardEvent) => {
+  if (!isWithoutModalOpen.value && !isWithModalOpen.value) return;
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeAllModals();
+    return;
+  }
+
+  trapFocusInModal(event);
+};
+
+watch([isWithoutModalOpen, isWithModalOpen], async ([withoutOpen, withOpen], [wasWithoutOpen, wasWithOpen]) => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  const isOpen = withoutOpen || withOpen;
+  const wasOpen = wasWithoutOpen || wasWithOpen;
+
+  if (isOpen && !wasOpen) {
+    previouslyFocusedElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onWindowKeydown);
+    await focusModalCloseButton();
+    return;
+  }
+
+  if (isOpen) {
+    await focusModalCloseButton();
+    return;
+  }
+
+  if (!isOpen && wasOpen) {
+    window.removeEventListener('keydown', onWindowKeydown);
+    document.body.style.overflow = '';
+    previouslyFocusedElement.value?.focus();
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', onWindowKeydown);
+  }
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = '';
+  }
+});
 
 const onMoveImage1 = (event: MouseEvent) => {
   if (!imageRef1.value) return;

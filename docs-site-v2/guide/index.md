@@ -1,3 +1,8 @@
+---
+title: Getting Started
+description: Learn how to run the SFCC Dev MCP server locally, choose docs or full mode, and start using AI-assisted SFCC tools.
+---
+
 # Getting started
 
 The SFCC Development MCP Server runs locally and exposes a set of tools that let your AI assistant query SFCC documentation, analyze logs, explore metadata, and scaffold cartridges.

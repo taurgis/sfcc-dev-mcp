@@ -1,0 +1,11 @@
+{
+  "subject": "docs-site-v2 build workflow",
+  "fact": "The docs-v2 site is built from the docs-site-v2 directory using `npm run build`, which runs `vitepress build .` and then generates `public/sitemap.xml` and `public/llms.txt` via node scripts.",
+  "citations": [
+    "docs-site-v2/package.json",
+    "docs-site-v2/scripts/generate-sitemap.js",
+    "docs-site-v2/scripts/generate-llms.js"
+  ],
+  "reason": "This verified command chain is useful for future documentation changes and release validation tasks.",
+  "category": "build"
+}

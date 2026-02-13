@@ -1,9 +1,14 @@
 <template>
   <div class="vp-tool-explorer">
     <div class="vp-tool-explorer__controls">
-      <input v-model="search" type="text" placeholder="Search tools or prompts..." />
+      <input
+        v-model="search"
+        type="search"
+        placeholder="Search tools or prompts..."
+        aria-label="Search tools or prompts"
+      />
       <button v-if="search" class="vp-tool-explorer__clear" type="button" @click="search = ''">Clear</button>
-      <select v-model="activeCategory">
+      <select v-model="activeCategory" aria-label="Filter tools by category">
         <option value="All">All categories ({{ tools.length }})</option>
         <option v-for="category in categories" :key="category" :value="category">
           {{ category }} ({{ categoryCounts[category] }})
