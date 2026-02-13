@@ -1,6 +1,7 @@
 ---
 layout: home
 title: SFCC Development MCP Server
+description: Local MCP server for SFCC development with documentation search, log analysis, cartridge scaffolding, and debugging tools.
 titleTemplate: false
 hero:
   name: "SFCC Development MCP Server"

@@ -1,3 +1,8 @@
+---
+title: Tools Catalog
+description: Browse all SFCC Dev MCP tools by category, mode, and practical prompt examples for daily development workflows.
+---
+
 # Tools catalog
 
 Browse the full tool surface, filter by category, and copy example prompts.

@@ -1,3 +1,8 @@
+---
+title: Script Debugger Guide
+description: Execute JavaScript safely in SFCC sandboxes with evaluate_script, debugger prerequisites, and troubleshooting guidance.
+---
+
 # Script debugger
 
 Use `evaluate_script` to execute JavaScript on a sandbox instance via the script debugger API.

@@ -1,3 +1,8 @@
+---
+title: Example Prompts
+description: Use tested SFCC Dev MCP prompt examples for docs lookup, log triage, system object analysis, and cartridge generation.
+---
+
 # Examples
 
 Short, focused prompts that map to common workflows. Each section shows a prompt, the typical tool calls, and the expected outcome.

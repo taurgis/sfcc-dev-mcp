@@ -1,3 +1,8 @@
+---
+title: Security and Privacy
+description: Review credential handling, threat model, hardening steps, and secure operating practices for SFCC Dev MCP.
+---
+
 # Security and privacy
 
 This server is designed for local, single-developer use. It does not store credentials on disk or transmit them to third-party services.

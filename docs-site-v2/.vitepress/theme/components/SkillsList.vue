@@ -1,7 +1,13 @@
 <template>
   <div class="skills-list">
     <div class="skills-controls">
-      <input v-model="search" type="text" placeholder="Search skills..." class="skills-search" />
+      <input
+        v-model="search"
+        type="search"
+        placeholder="Search skills..."
+        class="skills-search"
+        aria-label="Search skills"
+      />
       <span class="skills-count">{{ filteredSkills.length }} skills</span>
     </div>
     <div class="skills-grid">

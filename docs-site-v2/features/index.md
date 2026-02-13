@@ -1,3 +1,8 @@
+---
+title: Features Overview
+description: Explore SFCC Dev MCP capabilities including documentation tools, logs, system objects, cartridge generation, and AI instruction packs.
+---
+
 # Features
 
 The server provides a focused set of capabilities for local SFCC development. Use docs mode for reference and scaffolding, and full mode when you need live data.

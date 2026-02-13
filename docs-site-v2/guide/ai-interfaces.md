@@ -1,3 +1,8 @@
+---
+title: AI Interface Setup
+description: Set up SFCC Dev MCP in Copilot, Claude, and Cursor with docs-only and full-mode configuration examples.
+---
+
 # AI interface setup
 
 Use the same MCP server configuration across clients. The differences are mostly where you place the config file or instruction files.

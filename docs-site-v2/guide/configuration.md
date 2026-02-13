@@ -1,3 +1,8 @@
+---
+title: Configuration
+description: Configure SFCC Dev MCP with dw.json, environment variables, workspace auto-discovery, and capability-based tool availability.
+---
+
 # Configuration
 
 The server discovers credentials in this priority order:
