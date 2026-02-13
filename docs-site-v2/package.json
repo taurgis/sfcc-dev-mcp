@@ -1,0 +1,15 @@
+{
+  "name": "sfcc-dev-mcp-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build . && node scripts/generate-sitemap.js && node scripts/generate-llms.js",
+    "preview": "vitepress preview .",
+    "sitemap": "node scripts/generate-sitemap.js",
+    "llms": "node scripts/generate-llms.js"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}

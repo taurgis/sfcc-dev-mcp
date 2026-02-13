@@ -279,6 +279,19 @@ sfcc-dev-mcp/
 │   │   └── explain-product-pricing-methods-no-mcp.png # Demo screenshot without MCP
 │   ├── dist/                    # Built website output (Vite build)
 │   └── node_modules/            # Node.js dependencies
+├── docs-site-v2/                # VitePress documentation website
+│   ├── .vitepress/              # VitePress config and theme
+│   ├── guide/                   # Getting started and configuration
+│   ├── features/                # Feature overview
+│   ├── tools/                   # Tools catalog
+│   ├── examples/                # Prompt examples
+│   ├── script-debugger/         # Script debugger guide
+│   ├── skills/                  # Agent skills guide
+│   ├── security/                # Security and privacy notes
+│   ├── development/             # Development guide
+│   ├── troubleshooting/         # Troubleshooting guide
+│   ├── public/                  # Static assets
+│   └── package.json             # VitePress scripts and dependencies
 ├── ai-instructions/             # AI instruction files for different platforms
 │   ├── claude-desktop/          # Claude Desktop specific instructions
 │   │   └── claude_custom_instructions.md

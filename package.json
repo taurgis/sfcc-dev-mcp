@@ -1,6 +1,6 @@
 {
   "name": "sfcc-dev-mcp",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "mcpName": "io.github.taurgis/sfcc-dev-mcp",
   "main": "dist/index.js",
@@ -24,6 +24,10 @@
     "convert-docs:test": "node scripts/convert-docs.js --test",
     "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
     "github-pages": "cd docs-site && rm -f Gemfile.lock && bundle install --path vendor/bundle && bundle exec jekyll serve --livereload --host=0.0.0.0",
+    "docs:install": "npm --prefix docs-site-v2 install",
+    "docs:dev": "npm --prefix docs-site-v2 run dev",
+    "docs:build": "npm --prefix docs-site-v2 run build",
+    "docs:preview": "npm --prefix docs-site-v2 run preview",
     "test": "npm run test:all",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

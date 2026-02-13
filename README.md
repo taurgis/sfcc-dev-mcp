@@ -193,6 +193,8 @@ node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
 
+Documentation source lives in `docs-site-v2/` (VitePress). The legacy React site remains in `docs-site/`.
+
 Quick Links:
 - **[Installation Guide](https://taurgis.github.io/sfcc-dev-mcp/installation)** - Detailed installation options
 - **[AI Interface Setup](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces)** - Configure Claude Desktop, GitHub Copilot, or Cursor
