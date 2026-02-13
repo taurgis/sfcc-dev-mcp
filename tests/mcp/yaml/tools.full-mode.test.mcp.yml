@@ -4,10 +4,10 @@
 # Focuses on tool metadata validation (NOT tool execution due to test credentials)
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --verbose
-# conductor "tests/mcp/yaml/full-mode.test.mcp.yml" --config "conductor.config.with-dw.json" --debug --timing
-# conductor query --config "conductor.config.with-dw.json"  # List all tools
-# conductor query get_latest_error '{"limit": 5}' --config "conductor.config.with-dw.json"
+# aegis "tests/mcp/yaml/full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --verbose
+# aegis "tests/mcp/yaml/full-mode.test.mcp.yml" --config "aegis.config.with-dw.json" --debug --timing
+# aegis query --config "aegis.config.with-dw.json"  # List all tools
+# aegis query get_latest_error '{"limit": 5}' --config "aegis.config.with-dw.json"
 # ==================================================================================
 description: "SFCC MCP Server - Full Mode comprehensive metadata validation and tool presence verification"
 
@@ -15,7 +15,7 @@ description: "SFCC MCP Server - Full Mode comprehensive metadata validation and 
 # TOOL COUNT & AVAILABILITY VALIDATION
 # ==================================================================================
 tests:
-  - it: "should have exactly 36 tools available in full mode"
+  - it: "should have exactly 40 tools available in full mode"
     request:
       jsonrpc: "2.0"
       id: "full-tools-count"
@@ -26,7 +26,7 @@ tests:
         jsonrpc: "2.0"
         id: "full-tools-count"
         result:
-          tools: "match:arrayLength:36"
+          tools: "match:arrayLength:40"
       stderr: "toBeEmpty"
 
   - it: "should have significantly more tools than docs-only mode"
@@ -40,7 +40,7 @@ tests:
         jsonrpc: "2.0"
         id: "full-vs-docs-count"
         result:
-          tools: "match:arrayLength:36"  # More than docs-only 15 tools
+          tools: "match:arrayLength:40"  # More than docs-only 18 tools
       stderr: "toBeEmpty"
 
   - it: "should have proper tool structure with required fields"

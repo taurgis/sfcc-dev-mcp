@@ -4,7 +4,7 @@
 - [ ] README.md updates
 - [ ] copilot-instructions.md updates
 - [ ] API documentation (docs/ folder)
-- [ ] Best practices guides
+- [ ] Agent skills (ai-instructions/skills)
 - [ ] Code comments/JSDoc
 - [ ] Configuration examples
 - [ ] Troubleshooting guide

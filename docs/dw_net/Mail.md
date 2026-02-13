@@ -56,6 +56,12 @@ Mail()
 
 ## Method Summary
 
+### addAttachment
+
+**Signature:** `addAttachment(file : File) : Mail`
+
+Adds a file attachment to the email.
+
 ### addBcc
 
 **Signature:** `addBcc(bcc : String) : Mail`
@@ -193,6 +199,26 @@ Validates the address that is sent as parameter.
 ## Method Detail
 
 ## Method Details
+
+### addAttachment
+
+**Signature:** `addAttachment(file : File) : Mail`
+
+**Description:** Adds a file attachment to the email. This method is restricted to Job context only.
+
+**Parameters:**
+
+- `file`: The file to be attached to the email. Must not be null and must exist.
+
+**Returns:**
+
+this Mail object
+
+**Throws:**
+
+IllegalArgumentException - if the file is null, doesn't exist, or is not a file
+
+---
 
 ### addBcc
 

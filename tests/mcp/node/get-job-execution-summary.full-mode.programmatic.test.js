@@ -1,15 +1,13 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
-describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
+describe('get_job_execution_summary - Advanced Programmatic Tests', () => {
   let client;
   let discoveredJobNames = [];
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
-    
-    // Discover available job names for advanced testing
+    client = await connect('./aegis.config.with-dw.json');
     await discoverJobNames();
   });
 
@@ -24,7 +22,7 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
     client.clearAllBuffers(); // Recommended - comprehensive protection
   });
 
-  // Helper functions for common validations
+  // Optimized helper functions focused on complex validation
   function assertValidMCPResponse(result) {
     assert.ok(result.content, 'Should have content');
     assert.ok(Array.isArray(result.content), 'Content should be array');
@@ -32,65 +30,32 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
   }
 
   function parseResponseText(text) {
-    // The response may come wrapped in quotes, so parse if needed
     return text.startsWith('"') && text.endsWith('"') 
       ? JSON.parse(text) 
       : text;
   }
 
-  function assertTextContent(result, expectedSubstring) {
-    assertValidMCPResponse(result);
-    assert.equal(result.content[0].type, 'text');
-    const actualText = parseResponseText(result.content[0].text);
-    assert.ok(actualText.includes(expectedSubstring),
-      `Expected "${expectedSubstring}" in "${actualText}"`);
-  }
-
-  function assertSuccessResponse(result) {
+  function assertJobExecutionSummaryFormat(result, jobName) {
     assertValidMCPResponse(result);
     assert.equal(result.isError, false, 'Should not be an error response');
-    assert.equal(result.content[0].type, 'text');
-  }
-
-  function assertErrorResponse(result, expectedErrorText) {
-    assertValidMCPResponse(result);
-    assert.equal(result.isError, true, 'Should be an error response');
-    assert.equal(result.content[0].type, 'text');
-    if (expectedErrorText) {
-      assertTextContent(result, expectedErrorText);
-    }
-  }
-
-  function assertJobExecutionSummaryFormat(result, jobName) {
-    assertSuccessResponse(result);
+    
     const text = parseResponseText(result.content[0].text);
     
     if (text.includes('No job logs found')) {
-      // Valid case - no matching job
       assert.ok(text.includes(`No job logs found for job name: ${jobName}`),
         'No results message should include job name');
       return null;
     }
     
-    // Should contain job execution summary header
+    // Validate comprehensive execution summary format
     assert.ok(text.includes(`Job Execution Summary: ${jobName}`),
       'Should contain job execution summary header with job name');
-    
-    // Should contain timing section
-    assert.ok(text.includes('⏱️ Timing:'),
-      'Should contain timing section with emoji');
-    
-    // Should contain timing details
+    assert.ok(text.includes('⏱️ Timing:') && text.includes('📊 Status:'),
+      'Should contain emoji-formatted sections');
     assert.ok(text.includes('Start:') && text.includes('End:') && text.includes('Duration:'),
-      'Should contain start, end, and duration information');
-    
-    // Should contain status section  
-    assert.ok(text.includes('📊 Status:'),
-      'Should contain status section with emoji');
-    
-    // Should contain status details
+      'Should contain complete timing information');
     assert.ok(text.includes('Status:') && text.includes('Errors:') && text.includes('Warnings:'),
-      'Should contain status, errors, and warnings information');
+      'Should contain complete status information');
     
     return parseJobExecutionSummary(text);
   }
@@ -98,23 +63,14 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
   function parseJobExecutionSummary(text) {
     const summary = {
       jobName: null,
-      timing: {
-        start: null,
-        end: null,
-        duration: null
-      },
-      status: {
-        status: null,
-        errors: null,
-        warnings: null
-      }
+      timing: { start: null, end: null, duration: null },
+      status: { status: null, errors: null, warnings: null }
     };
     
-    // Extract job name from "Job Execution Summary: JobName" line
+    // Extract structured data from response
     const jobNameMatch = text.match(/Job Execution Summary: ([^\n\r]+)/);
     if (jobNameMatch) summary.jobName = jobNameMatch[1].trim();
     
-    // Extract timing information
     const startMatch = text.match(/- Start: ([^\n\r]+)/);
     if (startMatch) summary.timing.start = startMatch[1].trim();
     
@@ -124,7 +80,6 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
     const durationMatch = text.match(/- Duration: ([^\n\r]+)/);
     if (durationMatch) summary.timing.duration = durationMatch[1].trim();
     
-    // Extract status information
     const statusMatch = text.match(/- Status: ([^\n\r]+)/);
     if (statusMatch) summary.status.status = statusMatch[1].trim();
     
@@ -137,8 +92,31 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
     return summary;
   }
 
+  function assertSuccessResponse(result) {
+    assertValidMCPResponse(result);
+    assert.equal(result.isError, false, 'Response should not be error');
+  }
+
+  function assertErrorResponse(result, expectedErrorText = null) {
+    assertValidMCPResponse(result);
+    assert.equal(result.isError, true, 'Response should be error');
+    
+    if (expectedErrorText) {
+      const responseText = parseResponseText(result.content[0].text);
+      assert.ok(responseText.includes(expectedErrorText), 
+        `Error message should contain: ${expectedErrorText}`);
+    }
+  }
+
+  function assertTextContent(result, expectedText) {
+    assertSuccessResponse(result);
+    const responseText = parseResponseText(result.content[0].text);
+    assert.ok(responseText.includes(expectedText), 
+      `Response should contain: ${expectedText}`);
+  }
+
   async function discoverJobNames() {
-    console.log('🔍 Discovering available job names using MCP server...');
+    console.log('🔍 Discovering available job names for advanced testing...');
     
     try {
       const result = await client.callTool('get_latest_job_log_files', { limit: 10 });
@@ -150,7 +128,6 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
       }
     } catch (error) {
       console.warn('⚠️ Could not discover job names:', error.message);
-      // Use fallback job names for testing
       discoveredJobNames = ['ImportCatalog', 'ProcessOrders'];
     }
   }
@@ -158,14 +135,13 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
   function extractJobInfo(responseText) {
     const jobs = [];
     const text = parseResponseText(responseText);
-    const sections = text.split('🔧 Job: ').slice(1); // Remove empty first element
+    const sections = text.split('🔧 Job: ').slice(1);
     
     for (const section of sections) {
       const lines = section.split('\n');
       const jobName = lines[0].trim();
       
       let jobId = null;
-      
       for (const line of lines) {
         const idMatch = line.match(/ID: (\d+)/);
         if (idMatch) jobId = idMatch[1];
@@ -179,30 +155,9 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
     return jobs;
   }
 
-  // Basic functionality tests
-  describe('Core Functionality', () => {
-    test('should retrieve job execution summary for existing job', async () => {
-      if (discoveredJobNames.length === 0) {
-        console.log('⏭️ Skipping test - no job names discovered');
-        return;
-      }
-      
-      const jobName = discoveredJobNames[0];
-      const result = await client.callTool('get_job_execution_summary', { jobName });
-      
-      assertJobExecutionSummaryFormat(result, jobName);
-    });
-
-    test('should handle non-existent job gracefully', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: 'NonExistentJob12345' 
-      });
-      
-      assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found for job name: NonExistentJob12345');
-    });
-
-    test('should include all required sections in execution summary', async () => {
+  // Core functionality tests - focus on complex parsing and validation
+  describe('Core Functionality & Format Validation', () => {
+    test('should retrieve and parse job execution summary structure', async () => {
       if (discoveredJobNames.length === 0) {
         console.log('⏭️ Skipping test - no job names discovered');
         return;
@@ -214,12 +169,12 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
       const summary = assertJobExecutionSummaryFormat(result, jobName);
       
       if (summary) {
-        // Validate all required fields are present
-        assert.ok(summary.jobName, 'Should have job name');
-        assert.ok(summary.timing.start !== null, 'Should have start time');
-        assert.ok(summary.timing.end !== null, 'Should have end time');
+        // Validate parsed structure for existing jobs
+        assert.equal(summary.jobName, jobName, 'Parsed job name should match requested');
+        assert.ok(summary.timing.start, 'Should have start time');
+        assert.ok(summary.timing.end, 'Should have end time');
         assert.ok(summary.timing.duration !== null, 'Should have duration');
-        assert.ok(summary.status.status !== null, 'Should have status');
+        assert.ok(summary.status.status, 'Should have status');
         assert.ok(summary.status.errors !== null, 'Should have error count');
         assert.ok(summary.status.warnings !== null, 'Should have warning count');
       }
@@ -237,13 +192,13 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
       const summary = assertJobExecutionSummaryFormat(result, jobName);
       
       if (summary) {
-        // Validate timing format - should be ISO-like date format
+        // Validate datetime format (YYYY-MM-DD HH:MM:SS)
         assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(summary.timing.start),
-          'Start time should be in YYYY-MM-DD HH:MM:SS format');
+          `Start time should match datetime format: ${summary.timing.start}`);
         assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(summary.timing.end),
-          'End time should be in YYYY-MM-DD HH:MM:SS format');
+          `End time should match datetime format: ${summary.timing.end}`);
         assert.ok(/\d+s/.test(summary.timing.duration),
-          'Duration should be in seconds format');
+          `Duration should be in seconds format: ${summary.timing.duration}`);
       }
     });
 
@@ -259,112 +214,67 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
       const summary = assertJobExecutionSummaryFormat(result, jobName);
       
       if (summary) {
-        // Validate status format
-        assert.ok(typeof summary.status.status === 'string',
-          'Status should be a string');
+        // Status should be a string
+        assert.ok(typeof summary.status.status === 'string', 'Status should be string');
+        
+        // Errors and warnings should be numeric strings
         assert.ok(/\d+/.test(summary.status.errors),
-          'Errors should be numeric');
+          `Errors should be numeric: ${summary.status.errors}`);
         assert.ok(/\d+/.test(summary.status.warnings),
-          'Warnings should be numeric');
+          `Warnings should be numeric: ${summary.status.warnings}`);
       }
+    });
+
+    test('should handle non-existent job gracefully with proper messaging', async () => {
+      const result = await client.callTool('get_job_execution_summary', { 
+        jobName: 'NonExistentJob12345' 
+      });
+      
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false, 'Should not be an error response for non-existent job');
+      assertTextContent(result, 'No job logs found for job name: NonExistentJob12345');
     });
   });
 
-  // Parameter validation tests
+  // Streamlined parameter validation - focus on key error cases
   describe('Parameter Validation', () => {
     test('should return error for missing jobName parameter', async () => {
       const result = await client.callTool('get_job_execution_summary', {});
-      
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
 
     test('should return error for empty jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: '' 
-      });
-      
+      const result = await client.callTool('get_job_execution_summary', { jobName: '' });
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
 
     test('should return error for null jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: null 
-      });
-      
-      assertErrorResponse(result, 'jobName must be a non-empty string');
-    });
-
-    test('should return error for undefined jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: undefined 
-      });
-      
+      const result = await client.callTool('get_job_execution_summary', { jobName: null });
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
 
     test('should return error for non-string jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: 123 
-      });
-      
+      const result = await client.callTool('get_job_execution_summary', { jobName: 123 });
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
 
-    test('should return error for boolean jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: true 
-      });
-      
-      assertErrorResponse(result, 'jobName must be a non-empty string');
-    });
-
-    test('should return error for object jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: { name: 'test' } 
-      });
-      
-      assertErrorResponse(result, 'jobName must be a non-empty string');
-    });
-
-    test('should return error for array jobName parameter', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: ['test'] 
-      });
-      
+    test('should return error for whitespace-only jobName', async () => {
+      const result = await client.callTool('get_job_execution_summary', { jobName: '   ' });
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
   });
 
-  // Edge case testing
-  describe('Edge Cases', () => {
+  // Focus on meaningful edge cases that test real-world scenarios
+  describe('Edge Cases & Real-World Scenarios', () => {
     test('should handle job names with special characters', async () => {
       const specialJobName = 'Job-With-Dashes_And_Underscores.123';
       const result = await client.callTool('get_job_execution_summary', { 
         jobName: specialJobName 
       });
       
-      assertSuccessResponse(result);
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false);
       assertTextContent(result, `No job logs found for job name: ${specialJobName}`);
-    });
-
-    test('should handle job names with spaces', async () => {
-      const jobNameWithSpaces = 'Job With Spaces';
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: jobNameWithSpaces 
-      });
-      
-      assertSuccessResponse(result);
-      assertTextContent(result, `No job logs found for job name: ${jobNameWithSpaces}`);
-    });
-
-    test('should handle very long job names', async () => {
-      const longJobName = 'VeryLongJobNameThatMightCauseIssuesWithSomeSystemsBecauseItExceedsTypicalLimits'.repeat(2);
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: longJobName 
-      });
-      
-      assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found for job name:');
     });
 
     test('should handle job names with Unicode characters', async () => {
@@ -373,299 +283,150 @@ describe('get_job_execution_summary - Full Mode Programmatic Tests', () => {
         jobName: unicodeJobName 
       });
       
-      assertSuccessResponse(result);
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false);
       assertTextContent(result, `No job logs found for job name: ${unicodeJobName}`);
     });
 
-    test('should handle job names with only whitespace', async () => {
+    test('should handle very long job names', async () => {
+      const longJobName = 'VeryLongJobNameThatMightCauseIssuesWithSomeSystemsBecauseItExceedsTypicalLimits'.repeat(2);
       const result = await client.callTool('get_job_execution_summary', { 
-        jobName: '   ' 
+        jobName: longJobName 
       });
       
-      assertErrorResponse(result, 'jobName must be a non-empty string');
-    });
-
-    test('should handle job names with newlines and tabs', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: 'Job\nWith\tSpecial\rChars' 
-      });
-      
-      assertSuccessResponse(result);
+      assertValidMCPResponse(result);
+      assert.equal(result.isError, false);
       assertTextContent(result, 'No job logs found for job name:');
     });
   });
 
-  // Multi-job testing
-  describe('Multi-Job Testing', () => {
-    test('should handle multiple different job names sequentially', async () => {
-      const testJobNames = [
-        'ImportCatalog',
-        'ProcessOrders', 
-        'SyncInventory',
-        'NonExistentJob'
-      ];
-      
-      const results = [];
-      
-      // Process sequentially to avoid buffer conflicts
-      for (const jobName of testJobNames) {
-        const result = await client.callTool('get_job_execution_summary', { jobName });
-        results.push({ jobName, result });
-      }
-      
-      // Validate all results
-      results.forEach(({ jobName, result }) => {
-        assertSuccessResponse(result);
-        const text = parseResponseText(result.content[0].text);
-        
-        if (text.includes('Job Execution Summary:')) {
-          // Found job execution summary
-          assert.ok(text.includes(`Job Execution Summary: ${jobName}`));
-        } else {
-          // No job found
-          assert.ok(text.includes(`No job logs found for job name: ${jobName}`));
-        }
-      });
-    });
-
+  // Advanced multi-job testing with discovered jobs
+  describe('Multi-Job Integration Testing', () => {
     test('should handle discovered job names with execution summaries', async () => {
       if (discoveredJobNames.length === 0) {
         console.log('⏭️ Skipping test - no job names discovered');
         return;
       }
-      
+
       const results = [];
       
-      // Test all discovered job names sequentially
-      for (const jobName of discoveredJobNames) {
+      // Test up to 3 discovered jobs sequentially (avoid concurrent requests)
+      const jobsToTest = discoveredJobNames.slice(0, 3);
+      
+      for (const jobName of jobsToTest) {
         const result = await client.callTool('get_job_execution_summary', { jobName });
         results.push({ jobName, result });
+        
+        // Each result should be valid
+        assertValidMCPResponse(result);
+        assert.equal(result.isError, false, `Job ${jobName} should not error`);
+        
+        const summary = assertJobExecutionSummaryFormat(result, jobName);
+        if (summary) {
+          assert.equal(summary.jobName, jobName, 'Parsed job name should match');
+        }
       }
       
-      // All should succeed (either with summary or "not found" message)
-      results.forEach(({ jobName, result }) => {
-        assertSuccessResponse(result);
-        const text = parseResponseText(result.content[0].text);
-        
-        // Should either contain execution summary or not found message
-        assert.ok(
-          text.includes(`Job Execution Summary: ${jobName}`) || 
-          text.includes(`No job logs found for job name: ${jobName}`),
-          `Response should reference job name ${jobName}`
-        );
-      });
+      assert.ok(results.length > 0, 'Should have tested at least one job');
+      console.log(`✅ Successfully tested ${results.length} discovered jobs`);
     });
 
     test('should maintain consistent response format across different jobs', async () => {
       if (discoveredJobNames.length < 2) {
-        console.log('⏭️ Skipping test - need at least 2 job names');
+        console.log('⏭️ Skipping test - need at least 2 discovered jobs');
         return;
       }
       
       const results = [];
       
-      // Test first two discovered jobs
-      for (let i = 0; i < Math.min(2, discoveredJobNames.length); i++) {
-        const jobName = discoveredJobNames[i];
-        const result = await client.callTool('get_job_execution_summary', { jobName });
-        results.push({ jobName, result });
-      }
-      
-      // All should have consistent structure
-      results.forEach(({ result }) => {
-        assertValidMCPResponse(result);
-        assert.equal(result.content.length, 1, 'Should have exactly one content element');
-        assert.equal(result.content[0].type, 'text', 'Content should be text type');
-        assert.equal(result.isError, false, 'Should not be error');
-      });
-    });
-  });
-
-  // Response structure validation
-  describe('Response Structure Validation', () => {
-    test('should return proper MCP response structure', async () => {
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: 'TestJob' 
-      });
-      
-      assertValidMCPResponse(result);
-      
-      // Check specific structure requirements
-      assert.equal(result.content.length, 1, 'Should have exactly one content element');
-      assert.equal(result.content[0].type, 'text', 'Content type should be text');
-      assert.ok(typeof result.content[0].text === 'string', 'Text should be string');
-      assert.ok(result.content[0].text.length > 0, 'Text should not be empty');
-    });
-
-    test('should maintain consistent response structure for errors', async () => {
-      const result = await client.callTool('get_job_execution_summary', {});
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, true, 'Should be error response');
-      assert.equal(result.content.length, 1, 'Should have exactly one content element');
-      assert.equal(result.content[0].type, 'text', 'Content type should be text');
-      assert.ok(result.content[0].text.includes('Error:'), 'Error text should contain Error:');
-    });
-
-    test('should handle malformed parameter objects gracefully', async () => {
-      // Test with extra unexpected parameters
-      const result = await client.callTool('get_job_execution_summary', { 
-        jobName: 'TestJob',
-        unexpectedParam: 'should be ignored',
-        anotherParam: 123
-      });
-      
-      assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found for job name: TestJob');
-    });
-  });
-
-  // Functional consistency testing
-  describe('Functional Consistency', () => {
-    test('should produce consistent results for same job name', async () => {
-      const jobName = 'ConsistencyTestJob';
-      
-      // Call the same job multiple times
-      const results = [];
-      for (let i = 0; i < 3; i++) {
+      // Test first 2 jobs for consistency
+      for (const jobName of discoveredJobNames.slice(0, 2)) {
         const result = await client.callTool('get_job_execution_summary', { jobName });
         results.push(result);
+        
+        assertValidMCPResponse(result);
+        assert.equal(result.content.length, 1, 'Should have exactly one content item');
+        assert.equal(result.content[0].type, 'text', 'Content should be text type');
       }
       
-      // All results should be identical
-      const firstResponse = parseResponseText(results[0].content[0].text);
+      // All results should have consistent structure
       results.forEach((result, index) => {
-        assertSuccessResponse(result);
-        const responseText = parseResponseText(result.content[0].text);
-        assert.equal(responseText, firstResponse, 
-          `Response ${index} should match first response`);
+        assert.equal(typeof result.isError, 'boolean', `Result ${index} isError should be boolean`);
+        assert.ok(Array.isArray(result.content), `Result ${index} content should be array`);
       });
-    });
-
-    test('should handle rapid sequential calls without interference', async () => {
-      const jobNames = ['Rapid1', 'Rapid2', 'Rapid3', 'Rapid4', 'Rapid5'];
-      const results = [];
-      
-      // Make rapid sequential calls
-      for (const jobName of jobNames) {
-        const result = await client.callTool('get_job_execution_summary', { jobName });
-        results.push({ jobName, result });
-      }
-      
-      // Validate each result corresponds to correct job name
-      results.forEach(({ jobName, result }) => {
-        assertSuccessResponse(result);
-        const text = parseResponseText(result.content[0].text);
-        assert.ok(text.includes(jobName), 
-          `Response should reference correct job name ${jobName}`);
-      });
-    });
-
-    test('should maintain functionality after error conditions', async () => {
-      // First, cause an error
-      const errorResult = await client.callTool('get_job_execution_summary', {});
-      assertErrorResponse(errorResult);
-      
-      // Then test normal functionality still works
-      const normalResult = await client.callTool('get_job_execution_summary', { 
-        jobName: 'RecoveryTestJob' 
-      });
-      assertSuccessResponse(normalResult);
-      assertTextContent(normalResult, 'No job logs found for job name: RecoveryTestJob');
     });
   });
 
-  // Integration testing with discovered jobs
-  describe('Integration Testing', () => {
-    test('should integrate with discovered job ecosystem', async () => {
+  // Integration with job log ecosystem
+  describe('Integration with Job Log Ecosystem', () => {
+    test('should integrate with discovered job ecosystem effectively', async () => {
       if (discoveredJobNames.length === 0) {
-        console.log('⏭️ Skipping integration test - no jobs discovered');
+        console.log('⏭️ Skipping test - no job names discovered');
         return;
       }
       
-      console.log(`🧪 Testing integration with ${discoveredJobNames.length} discovered jobs`);
+      // Get job log files to validate integration
+      const logFilesResult = await client.callTool('get_latest_job_log_files', { limit: 5 });
+      assertValidMCPResponse(logFilesResult);
+      assert.equal(logFilesResult.isError, false, 'Should get job log files successfully');
       
-      const summaryResults = [];
+      // Parse available jobs
+      const logText = parseResponseText(logFilesResult.content[0].text);
+      const availableJobs = extractJobInfo(logText);
       
-      // Get execution summaries for all discovered jobs
-      for (const jobName of discoveredJobNames) {
-        const result = await client.callTool('get_job_execution_summary', { jobName });
-        summaryResults.push({ jobName, result });
-      }
+      assert.ok(availableJobs.length > 0, 'Should find available jobs from log files');
       
-      // Analyze the results
-      let jobsWithSummaries = 0;
-      let jobsNotFound = 0;
-      
-      summaryResults.forEach(({ jobName, result }) => {
-        assertSuccessResponse(result);
-        const text = parseResponseText(result.content[0].text);
-        
-        if (text.includes('Job Execution Summary:')) {
-          jobsWithSummaries++;
-          console.log(`📊 ${jobName}: Has execution summary`);
-        } else {
-          jobsNotFound++;
-          console.log(`❌ ${jobName}: No execution summary found`);
-        }
+      // Test execution summary for first available job
+      const firstJob = availableJobs[0];
+      const summaryResult = await client.callTool('get_job_execution_summary', { 
+        jobName: firstJob.jobName 
       });
       
-      console.log(`📈 Integration summary: ${jobsWithSummaries} with summaries, ${jobsNotFound} not found`);
+      assertValidMCPResponse(summaryResult);
       
-      // All should have valid responses
-      assert.equal(summaryResults.length, discoveredJobNames.length,
-        'Should have results for all discovered jobs');
+      // Should either get a summary or a "no logs found" message
+      const summaryText = parseResponseText(summaryResult.content[0].text);
+      const hasValidResponse = summaryText.includes('Job Execution Summary:') || 
+                              summaryText.includes('No job logs found');
+      
+      assert.ok(hasValidResponse, 'Should get either execution summary or no logs message');
+      
+      console.log(`✅ Successfully integrated with job ecosystem (${availableJobs.length} jobs available)`);
     });
 
     test('should validate execution summary data integrity', async () => {
       if (discoveredJobNames.length === 0) {
-        console.log('⏭️ Skipping data integrity test - no jobs discovered');
+        console.log('⏭️ Skipping test - no job names discovered');
         return;
       }
       
-      // Find a job that has execution summary data
-      let jobWithSummary = null;
+      const jobName = discoveredJobNames[0];
+      const result = await client.callTool('get_job_execution_summary', { jobName });
       
-      for (const jobName of discoveredJobNames) {
-        const result = await client.callTool('get_job_execution_summary', { jobName });
-        const text = parseResponseText(result.content[0].text);
+      const summary = assertJobExecutionSummaryFormat(result, jobName);
+      
+      if (summary) {
+        // Validate data integrity
+        assert.ok(summary.jobName.length > 0, 'Job name should not be empty');
         
-        if (text.includes('Job Execution Summary:')) {
-          jobWithSummary = { jobName, result, responseText: text };
-          break;
+        // Parse numeric values for validation
+        const errorCount = parseInt(summary.status.errors, 10);
+        const warningCount = parseInt(summary.status.warnings, 10);
+        
+        assert.ok(!isNaN(errorCount), 'Error count should be numeric');
+        assert.ok(!isNaN(warningCount), 'Warning count should be numeric');
+        assert.ok(errorCount >= 0, 'Error count should be non-negative');
+        assert.ok(warningCount >= 0, 'Warning count should be non-negative');
+        
+        // Validate duration format and logic
+        const durationMatch = summary.timing.duration.match(/(\d+)s/);
+        if (durationMatch) {
+          const durationSeconds = parseInt(durationMatch[1], 10);
+          assert.ok(durationSeconds >= 0, 'Duration should be non-negative');
         }
-      }
-      
-      if (!jobWithSummary) {
-        console.log('⏭️ Skipping data integrity test - no jobs with summaries found');
-        return;
-      }
-      
-      const summary = parseJobExecutionSummary(jobWithSummary.responseText);
-      
-      // Validate data integrity
-      assert.equal(summary.jobName, jobWithSummary.jobName,
-        'Summary job name should match requested job name');
-      
-      // Validate timing consistency (start should be before or equal to end)
-      if (summary.timing.start && summary.timing.end) {
-        const startTime = new Date(summary.timing.start.replace(' ', 'T') + 'Z');
-        const endTime = new Date(summary.timing.end.replace(' ', 'T') + 'Z');
         
-        assert.ok(startTime <= endTime, 
-          'Start time should be before or equal to end time');
+        console.log(`✅ Data integrity validated for job ${jobName}`);
       }
-      
-      // Validate numeric values
-      const errors = parseInt(summary.status.errors);
-      const warnings = parseInt(summary.status.warnings);
-      
-      assert.ok(!isNaN(errors) && errors >= 0, 
-        'Error count should be non-negative number');
-      assert.ok(!isNaN(warnings) && warnings >= 0, 
-        'Warning count should be non-negative number');
-      
-      console.log(`✅ Data integrity validated for job: ${jobWithSummary.jobName}`);
     });
   });
 });

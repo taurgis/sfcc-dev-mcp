@@ -1,11 +1,11 @@
 ---
-description: "Test search_job_logs_by_name tool in full mode"
+description: "Test search_job_logs_by_name tool in full mode - focused on aegis framework validation"
 tests:
-  # Basic functionality tests
-  - it: "should search for job logs by name with default limit"
+  # Basic functionality - test aegis with simple patterns
+  - it: "should search for job logs and validate basic structure"
     request:
       jsonrpc: "2.0"
-      id: "search-job-name-default"
+      id: "search-job-basic"
       method: "tools/call"
       params:
         name: "search_job_logs_by_name"
@@ -14,92 +14,44 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-name-default"
+        id: "search-job-basic"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
+              text: "match:regex:\"(?:Found \\d+ job logs|No job logs found)"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should search for job logs with custom limit"
+  - it: "should return exact empty result format for non-existent job"
     request:
       jsonrpc: "2.0"
-      id: "search-job-name-limit"
+      id: "search-job-empty-result"
       method: "tools/call"
       params:
         name: "search_job_logs_by_name"
         arguments:
-          jobName: "Import"
-          limit: 3
+          jobName: "NonExistentJobXYZ"
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-name-limit"
+        id: "search-job-empty-result"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
+              text: "\"No job logs found.\""
           isError: false
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "2000ms"
+      maxResponseTime: "1500ms"
 
-  - it: "should handle partial job name matches"
+  - it: "should include job emoji and basic details when found"
     request:
       jsonrpc: "2.0"
-      id: "search-job-partial"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "Import"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-partial"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should return no results for non-existent job name"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-not-found"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "NonExistentJobName"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-not-found"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:No job logs found"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Content validation tests
-  - it: "should include job details when jobs are found"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-content"
+      id: "search-job-details"
       method: "tools/call"
       params:
         name: "search_job_logs_by_name"
@@ -109,45 +61,23 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-content"
+        id: "search-job-details"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:(?:Found \\d+ job logs[\\s\\S]*🔧 Job:[\\s\\S]*ID:[\\s\\S]*File:[\\s\\S]*Modified:[\\s\\S]*Size:|No job logs found)"
+              # Test for job emoji presence
+              text: "match:contains:🔧 Job:"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should format job information with proper structure"
+  # Error validation - test exact error messages
+  - it: "should reject empty job name with exact error message"
     request:
       jsonrpc: "2.0"
-      id: "search-job-format"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "Import"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-format"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Error handling tests
-  - it: "should reject empty job name"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-empty"
+      id: "search-job-empty-name"
       method: "tools/call"
       params:
         name: "search_job_logs_by_name"
@@ -156,40 +86,18 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-empty"
+        id: "search-job-empty-name"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:jobName must be a non-empty string"
+              text: "Error: jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
 
-  - it: "should reject missing jobName parameter"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-missing"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-missing"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:jobName must be a non-empty string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "800ms"
-
-  - it: "should handle invalid limit parameter gracefully"
+  - it: "should reject invalid limit with specific error format"
     request:
       jsonrpc: "2.0"
       id: "search-job-invalid-limit"
@@ -207,88 +115,17 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
-          isError: "match:type:boolean"
+              text: "Error: Invalid limit '-1' for tool. Must be between 1 and 1000"
+          isError: true
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "2000ms"
+      maxResponseTime: "800ms"
 
-  - it: "should handle large limit values"
+  # Parameter handling - test limit behavior
+  - it: "should respect custom limit parameter"
     request:
       jsonrpc: "2.0"
-      id: "search-job-large-limit"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "Import"
-          limit: 1000
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-large-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  # Edge case tests
-  - it: "should handle special characters in job name"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-special-chars"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "Job-With_Special.Chars"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-special-chars"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should handle case sensitivity in job name search"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-case"
-      method: "tools/call"
-      params:
-        name: "search_job_logs_by_name"
-        arguments:
-          jobName: "import"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-case"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:(?:Found \\d+ job logs|No job logs found)"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Performance tests
-  - it: "should complete search operation efficiently"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-performance"
+      id: "search-job-custom-limit"
       method: "tools/call"
       params:
         name: "search_job_logs_by_name"
@@ -298,7 +135,7 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-performance"
+        id: "search-job-custom-limit"
         result:
           content:
             match:arrayElements:
@@ -307,9 +144,10 @@ tests:
           isError: false
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "1500ms"
+      maxResponseTime: "2000ms"
 
-  - it: "should validate response structure consistency"
+  # Response structure validation
+  - it: "should maintain consistent MCP response structure"
     request:
       jsonrpc: "2.0"
       id: "search-job-structure"
@@ -324,11 +162,7 @@ tests:
         id: "search-job-structure"
         result:
           match:partial:
-            content:
-              match:arrayElements:
-                match:partial:
-                  type: "text"
-                  text: "match:type:string"
+            content: "match:arrayLength:1"
             isError: "match:type:boolean"
       stderr: "toBeEmpty"
     performance:

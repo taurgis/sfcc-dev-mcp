@@ -6,6 +6,82 @@ The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 Release comparison links are provided at the bottom. Earlier patch releases on the same day may represent rapid iterations (e.g. architectural + documentation expansions). Dates are derived from git tag timestamps.
 
+## [1.0.15] - 2025-10-03
+### Added
+- **SFRA Best Practices Expansion**: 
+  - SFRA SCSS best practices guide with theming and override patterns
+  - SFRA client-side JavaScript guide covering AJAX flows, validation, and accessibility
+- **OCAPI Select Parameter Support**: Comprehensive support for OCAPI select syntax to control response field selection
+- **System Object Pagination**: Added pagination support for system object definitions with configurable start/count parameters
+- **Chronological Log Sorting**: Enhanced log file sorting by last modification time for accurate recency ordering
+- **OCAPI Mock Server**: Complete OCAPI mock server implementation for testing with site preferences and system objects
+- **Documentation Site Enhancements**:
+  - Vite React SSG migration for improved build performance and SSR capabilities
+  - GitHub link integration in sidebar
+  - Newcomer CTA component for better onboarding
+  - Mobile web app capability with enhanced PWA support
+  - Enhanced schema.org metadata for better SEO
+- **Performance Best Practices**: Added detailed SCAPI web-tier cache fundamentals, personalized cache keys, and script-level cache controls
+- **Custom Endpoint Caching**: Comprehensive caching strategies documentation for custom SCAPI endpoints with two-tier pattern examples
+
+### Changed
+- **Testing Framework Migration**: Replaced Conductor with Aegis for MCP testing with improved declarative YAML patterns
+- **Documentation Modernization**:
+  - Revamped documentation site with improved layout and readability
+  - Consolidated agent instructions with enhanced clarity
+  - Updated all Aegis usage examples to use `npx` commands
+  - Added `-y` flag to npx commands in documentation
+- **Code Quality Improvements**:
+  - Modularized OCAPI route handling for better maintainability
+  - Centralized site date constants
+  - Improved code block rendering with LightCodeContainer component
+  - Enhanced sidebar header display
+- **Node.js Version Updates**: Updated Node.js versions and related documentation
+- **URL Structure**: Enforced trailing slashes for routes with consistent URL patterns
+- **AI Interface Enhancements**: Improved AI interface and configuration documentation
+
+### Fixed
+- **SSR Hydration**: Fixed SSR hydration mismatch in OnThisPage component
+- **Hash Navigation**: Resolved hash navigation issues after search operations
+
+### Documentation
+- **CSRF Middleware**: Clarified CSRF middleware usage patterns in SFRA
+- **Remote Include Architecture**: Added detailed explanation of remote include patterns for dynamic content
+- **Aegis Testing**: Comprehensive updates to Aegis testing documentation with best practices
+- **Performance Guidance**: Enhanced performance best practices with SCAPI-specific caching strategies
+
+### Testing
+- **Comprehensive Test Coverage**:
+  - OCAPI error handling and validation tests
+  - Site preferences search tool tests
+  - System object attribute search tests with complex query support
+  - Full mode tests for object definitions and search logs
+  - Comprehensive select parameter validation tests
+  - MCP tool tests with Aegis framework
+- **Test Infrastructure**:
+  - OCAPI test server setup integrated into CI/CD pipeline
+  - Refactored tests to use centralized SFCC mock server
+  - Enhanced test targeting and organization
+
+### Dependencies
+- **GitHub Actions Updates**:
+  - `actions/checkout` from 4 to 5
+  - `actions/configure-pages` from 4 to 5
+  - `actions/setup-node` from 4 to 5
+  - `actions/upload-pages-artifact` from 3 to 4
+  - `codecov/codecov-action` from 5.5.0 to 5.5.1
+- **Development Dependencies**:
+  - `browserslist` from 4.25.2 to 4.26.2
+  - `vite-react-ssg` to v0.8.9
+  - Updated ESLint group packages
+  - Updated `ts-jest` in Jest group
+
+### Notes
+- Major testing infrastructure modernization with Aegis framework adoption
+- Significant documentation site improvements with SSG migration and enhanced UX
+- Expanded SFRA best practices coverage for complete development lifecycle
+- Enhanced OCAPI functionality with select parameter support and comprehensive mocking
+
 ## [1.0.14] - 2025-09-16
 ### Added
 - **SFCC Class Information Filtering**: Enhanced `get_sfcc_class_info` tool with comprehensive filtering capabilities including search parameter, inclusion/exclusion of descriptions, constants, properties, methods, and inheritance hierarchy.
@@ -191,7 +267,8 @@ Release comparison links are provided at the bottom. Earlier patch releases on t
 ---
 
 ### Comparison Links
-[1.0.14]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.13...HEAD
+[1.0.15]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/taurgis/sfcc-dev-mcp/compare/v1.0.10...v1.0.11

@@ -4,10 +4,10 @@
 # Tests both successful responses and error handling scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query get_sfcc_class_documentation '{"className": "dw.catalog.Product"}' --config "conductor.config.docs-only.json"
-# conductor query get_sfcc_class_documentation '{"className": "dw.order.Order"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-sfcc-class-documentation.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query get_sfcc_class_documentation '{"className": "dw.catalog.Product"}' --config "aegis.config.docs-only.json"
+# aegis query get_sfcc_class_documentation '{"className": "dw.order.Order"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server get_sfcc_class_documentation tool - comprehensive validation"
 

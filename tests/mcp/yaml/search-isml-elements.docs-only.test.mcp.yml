@@ -1,0 +1,312 @@
+# ==================================================================================
+# SFCC MCP Server - search_isml_elements Tool YAML Tests
+# Comprehensive testing for ISML element search functionality
+# Tests search queries, category filtering, relevance scoring, and result limits
+# 
+# Discovery Commands:
+# npx aegis query search_isml_elements 'query:loop' --config "aegis.config.docs-only.json"
+# npx aegis query search_isml_elements 'query:format' --config "aegis.config.docs-only.json"
+# npx aegis query search_isml_elements 'query:cache' --config "aegis.config.docs-only.json"
+# npx aegis query search_isml_elements 'query:condition|category:control-flow' --config "aegis.config.docs-only.json"
+# 
+# Quick Test Commands:
+# npx aegis "tests/mcp/yaml/search-isml-elements.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# npx aegis "tests/mcp/yaml/search-isml-elements.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# ==================================================================================
+description: "SFCC MCP Server search_isml_elements tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list search_isml_elements tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:search_isml_elements
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL SEARCH TESTS
+# ==================================================================================
+  - it: "should search for loop-related elements"
+    request:
+      jsonrpc: "2.0"
+      id: "search-loop-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "loop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-loop-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isloop"
+          isError: false
+      performance:
+        maxResponseTime: "1500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should search for formatting elements"
+    request:
+      jsonrpc: "2.0"
+      id: "search-format-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "format"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-format-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isprint"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should search for cache elements"
+    request:
+      jsonrpc: "2.0"
+      id: "search-cache-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "cache"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-cache-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:iscache"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should search for conditional elements"
+    request:
+      jsonrpc: "2.0"
+      id: "search-condition-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "condition"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-condition-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isif"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should filter search by category"
+    request:
+      jsonrpc: "2.0"
+      id: "search-category-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "condition"
+          category: "control-flow"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isif"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should respect limit parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-limit-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "element"
+          limit: 5
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-limit-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include relevance scoring"
+    request:
+      jsonrpc: "2.0"
+      id: "search-relevance-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "loop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-relevance-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:relevance"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include preview snippets"
+    request:
+      jsonrpc: "2.0"
+      id: "search-preview-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "loop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-preview-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:preview"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should search for scripting elements"
+    request:
+      jsonrpc: "2.0"
+      id: "search-script-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "script"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-script-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isscript"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+  - it: "should require query parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:query"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return empty array for no matches"
+    request:
+      jsonrpc: "2.0"
+      id: "search-nomatch-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "zzznothingfound"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-nomatch-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:^\\[\\s*\\]$"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE & RESOURCE VALIDATION
+# ==================================================================================
+  - it: "should complete search within performance SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "loop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "1500ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT VALIDATION TESTS
+# ==================================================================================
+  - it: "should return valid JSON array structure"
+    request:
+      jsonrpc: "2.0"
+      id: "json-valid-1"
+      method: "tools/call"
+      params:
+        name: "search_isml_elements"
+        arguments:
+          query: "loop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-valid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      stderr: "toBeEmpty"

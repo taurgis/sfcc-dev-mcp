@@ -184,7 +184,7 @@ describe('JobLogToolHandler', () => {
       const result = await handler.handle('get_job_log_entries', { level: 'invalid' }, Date.now());
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Invalid log level: invalid');
+      expect(result.content[0].text).toContain("Invalid log level 'invalid' for");
     });
   });
 

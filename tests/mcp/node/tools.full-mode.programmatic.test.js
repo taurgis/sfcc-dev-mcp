@@ -1,13 +1,13 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool Presence Only)', () => {
   let client;
   let toolsCache;
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
   });
 
   after(async () => {
@@ -41,10 +41,9 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
     assert.ok(toolNames.includes('get_sfcc_class_info'), 'Should have SFCC class info tool');
     assert.ok(toolNames.includes('search_sfcc_classes'), 'Should have SFCC class search tool');
     assert.ok(toolNames.includes('list_sfcc_classes'), 'Should have SFCC class list tool');
-    
-    // Best Practices Tools  
-    assert.ok(toolNames.includes('get_available_best_practice_guides'), 'Should have best practices list tool');
-    assert.ok(toolNames.includes('get_best_practice_guide'), 'Should have best practice guide tool');
+
+    // Agent Instructions Tool
+    assert.ok(toolNames.includes('sync_agent_instructions'), 'Should have agent instructions sync tool');
     
     // SFRA Documentation Tools
     assert.ok(toolNames.includes('get_available_sfra_documents'), 'Should have SFRA documents list tool');
@@ -107,11 +106,11 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
   // 3. This test suite is designed to verify tool PRESENCE, not functionality
   // 4. Tool functionality testing should be done against real SFCC development instances
 
-  test('should have exactly 36 tools available in full mode', async () => {
+  test('should have exactly 40 tools available in full mode', async () => {
     const tools = toolsCache || await client.listTools();
     
-    // Full mode should have exactly 36 tools (same count as YAML test)
-    assert.equal(tools.length, 36, `Should have exactly 36 tools, got ${tools.length}`);
+    // Full mode should have exactly 40 tools
+    assert.equal(tools.length, 40, `Should have exactly 40 tools, got ${tools.length}`);
   });
 
   test('should have WebDAV-dependent tools (log analysis)', async () => {
@@ -138,8 +137,8 @@ describe('SFCC Development MCP Server - Full Mode with Credentials Tests (Tool P
     
     // Verify that docs-only tools are NOT missing in full mode
     assert.ok(toolNames.includes('search_sfra_documentation'), 'Should have search_sfra_documentation tool');
-    assert.ok(toolNames.includes('get_best_practice_guide'), 'Should have get_best_practice_guide tool');
     assert.ok(toolNames.includes('get_sfcc_class_info'), 'Should have get_sfcc_class_info tool');
+    assert.ok(toolNames.includes('sync_agent_instructions'), 'Should have sync_agent_instructions tool');
   });
 
   test('should validate all tool schemas in full mode', async () => {

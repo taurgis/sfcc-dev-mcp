@@ -15,13 +15,13 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('SFCC MCP Server - get_sfra_documents_by_category Tool Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

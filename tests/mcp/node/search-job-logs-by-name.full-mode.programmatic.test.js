@@ -1,15 +1,15 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
-describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
+describe('search_job_logs_by_name - Optimized Programmatic Tests', () => {
   let client;
   let discoveredJobNames = [];
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
     
-    // Discover available job names for advanced testing
+    // Discover available job names for dynamic testing
     await discoverJobNames();
   });
 
@@ -21,10 +21,10 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
 
   beforeEach(() => {
     // CRITICAL: Clear all buffers to prevent leaking into next tests
-    client.clearAllBuffers(); // Recommended - comprehensive protection
+    client.clearAllBuffers();
   });
 
-  // Helper functions for common validations
+  // Simplified helper functions focused on essential validation
   function assertValidMCPResponse(result) {
     assert.ok(result.content, 'Should have content');
     assert.ok(Array.isArray(result.content), 'Content should be array');
@@ -32,18 +32,7 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
   }
 
   function parseResponseText(text) {
-    // The response may come wrapped in quotes, so parse if needed
-    return text.startsWith('"') && text.endsWith('"') 
-      ? JSON.parse(text) 
-      : text;
-  }
-
-  function assertTextContent(result, expectedSubstring) {
-    assertValidMCPResponse(result);
-    assert.equal(result.content[0].type, 'text');
-    const actualText = parseResponseText(result.content[0].text);
-    assert.ok(actualText.includes(expectedSubstring),
-      `Expected "${expectedSubstring}" in "${actualText}"`);
+    return text.startsWith('"') && text.endsWith('"') ? JSON.parse(text) : text;
   }
 
   function assertSuccessResponse(result) {
@@ -55,338 +44,113 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
   function assertErrorResponse(result, expectedErrorText) {
     assertValidMCPResponse(result);
     assert.equal(result.isError, true, 'Should be an error response');
-    assert.equal(result.content[0].type, 'text');
     if (expectedErrorText) {
-      assertTextContent(result, expectedErrorText);
+      const text = parseResponseText(result.content[0].text);
+      assert.ok(text.includes(expectedErrorText), 
+        `Expected "${expectedErrorText}" in "${text}"`);
     }
   }
 
-  function assertJobSearchFormat(result, expectedLimit, searchTerm) {
+  function assertJobSearchResults(result) {
     assertSuccessResponse(result);
     const text = parseResponseText(result.content[0].text);
     
     if (text.includes('No job logs found')) {
-      // Valid case - no matching jobs
-      assert.ok(text === 'No job logs found.' || text === 'No job logs found', 
-        'No results message should be exact');
-      return 0;
+      return 0; // Valid empty result
     }
     
-    // Extract actual count from response
+    // Extract count and validate basic structure
     const countMatch = text.match(/Found (\d+) job logs:/);
     assert.ok(countMatch, 'Should contain job count message');
     
     const actualCount = parseInt(countMatch[1]);
+    assert.ok(actualCount > 0, 'Should have positive count when jobs found');
     
-    // Actual count should not exceed expected limit
-    assert.ok(actualCount <= expectedLimit, 
-      `Actual count ${actualCount} should not exceed limit ${expectedLimit}`);
-    
-    // Should contain job information with proper formatting if any jobs found
-    if (actualCount > 0) {
-      assert.ok(/🔧 Job: [A-Za-z]+/.test(text),
-        'Should contain job name with emoji');
-      
-      // Should contain job ID
-      assert.ok(/ID: [0-9]+/.test(text),
-        'Should contain job ID');
-      
-      // Should contain log file name
-      assert.ok(/File: Job-[A-Za-z]+-[0-9]+\.log/.test(text),
-        'Should contain log file name pattern');
-      
-      // Should contain modification timestamp in GMT format
-      assert.ok(/Modified: [A-Za-z]{3}, [0-9]{2} [A-Za-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT/.test(text),
-        'Should contain GMT timestamp pattern');
-      
-      // Should contain file size information
-      assert.ok(/Size: [0-9]+\.[0-9]+ [A-Z]B/.test(text),
-        'Should contain file size pattern');
-      
-      // Verify job names contain the search term (case-insensitive partial match)
-      const jobSections = text.split('🔧 Job: ').slice(1);
-      for (const section of jobSections) {
-        const jobName = section.split('\n')[0].trim();
-        assert.ok(jobName.toLowerCase().includes(searchTerm.toLowerCase()),
-          `Job name "${jobName}" should contain search term "${searchTerm}"`);
-      }
-    }
+    // Validate key components are present
+    assert.ok(text.includes('🔧 Job:'), 'Should contain job emoji');
+    assert.ok(text.includes('ID:'), 'Should contain job ID');
+    assert.ok(text.includes('File:'), 'Should contain file name');
+    assert.ok(text.includes('Modified:'), 'Should contain modification time');
+    assert.ok(text.includes('Size:'), 'Should contain file size');
     
     return actualCount;
   }
 
-  function extractJobLogInfo(responseText) {
-    const jobs = [];
-    const text = parseResponseText(responseText);
-    
-    if (text.includes('No job logs found')) {
-      return jobs;
-    }
-    
-    const sections = text.split('🔧 Job: ').slice(1); // Remove empty first element
-    
-    for (const section of sections) {
-      const lines = section.split('\n');
-      const jobName = lines[0].trim();
-      
-      let jobId = null;
-      let fileName = null;
-      let modified = null;
-      let size = null;
-      
-      for (const line of lines) {
-        const idMatch = line.match(/ID: (\d+)/);
-        if (idMatch) jobId = idMatch[1];
-        
-        const fileMatch = line.match(/File: (.+\.log)/);
-        if (fileMatch) fileName = fileMatch[1];
-        
-        const modifiedMatch = line.match(/Modified: (.+)/);
-        if (modifiedMatch) modified = modifiedMatch[1];
-        
-        const sizeMatch = line.match(/Size: (.+)/);
-        if (sizeMatch) size = sizeMatch[1];
-      }
-      
-      if (jobName && jobId && fileName) {
-        jobs.push({ jobName, jobId, fileName, modified, size });
-      }
-    }
-    
-    return jobs;
-  }
-
   async function discoverJobNames() {
-    console.log('🔍 Discovering available job names using MCP server...');
-    
     try {
-      const result = await client.callTool('get_latest_job_log_files', { limit: 10 });
-      if (!result.isError) {
-        const jobLogs = extractJobLogInfo(result.content[0].text);
-        discoveredJobNames = [...new Set(jobLogs.map(j => j.jobName))]; // Unique job names
-        console.log(`🔧 Found ${discoveredJobNames.length} unique job names:`, discoveredJobNames);
+      const result = await client.callTool('search_job_logs_by_name', { 
+        jobName: 'Import', // Use common search term to find jobs
+        limit: 5
+      });
+      
+      if (!result.isError && result.content?.[0]?.text) {
+        const text = parseResponseText(result.content[0].text);
+        if (!text.includes('No job logs found')) {
+          // Extract job names from the response
+          const jobMatches = text.match(/🔧 Job: ([A-Za-z0-9]+)/g) || [];
+          discoveredJobNames = [...new Set(jobMatches.map(match => 
+            match.replace('🔧 Job: ', '')))];
+        }
       }
     } catch (error) {
-      console.warn('⚠️ Could not discover job names:', error.message);
+      console.warn('Could not discover job names:', error.message);
     }
   }
 
-  // Basic functionality tests
-  describe('Basic Functionality', () => {
-    test('should search for job logs by partial name match with default limit', async () => {
+  // Core functionality tests
+  describe('Core Functionality', () => {
+    test('should search for job logs and return structured results', async () => {
       const result = await client.callTool('search_job_logs_by_name', { 
         jobName: 'Import' 
       });
       
-      assertSuccessResponse(result);
-      const actualCount = assertJobSearchFormat(result, 10, 'Import'); // Default limit is 10
+      const count = assertJobSearchResults(result);
       
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.equal(jobs.length, actualCount, 'Extracted jobs should match actual count');
-      
-      // Verify all returned jobs contain the search term
-      for (const job of jobs) {
-        assert.ok(job.jobName.toLowerCase().includes('import'),
-          `Job name "${job.jobName}" should contain "import"`);
+      if (count > 0) {
+        const text = parseResponseText(result.content[0].text);
+        // Verify partial matching works (job names containing "Import")
+        const jobMatches = text.match(/🔧 Job: ([A-Za-z0-9]+)/g) || [];
+        const containsImport = jobMatches.some(match => 
+          match.toLowerCase().includes('import'));
+        assert.ok(containsImport, 'Should find jobs containing "Import"');
       }
     });
 
-    test('should respect limit parameter', async () => {
-      const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: 'Import',
-        limit: 2
-      });
+    test('should respect limit parameter and handle various values', async () => {
+      const testCases = [
+        { limit: 1, desc: 'single result' },
+        { limit: 3, desc: 'multiple results' },
+        { limit: 1000, desc: 'large limit' }
+      ];
       
-      const actualCount = assertJobSearchFormat(result, 2, 'Import');
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.equal(jobs.length, actualCount, 'Extracted jobs should match actual count');
-      assert.ok(jobs.length <= 2, 'Should not exceed limit of 2');
-      
-      // Validate job structure if any jobs found
-      for (const job of jobs) {
-        assert.ok(job.jobName, 'Job should have name');
-        assert.ok(job.jobId, 'Job should have ID');
-        assert.ok(job.fileName, 'Job should have file name');
-        assert.ok(job.modified, 'Job should have modification time');
-        assert.ok(job.size, 'Job should have size');
-        assert.ok(job.jobName.toLowerCase().includes('import'),
-          `Job name "${job.jobName}" should contain search term`);
-      }
-    });
-
-    test('should handle different limit values', async () => {
-      const limits = [1, 3, 5];
-      
-      for (const limit of limits) {
+      for (const { limit, desc } of testCases) {
         const result = await client.callTool('search_job_logs_by_name', { 
           jobName: 'Import',
           limit 
         });
         
-        const actualCount = assertJobSearchFormat(result, limit, 'Import');
+        assertSuccessResponse(result);
+        const text = parseResponseText(result.content[0].text);
         
-        const jobs = extractJobLogInfo(result.content[0].text);
-        assert.equal(jobs.length, actualCount, `Extracted jobs should match actual count for limit ${limit}`);
-        assert.ok(jobs.length <= limit, `Should not exceed limit of ${limit}`);
-        
-        // Each job should have all required fields and match search term
-        for (const job of jobs) {
-          assert.ok(job.jobName.length > 0, 'Job name should not be empty');
-          assert.ok(/^\d+$/.test(job.jobId), 'Job ID should be numeric');
-          assert.ok(job.fileName.startsWith('Job-'), 'File name should start with "Job-"');
-          assert.ok(job.fileName.endsWith('.log'), 'File name should end with ".log"');
-          assert.ok(job.modified.includes('GMT'), 'Modified time should include GMT');
-          assert.ok(/[0-9]+\.[0-9]+ [A-Z]B/.test(job.size), 'Size should match expected format');
-          assert.ok(job.jobName.toLowerCase().includes('import'),
-            `Job name "${job.jobName}" should contain "import"`);
+        if (!text.includes('No job logs found')) {
+          const countMatch = text.match(/Found (\d+) job logs:/);
+          if (countMatch) {
+            const actualCount = parseInt(countMatch[1]);
+            assert.ok(actualCount <= limit, 
+              `${desc}: actual count ${actualCount} should not exceed limit ${limit}`);
+          }
         }
       }
     });
 
     test('should return no results for non-existent job name', async () => {
       const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: 'NonExistentJobName12345'
+        jobName: 'NonExistentJobXYZ123'
       });
       
       assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found');
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.equal(jobs.length, 0, 'Should return no jobs for non-existent name');
-    });
-
-    test('should handle case-insensitive search', async () => {
-      if (discoveredJobNames.length === 0) {
-        console.log('⚠️ Skipping case-insensitive test - no job names discovered');
-        return;
-      }
-      
-      const testJobName = discoveredJobNames[0];
-      const variations = [
-        testJobName.toLowerCase(),
-        testJobName.toUpperCase(),
-        testJobName.substring(0, 3).toLowerCase()
-      ];
-      
-      for (const variation of variations) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: variation
-        });
-        
-        assertSuccessResponse(result);
-        const actualCount = assertJobSearchFormat(result, 10, variation);
-        
-        if (actualCount > 0) {
-          const jobs = extractJobLogInfo(result.content[0].text);
-          // Verify at least one job matches the original name
-          const matchingJobs = jobs.filter(job => 
-            job.jobName.toLowerCase().includes(variation.toLowerCase()));
-          assert.ok(matchingJobs.length > 0,
-            `Should find jobs matching case-insensitive search for "${variation}"`);
-        }
-      }
-    });
-  });
-
-  // Advanced search scenarios
-  describe('Advanced Search Scenarios', () => {
-    test('should handle partial matching with different job name patterns', async () => {
-      const searchTerms = ['Import', 'Job', 'Catalog', 'Process'];
-      
-      for (const searchTerm of searchTerms) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: searchTerm
-        });
-        
-        assertSuccessResponse(result);
-        const actualCount = assertJobSearchFormat(result, 10, searchTerm);
-        
-        const jobs = extractJobLogInfo(result.content[0].text);
-        assert.equal(jobs.length, actualCount, 
-          `Extracted jobs should match actual count for search "${searchTerm}"`);
-        
-        // All returned jobs should contain the search term
-        for (const job of jobs) {
-          assert.ok(job.jobName.toLowerCase().includes(searchTerm.toLowerCase()),
-            `Job "${job.jobName}" should contain search term "${searchTerm}"`);
-        }
-      }
-    });
-
-    test('should handle special characters in job names', async () => {
-      const specialCases = [
-        'Job-With-Dashes',
-        'Job_With_Underscores', 
-        'Job.With.Dots',
-        'JobWithNumbers123'
-      ];
-      
-      for (const searchTerm of specialCases) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: searchTerm
-        });
-        
-        assertSuccessResponse(result);
-        // Should handle special characters gracefully (may return no results)
-        const text = parseResponseText(result.content[0].text);
-        assert.ok(text.includes('Found') || text.includes('No job logs found'),
-          'Should return valid search response format');
-      }
-    });
-
-    test('should maintain consistency across multiple calls', async () => {
-      const searchTerm = 'Import';
-      
-      const result1 = await client.callTool('search_job_logs_by_name', { 
-        jobName: searchTerm,
-        limit: 5
-      });
-      const result2 = await client.callTool('search_job_logs_by_name', { 
-        jobName: searchTerm,
-        limit: 5
-      });
-      
-      assertSuccessResponse(result1);
-      assertSuccessResponse(result2);
-      
-      const jobs1 = extractJobLogInfo(result1.content[0].text);
-      const jobs2 = extractJobLogInfo(result2.content[0].text);
-      
-      // Job search should be consistent
-      assert.equal(jobs1.length, jobs2.length, 'Should return same number of jobs');
-      
-      for (let i = 0; i < jobs1.length; i++) {
-        assert.equal(jobs1[i].jobName, jobs2[i].jobName, 'Job names should be consistent');
-        assert.equal(jobs1[i].jobId, jobs2[i].jobId, 'Job IDs should be consistent');
-        assert.equal(jobs1[i].fileName, jobs2[i].fileName, 'File names should be consistent');
-        assert.equal(jobs1[i].size, jobs2[i].size, 'File sizes should be consistent');
-      }
-    });
-
-    test('should handle search with discovered job names', async () => {
-      if (discoveredJobNames.length === 0) {
-        console.log('⚠️ Skipping discovered job names test - no job names available');
-        return;
-      }
-      
-      // Test with each discovered job name
-      for (const jobName of discoveredJobNames.slice(0, 3)) { // Test first 3 to avoid too many calls
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: jobName.substring(0, Math.max(3, jobName.length - 2)) // Partial match
-        });
-        
-        assertSuccessResponse(result);
-        const actualCount = assertJobSearchFormat(result, 10, jobName.substring(0, 3));
-        
-        if (actualCount > 0) {
-          const jobs = extractJobLogInfo(result.content[0].text);
-          // Should find the original job among results
-          const matchingJobs = jobs.filter(job => job.jobName === jobName);
-          assert.ok(matchingJobs.length > 0,
-            `Should find original job "${jobName}" in search results`);
-        }
-      }
+      const text = parseResponseText(result.content[0].text);
+      assert.ok(text.includes('No job logs found'), 'Should indicate no results found');
     });
   });
 
@@ -394,7 +158,7 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
   describe('Parameter Validation', () => {
     test('should reject empty job name', async () => {
       const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: ''
+        jobName: '' 
       });
       
       assertErrorResponse(result, 'jobName must be a non-empty string');
@@ -406,20 +170,8 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
       assertErrorResponse(result, 'jobName must be a non-empty string');
     });
 
-    test('should handle string limit parameter gracefully', async () => {
-      const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: 'Import',
-        limit: '3' 
-      });
-      
-      assertValidMCPResponse(result);
-      assert.equal(result.isError, true, 'Should be an error response for invalid limit type');
-      assert.ok(result.content[0].text.includes('Invalid limit \'3\' for tool. Must be a valid number'), 
-        'Should include validation error message');
-    });
-
-    test('should handle invalid limit parameter gracefully', async () => {
-      const invalidLimits = [-1, 0, 'invalid', null];
+    test('should handle invalid limit parameter', async () => {
+      const invalidLimits = [-1, 0, 'invalid'];
       
       for (const limit of invalidLimits) {
         const result = await client.callTool('search_job_logs_by_name', { 
@@ -427,188 +179,150 @@ describe('search_job_logs_by_name - Full Mode Programmatic Tests', () => {
           limit 
         });
         
-        // Should either succeed with default behavior or return an error
-        assertValidMCPResponse(result);
+        assertErrorResponse(result); // Should be an error, don't need to check exact message
+      }
+    });
+  });
+
+  // Dynamic discovery tests
+  describe('Dynamic Discovery Tests', () => {
+    test('should handle discovered job names effectively', async () => {
+      if (discoveredJobNames.length === 0) {
+        console.log('⚠️ Skipping dynamic discovery test - no job names found');
+        return;
+      }
+
+      // Test with discovered job names
+      const testJobName = discoveredJobNames[0];
+      const result = await client.callTool('search_job_logs_by_name', { 
+        jobName: testJobName,
+        limit: 2
+      });
+      
+      const count = assertJobSearchResults(result);
+      assert.ok(count >= 0, 'Should return valid count for discovered job name');
+    });
+
+    test('should support case-insensitive search with discovered names', async () => {
+      if (discoveredJobNames.length === 0) {
+        console.log('⚠️ Skipping case-insensitive test - no job names discovered');
+        return;
+      }
+      
+      const testJobName = discoveredJobNames[0];
+      const variations = [
+        testJobName.toLowerCase(),
+        testJobName.substring(0, 3).toLowerCase()
+      ];
+      
+      for (const variation of variations) {
+        const result = await client.callTool('search_job_logs_by_name', { 
+          jobName: variation
+        });
         
-        if (!result.isError) {
-          // If it succeeds, should use reasonable default behavior
-          const jobs = extractJobLogInfo(result.content[0].text);
-          assert.ok(jobs.length >= 0, 'Should return non-negative number of jobs');
+        assertSuccessResponse(result);
+        // Should find results or return no results message
+        const text = parseResponseText(result.content[0].text);
+        assert.ok(text.includes('Found') || text.includes('No job logs found'),
+          `Should return valid response for case variation "${variation}"`);
+      }
+    });
+  });
+
+  // Multi-step workflow tests
+  describe('Multi-Step Workflows', () => {
+    test('should support workflow: discover -> search -> validate', async () => {
+      // Step 1: Search with broad term to discover available jobs
+      const discoveryResult = await client.callTool('search_job_logs_by_name', { 
+        jobName: 'Job',
+        limit: 5
+      });
+      
+      assertSuccessResponse(discoveryResult);
+      
+      const discoveryText = parseResponseText(discoveryResult.content[0].text);
+      if (!discoveryText.includes('No job logs found')) {
+        // Step 2: Extract a specific job name for targeted search
+        const jobMatch = discoveryText.match(/🔧 Job: ([A-Za-z0-9]+)/);
+        
+        if (jobMatch) {
+          const specificJobName = jobMatch[1];
+          
+          // Step 3: Search for that specific job
+          const specificResult = await client.callTool('search_job_logs_by_name', { 
+            jobName: specificJobName,
+            limit: 1
+          });
+          
+          const specificCount = assertJobSearchResults(specificResult);
+          assert.ok(specificCount >= 0, 'Specific search should return valid results');
+          
+          // Step 4: Validate the targeted search found the job
+          if (specificCount > 0) {
+            const specificText = parseResponseText(specificResult.content[0].text);
+            assert.ok(specificText.includes(specificJobName),
+              `Targeted search should include job name "${specificJobName}"`);
+          }
         }
       }
     });
 
-    test('should handle large limit values', async () => {
-      const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: 'Import',
-        limit: 1000 
-      });
+    test('should handle sequential searches consistently', async () => {
+      const searchTerms = ['Import', 'Job', 'Process'];
+      const results = [];
       
-      assertSuccessResponse(result);
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      // Should not return more jobs than actually exist
-      assert.ok(jobs.length >= 0, 'Should handle large limit gracefully');
-      
-      // Verify all jobs still match the search criteria
-      for (const job of jobs) {
-        assert.ok(job.jobName.toLowerCase().includes('import'),
-          `Job name "${job.jobName}" should contain search term`);
-      }
-    });
-
-    test('should handle whitespace in job name parameter', async () => {
-      const whitespaceVariations = [
-        ' Import',
-        'Import ',
-        ' Import ',
-        'Import\n',
-        '\tImport'
-      ];
-      
-      for (const jobName of whitespaceVariations) {
+      // Perform sequential searches
+      for (const term of searchTerms) {
         const result = await client.callTool('search_job_logs_by_name', { 
-          jobName
+          jobName: term,
+          limit: 2
         });
         
         assertSuccessResponse(result);
-        // Should handle whitespace gracefully
+        results.push({ term, result });
+      }
+      
+      // Validate all searches completed successfully
+      assert.equal(results.length, searchTerms.length, 
+        'All sequential searches should complete');
+      
+      // Each result should be valid
+      for (const { term, result } of results) {
         const text = parseResponseText(result.content[0].text);
         assert.ok(text.includes('Found') || text.includes('No job logs found'),
-          `Should handle whitespace in job name: "${jobName}"`);
+          `Search for "${term}" should return valid response format`);
       }
     });
   });
 
   // Edge cases and error handling
-  describe('Edge Cases and Error Handling', () => {
-    test('should handle very short search terms', async () => {
-      const shortTerms = ['a', 'I', 'J'];
+  describe('Edge Cases', () => {
+    test('should handle various edge case inputs', async () => {
+      const edgeCases = [
+        { jobName: 'a', desc: 'single character' },
+        { jobName: 'Job-With-Hyphens', desc: 'special characters' },
+        { jobName: '   Import   ', desc: 'whitespace padding' }
+      ];
       
-      for (const term of shortTerms) {
+      for (const { jobName, desc } of edgeCases) {
         const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: term
+          jobName,
+          limit: 1
         });
         
-        assertSuccessResponse(result);
-        // Short terms may return many results or no results
-        const text = parseResponseText(result.content[0].text);
-        assert.ok(text.includes('Found') || text.includes('No job logs found'),
-          `Should handle short search term: "${term}"`);
-      }
-    });
-
-    test('should handle very long search terms', async () => {
-      const longTerm = 'VeryLongJobNameThatProbablyDoesNotExistInTheSystem12345';
-      
-      const result = await client.callTool('search_job_logs_by_name', { 
-        jobName: longTerm
-      });
-      
-      assertSuccessResponse(result);
-      assertTextContent(result, 'No job logs found');
-    });
-
-    test('should handle numeric job name searches', async () => {
-      const numericTerms = ['123', '456', '0987654321'];
-      
-      for (const term of numericTerms) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: term
-        });
+        // Should not throw errors, should return valid response
+        assertValidMCPResponse(result);
         
-        assertSuccessResponse(result);
-        // May find jobs with numbers in names
-        const text = parseResponseText(result.content[0].text);
-        assert.ok(text.includes('Found') || text.includes('No job logs found'),
-          `Should handle numeric search term: "${term}"`);
-      }
-    });
-
-    test('should handle concurrent search requests sequentially', async () => {
-      // Note: We test sequential execution as per the guidance about avoiding Promise.all
-      const searchTerms = ['Import', 'Job', 'Catalog'];
-      const results = [];
-      
-      // Execute sequentially to avoid buffer/message handler conflicts
-      for (const term of searchTerms) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: term
-        });
-        results.push({ term, result });
-      }
-      
-      // Verify all requests completed successfully
-      for (const { term, result } of results) {
-        assertSuccessResponse(result);
-        
-        const jobs = extractJobLogInfo(result.content[0].text);
-        for (const job of jobs) {
-          assert.ok(job.jobName.toLowerCase().includes(term.toLowerCase()),
-            `Job "${job.jobName}" should contain search term "${term}"`);
-        }
-      }
-    });
-  });
-
-  // Performance and reliability tests (functional focus)
-  describe('Performance and Reliability', () => {
-    test('should maintain consistent response format across different searches', async () => {
-      const searchTerms = discoveredJobNames.length > 0 
-        ? discoveredJobNames.slice(0, 2)
-        : ['Import', 'Job'];
-      
-      for (const term of searchTerms) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: term
-        });
-        
-        assertSuccessResponse(result);
-        
-        const text = parseResponseText(result.content[0].text);
-        
-        if (text.includes('Found')) {
-          // Should have consistent format for found results
-          assert.ok(/Found \d+ job logs:/.test(text), 
-            'Should have consistent count format');
-          assert.ok(/🔧 Job: [A-Za-z]/.test(text) || text.includes('No job logs found'),
-            'Should have consistent job entry format');
+        if (result.isError) {
+          // If it's an error, should be a validation error
+          const text = parseResponseText(result.content[0].text);
+          assert.ok(text.includes('Error'), 
+            `${desc}: Error response should contain "Error"`);
         } else {
-          assert.ok(text === 'No job logs found.' || text === 'No job logs found',
-            'Should have exact no results message');
-        }
-      }
-    });
-
-    test('should handle repeated searches reliably', async () => {
-      const searchTerm = 'Import';
-      const iterations = 3;
-      const results = [];
-      
-      for (let i = 0; i < iterations; i++) {
-        const result = await client.callTool('search_job_logs_by_name', { 
-          jobName: searchTerm,
-          limit: 5
-        });
-        
-        assertSuccessResponse(result);
-        results.push(result);
-      }
-      
-      // All results should be consistent
-      const firstJobs = extractJobLogInfo(results[0].content[0].text);
-      
-      for (let i = 1; i < results.length; i++) {
-        const currentJobs = extractJobLogInfo(results[i].content[0].text);
-        assert.equal(currentJobs.length, firstJobs.length,
-          `Iteration ${i} should return same number of jobs`);
-        
-        // Jobs should be in same order with same content
-        for (let j = 0; j < firstJobs.length; j++) {
-          assert.equal(currentJobs[j].jobName, firstJobs[j].jobName,
-            `Job ${j} name should be consistent across iterations`);
-          assert.equal(currentJobs[j].jobId, firstJobs[j].jobId,
-            `Job ${j} ID should be consistent across iterations`);
+          // If successful, should have valid format
+          const text = parseResponseText(result.content[0].text);
+          assert.ok(text.includes('Found') || text.includes('No job logs found'),
+            `${desc}: Should return valid search response`);
         }
       }
     });

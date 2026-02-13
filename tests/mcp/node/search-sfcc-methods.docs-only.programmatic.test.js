@@ -5,7 +5,7 @@
  * including performance monitoring, dynamic validation, error categorization,
  * comprehensive response structure analysis, and method signature validation.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "[{\"className\": \"...\", \"method\": {...}}, ...]" }] }
  * - Empty: { content: [{ type: "text", text: "[]" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -23,7 +23,7 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Performance monitoring utility class
@@ -106,7 +106,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
   const signatureAnalyzer = new MethodSignatureAnalyzer();
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {
@@ -236,9 +236,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
         methodArray.forEach(methodData => {
           assert.ok(
             methodData.className.startsWith('dw_') || 
-            methodData.className.startsWith('TopLevel.') || 
-            methodData.className.startsWith('best-practices.') || 
-            methodData.className.startsWith('sfra.'),
+            methodData.className.startsWith('TopLevel.'),
             `Class name "${methodData.className}" should start with recognized namespace`
           );
         });
@@ -383,11 +381,11 @@ describe('search_sfcc_methods Programmatic Tests', () => {
   describe('Consistency and Reliability', () => {
     test('should return consistent results across multiple calls', async () => {
       const methodName = 'getValue';
-      const results = await Promise.all([
-        client.callTool('search_sfcc_methods', { methodName }),
-        client.callTool('search_sfcc_methods', { methodName }),
-        client.callTool('search_sfcc_methods', { methodName })
-      ]);
+
+      const results = [];
+      for (let i = 0; i < 3; i++) {
+        results.push(await client.callTool('search_sfcc_methods', { methodName }));
+      }
       
       // All results should be successful
       results.forEach(result => {
@@ -417,7 +415,7 @@ describe('search_sfcc_methods Programmatic Tests', () => {
           `Class name "${methodData.className}" should not be excessively long`);
         
         // Validate class name format
-        assert.match(methodData.className, /^(dw_|TopLevel\.|best-practices\.|sfra\.)[a-zA-Z0-9_./-]+$/, 
+        assert.match(methodData.className, /^(dw_|TopLevel\.)[a-zA-Z0-9_./-]+$/, 
           `Class name "${methodData.className}" should follow valid pattern`);
         
         // Validate method name format

@@ -181,7 +181,7 @@ describe('LogToolHandler', () => {
       await handler.handle('summarize_logs', { date: '20230101' }, Date.now());
 
       expect(mockLogClient.summarizeLogs).toHaveBeenCalledWith('20230101');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Summarizing logs for date 20230101');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Summarizing logs for date date=20230101');
     });
 
     it('should handle summarize_logs with default date', async () => {
@@ -191,7 +191,7 @@ describe('LogToolHandler', () => {
       await handler.handle('summarize_logs', {}, Date.now());
 
       expect(mockLogClient.summarizeLogs).toHaveBeenCalledWith(undefined);
-      expect(mockLogger.debug).toHaveBeenCalledWith('Summarizing logs for date today');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Summarizing logs for date date=today');
     });
   });
 
@@ -211,7 +211,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogClient.searchLogs).toHaveBeenCalledWith('error', 'error', 25, '20230101');
       expect(result.content[0].text).toContain('Error occurred');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs pattern="error" level=error limit=25');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs level=error limit=25 pattern="error"');
     });
 
     it('should handle search_logs with default parameters', async () => {
@@ -221,7 +221,7 @@ describe('LogToolHandler', () => {
       await handler.handle('search_logs', { pattern: 'test' }, Date.now());
 
       expect(mockLogClient.searchLogs).toHaveBeenCalledWith('test', undefined, 20, undefined);
-      expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs pattern="test" level=all limit=20');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs level=all limit=20 pattern="test"');
     });
 
     it('should throw error when pattern is missing', async () => {
@@ -250,7 +250,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('error-2023-01-01.log', undefined, undefined);
       expect(result.content[0].text).toContain('Log file contents with some test data');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: error-2023-01-01.log (maxBytes=default, tailOnly=false)');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: filename=error-2023-01-01.log');
     });
 
     it('should handle get_log_file_contents with maxBytes and tailOnly options', async () => {
@@ -265,7 +265,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('large-log.log', 1024, true);
       expect(result.content[0].text).toContain('Tail content of log file');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: large-log.log (maxBytes=1024, tailOnly=true)');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: filename=large-log.log maxBytes=1024 tailOnly=true');
     });
 
     it('should handle get_log_file_contents with maxBytes and tailOnly=false (full file with size limit)', async () => {
@@ -280,7 +280,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogClient.getLogFileContents).toHaveBeenCalledWith('large-log.log', 512, false);
       expect(result.content[0].text).toContain('Full file content with size limit');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: large-log.log (maxBytes=512, tailOnly=false)');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Reading log file contents: filename=large-log.log maxBytes=512 tailOnly=false');
     });
 
     it('should require filename parameter', async () => {
@@ -357,7 +357,7 @@ describe('LogToolHandler', () => {
 
       expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest error logs limit=5 date=today');
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'get_latest_error completed successfully',
+        'get_latest_error completed',
         expect.any(Object),
       );
     });

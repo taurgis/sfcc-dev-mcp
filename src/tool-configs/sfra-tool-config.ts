@@ -20,10 +20,6 @@ export const SFRA_TOOL_NAMES_SET = new Set<SFRAToolName>(SFRA_TOOL_NAMES);
  */
 export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArguments, any>> = {
   get_available_sfra_documents: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
       return client.getAvailableDocuments();
@@ -32,7 +28,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   get_sfra_document: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('documentName'), toolName);
     },
@@ -48,7 +43,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   search_sfra_documentation: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
     },
@@ -60,7 +54,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   get_sfra_documents_by_category: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('category'), toolName);
     },
@@ -72,10 +65,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   get_sfra_categories: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
       return client.getAvailableCategories();

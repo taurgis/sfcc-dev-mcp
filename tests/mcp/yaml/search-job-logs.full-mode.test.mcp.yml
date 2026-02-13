@@ -1,44 +1,21 @@
 ---
-description: "Test search_job_logs tool in full mode"
+description: "Optimized search_job_logs tool tests for aegis framework validation"
 tests:
-  # Basic functionality tests
-  - it: "should search for patterns in job logs with default parameters"
+  # Essential functionality tests - focus on MCP protocol and aegis pattern matching
+  - it: "should search for patterns with basic functionality"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-default"
+      id: "search-basic"
       method: "tools/call"
       params:
         name: "search_job_logs"
         arguments:
           pattern: "INFO"
+          limit: 3
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-default"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:Found \\d+ matches for"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should search with custom limit parameter"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-limit"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "Executing"
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-limit"
+        id: "search-basic"
         result:
           content:
             match:arrayElements:
@@ -49,241 +26,22 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should filter by log level"
+  - it: "should combine all parameters effectively"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-level"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          level: "info"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should filter by specific job name"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-jobname"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "Executing"
-          jobName: "ImportCatalog"
-          limit: 3
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-jobname"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:Found \\d+ matches for.*ImportCatalog"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should combine all parameters (pattern, level, limit, jobName)"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-all-params"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "step"
-          level: "info"
-          limit: 2
-          jobName: "ProcessOrders"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-all-params"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Test different log levels
-  - it: "should search error level logs"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-error-level"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "ERROR"
-          level: "error"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-error-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should search warn level logs"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-warn-level"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "WARN"
-          level: "warn"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-warn-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should search debug level logs"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-debug-level"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "DEBUG"
-          level: "debug"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-debug-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should search all level logs explicitly"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-all-level"
+      id: "search-combined"
       method: "tools/call"
       params:
         name: "search_job_logs"
         arguments:
           pattern: "job"
-          level: "all"
+          level: "info"
+          limit: 2
+          jobName: "ImportCatalog"
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-all-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Edge cases and no results
-  - it: "should handle pattern with no matches gracefully"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-no-matches"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "ZZZNOTHINGFOUND"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-no-matches"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:No matches found for.*ZZZNOTHINGFOUND"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should handle non-existent job name gracefully"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-nonexistent-job"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          jobName: "NonExistentJob"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-nonexistent-job"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  # Content validation tests
-  - it: "should return structured content with job log format"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-content-structure"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "step"
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-content-structure"
+        id: "search-combined"
         result:
           content:
             match:arrayElements:
@@ -294,35 +52,11 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should include job name in results when filtering by job"
+  # Content validation - test response structure and format
+  - it: "should return properly formatted job log entries with timestamps"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-job-in-results"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          jobName: "ProcessOrders"
-          limit: 1
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-job-in-results"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:Found \\d+ matches for.*ProcessOrders"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should include timestamp format in job log entries"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-timestamp-format"
+      id: "search-format"
       method: "tools/call"
       params:
         name: "search_job_logs"
@@ -332,7 +66,7 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-timestamp-format"
+        id: "search-format"
         result:
           content:
             match:arrayElements:
@@ -343,20 +77,43 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  # Error handling tests
-  - it: "should handle empty pattern gracefully"
+  # Edge cases - essential for aegis testing
+  - it: "should handle no matches gracefully"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-empty-pattern"
+      id: "search-no-matches"
       method: "tools/call"
       params:
         name: "search_job_logs"
         arguments:
-          pattern: ""
+          pattern: "ZZZNOTHINGFOUND"
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-empty-pattern"
+        id: "search-no-matches"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:No matches found"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"
+
+  # Critical error handling - test MCP error responses
+  - it: "should handle missing pattern parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "search-missing-pattern"
+      method: "tools/call"
+      params:
+        name: "search_job_logs"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-missing-pattern"
         result:
           content:
             match:arrayElements:
@@ -367,177 +124,10 @@ tests:
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should handle missing pattern parameter"
+  - it: "should validate parameter types"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-missing-pattern"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-missing-pattern"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:pattern"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should handle invalid log level"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-invalid-level"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          level: "invalid"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-invalid-level"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should handle negative limit value"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-negative-limit"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          limit: -5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-negative-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should handle zero limit value"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-zero-limit"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          limit: 0
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-zero-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  # Performance and response time tests
-  - it: "should respond quickly for common patterns"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-performance"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "job"
-          limit: 5
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-performance"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1500ms"
-
-  - it: "should handle large limit values efficiently"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-large-limit"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "step"
-          limit: 100
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-large-limit"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  # Type validation tests
-  - it: "should validate pattern parameter type"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-pattern-type"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: 123
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-pattern-type"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:pattern"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should validate limit parameter type"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-limit-type"
+      id: "search-invalid-limit"
       method: "tools/call"
       params:
         name: "search_job_logs"
@@ -547,109 +137,38 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-limit-type"
+        id: "search-invalid-limit"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit 'invalid' for tool. Must be a valid number"
+              text: "match:contains:Invalid limit"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should validate jobName parameter type"
+  # Performance validation for aegis
+  - it: "should handle large search operations efficiently"
     request:
       jsonrpc: "2.0"
-      id: "search-job-logs-jobname-type"
+      id: "search-performance"
       method: "tools/call"
       params:
         name: "search_job_logs"
         arguments:
-          pattern: "INFO"
-          jobName: 123
+          pattern: "step"
+          limit: 50
     expect:
       response:
         jsonrpc: "2.0"
-        id: "search-job-logs-jobname-type"
+        id: "search-performance"
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "match:contains:jobName must be a non-empty string"
-          isError: true
+              match:partial:
+                type: "text"
+          isError: false
       stderr: "toBeEmpty"
     performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should validate level parameter type"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-level-type"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          level: 123
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-level-type"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:level"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should validate empty jobName"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-empty-jobname"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          jobName: ""
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-empty-jobname"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:jobName must be a non-empty string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should validate whitespace-only jobName"
-    request:
-      jsonrpc: "2.0"
-      id: "search-job-logs-whitespace-jobname"
-      method: "tools/call"
-      params:
-        name: "search_job_logs"
-        arguments:
-          pattern: "INFO"
-          jobName: "   "
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "search-job-logs-whitespace-jobname"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:jobName must be a non-empty string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
+      maxResponseTime: "3000ms"

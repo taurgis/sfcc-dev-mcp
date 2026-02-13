@@ -1,21 +1,32 @@
-import { AbstractLogToolHandler } from './abstract-log-tool-handler.js';
-import { HandlerContext } from './base-handler.js';
-import { GenericToolSpec } from './base-handler.js';
-import { ToolArguments } from './base-handler.js';
+import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { AbstractClientHandler } from './abstract-client-handler.js';
+import { ClientFactory } from './client-factory.js';
+import { SFCCLogClient } from '../../clients/logs/index.js';
 import { LOG_TOOL_CONFIG } from '../../tool-configs/log-tool-config.js';
 import { LOG_TOOL_NAMES_SET, LogToolName } from '../../utils/log-tool-constants.js';
 
 /**
  * Handler for standard log tools using config-driven dispatch
- * Handles log reading, searching, and analysis operations
  */
-export class LogToolHandler extends AbstractLogToolHandler<LogToolName> {
+export class LogToolHandler extends AbstractClientHandler<LogToolName, SFCCLogClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
     super(context, subLoggerName);
   }
 
-  canHandle(toolName: string): boolean {
-    return LOG_TOOL_NAMES_SET.has(toolName as LogToolName);
+  protected createClient(): SFCCLogClient | null {
+    return this.clientFactory.createLogClient();
+  }
+
+  protected getClientContextKey(): string {
+    return 'logClient';
+  }
+
+  protected getClientDisplayName(): string {
+    return 'Log';
+  }
+
+  protected getClientRequiredError(): string {
+    return ClientFactory.getClientRequiredError('Log');
   }
 
   protected getToolNameSet(): Set<LogToolName> {

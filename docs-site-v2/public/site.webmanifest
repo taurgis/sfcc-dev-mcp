@@ -1,0 +1,50 @@
+{
+  "name": "SFCC Development MCP Server",
+  "short_name": "SFCC MCP",
+  "description": "Model Context Protocol server for Salesforce B2C Commerce Cloud development with AI-powered documentation access, log analysis, and curated agent skills",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["developer", "productivity", "utilities"],
+  "lang": "en",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "id": "sfcc-dev-mcp-server",
+  "screenshots": [
+    {
+      "src": "/explain-product-pricing-methods.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "SFCC MCP Server in action with AI assistant"
+    }
+  ]
+}

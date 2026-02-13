@@ -187,8 +187,12 @@ export class LogFileReader {
     });
   }
 
+  // Batch size for parallel file reads (avoid overwhelming WebDAV server)
+  private static readonly PARALLEL_BATCH_SIZE = 5;
+
   /**
    * Read multiple files with tail optimization
+   * Uses parallel batch processing for improved performance
    */
   async readMultipleFiles(
     filenames: string[],
@@ -196,13 +200,26 @@ export class LogFileReader {
   ): Promise<Map<string, string>> {
     const results = new Map<string, string>();
 
-    for (const filename of filenames) {
-      try {
-        const content = await this.getFileContentsTail(filename, options);
-        results.set(filename, content);
-      } catch (error) {
-        this.logger.error(`Error reading file ${filename}:`, error);
-        // Continue processing other files even if one fails
+    // Process files in parallel batches
+    for (let i = 0; i < filenames.length; i += LogFileReader.PARALLEL_BATCH_SIZE) {
+      const batch = filenames.slice(i, i + LogFileReader.PARALLEL_BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map(async filename => {
+          try {
+            const content = await this.getFileContentsTail(filename, options);
+            return { filename, content, error: null };
+          } catch (error) {
+            this.logger.error(`Error reading file ${filename}:`, error);
+            return { filename, content: null, error };
+          }
+        }),
+      );
+
+      // Add successful results to the map
+      for (const result of batchResults) {
+        if (result.content !== null) {
+          results.set(result.filename, result.content);
+        }
       }
     }
 

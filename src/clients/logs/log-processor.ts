@@ -2,7 +2,7 @@
  * Log parsing, entry processing, and data manipulation
  */
 
-import { parseLogEntries, extractUniqueErrors, normalizeFilePath } from '../../utils/utils.js';
+import { parseLogEntries, extractUniqueErrors, normalizeFilePath, extractTimestampFromLogEntry } from '../../utils/utils.js';
 import { Logger } from '../../utils/logger.js';
 import { LOG_CONSTANTS } from './log-constants.js';
 import type { LogEntry, LogLevel, LogFileMetadata, ProcessedLogEntry, JobLogInfo } from './log-types.js';
@@ -39,12 +39,14 @@ export class LogProcessor {
       try {
         const logEntries = parseLogEntries(content, level.toUpperCase());
 
-        // Add entries with file priority (lower index = newer file = higher priority)
+        // Add entries with extracted timestamps for chronological sorting
         logEntries.forEach((entry, entryIndex) => {
+          const timestamp = extractTimestampFromLogEntry(entry);
           allLogEntries.push({
             entry: `[${normalizeFilePath(file.filename)}] ${entry}`,
             filename: normalizeFilePath(file.filename),
-            order: i * LOG_CONSTANTS.FILE_ORDER_MULTIPLIER + entryIndex,
+            order: i * LOG_CONSTANTS.FILE_ORDER_MULTIPLIER + entryIndex, // Keep for fallback sorting
+            timestamp: timestamp ?? undefined, // Convert null to undefined
           });
         });
       } catch (error) {
@@ -66,13 +68,25 @@ export class LogProcessor {
   }
 
   /**
-   * Sort and limit log entries by recency
+   * Sort and limit log entries by chronological order (actual timestamps)
    */
   sortAndLimitEntries(entries: LogEntry[], limit: number): LogEntry[] {
     return entries
-      .sort((a, b) => a.order - b.order) // Ascending order (newest files have lower order values)
-      .slice(-limit) // Take the last N entries (most recent)
-      .reverse(); // Reverse to show newest entries at the top
+      .sort((a, b) => {
+        // Primary sort: by timestamp (newest first)
+        if (a.timestamp && b.timestamp) {
+          return b.timestamp.getTime() - a.timestamp.getTime();
+        }
+        // Fallback for entries without timestamps: use file order (newest files first)
+        if (a.timestamp && !b.timestamp) {
+          return -1;
+        }
+        if (!a.timestamp && b.timestamp) {
+          return 1;
+        }
+        return a.order - b.order; // Original order-based sorting as fallback
+      })
+      .slice(0, limit); // Take the first N entries (most recent chronologically)
   }
 
   /**

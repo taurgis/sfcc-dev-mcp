@@ -1,15 +1,15 @@
-name: Deploy GitHub Pages
+name: Deploy Docs (VitePress)
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'docs-site/**'
+      - 'docs-site-v2/**'
       - '.github/workflows/deploy-pages.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'docs-site/**'
+      - 'docs-site-v2/**'
   workflow_dispatch:
 
 permissions:
@@ -26,36 +26,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: './docs-site/package-lock.json'
 
-      - name: Install dependencies
-        working-directory: ./docs-site
-        run: npm ci
+      - name: Install docs dependencies
+        run: npm --prefix docs-site-v2 install
 
-      - name: Clean build directory
-        working-directory: ./docs-site
-        run: rm -rf dist
-
-      - name: Build site
-        working-directory: ./docs-site
-        run: npm run build
-        env:
-          NODE_ENV: production
+      - name: Build docs
+        run: npm --prefix docs-site-v2 run build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: ./docs-site/dist
+          path: ./docs-site-v2/.vitepress/dist
 
   deploy:
     environment:

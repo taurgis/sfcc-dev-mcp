@@ -100,6 +100,11 @@ export class ConfigurationFactory {
       config.siteId = dwConfig['site-id'];
     }
 
+    // Map code version if present
+    if (dwConfig['code-version']) {
+      config.codeVersion = dwConfig['code-version'];
+    }
+
     return config;
   }
 
@@ -179,7 +184,7 @@ export class ConfigurationFactory {
    * Create a configuration for local development mode
    *
    * This creates a minimal configuration that only provides access to
-   * documentation and best practices without requiring any SFCC credentials.
+  * documentation without requiring any SFCC credentials.
    *
    * @returns Configuration for local/documentation-only mode
    */

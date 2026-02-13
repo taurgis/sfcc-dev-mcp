@@ -123,14 +123,17 @@ export default tseslint.config(
   // Ignore patterns
   {
     ignores: [
+      'tmp/**',
       'dist/**',
       'node_modules/**',
       'coverage/**',
-      'docs-site/**',
+      'docs-site-v2/**',
       'docs-site-old/**',
       '*.config.js',
       'jest.config.js',
       'tests/servers/**',
+      '.github/skills/salesforce-developer-site-scraper/scripts/**',
+      '.github/skills/salesforce-help-site-scraper/scripts/**',
     ],
   },
 );

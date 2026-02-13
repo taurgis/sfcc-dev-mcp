@@ -3,11 +3,67 @@
  *
  * This module handles secure loading and validation of dw.json files
  * with comprehensive security checks for file access.
+ *
+ * Security features:
+ * - Path traversal attack prevention
+ * - System directory access blocking
+ * - File size limits to prevent DoS
+ * - JSON content validation
+ * - Symlink resolution and validation
  */
 
-import { readFileSync, existsSync, statSync } from 'fs';
-import { resolve, basename, extname } from 'path';
+import { readFileSync, existsSync, statSync, realpathSync } from 'fs';
+import { resolve, basename, extname, normalize, isAbsolute } from 'path';
 import { DwJsonConfig } from '../types/types.js';
+
+/**
+ * Dangerous system paths that should never be accessed
+ * These are blocked to prevent accidental or malicious access to sensitive areas
+ */
+const BLOCKED_SYSTEM_PATHS: readonly string[] = [
+  '/etc',
+  '/proc',
+  '/sys',
+  '/dev',
+  '/root',
+  '/var/log',
+  '/var/run',
+  '/boot',
+  '/sbin',
+  '/bin',
+  // Windows system paths
+  'C:\\Windows',
+  'C:\\Program Files',
+  'C:\\ProgramData',
+  // Common sensitive directories
+  '.ssh',
+  '.gnupg',
+  '.aws',
+  '.config/gcloud',
+] as const;
+
+/**
+ * Allowed path prefixes for configuration file access
+ * These are the typical locations where development projects and configs reside
+ */
+const ALLOWED_PATH_PATTERNS: readonly RegExp[] = [
+  // User home directories
+  /^\/Users\/[^/]+\//i, // macOS
+  /^\/home\/[^/]+\//i, // Linux (allow all users for development)
+  /^C:\\Users\\[^\\]+\\/i, // Windows
+  // Common project directories
+  /^\/opt\//i,
+  /^\/var\/www\//i,
+  /^\/srv\//i,
+  // Temp directories (for testing)
+  /^\/tmp\//i,
+  /^\/private\/tmp\//i, // macOS real temp path
+  /^\/var\/folders\//i, // macOS temp
+  /^\/private\/var\/folders\//i, // macOS real temp path (symlink resolved)
+  /^C:\\Temp\\/i, // Windows temp
+  // CI workspace paths
+  /^\/home\/runner\/work\//i, // GitHub Actions
+] as const;
 
 /**
  * Validates that a file path is safe to access and prevents path traversal attacks
@@ -23,7 +79,7 @@ function validateSecurePath(filePath: string): string {
   }
 
   // Prevent excessively long paths that could cause DoS
-  if (filePath.length > 1000) {
+  if (filePath.length > 4096) {
     throw new Error('File path too long');
   }
 
@@ -33,28 +89,53 @@ function validateSecurePath(filePath: string): string {
     throw new Error('Only .json files are allowed');
   }
 
-  // Normalize the path to prevent path traversal
-  const resolvedPath = resolve(filePath);
+  // Normalize and resolve the path to prevent path traversal
+  const resolvedPath = normalize(resolve(filePath));
+
+  // Verify it's an absolute path after resolution
+  if (!isAbsolute(resolvedPath)) {
+    throw new Error('Path must resolve to an absolute path');
+  }
 
   // Additional check: ensure the resolved path still ends with .json
   // This prevents attacks like "file.json/../../../etc/passwd"
   if (!resolvedPath.toLowerCase().endsWith('.json')) {
-    throw new Error('Invalid file path');
+    throw new Error('Invalid file path after normalization');
   }
 
-  // Prevent access to system directories (additional security layer)
-  // Allow CI workspace paths like /home/runner/work/ but block sensitive system paths
-  const dangerousPaths = ['/etc/', '/proc/', '/sys/', '/dev/', '/root/'];
+  // Check against blocked system paths
   const lowerPath = resolvedPath.toLowerCase();
-
-  // Check for dangerous system paths
-  if (dangerousPaths.some(dangerous => lowerPath.includes(dangerous))) {
-    throw new Error('Access to system directories not allowed');
+  for (const blocked of BLOCKED_SYSTEM_PATHS) {
+    const blockedLower = blocked.toLowerCase();
+    if (
+      lowerPath === blockedLower ||
+      lowerPath.startsWith(`${blockedLower  }/`) ||
+      lowerPath.startsWith(`${blockedLower  }\\`) ||
+      lowerPath.includes(`/${  blockedLower  }/`) ||
+      lowerPath.includes(`\\${  blockedLower  }\\`)
+    ) {
+      throw new Error('Access to system directories not allowed');
+    }
   }
 
-  // Block /home/ but allow CI workspace paths (/home/runner/work/)
-  if (lowerPath.includes('/home/') && !lowerPath.includes('/home/runner/work/')) {
-    throw new Error('Access to system directories not allowed');
+  // Check that path matches allowed patterns
+  const matchesAllowed = ALLOWED_PATH_PATTERNS.some(pattern => pattern.test(resolvedPath));
+  if (!matchesAllowed) {
+    throw new Error('Path is outside of allowed configuration directories');
+  }
+
+  // If the file exists, resolve symlinks and re-validate the real path
+  if (existsSync(resolvedPath)) {
+    try {
+      const realPath = realpathSync(resolvedPath);
+      if (realPath !== resolvedPath) {
+        // Recursively validate the symlink target (but limit recursion)
+        return validateSecurePath(realPath);
+      }
+    } catch {
+      // If we can't resolve symlinks, continue with the original path
+      // The file might not exist yet, which is handled later
+    }
   }
 
   return resolvedPath;

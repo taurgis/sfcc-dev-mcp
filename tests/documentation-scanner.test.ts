@@ -73,7 +73,7 @@ describe('DocumentationScanner', () => {
         mockDirent('dw_catalog'),
         mockDirent('dw_content'),
         mockDirent('TopLevel'),
-        mockDirent('best-practices'), // Should be excluded
+        mockDirent('isml'), // Should be excluded
         mockDirent('sfra'), // Should be excluded
         mockDirent('other-dir'), // Should be excluded
         mockDirent('readme.md', false), // File, should be skipped
@@ -191,7 +191,7 @@ describe('DocumentationScanner', () => {
       });
 
       mockFs.readdir.mockResolvedValueOnce([
-        mockDirent('best-practices'),
+        mockDirent('isml'),
         mockDirent('sfra'),
         mockDirent('random-dir'),
         mockDirent('another_dir'),
@@ -263,7 +263,7 @@ describe('DocumentationScanner', () => {
       expect(mockFs.readdir).toHaveBeenCalledTimes(2); // 1 for main + 1 for TopLevel
     });
 
-    it('should exclude best-practices directory', async () => {
+    it('should exclude isml directory', async () => {
       const mockDirent = (name: string) => ({
         name,
         isDirectory: () => true,
@@ -275,7 +275,7 @@ describe('DocumentationScanner', () => {
         isSocket: () => false,
       });
 
-      mockFs.readdir.mockResolvedValueOnce([mockDirent('best-practices')] as any);
+      mockFs.readdir.mockResolvedValueOnce([mockDirent('isml')] as any);
 
       await scanner.scanDocumentation('/docs');
 

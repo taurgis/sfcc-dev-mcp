@@ -191,106 +191,101 @@ export class InMemoryCache<T> {
 
 /**
  * Multi-layer cache manager for different types of data
+ * Simplified using a generic cache registry pattern
  */
 export class CacheManager {
-  private fileContentCache: InMemoryCache<string>;
-  private classDetailsCache: InMemoryCache<any>;
-  private searchResultsCache: InMemoryCache<any>;
-  private methodSearchCache: InMemoryCache<any>;
+  private caches: Map<string, InMemoryCache<any>>;
+
+  // Cache configuration for different data types
+  private static readonly CACHE_CONFIGS = {
+    fileContent: { maxSize: 500, ttlMs: 4 * 60 * 60 * 1000, cleanupIntervalMs: 30 * 60 * 1000 },
+    classDetails: { maxSize: 300, ttlMs: 2 * 60 * 60 * 1000, cleanupIntervalMs: 20 * 60 * 1000 },
+    searchResults: { maxSize: 200, ttlMs: 60 * 60 * 1000, cleanupIntervalMs: 15 * 60 * 1000 },
+    methodSearch: { maxSize: 100, ttlMs: 60 * 60 * 1000, cleanupIntervalMs: 15 * 60 * 1000 },
+  } as const;
 
   constructor() {
-    // Much longer TTL for static documentation data that doesn't change during server runtime
-    this.fileContentCache = new InMemoryCache<string>({
-      maxSize: 500,
-      ttlMs: 4 * 60 * 60 * 1000, // 4 hours - raw file content is completely static
-      cleanupIntervalMs: 30 * 60 * 1000, // 30 minutes cleanup interval
-    });
-
-    this.classDetailsCache = new InMemoryCache({
-      maxSize: 300,
-      ttlMs: 2 * 60 * 60 * 1000, // 2 hours - parsed data is static
-      cleanupIntervalMs: 20 * 60 * 1000, // 20 minutes cleanup interval
-    });
-
-    this.searchResultsCache = new InMemoryCache({
-      maxSize: 200,
-      ttlMs: 60 * 60 * 1000, // 1 hour - search results are static
-      cleanupIntervalMs: 15 * 60 * 1000, // 15 minutes cleanup interval
-    });
-
-    this.methodSearchCache = new InMemoryCache({
-      maxSize: 100,
-      ttlMs: 60 * 60 * 1000, // 1 hour - method search results are static
-      cleanupIntervalMs: 15 * 60 * 1000, // 15 minutes cleanup interval
-    });
+    this.caches = new Map();
+    // Initialize all caches
+    for (const [name, config] of Object.entries(CacheManager.CACHE_CONFIGS)) {
+      this.caches.set(name, new InMemoryCache(config));
+    }
   }
 
+  /**
+   * Generic cache get operation
+   */
+  private getFromCache<T>(cacheName: string, key: string): T | undefined {
+    return this.caches.get(cacheName)?.get(key);
+  }
+
+  /**
+   * Generic cache set operation
+   */
+  private setInCache<T>(cacheName: string, key: string, value: T): void {
+    this.caches.get(cacheName)?.set(key, value);
+  }
+
+  // Typed accessors for backward compatibility
   getFileContent(key: string): string | undefined {
-    return this.fileContentCache.get(key);
+    return this.getFromCache<string>('fileContent', key);
   }
 
   setFileContent(key: string, content: string): void {
-    this.fileContentCache.set(key, content);
+    this.setInCache('fileContent', key, content);
   }
 
   getClassDetails(key: string): any {
-    return this.classDetailsCache.get(key);
+    return this.getFromCache('classDetails', key);
   }
 
   setClassDetails(key: string, details: any): void {
-    this.classDetailsCache.set(key, details);
+    this.setInCache('classDetails', key, details);
   }
 
   getSearchResults(key: string): any {
-    return this.searchResultsCache.get(key);
+    return this.getFromCache('searchResults', key);
   }
 
   setSearchResults(key: string, results: any): void {
-    this.searchResultsCache.set(key, results);
+    this.setInCache('searchResults', key, results);
   }
 
   getMethodSearch(key: string): any {
-    return this.methodSearchCache.get(key);
+    return this.getFromCache('methodSearch', key);
   }
 
   setMethodSearch(key: string, results: any): void {
-    this.methodSearchCache.set(key, results);
+    this.setInCache('methodSearch', key, results);
   }
 
   /**
    * Get comprehensive cache statistics
    */
-  getAllStats(): {
-    fileContent: ReturnType<InMemoryCache<any>['getStats']>;
-    classDetails: ReturnType<InMemoryCache<any>['getStats']>;
-    searchResults: ReturnType<InMemoryCache<any>['getStats']>;
-    methodSearch: ReturnType<InMemoryCache<any>['getStats']>;
-    } {
-    return {
-      fileContent: this.fileContentCache.getStats(),
-      classDetails: this.classDetailsCache.getStats(),
-      searchResults: this.searchResultsCache.getStats(),
-      methodSearch: this.methodSearchCache.getStats(),
-    };
+  getAllStats(): Record<string, ReturnType<InMemoryCache<any>['getStats']>> {
+    const stats: Record<string, ReturnType<InMemoryCache<any>['getStats']>> = {};
+    for (const [name, cache] of this.caches) {
+      stats[name] = cache.getStats();
+    }
+    return stats;
   }
 
   /**
    * Clear all caches
    */
   clearAll(): void {
-    this.fileContentCache.clear();
-    this.classDetailsCache.clear();
-    this.searchResultsCache.clear();
-    this.methodSearchCache.clear();
+    for (const cache of this.caches.values()) {
+      cache.clear();
+    }
   }
 
   /**
    * Cleanup all resources
    */
   destroy(): void {
-    this.fileContentCache.destroy();
-    this.classDetailsCache.destroy();
-    this.searchResultsCache.destroy();
-    this.methodSearchCache.destroy();
+    for (const cache of this.caches.values()) {
+      cache.destroy();
+    }
+    this.caches.clear();
   }
 }

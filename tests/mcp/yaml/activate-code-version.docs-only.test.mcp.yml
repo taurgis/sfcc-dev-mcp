@@ -1,0 +1,318 @@
+# ==================================================================================
+# SFCC MCP Server - activate_code_version Tool YAML Tests (Docs-Only Mode)
+# Validates that code version activation tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+#
+# Test Coverage:
+# - Tool unavailability in docs-only mode (not listed in tools/list)
+# - Authentication error responses when tool is called directly
+# - Consistent error messaging across different parameter scenarios
+# - Error structure validation (proper MCP response format)
+# - Performance requirements (fast failure under 1000ms)
+# - Mode verification (ensuring we're actually in docs-only mode)
+# - Authentication error precedence over parameter validation
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/activate-code-version.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis query activate_code_version 'codeVersionId:test-version-001' --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "activate_code_version tool docs-only mode tests - Tool unavailability validation"
+
+tests:
+  # ==================================================================================
+  # TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+  # ==================================================================================
+  - it: "should NOT list activate_code_version tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          tools:
+            match:arrayElements:
+              match:partial:
+                name: "match:type:string"
+                description: "match:type:string"
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"
+
+  - it: "should exclude activate_code_version from available tools list"
+    request:
+      jsonrpc: "2.0"
+      id: "excluded-from-list"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "excluded-from-list"
+        result:
+          tools: "match:not:arrayContains:name:activate_code_version"
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # ==================================================================================
+  - it: "should return authentication error when calling activate_code_version in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-default"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-version-001"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-default"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should return consistent error message for authentication failure"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-consistent"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "any-version-id"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-consistent"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*OCAPI[\\s\\S]*not configured[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should return authentication error regardless of code version ID validity"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-regardless"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "invalid@#$%^version"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-regardless"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # ==================================================================================
+  # ERROR RESPONSE VALIDATION
+  # ==================================================================================
+  - it: "should return proper error structure in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "error-structure"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-version"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should include helpful guidance in error message"
+    request:
+      jsonrpc: "2.0"
+      id: "helpful-error"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "test-guidance"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "helpful-error"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:Error[\\s\\S]*credentials[\\s\\S]*full mode[\\s\\S]*"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # PARAMETER VALIDATION IN DOCS-ONLY MODE
+  # ==================================================================================
+  - it: "should return authentication error even with missing parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-missing-params"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-missing-params"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  - it: "should return authentication error even with empty parameters"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-empty-params"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-empty-params"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(OCAPI client not configured|required.*codeVersionId|invalid.*empty)"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # ==================================================================================
+  # PERFORMANCE TESTS FOR DOCS-ONLY MODE
+  # ==================================================================================
+  - it: "should fail fast in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "fail-fast"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "performance-test"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "fail-fast"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:contains:Error"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "500ms"
+
+  # ==================================================================================
+  # CONSISTENCY TESTS ACROSS DIFFERENT INPUTS
+  # ==================================================================================
+  - it: "should return consistent auth errors for different valid-looking IDs"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-auth-1"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "version-001"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-auth-1"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return consistent auth errors for different format IDs"
+    request:
+      jsonrpc: "2.0"
+      id: "consistent-auth-2"
+      method: "tools/call"
+      params:
+        name: "activate_code_version"
+        arguments:
+          codeVersionId: "v1.2.3-release"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "consistent-auth-2"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+          isError: true
+      stderr: "toBeEmpty"
+
+  # ==================================================================================
+  # MODE VERIFICATION
+  # ==================================================================================
+  - it: "should verify that we're actually in docs-only mode by checking available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "verify-docs-mode"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "verify-docs-mode"
+        result:
+          tools:
+            # Docs-only mode should have documentation tools but not OCAPI tools
+            match:extractField: "tools.*.name"
+            value: "match:arrayContains:get_sfcc_class_info"
+          # And should NOT have code version tools
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:activate_code_version"
+      stderr: "toBeEmpty"

@@ -9,6 +9,7 @@ import { OCAPIConfig } from '../../types/types.js';
 import { OCAPIAuthClient } from '../base/ocapi-auth-client.js';
 import { QueryBuilder } from '../../utils/query-builder.js';
 import { Validator } from '../../utils/validator.js';
+import { buildOCAPIBaseUrl } from '../../utils/ocapi-url-builder.js';
 
 /**
  * Interface for search request structure
@@ -58,12 +59,9 @@ interface SitePreferencesOptions {
  */
 export class OCAPISitePreferencesClient extends OCAPIAuthClient {
   constructor(config: OCAPIConfig) {
-    const version = config.version ?? 'v21_3';
-    const baseUrl = `https://${config.hostname}/s/-/dw/data/${version}`;
-
     super(config);
     // Override the baseUrl for this specialized client
-    this.baseUrl = baseUrl;
+    this.baseUrl = buildOCAPIBaseUrl(config);
   }
 
   /**

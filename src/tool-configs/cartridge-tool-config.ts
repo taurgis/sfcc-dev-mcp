@@ -1,7 +1,7 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
 import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
-import { CartridgeGenerationClient } from '../clients/cartridge-generation-client.js';
+import { CartridgeGenerationClient } from '../clients/cartridge/index.js';
 
 export const CARTRIDGE_TOOL_NAMES = [
   'generate_cartridge_structure',

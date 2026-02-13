@@ -5,14 +5,14 @@
  * including directory structure validation, file content verification, cleanup operations,
  * and edge case handling. All tests use system temp directory for safe isolation.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "{\"success\": true, \"message\": \"...\", \"createdFiles\": [...], \"createdDirectories\": [...], \"skippedFiles\": []}" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
  */
 
 import { test, describe, before, after, beforeEach, afterEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,7 +23,7 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
   let testDirectories = []; // Track directories for cleanup
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {
@@ -556,15 +556,21 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
         fullProjectSetup: false
       });
 
-      // The tool should either succeed or provide a clear error message about name length
-      if (result.isError) {
-        assert.ok(result.content[0].text.includes('Error'), 'Should provide clear error for long names');
-      } else {
-        const response = parseToolResponse(result);
-        assert.equal(response.success, true, 'Should handle long cartridge names if accepted');
-        
+      // The tool should return a response with success: false for names exceeding 64 characters
+      const response = parseToolResponse(result);
+      
+      if (response.success) {
+        // If somehow accepted, verify structure was created
         const cartridgeDir = join(testDir, 'cartridges', longCartridgeName);
-        assert.ok(await directoryExists(cartridgeDir), 'Should create directory with long name');
+        assert.ok(await directoryExists(cartridgeDir), 'Should create directory with long name if accepted');
+      } else {
+        // Should provide clear error message about name constraints
+        assert.ok(
+          response.message.includes('too long') || 
+          response.message.includes('64 characters') ||
+          response.message.includes('valid identifier'),
+          `Should provide clear error for long names, got: ${response.message}`
+        );
       }
     });
   });

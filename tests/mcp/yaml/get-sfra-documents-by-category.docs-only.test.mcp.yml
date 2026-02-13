@@ -7,9 +7,9 @@
 # Parameters: category (required) - Category to filter by
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/get-sfra-documents-by-category.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/get-sfra-documents-by-category.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query get_sfra_documents_by_category '{"category": "core"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/get-sfra-documents-by-category.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-sfra-documents-by-category.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query get_sfra_documents_by_category '{"category": "core"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server - get_sfra_documents_by_category tool comprehensive tests"
 

@@ -190,8 +190,12 @@ export class LogFileDiscovery {
     return stats;
   }
 
+  // Batch size for parallel directory reads (avoid overwhelming WebDAV server)
+  private static readonly PARALLEL_BATCH_SIZE = 5;
+
   /**
    * Get job log files from the /jobs/ folder structure
+   * Uses parallel batch processing for improved performance
    */
   async getJobLogFiles(filter?: JobLogFilter): Promise<JobLogInfo[]> {
     this.logger.methodEntry('getJobLogFiles', filter);
@@ -212,28 +216,39 @@ export class LogFileDiscovery {
 
       const jobLogInfos: JobLogInfo[] = [];
 
-      // Process each job directory to find log files
-      for (const jobDir of jobDirs) {
-        try {
-          const jobContents = await this.webdavClient.getDirectoryContents(jobDir.path);
-          const logFiles = (jobContents as any[])
-            .filter((item: any) =>
-              item.type === 'file' &&
-              JOB_LOG_CONSTANTS.JOB_LOG_PATTERN.test(item.filename.split('/').pop() ?? ''),
-            );
+      // Process job directories in parallel batches for faster scanning
+      for (let i = 0; i < jobDirs.length; i += LogFileDiscovery.PARALLEL_BATCH_SIZE) {
+        const batch = jobDirs.slice(i, i + LogFileDiscovery.PARALLEL_BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map(async jobDir => {
+            try {
+              const jobContents = await this.webdavClient.getDirectoryContents(jobDir.path);
+              const logFiles = (jobContents as any[])
+                .filter((item: any) =>
+                  item.type === 'file' &&
+                  JOB_LOG_CONSTANTS.JOB_LOG_PATTERN.test(item.filename.split('/').pop() ?? ''),
+                );
 
-          for (const logFile of logFiles) {
-            const fileName = logFile.filename.split('/').pop() ?? '';
-            jobLogInfos.push({
-              jobName: decodeURIComponent(jobDir.name),
-              jobId: this.extractJobIdFromFilename(fileName),
-              logFile: logFile.filename,
-              lastModified: logFile.lastmod ?? jobDir.lastModified,
-              size: logFile.size,
-            });
-          }
-        } catch (error) {
-          this.logger.warn(`Failed to read job directory ${jobDir.name}: ${error}`);
+              return logFiles.map(logFile => {
+                const fileName = logFile.filename.split('/').pop() ?? '';
+                return {
+                  jobName: decodeURIComponent(jobDir.name),
+                  jobId: this.extractJobIdFromFilename(fileName),
+                  logFile: logFile.filename,
+                  lastModified: logFile.lastmod ?? jobDir.lastModified,
+                  size: logFile.size,
+                };
+              });
+            } catch (error) {
+              this.logger.warn(`Failed to read job directory ${jobDir.name}: ${error}`);
+              return [];
+            }
+          }),
+        );
+
+        // Flatten batch results and add to jobLogInfos
+        for (const results of batchResults) {
+          jobLogInfos.push(...results);
         }
       }
 

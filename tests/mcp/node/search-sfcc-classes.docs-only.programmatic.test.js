@@ -5,7 +5,7 @@
  * including dynamic validation, error categorization and
  * comprehensive response structure analysis.
  * 
- * Response format discovered via conductor query:
+ * Response format discovered via aegis query:
  * - Success: { content: [{ type: "text", text: "["class1", "class2", ...]" }] }
  * - Empty: { content: [{ type: "text", text: "[]" }] }
  * - Error: { content: [{ type: "text", text: "Error: ..." }], isError: true }
@@ -13,13 +13,13 @@
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 describe('search_sfcc_classes Programmatic Tests', () => {
   let client;
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {
@@ -72,9 +72,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         // SFCC includes multiple namespaces
         assert.ok(
           className.startsWith('dw.') || 
-          className.startsWith('TopLevel.') || 
-          className.startsWith('best-practices.') || 
-          className.startsWith('sfra.'),
+          className.startsWith('TopLevel.'),
           `Class name "${className}" should start with recognized namespace`
         );
         assert.ok(className.includes('catalog'), 'Results should be relevant to query');
@@ -158,13 +156,11 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         // All results should be valid class names
         classArray.forEach(className => {
           assert.equal(typeof className, 'string', 'Should be string');
-          // SFCC includes dw.*, TopLevel.*, best-practices.*, and sfra.* classes
+          // SFCC class names should only include SFCC namespaces
           assert.ok(
             className.startsWith('dw.') || 
-            className.startsWith('TopLevel.') || 
-            className.startsWith('best-practices.') || 
-            className.startsWith('sfra.'),
-            `Class name "${className}" should start with dw., TopLevel., best-practices., or sfra.`
+            className.startsWith('TopLevel.'),
+            `Class name "${className}" should start with dw. or TopLevel.`
           );
         });
       });
@@ -275,7 +271,7 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       
       classArray.forEach(className => {
         // Validate class name format - updated for all SFCC namespaces
-        assert.match(className, /^(dw\.|TopLevel\.|best-practices\.|sfra\.)[a-zA-Z0-9_./-]+$/, 
+        assert.match(className, /^(dw\.|TopLevel\.)[a-zA-Z0-9_./-]+$/, 
           `Class name "${className}" should follow valid pattern`);
         
         // Should not contain spaces or invalid characters

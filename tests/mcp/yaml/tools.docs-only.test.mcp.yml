@@ -4,10 +4,10 @@
 # Uses conductor's enhanced pattern matching for thorough validation
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query --config "conductor.config.docs-only.json"  # List all tools
-# conductor query get_sfcc_class_info '{"className": "Catalog"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"  # List all tools
+# aegis query get_sfcc_class_info '{"className": "Catalog"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server docs-only mode - comprehensive tool metadata validation"
 
@@ -29,7 +29,7 @@ tests:
           tools: "match:type:array"
       stderr: "toBeEmpty"
 
-  - it: "should provide exactly 15 tools in docs-only mode"
+  - it: "should provide exactly 18 tools in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "tool-count-exact"
@@ -40,7 +40,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-exact"
         result:
-          tools: "match:arrayLength:15"
+          tools: "match:arrayLength:18"
       stderr: "toBeEmpty"
 
   - it: "should have non-empty tools array"
@@ -68,7 +68,7 @@ tests:
         jsonrpc: "2.0"
         id: "tool-count-range"
         result:
-          tools: "match:arrayLength:15"
+          tools: "match:arrayLength:18"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -196,21 +196,6 @@ tests:
         result:
           match:extractField: "tools.*.name"
           value: "match:arrayContains:search_sfcc_classes"
-      stderr: "toBeEmpty"
-
-  - it: "should contain best practice guide tools"
-    request:
-      jsonrpc: "2.0"
-      id: "tool-names-best-practices"
-      method: "tools/list"
-      params: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "tool-names-best-practices"
-        result:
-          match:extractField: "tools.*.name"
-          value: "match:arrayContains:get_best_practice_guide"
       stderr: "toBeEmpty"
 
   - it: "should contain SFRA documentation tools"
@@ -400,45 +385,6 @@ tests:
       response:
         jsonrpc: "2.0"
         id: "search-classes-test-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should execute get_available_best_practice_guides with list structure"
-    request:
-      jsonrpc: "2.0"
-      id: "bp-guides-test-1"
-      method: "tools/call"
-      params:
-        name: "get_available_best_practice_guides"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "bp-guides-test-1"
-        result:
-          content:
-            - type: "text"
-              text: "match:contains:cartridge_creation"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should execute get_best_practice_guide with guide content structure"
-    request:
-      jsonrpc: "2.0"
-      id: "bp-guide-test-1"
-      method: "tools/call"
-      params:
-        name: "get_best_practice_guide"
-        arguments:
-          guideName: "cartridge_creation"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "bp-guide-test-1"
         result:
           content:
             - type: "text"

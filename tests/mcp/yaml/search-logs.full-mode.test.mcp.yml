@@ -1,0 +1,207 @@
+---
+description: "Test search_logs tool in full mode - Aegis framework validation"
+tests:
+  # Core Aegis framework tests - basic functionality
+  - it: "should search for patterns with matches and proper response structure"
+    request:
+      jsonrpc: "2.0"
+      id: "search-basic"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          limit: 2
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-basic"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:Found \\d+ matches for"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  - it: "should handle no matches gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "search-no-matches"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "nonexistentpattern123456789"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-no-matches"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:No matches found for.*nonexistentpattern123456789"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1000ms"
+
+  # Error handling validation
+  - it: "should reject empty pattern with proper error response"
+    request:
+      jsonrpc: "2.0"
+      id: "search-empty-pattern"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: ""
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-empty-pattern"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:pattern must be a non-empty string"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  - it: "should reject invalid log level with proper error response"
+    request:
+      jsonrpc: "2.0"
+      id: "search-invalid-level"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          logLevel: "invalid_level"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-invalid-level"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:Invalid log level"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  # Parameter validation tests
+  - it: "should validate limit parameter bounds"
+    request:
+      jsonrpc: "2.0"
+      id: "search-invalid-limit"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          limit: 0
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-invalid-limit"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:contains:Invalid limit"
+          isError: true
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "800ms"
+
+  # Content structure validation - key patterns for Aegis testing
+  - it: "should return properly structured log entries with SFCC patterns"
+    request:
+      jsonrpc: "2.0"
+      id: "search-content-structure"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "SystemJobThread"
+          limit: 1
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-content-structure"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:regex:(Found \\d+ matches|No matches found)"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  # Parameter combination test - ensures Aegis handles multiple params
+  - it: "should handle combined parameters correctly"
+    request:
+      jsonrpc: "2.0"
+      id: "search-combined-params"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "Sites"
+          logLevel: "info"
+          limit: 3
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-combined-params"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "1500ms"
+
+  # Performance validation - basic SLA testing
+  - it: "should handle larger result sets within reasonable time"
+    request:
+      jsonrpc: "2.0"
+      id: "search-performance"
+      method: "tools/call"
+      params:
+        name: "search_logs"
+        arguments:
+          pattern: "INFO"
+          limit: 20
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "search-performance"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                type: "text"
+                text: "match:type:string"
+          isError: false
+      stderr: "toBeEmpty"
+    performance:
+      maxResponseTime: "2000ms"

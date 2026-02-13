@@ -70,6 +70,42 @@ export function parseLogEntries(content: string, level: string): string[] {
 }
 
 /**
+ * Extract timestamp from a log entry
+ * @param logEntry - Complete log entry string
+ * @returns Date object or null if timestamp cannot be parsed
+ */
+export function extractTimestampFromLogEntry(logEntry: string): Date | null {
+  // Match pattern: [2025-08-19T10:30:00.000 GMT] or [2025-09-19 20:47:32.324 GMT]
+  const timestampMatch = logEntry.match(/^\[(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}\.\d{3}) GMT\]/);
+
+  if (!timestampMatch) {
+    return null;
+  }
+
+  try {
+    // Normalize the timestamp format for parsing
+    let timestampStr = timestampMatch[1];
+
+    // Convert space format to ISO format if needed
+    if (timestampStr.includes(' ')) {
+      timestampStr = timestampStr.replace(' ', 'T');
+    }
+
+    // Parse the ISO timestamp (adding 'Z' for UTC)
+    const date = new Date(`${timestampStr}Z`);
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Extract unique error patterns from error log entries
  * Removes timestamps and common formatting to identify core error messages
  *

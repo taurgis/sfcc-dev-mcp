@@ -1,0 +1,208 @@
+# ==================================================================================
+# SFCC MCP Server - get_system_object_definition Tool YAML Tests (Docs-Only Mode)
+# Tests that system object tools are NOT available in docs-only mode
+# This tool requires SFCC credentials and should not be available without them
+# However, the tool can still be called and should return authentication error
+# 
+# Quick Test Commands:
+# aegis "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/get-system-object-definition.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query --config "aegis.config.docs-only.json"
+# aegis query get_system_object_definition '{"objectType": "Product"}' --config "aegis.config.docs-only.json"
+# ==================================================================================
+
+description: "get_system_object_definition tool tests - Docs-only mode tool availability and authentication errors"
+
+# ==================================================================================
+# TOOL UNAVAILABILITY IN DOCS-ONLY MODE
+# ==================================================================================
+tests:
+  - it: "should NOT list get_system_object_definition tool in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-not-available-docs"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-not-available-docs"
+        result:
+          match:extractField: "tools.*.name"
+          value: "match:not:arrayContains:get_system_object_definition"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+# ==================================================================================
+
+  - it: "should return authentication error when calling get_system_object_definition in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-product"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Product"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-product"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      performance:
+        maxResponseTime: "500ms"
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for Customer object type"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-customer"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Customer"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-customer"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:credentials are provided"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error for any object type"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-any"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "AnyObjectType"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-any"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:full mode"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return consistent authentication error message structure"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-structure"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "Order"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-structure"
+        result:
+          content:
+            - type: "text"
+              text: "match:startsWith:Error:"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PARAMETER VALIDATION IN DOCS-ONLY MODE
+# ==================================================================================
+
+  - it: "should return authentication error even with missing objectType in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "docs-missing-param"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "docs-missing-param"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return authentication error even with invalid parameter types in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "docs-invalid-type"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: 123
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "docs-invalid-type"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:OCAPI client not configured"
+          isError: true
+      stderr: "toBeEmpty"
+
+  - it: "should return auth error for valid parameters in docs-only mode"
+    request:
+      jsonrpc: "2.0"
+      id: "docs-valid-param-auth-error"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "ValidObjectType"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "docs-valid-param-auth-error"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:Error:[\\s\\S]*OCAPI[\\s\\S]*configured"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE TESTS FOR ERROR RESPONSES
+# ==================================================================================
+
+  - it: "should return authentication errors quickly"
+    request:
+      jsonrpc: "2.0"
+      id: "auth-error-perf"
+      method: "tools/call"
+      params:
+        name: "get_system_object_definition"
+        arguments:
+          objectType: "FastErrorTest"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "auth-error-perf"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:Error"
+          isError: true
+      performance:
+        maxResponseTime: "400ms"
+      stderr: "toBeEmpty"

@@ -1,0 +1,50 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_group_search_result",
+  "count": 6,
+  "hits": [
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "725cfb77da0718c12083846811819be73641bc2ac674cae8f5588db9058dde79",
+      "id": "ExternalSearch",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/ExternalSearch"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "31ad3c262c0bebb9aa39db3f558dbb16c6cf2f76de016df268d110f51469c42b",
+      "id": "Presentation",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/Presentation"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "b09a3a5aa52110b13baa7206d34d3cdd8260216087712ba267861885a4981609",
+      "id": "SearchRanking",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/SearchRanking"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "08a38cfa148750c5949ac5625bd3ad5ebd0ab372cbadf933d197f542f9fc4185",
+      "id": "SiteMap",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/SiteMap"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "552e4186fc4e97e07f7839c8cf1aaf41009dcd8b82efb35c8d025b4384595eb8",
+      "id": "VariationGroups",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/VariationGroups"
+    },
+    {
+      "_type": "object_attribute_group",
+      "_resource_state": "501f3723e08441d2f5f061c21e7efa0f68a9f86d6950ccae6fc8c8d9839441a3",
+      "id": "customAttributes",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category/attribute_groups/customAttributes"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 6
+}

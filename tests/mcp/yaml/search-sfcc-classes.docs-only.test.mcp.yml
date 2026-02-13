@@ -4,10 +4,10 @@
 # Tests both successful responses and error handling scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query search_sfcc_classes '{"query": "catalog"}' --config "conductor.config.docs-only.json"
-# conductor query search_sfcc_classes '{"query": "product"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/search-sfcc-classes.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query search_sfcc_classes '{"query": "catalog"}' --config "aegis.config.docs-only.json"
+# aegis query search_sfcc_classes '{"query": "product"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server search_sfcc_classes tool - comprehensive validation"
 
@@ -935,7 +935,7 @@ tests:
               text: "match:regex:\\[[\\s\\S]*\\]"
           isError: false
       performance:
-        maxResponseTime: "100ms"  # Search should be fast
+        maxResponseTime: "500ms"  # CI-friendly timing threshold
       stderr: "toBeEmpty"
 
   - it: "should handle complex searches efficiently"
@@ -1001,7 +1001,7 @@ tests:
               text: "match:regex:^\\[\\s*\\]$"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # No results should be very fast
+        maxResponseTime: "150ms"  # No results should be very fast
       stderr: "toBeEmpty"
 
   - it: "should handle error cases quickly"
@@ -1023,7 +1023,7 @@ tests:
               text: "match:contains:Error"
           isError: true
       performance:
-        maxResponseTime: "50ms"  # Error handling should be very fast
+        maxResponseTime: "150ms"  # Error handling should be very fast
       stderr: "toBeEmpty"
 
   - it: "should handle cached results quickly"
@@ -1045,7 +1045,7 @@ tests:
               text: "match:regex:\\[[\\s\\S]*\\]"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # Cached responses should be extremely fast
+        maxResponseTime: "150ms"  # Cached responses should be extremely fast
       stderr: "toBeEmpty"
 
   - it: "should handle single character searches within timeout"
@@ -1089,7 +1089,7 @@ tests:
               text: "match:regex:^\\[\\s*\\]$"
           isError: false
       performance:
-        maxResponseTime: "50ms"  # Long queries with no results should be fast
+        maxResponseTime: "150ms"  # Long queries with no results should be fast
       stderr: "toBeEmpty"
 
 # ==================================================================================

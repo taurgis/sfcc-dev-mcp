@@ -88,13 +88,50 @@ export class Logger {
   }
 
   /**
+   * Patterns for sensitive data that should be masked in logs
+   * These patterns match common credential formats to prevent accidental leakage
+   */
+  private static readonly SENSITIVE_PATTERNS: Array<{ pattern: RegExp; replacement: string }> = [
+    // Password fields in JSON
+    { pattern: /"password"\s*:\s*"[^"]+"/gi, replacement: '"password": "[REDACTED]"' },
+    // Client secret fields in JSON
+    { pattern: /"client[-_]?secret"\s*:\s*"[^"]+"/gi, replacement: '"client-secret": "[REDACTED]"' },
+    { pattern: /"clientSecret"\s*:\s*"[^"]+"/gi, replacement: '"clientSecret": "[REDACTED]"' },
+    // Access tokens
+    { pattern: /"access[-_]?token"\s*:\s*"[^"]+"/gi, replacement: '"access_token": "[REDACTED]"' },
+    { pattern: /"accessToken"\s*:\s*"[^"]+"/gi, replacement: '"accessToken": "[REDACTED]"' },
+    // Bearer tokens in Authorization headers
+    { pattern: /Bearer\s+[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]*/gi, replacement: 'Bearer [REDACTED]' },
+    // Basic auth headers
+    { pattern: /Basic\s+[A-Za-z0-9+/=]+/gi, replacement: 'Basic [REDACTED]' },
+    // API keys
+    { pattern: /"api[-_]?key"\s*:\s*"[^"]+"/gi, replacement: '"api_key": "[REDACTED]"' },
+  ];
+
+  /**
+   * Mask sensitive data in log messages
+   * @param text The text to sanitize
+   * @returns Sanitized text with sensitive data masked
+   */
+  private maskSensitiveData(text: string): string {
+    let sanitized = text;
+    for (const { pattern, replacement } of Logger.SENSITIVE_PATTERNS) {
+      sanitized = sanitized.replace(pattern, replacement);
+    }
+    return sanitized;
+  }
+
+  /**
    * Write log message to appropriate log file
    */
   private writeLog(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
     const formattedMessage = this.formatMessage(message);
-    const fullMessage = args.length > 0 ? `${formattedMessage} ${args.map(arg =>
+    const rawFullMessage = args.length > 0 ? `${formattedMessage} ${args.map(arg =>
       typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg),
     ).join(' ')}` : formattedMessage;
+
+    // Apply sensitive data masking before writing to log
+    const fullMessage = this.maskSensitiveData(rawFullMessage);
 
     // Always write to log files
     const logFile = join(this.logDir, `sfcc-mcp-${level}.log`);

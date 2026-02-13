@@ -1,6 +1,6 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 /**
  * Programmatic tests for the MCP tool: get_available_sfra_documents
@@ -17,7 +17,7 @@ import { connect } from 'mcp-conductor';
 
 describe('get_available_sfra_documents (programmatic)', () => {
   let client;
-  const CONFIG = './conductor.config.docs-only.json';
+  const CONFIG = './aegis.config.docs-only.json';
 
   before(async () => {
     client = await connect(CONFIG);

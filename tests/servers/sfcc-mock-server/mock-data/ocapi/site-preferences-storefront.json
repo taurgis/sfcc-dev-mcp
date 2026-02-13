@@ -1,0 +1,447 @@
+{
+  "_v": "23.2",
+  "_type": "preference_value_search_result",
+  "count": 8,
+  "hits": [
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront1-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Enable or disable the shopping cart functionality"
+        },
+        "display_name": {
+          "default": "Shopping Cart Enabled"
+        },
+        "effective_id": "c_shoppingCartEnabled",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "shoppingCartEnabled",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/shoppingCartEnabled",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "boolean",
+        "visible": true
+      },
+      "description": {
+        "default": "Enable or disable the shopping cart functionality"
+      },
+      "display_name": {
+        "default": "Shopping Cart Enabled"
+      },
+      "id": "shoppingCartEnabled",
+      "site_values": {
+        "RefArch": true,
+        "RefArchGlobal": true,
+        "pxl_1": false,
+        "pxl_2": true,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "boolean"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront2-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Maximum number of items allowed in shopping cart"
+        },
+        "display_name": {
+          "default": "Max Cart Items"
+        },
+        "effective_id": "c_maxCartItems",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "maxCartItems",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/maxCartItems",
+        "localizable": false,
+        "mandatory": true,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "int",
+        "visible": true
+      },
+      "description": {
+        "default": "Maximum number of items allowed in shopping cart"
+      },
+      "display_name": {
+        "default": "Max Cart Items"
+      },
+      "id": "maxCartItems",
+      "site_values": {
+        "RefArch": 50,
+        "RefArchGlobal": 100,
+        "pxl_1": 25,
+        "pxl_2": 75,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "int"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront3-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Welcome message displayed on homepage"
+        },
+        "display_name": {
+          "default": "Homepage Welcome Message"
+        },
+        "effective_id": "c_homepageWelcomeMessage",
+        "externally_defined": false,
+        "externally_managed": false,
+        "field_height": 5,
+        "id": "homepageWelcomeMessage",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/homepageWelcomeMessage",
+        "localizable": true,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": true,
+        "searchable": true,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "text",
+        "visible": true
+      },
+      "description": {
+        "default": "Welcome message displayed on homepage"
+      },
+      "display_name": {
+        "default": "Homepage Welcome Message"
+      },
+      "id": "homepageWelcomeMessage",
+      "site_values": {
+        "RefArch": "Welcome to our amazing store!",
+        "RefArchGlobal": "Discover the best products worldwide!",
+        "pxl_1": "Pixels Store - Your tech destination",
+        "pxl_2": "Premium electronics await you",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "text"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront4-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Discount percentage for new customers"
+        },
+        "display_name": {
+          "default": "New Customer Discount"
+        },
+        "effective_id": "c_newCustomerDiscount",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "newCustomerDiscount",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/newCustomerDiscount",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "double",
+        "visible": true
+      },
+      "description": {
+        "default": "Discount percentage for new customers"
+      },
+      "display_name": {
+        "default": "New Customer Discount"
+      },
+      "id": "newCustomerDiscount",
+      "site_values": {
+        "RefArch": 10.5,
+        "RefArchGlobal": 15.0,
+        "pxl_1": 5.0,
+        "pxl_2": 12.5,
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "double"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront5-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Available payment methods for checkout"
+        },
+        "display_name": {
+          "default": "Payment Methods"
+        },
+        "effective_id": "c_paymentMethods",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "paymentMethods",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/paymentMethods",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": true,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": true,
+        "site_specific": true,
+        "system": false,
+        "value_type": "set_of_string",
+        "visible": true
+      },
+      "description": {
+        "default": "Available payment methods for checkout"
+      },
+      "display_name": {
+        "default": "Payment Methods"
+      },
+      "id": "paymentMethods",
+      "site_values": {
+        "RefArch": "[\"CREDIT_CARD\", \"PAYPAL\", \"APPLE_PAY\"]",
+        "RefArchGlobal": "[\"CREDIT_CARD\", \"PAYPAL\", \"GOOGLE_PAY\", \"BANK_TRANSFER\"]",
+        "pxl_1": "[\"CREDIT_CARD\", \"PAYPAL\"]",
+        "pxl_2": "[\"CREDIT_CARD\", \"APPLE_PAY\", \"GOOGLE_PAY\"]",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "set_of_string"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront6-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Date when the current promotion ends"
+        },
+        "display_name": {
+          "default": "Promotion End Date"
+        },
+        "effective_id": "c_promotionEndDate",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "promotionEndDate",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/promotionEndDate",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "date",
+        "visible": true
+      },
+      "description": {
+        "default": "Date when the current promotion ends"
+      },
+      "display_name": {
+        "default": "Promotion End Date"
+      },
+      "id": "promotionEndDate",
+      "site_values": {
+        "RefArch": "2025-12-31",
+        "RefArchGlobal": "2025-11-30",
+        "pxl_1": "2025-10-31",
+        "pxl_2": "2025-12-25",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "date"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront7-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Custom CSS for site styling"
+        },
+        "display_name": {
+          "default": "Custom Site CSS"
+        },
+        "effective_id": "c_customSiteCSS",
+        "externally_defined": false,
+        "externally_managed": false,
+        "field_height": 15,
+        "id": "customSiteCSS",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/customSiteCSS",
+        "localizable": false,
+        "mandatory": false,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": true,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": true,
+        "system": false,
+        "value_type": "html",
+        "visible": true
+      },
+      "description": {
+        "default": "Custom CSS for site styling"
+      },
+      "display_name": {
+        "default": "Custom Site CSS"
+      },
+      "id": "customSiteCSS",
+      "site_values": {
+        "RefArch": ".header { background-color: #ff6b35; }",
+        "RefArchGlobal": ".global-header { background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); }",
+        "pxl_1": ".tech-theme { color: #00ff00; background: #000; }",
+        "pxl_2": ".premium-theme { border: 2px solid gold; }",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "html"
+    },
+    {
+      "_type": "preference_value",
+      "attribute_definition": {
+        "_type": "object_attribute_definition",
+        "_resource_state": "storefront8-resource-state",
+        "creation_date": "2024-01-01T00:00:00.000Z",
+        "description": {
+          "default": "Password strength requirement level"
+        },
+        "display_name": {
+          "default": "Password Strength Level"
+        },
+        "effective_id": "c_passwordStrengthLevel",
+        "externally_defined": false,
+        "externally_managed": false,
+        "id": "passwordStrengthLevel",
+        "key": false,
+        "last_modified": "2024-01-01T00:00:00.000Z",
+        "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/SitePreferences/attribute_definitions/passwordStrengthLevel",
+        "localizable": false,
+        "mandatory": true,
+        "multi_value_type": false,
+        "order_required": false,
+        "queryable": false,
+        "read_only": false,
+        "requires_encoding": false,
+        "searchable": false,
+        "set_value_type": false,
+        "site_specific": false,
+        "system": false,
+        "value_type": "enum_of_string",
+        "value_definitions": {
+          "WEAK": {
+            "display_value": {"default": "Weak"},
+            "value": "WEAK"
+          },
+          "MEDIUM": {
+            "display_value": {"default": "Medium"},
+            "value": "MEDIUM"
+          },
+          "STRONG": {
+            "display_value": {"default": "Strong"},
+            "value": "STRONG"
+          }
+        },
+        "visible": true
+      },
+      "description": {
+        "default": "Password strength requirement level"
+      },
+      "display_name": {
+        "default": "Password Strength Level"
+      },
+      "id": "passwordStrengthLevel",
+      "site_values": {
+        "RefArch": "MEDIUM",
+        "RefArchGlobal": "STRONG",
+        "pxl_1": "WEAK",
+        "pxl_2": "STRONG",
+        "pxl_3": null,
+        "pxl_4": null,
+        "pxl_5": null,
+        "pxl_6": null
+      },
+      "value_type": "enum_of_string"
+    }
+  ],
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "select": "(**)",
+  "start": 0,
+  "total": 8
+}

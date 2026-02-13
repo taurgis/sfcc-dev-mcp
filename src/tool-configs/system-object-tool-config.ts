@@ -21,19 +21,26 @@ export const SYSTEM_OBJECT_TOOL_NAMES_SET = new Set<SystemObjectToolName>(SYSTEM
  */
 export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> = {
   get_system_object_definitions: {
-    defaults: (args: ToolArguments) => args,
-    validate: (_args: ToolArguments, _toolName: string) => {
-      // No validation needed for list operation
-    },
-    exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
+    exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
-      return client.systemObjects.getSystemObjectDefinitions();
+      // Pass pagination parameters to the client
+      const params = {
+        start: args.start as number,
+        count: args.count as number,
+        select: args.select as string,
+      };
+      // Remove undefined values to avoid sending them
+      Object.keys(params).forEach(key => {
+        if (params[key as keyof typeof params] === undefined) {
+          delete params[key as keyof typeof params];
+        }
+      });
+      return client.systemObjects.getSystemObjectDefinitions(Object.keys(params).length > 0 ? params : undefined);
     },
-    logMessage: (_args: ToolArguments) => 'Get system object definitions',
+    logMessage: (args: ToolArguments) => `Get system object definitions (start: ${args?.start ?? 0}, count: ${args?.count ?? 200})`,
   },
 
   get_system_object_definition: {
-    defaults: (args: ToolArguments) => args,
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
     },

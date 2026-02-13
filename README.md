@@ -8,11 +8,13 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
-- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, and more  
+- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
+- **� ISML Template Reference** - Complete ISML element documentation with examples and best practices
+- **�📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
+- **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
 
 ## 🚀 Quick Start
 
@@ -51,35 +53,62 @@ Create a `dw.json` file with your SFCC credentials:
 }
 ```
 
+### Option 3: Auto-Discovery (Recommended for VS Code users)
+Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:
+```json
+{
+  "mcpServers": {
+    "sfcc-dev": {
+      "command": "npx",
+      "args": ["sfcc-dev-mcp"]
+    }
+  }
+}
+```
+
+## 🔧 Configuration Discovery Priority
+
+The server discovers SFCC credentials in this order (highest priority first):
+
+| Priority | Source | Description |
+|----------|--------|-------------|
+| **1** | `--dw-json` CLI parameter | Explicit path to dw.json file |
+| **2** | Environment variables | `SFCC_HOSTNAME`, `SFCC_USERNAME`, `SFCC_PASSWORD`, `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET` |
+| **3** | MCP workspace roots | Automatically discovers dw.json in your VS Code workspace folder(s) |
+
+> **Note**: The server no longer searches the current working directory by default, as MCP servers often start with `cwd` set to the user's home directory. The MCP workspace roots mechanism provides reliable project context.
+
 ## 🎯 Operating Modes
 
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
-| **Documentation-Only** | 15 tools | ❌ No |
-| **Full Mode** | 36 tools | ✅ Yes |
+| **Documentation-Only** | 21 tools | ❌ No |
+| **Full Mode** | 38 tools | ✅ Yes |
 
 ### Documentation-Only Mode
 Perfect for learning and development - no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
-- Best practices guides (4 tools) 
+- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
+- ISML template documentation (5 tools)
 - Cartridge generation (1 tool)
+- Agent instruction bootstrap (1 tool) to copy/merge AGENTS.md and skills
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
-- All documentation-only features (15 tools)
+- All documentation-only features (21 tools)
 - Real-time log analysis (13 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
 
-## � Architecture Overview
+## 🏗️ Architecture Overview
 
 This server is built around a **capability-gated, modular handler architecture** that cleanly separates tool routing from domain logic:
 
 ### Core Layers
-- **Tool Definitions** (`src/core/tool-definitions.ts`): Declarative schemas grouped by category (documentation, best practices, SFRA, logs, job logs, system objects, cartridge generation, code versions).
-- **Handlers** (`src/core/handlers/*.ts`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `system-object-handler`).
-- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, best practices, modular log analysis). Handlers delegate to these so orchestration and computation remain separate.
+- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, best practices, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
+- **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
+- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, best practices, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
@@ -91,17 +120,18 @@ This server is built around a **capability-gated, modular handler architecture**
 - **Performance**: Tail log reads + lightweight caching (`cache.ts`, `log-cache.ts`) reduce unnecessary I/O.
 
 ### Adding a New Tool (High-Level)
-1. Add schema object to the correct exported array in `tool-definitions.ts`.
-2. Implement domain logic in a client/service (avoid bloating handlers).
-3. Extend an existing handler or create a new one if it's a new category.
-4. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
-5. Discover actual response shape with `npx conductor query` before writing tests.
-6. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
-7. Update documentation (Development Guide + README counts if changed).
+1. Add schema to the appropriate file in `src/core/tool-schemas/` (or create new file for new category).
+2. Export new schema from `src/core/tool-schemas/index.ts` if adding a new file.
+3. Implement domain logic in a client/service (avoid bloating handlers).
+4. Extend an existing handler or create a new one if it's a new category.
+5. (Only for a new category) register the new handler inside `registerHandlers()` in `server.ts`.
+6. Discover actual response shape with `npx aegis query` before writing tests.
+7. Add Jest unit tests + YAML MCP tests (docs vs full mode if credentials required).
+8. Update documentation (AGENTS.md + README counts if changed).
 
 > For a deeper internal view, see the Development Guide in the docs site.
 
-## �🤖 AI Interface Setup
+## 🤖 AI Interface Setup
 
 Choose your preferred AI assistant:
 
@@ -114,12 +144,13 @@ Choose your preferred AI assistant:
 ## 📦 Installation
 
 ### Using npx (Recommended)
+> Tip: Add `-y` (or `--yes`) to suppress the interactive prompt npx shows before downloading a package. This prevents AI clients (Claude Desktop, Copilot, Cursor) from hanging waiting for confirmation.
 ```bash
 # Test the server
-npx sfcc-dev-mcp
+npx -y sfcc-dev-mcp
 
 # Use with your configuration
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ```
 
 ### Global Installation
@@ -133,10 +164,10 @@ sfcc-dev-mcp --dw-json /path/to/your/dw.json
 ### Enable Debug Logging
 ```bash
 # Enable debug mode for detailed logging
-npx sfcc-dev-mcp --debug
+npx -y sfcc-dev-mcp --debug
 
 # Or with configuration file
-npx sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
+npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
 ```
 
 ### Log File Locations
@@ -161,6 +192,8 @@ node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 ## 📖 Documentation
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
+
+Documentation source lives in `docs-site-v2/` (VitePress). The legacy React site remains in `docs-site/`.
 
 Quick Links:
 - **[Installation Guide](https://taurgis.github.io/sfcc-dev-mcp/installation)** - Detailed installation options

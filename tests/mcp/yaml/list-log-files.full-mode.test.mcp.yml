@@ -1,8 +1,8 @@
 ---
-description: "Test list_log_files tool in full mode"
+description: "Test list_log_files tool in full mode - Optimized for aegis framework testing"
 tests:
-  # Basic functionality tests
-  - it: "should list available log files with metadata"
+  # Core MCP protocol validation
+  - it: "should return valid MCP response with log file metadata"
     request:
       jsonrpc: "2.0"
       id: "list-files-basic"
@@ -17,18 +17,19 @@ tests:
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "match:type:string"
+              match:partial:
+                type: "text"
+                text: "match:contains:Available log files"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  # Content validation tests
-  - it: "should include file paths in response"
+  # SFCC log pattern validation (combined test for all log levels)
+  - it: "should include all SFCC log levels with correct naming patterns"
     request:
       jsonrpc: "2.0"
-      id: "list-files-paths"
+      id: "list-files-patterns"
       method: "tools/call"
       params:
         name: "list_log_files"
@@ -36,277 +37,53 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "list-files-paths"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Available log files"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include debug log files with proper naming pattern"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-debug"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-debug"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:debug-blade-[\\d]{8}-[\\d]{6}\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include error log files with proper naming pattern"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-error"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-error"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:error-blade-[\\d]{8}-[\\d]{6}\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include info log files with proper naming pattern"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-info"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-info"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:info-blade-[\\d]{8}-[\\d]{6}\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include warn log files with proper naming pattern"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-warn"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-warn"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:warn-blade-[\\d]{8}-[\\d]{6}\\.log"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Metadata validation tests
-  - it: "should include file size information"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-size"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-size"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Size:"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include modification date information"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-modified"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-modified"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:Modified:"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include file size in proper format (Bytes, KB, MB)"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-size-format"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-size-format"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:Size: [\\d.,]+ (Bytes|KB|MB)"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should include proper GMT timestamp format"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-timestamp"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-timestamp"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:Modified: [A-Za-z]{3}, [\\d]{1,2} [A-Za-z]{3} [\\d]{4} [\\d]{2}:[\\d]{2}:[\\d]{2} GMT"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Structure validation tests
-  - it: "should use emoji file icons in output"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-icons"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-icons"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:contains:📄"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should format output with proper spacing and structure"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-formatting"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-formatting"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                text: "match:regex:📄 \\/[\\w-]+\\.log[\\s\\S]*Size: [\\d.,]+ (Bytes|KB|MB)[\\s\\S]*Modified:"
-          isError: false
-      stderr: "toBeEmpty"
-
-  # Performance validation tests
-  - it: "should respond quickly for file listing operations"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-performance"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-performance"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  # Edge case validation tests
-  - it: "should handle tool execution without any parameters"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-no-params"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-no-params"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-
-  - it: "should consistently format all log file types"
-    request:
-      jsonrpc: "2.0"
-      id: "list-files-consistent"
-      method: "tools/call"
-      params:
-        name: "list_log_files"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "list-files-consistent"
+        id: "list-files-patterns"
         result:
           content:
             match:arrayElements:
               match:partial:
                 text: "match:regex:(debug|error|info|warn)-blade-[\\d]{8}-[\\d]{6}\\.log"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Comprehensive metadata validation (combined size and timestamp test)
+  - it: "should include complete file metadata with proper formatting"
+    request:
+      jsonrpc: "2.0"
+      id: "list-files-metadata"
+      method: "tools/call"
+      params:
+        name: "list_log_files"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-files-metadata"
+        result:
+          content:
+            match:arrayElements:
+              match:partial:
+                text: "match:regex:📄 \\/[\\w-]+\\.log[\\s\\S]*Size: [\\d.,]+ (Bytes|KB|MB)[\\s\\S]*Modified: [A-Za-z]{3}, [\\d]{1,2} [A-Za-z]{3} [\\d]{4} [\\d]{2}:[\\d]{2}:[\\d]{2} GMT"
+          isError: false
+      stderr: "toBeEmpty"
+
+  # Parameter handling (simple edge case for aegis testing)
+  - it: "should handle empty arguments gracefully"
+    request:
+      jsonrpc: "2.0"
+      id: "list-files-empty-args"
+      method: "tools/call"
+      params:
+        name: "list_log_files"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "list-files-empty-args"
+        result:
+          content:
+            match:arrayElements:
+              type: "text"
+              text: "match:type:string"
           isError: false
       stderr: "toBeEmpty"

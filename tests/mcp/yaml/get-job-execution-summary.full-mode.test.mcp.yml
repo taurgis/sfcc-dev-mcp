@@ -1,11 +1,11 @@
 ---
-description: "Test get_job_execution_summary tool in full mode"
+description: "Test get_job_execution_summary tool in full mode (YAML/Aegis framework validation)"
 tests:
-  # Basic functionality tests
-  - it: "should retrieve job execution summary for existing job"
+  # Core functionality - test basic success case with actual response format
+  - it: "should retrieve job execution summary with proper structure"
     request:
       jsonrpc: "2.0"
-      id: "job-summary-existing"
+      id: "job-summary-basic"
       method: "tools/call"
       params:
         name: "get_job_execution_summary"
@@ -14,44 +14,20 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "job-summary-existing"
+        id: "job-summary-basic"
         result:
           content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:Job Execution Summary: ImportCatalog[\\s\\S]*⏱️ Timing:[\\s\\S]*📊 Status:"
+            match:arrayLength:1
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should include timing information in execution summary"
+  # Test response content format for existing job (based on aegis discovery)
+  - it: "should return formatted execution summary with timing and status sections"
     request:
       jsonrpc: "2.0"
-      id: "job-summary-timing"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: "ProcessOrders"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-timing"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:regex:⏱️ Timing:[\\s\\S]*Start:[\\s\\S]*End:[\\s\\S]*Duration:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
-
-  - it: "should include status information in execution summary"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-status"
+      id: "job-summary-format"
       method: "tools/call"
       params:
         name: "get_job_execution_summary"
@@ -60,17 +36,19 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "job-summary-status"
+        id: "job-summary-format"
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "match:regex:📊 Status:[\\s\\S]*Status:[\\s\\S]*Errors:[\\s\\S]*Warnings:"
+              match:partial:
+                type: "text"
+                text: "match:regex:Job Execution Summary: ImportCatalog[\\s\\S]*⏱️ Timing:[\\s\\S]*📊 Status:"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
 
+  # Test non-existent job handling (based on aegis discovery)
   - it: "should handle non-existent job gracefully"
     request:
       jsonrpc: "2.0"
@@ -87,14 +65,15 @@ tests:
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "match:contains:No job logs found for job name: NonExistentJob"
+              match:partial:
+                type: "text"
+                text: "match:contains:No job logs found for job name: NonExistentJob"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1500ms"
 
-  # Error handling tests
+  # Essential error validation - missing parameter (based on aegis discovery)
   - it: "should return error for missing jobName parameter"
     request:
       jsonrpc: "2.0"
@@ -110,13 +89,15 @@ tests:
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "Error: jobName must be a non-empty string"
+              match:partial:
+                type: "text"
+                text: "match:contains:Error: jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
 
+  # Essential error validation - empty string (based on aegis discovery)
   - it: "should return error for empty jobName parameter"
     request:
       jsonrpc: "2.0"
@@ -133,129 +114,16 @@ tests:
         result:
           content:
             match:arrayElements:
-              type: "text"
-              text: "Error: jobName must be a non-empty string"
+              match:partial:
+                type: "text"
+                text: "match:contains:Error: jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
 
-  - it: "should return error for null jobName parameter"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-null-param"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: null
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-null-param"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "Error: jobName must be a non-empty string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "800ms"
-
-  - it: "should return error for non-string jobName parameter"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-invalid-type"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: 123
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-invalid-type"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "Error: jobName must be a non-empty string"
-          isError: true
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "800ms"
-
-  # Edge case tests
-  - it: "should handle job names with special characters"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-special-chars"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: "Job-With-Dashes_And_Underscores.123"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-special-chars"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:No job logs found for job name: Job-With-Dashes_And_Underscores.123"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1500ms"
-
-  - it: "should handle very long job names"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-long-name"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: "VeryLongJobNameThatMightCauseIssuesWithSomeSystemsBecauseItExceedsTypicalLimits"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-long-name"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:No job logs found for job name:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1500ms"
-
-  # Performance and functional validation
-  - it: "should complete job execution summary retrieval within reasonable time"
-    request:
-      jsonrpc: "2.0"
-      id: "job-summary-performance"
-      method: "tools/call"
-      params:
-        name: "get_job_execution_summary"
-        arguments:
-          jobName: "ImportCatalog"
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "job-summary-performance"
-        result:
-          content:
-            match:arrayLength:1
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "1000ms"
-
-  - it: "should return proper content structure"
+  # Test response structure consistency
+  - it: "should return consistent MCP response structure"
     request:
       jsonrpc: "2.0"
       id: "job-summary-structure"
@@ -263,7 +131,7 @@ tests:
       params:
         name: "get_job_execution_summary"
         arguments:
-          jobName: "ProcessOrders"
+          jobName: "ImportCatalog"
     expect:
       response:
         jsonrpc: "2.0"

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="SFCC MCP">
+  <rect x="18" y="18" width="124" height="124" rx="28" fill="none" stroke="#FFFFFF" stroke-width="10" />
+  <rect x="44" y="60" width="18" height="56" rx="8" fill="#FFFFFF" />
+  <rect x="71" y="44" width="18" height="84" rx="8" fill="#FFFFFF" />
+  <rect x="98" y="70" width="18" height="46" rx="8" fill="#FFFFFF" />
+  <circle cx="53" cy="52" r="6" fill="#FFFFFF" />
+  <circle cx="107" cy="52" r="6" fill="#FFFFFF" />
+</svg>

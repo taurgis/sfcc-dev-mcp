@@ -123,13 +123,24 @@ This method returns the stored basket of the session customer or null if none is
  basket is returned in the following situation:
  
  During one visit, a customer-Q logs in and creates a basket-A by adding products to it.
- In a later visit, a second basket-B is created for a guest customer who then logs in as customer-Q. 
+ During a subsequent visit, a second basket-B is created for a guest customer who then logs in as
+ customer-Q.
  
- In this case basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. 
- Now it is possible to merge the information from the stored basket to the active basket.
+ In this case, basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this
+ method. It is now possible to merge the information from the stored basket (basket-A) to the active basket
+ (basket-B). If this method returns null in the previous scenario, verify that:
  
- A stored basket will exist only if the corresponding setting is selected in the Business Manager site
- preferences' baskets section. A basket is valid for the configured basket lifetime.
+ The session handling between the two visits is correct - the first visit and second visit must be in
+ different sessions. Furthermore, the second session must contain both basket creations: as guest and the customer
+ login.
+ The stored basket is not expired.
+ Basket persistence settings are configured correctly in the Business Manager.
+ 
+ 
+ 
+ A stored basket exists only if the corresponding setting is selected in Business Manager. preferences' baskets
+ section. A basket is valid for the configured basket lifetime.
+ 
  
  Typical usage:
 
@@ -138,6 +149,11 @@ This method returns the stored basket of the session customer or null if none is
  if (storedBasket) {
      // transfer all the data needed from the stored to the active basket
  }
+ 
+
+ A exhaustive example on how to use this method in the context of the Merge Basket functionality can be found
+ here: Merge Basket utility
+ functions using Script API
 
 ### temporaryBaskets
 
@@ -247,7 +263,7 @@ CreateAgentBasketLimitExceededException - indicates that no agent basket could b
 
 **Signature:** `static createBasketFromOrder(order : Order) : Basket`
 
-**Description:** Creates a Basket from an existing Order for the purposes of changing an Order. When an Order is later created from the Basket, the original Order is changed to status Order.ORDER_STATUS_REPLACED. Restricted to agent scenario use cases. In case a storefront customer is using it the created storefront basket cannot be retrieved via getCurrentBasket() (ScriptAPI), GET /baskets/ (REST APIs) or DELETE /baskets/ (REST APIs) or GetBasket (Pipelet) or Basket-related CSC Operations from BM (these also use OCAPI REST API). Baskets containing an "orderNumberBeingEdited" are explicitly excluded from the list of baskets that can be retrieved. Responsible for this behavior (this kind of basket cannot be used as general purpose shopping baskets) - see Basket.getOrderNoBeingEdited() / Basket.getOrderBeingEdited(). In case a Business Manager user is logged in into the session the basket will be marked as an agent basket. See Basket.isAgentBasket(). Any inventory reservation associated with the order will be canceled either early when Basket.reserveInventory() is called for the new basket or (later) when a new replacement order is created from the basket. Consider reserving the basket following its creation. The method only succeeds for an Order without gift certificates, status is not cancelled, was not previously replaced and was not previously exported. Failures are indicated by throwing an APIException of type CreateBasketFromOrderException which provides one of these errorCodes: Code OrderProcessStatusCodes.ORDER_CONTAINS_GC - the Order contains a gift certificate and cannot be replaced. Code OrderProcessStatusCodes.ORDER_ALREADY_REPLACED - the Order was already replaced. Code OrderProcessStatusCodes.ORDER_ALREADY_CANCELLED - the Order was cancelled. Code OrderProcessStatusCodes.ORDER_ALREADY_EXPORTED - the Order has already been exported. Usage: var order : Order; // known try { var basket : Basket = BasketMgr.createBasketFromOrder(order); } catch (e) { if (e instanceof APIException && e.type === 'CreateBasketFromOrderException') { // handle e.errorCode } }
+**Description:** Creates a Basket from an existing Order for the purposes of changing an Order. When an Order is later created from the Basket, the original Order is changed to status Order.ORDER_STATUS_REPLACED. Restricted to agent scenario use cases. In case a storefront customer is using it the created storefront basket cannot be retrieved via getCurrentBasket() (ScriptAPI), GET /baskets/<basketid> (REST APIs) or DELETE /baskets/<basketid> (REST APIs) or GetBasket (Pipelet) or Basket-related CSC Operations from BM (these also use OCAPI REST API). Baskets containing an "orderNumberBeingEdited" are explicitly excluded from the list of baskets that can be retrieved. Responsible for this behavior (this kind of basket cannot be used as general purpose shopping baskets) - see Basket.getOrderNoBeingEdited() / Basket.getOrderBeingEdited(). In case a Business Manager user is logged in into the session the basket will be marked as an agent basket. See Basket.isAgentBasket(). Any inventory reservation associated with the order will be canceled either early when Basket.reserveInventory() is called for the new basket or (later) when a new replacement order is created from the basket. Consider reserving the basket following its creation. The method only succeeds for an Order without gift certificates, status is not cancelled, was not previously replaced and was not previously exported. Failures are indicated by throwing an APIException of type CreateBasketFromOrderException which provides one of these errorCodes: Code OrderProcessStatusCodes.ORDER_CONTAINS_GC - the Order contains a gift certificate and cannot be replaced. Code OrderProcessStatusCodes.ORDER_ALREADY_REPLACED - the Order was already replaced. Code OrderProcessStatusCodes.ORDER_ALREADY_CANCELLED - the Order was cancelled. Code OrderProcessStatusCodes.ORDER_ALREADY_EXPORTED - the Order has already been exported. Usage: var order : Order; // known try { var basket : Basket = BasketMgr.createBasketFromOrder(order); } catch (e) { if (e instanceof APIException && e.type === 'CreateBasketFromOrderException') { // handle e.errorCode } }
 
 **Parameters:**
 
@@ -365,7 +381,7 @@ the basket, existing or newly created
 
 **Signature:** `static getStoredBasket() : Basket`
 
-**Description:** This method returns the stored basket of the session customer or null if none is found. A stored basket is returned in the following situation: During one visit, a customer-Q logs in and creates a basket-A by adding products to it. In a later visit, a second basket-B is created for a guest customer who then logs in as customer-Q. In this case basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. Now it is possible to merge the information from the stored basket to the active basket. A stored basket will exist only if the corresponding setting is selected in the Business Manager site preferences' baskets section. A basket is valid for the configured basket lifetime. Typical usage: var currentBasket : Basket = BasketMgr.getCurrentOrNewBasket(); var storedBasket : Basket = BasketMgr.getStoredBasket(); if (storedBasket) { // transfer all the data needed from the stored to the active basket }
+**Description:** This method returns the stored basket of the session customer or null if none is found. A stored basket is returned in the following situation: During one visit, a customer-Q logs in and creates a basket-A by adding products to it. During a subsequent visit, a second basket-B is created for a guest customer who then logs in as customer-Q. In this case, basket-B is reassigned to customer-Q and basket-A is accessible as the stored basket using this method. It is now possible to merge the information from the stored basket (basket-A) to the active basket (basket-B). If this method returns null in the previous scenario, verify that: The session handling between the two visits is correct - the first visit and second visit must be in different sessions. Furthermore, the second session must contain both basket creations: as guest and the customer login. The stored basket is not expired. Basket persistence settings are configured correctly in the Business Manager. A stored basket exists only if the corresponding setting is selected in Business Manager. preferences' baskets section. A basket is valid for the configured basket lifetime. Typical usage: var currentBasket : Basket = BasketMgr.getCurrentOrNewBasket(); var storedBasket : Basket = BasketMgr.getStoredBasket(); if (storedBasket) { // transfer all the data needed from the stored to the active basket } A exhaustive example on how to use this method in the context of the Merge Basket functionality can be found here: Merge Basket utility functions using Script API
 
 **Returns:**
 

@@ -75,7 +75,7 @@ describe('CartridgeToolHandler', () => {
       const MockedClientFactory = jest.requireMock('../src/core/handlers/client-factory.js').ClientFactory;
       const mockFactoryInstance = MockedClientFactory.mock.results[0].value;
       expect(mockFactoryInstance.createCartridgeClient).toHaveBeenCalled();
-      expect(mockLogger.debug).toHaveBeenCalledWith('Cartridge generation client initialized');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Cartridge Generation client initialized');
     });
   });
 
@@ -84,7 +84,7 @@ describe('CartridgeToolHandler', () => {
       await initializeHandler();
       await (handler as any).dispose();
 
-      expect(mockLogger.debug).toHaveBeenCalledWith('Cartridge generation client disposed');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Cartridge Generation client disposed');
     });
   });
 
@@ -220,7 +220,7 @@ describe('CartridgeToolHandler', () => {
       await handler.handle('generate_cartridge_structure', { cartridgeName: 'test_cartridge' }, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'generate_cartridge_structure completed successfully',
+        'generate_cartridge_structure completed',
         expect.any(Object),
       );
     });
@@ -236,7 +236,7 @@ describe('CartridgeToolHandler', () => {
 
       // Check that the debug log contains the execution details
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'generate_cartridge_structure completed successfully',
+        'generate_cartridge_structure completed',
         expect.any(Object),
       );
     });

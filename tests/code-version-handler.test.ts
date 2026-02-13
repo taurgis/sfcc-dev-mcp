@@ -84,7 +84,7 @@ describe('CodeVersionToolHandler', () => {
         clientSecret: 'test-client-secret',
         version: 'v23_2',
       });
-      expect(mockLogger.debug).toHaveBeenCalledWith('Code versions client initialized');
+      expect(mockLogger.debug).toHaveBeenCalledWith('OCAPI (Code Versions) client initialized');
     });
 
     it('should not initialize client when OCAPI access is not available', async () => {
@@ -113,7 +113,7 @@ describe('CodeVersionToolHandler', () => {
       await initializeHandler();
       await (handler as any).dispose();
 
-      expect(mockLogger.debug).toHaveBeenCalledWith('Code versions client disposed');
+      expect(mockLogger.debug).toHaveBeenCalledWith('OCAPI (Code Versions) client disposed');
     });
   });
 
@@ -215,7 +215,7 @@ describe('CodeVersionToolHandler', () => {
       await handler.handle('get_code_versions', {}, Date.now());
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'get_code_versions completed successfully',
+        'get_code_versions completed',
         expect.any(Object),
       );
     });

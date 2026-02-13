@@ -114,7 +114,9 @@ body:
       multiple: true
       options:
         - SFCC Class Documentation Tools
-        - Best Practices Guide Tools
+        - Agent Instructions / Skills
+        - SFRA Documentation Tools
+        - ISML Documentation Tools
         - Log Analysis Tools
         - System Object Tools
         - Authentication/OAuth

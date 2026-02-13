@@ -2,13 +2,27 @@
 
 /**
  * Main entry point for the SFCC Development MCP Server
+ *
+ * This module handles:
+ * - Command-line argument parsing
+ * - Configuration discovery (dw.json) from multiple sources
+ * - Secure path validation for configuration files
+ * - Server initialization and lifecycle management
+ *
+ * Configuration discovery priority (highest to lowest):
+ * 1. Explicit --dw-json command line argument
+ * 2. Environment variables (SFCC_HOSTNAME, etc.)
+ * 3. MCP workspace roots discovery (after client connection)
+ * 4. Current working directory fallback (disabled by default, unreliable)
+ *
+ * Note: CWD-based discovery is disabled because MCP servers often run
+ * with cwd set to the user's home directory, not the project directory.
+ * The MCP workspace roots mechanism provides the correct project context.
  */
 
 import { SFCCDevServer } from './core/server.js';
 import { ConfigurationFactory } from './config/configuration-factory.js';
 import { Logger } from './utils/logger.js';
-import { existsSync } from 'fs';
-import { resolve } from 'path';
 
 /**
  * Parse command line arguments to extract configuration options
@@ -37,29 +51,24 @@ function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
 }
 
 /**
- * Find dw.json file in common locations
+ * Check if environment variables provide SFCC credentials
  */
-function findDwJsonFile(): string | undefined {
-  const commonPaths = [
-    './dw.json',
-    '../dw.json',
-    '../../dw.json',
-    process.env.HOME ? resolve(process.env.HOME, 'dw.json') : null,
-  ].filter(Boolean) as string[];
-
-  for (const path of commonPaths) {
-    if (existsSync(path)) {
-      const logger = Logger.getInstance();
-      logger.debug(`Found dw.json at: ${path}`);
-      return path;
-    }
-  }
-
-  return undefined;
+function hasEnvironmentCredentials(): boolean {
+  const hasBasicAuth = !!(process.env.SFCC_USERNAME && process.env.SFCC_PASSWORD);
+  const hasOAuth = !!(process.env.SFCC_CLIENT_ID && process.env.SFCC_CLIENT_SECRET);
+  return !!(process.env.SFCC_HOSTNAME && (hasBasicAuth || hasOAuth));
 }
 
 /**
  * Main application entry point
+ *
+ * Configuration discovery priority:
+ * 1. CLI --dw-json parameter (explicit, highest priority)
+ * 2. Environment variables (SFCC_HOSTNAME, etc.)
+ * 3. MCP workspace roots (discovered after client connection - most reliable for project context)
+ *
+ * Note: CWD-based auto-discovery is intentionally NOT used because MCP servers
+ * often start with cwd=/Users/xxx (home directory), not the project directory.
  */
 async function main(): Promise<void> {
   try {
@@ -71,17 +80,33 @@ async function main(): Promise<void> {
     const logger = Logger.getInstance();
 
     logger.log('Starting SFCC Development MCP Server...');
+    logger.log(`[main] Current working directory: ${process.cwd()}`);
+    logger.log(`[main] Command line args: ${JSON.stringify(process.argv.slice(2))}`);
     if (debug) {
-      logger.log('Debug mode enabled');
+      logger.log('[main] Debug mode enabled');
     }
 
-    // Try to find dw.json if not explicitly provided
-    const dwJsonPath = options.dwJsonPath ?? findDwJsonFile();
+    // Priority 1: Explicit CLI parameter
+    if (options.dwJsonPath) {
+      logger.log(`[main] Using explicit dw.json path from CLI: ${options.dwJsonPath}`);
+    }
+
+    // Priority 2: Environment variables
+    const hasEnvCredentials = hasEnvironmentCredentials();
+    if (hasEnvCredentials) {
+      logger.log('[main] Environment variables provide SFCC credentials');
+    }
+
+    // Determine initial configuration source
+    // - If CLI path provided: use it
+    // - If env vars set: use them
+    // - Otherwise: start in local mode, MCP workspace discovery will upgrade later
+    const dwJsonPath = options.dwJsonPath; // Only use explicit CLI path, not auto-discovery
 
     // Create configuration using the factory
     const config = ConfigurationFactory.create({
       dwJsonPath,
-      // Add support for environment variables as fallback
+      // Environment variables as fallback (Priority 2)
       hostname: process.env.SFCC_HOSTNAME,
       username: process.env.SFCC_USERNAME,
       password: process.env.SFCC_PASSWORD,
@@ -89,19 +114,27 @@ async function main(): Promise<void> {
       clientSecret: process.env.SFCC_CLIENT_SECRET,
     });
 
+    logger.log(`[main] Config created - hostname: "${config.hostname}"`);
+
     // Log configuration summary (without sensitive data)
     const capabilities = ConfigurationFactory.getCapabilities(config);
+    logger.log(`[main] Capabilities: ${JSON.stringify(capabilities)}`);
 
     if (capabilities.isLocalMode) {
-      logger.log('Running in Local Mode - SFCC class documentation only');
-      logger.log('To access SFCC logs and OCAPI, provide hostname and credentials');
+      logger.log('[main] Starting in Local Mode - documentation only');
+      logger.log('[main] MCP workspace roots discovery will attempt to find dw.json after client connects');
+      logger.log('[main] To skip discovery, use --dw-json or set SFCC_* environment variables');
     } else {
-      logger.log(`Configuration loaded - Hostname: ${config.hostname}`);
-      logger.log(`Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
+      const source = options.dwJsonPath ? 'CLI parameter' : 'environment variables';
+      logger.log(`[main] Configuration loaded from ${source}`);
+      logger.log(`[main] Hostname: ${config.hostname}`);
+      logger.log(`[main] Available features: Logs=${capabilities.canAccessLogs}, OCAPI=${capabilities.canAccessOCAPI}, WebDAV=${capabilities.canAccessWebDAV}`);
     }
 
     // Create and start the server
+    logger.log('[main] Creating SFCCDevServer...');
     const server = new SFCCDevServer(config);
+    logger.log('[main] Starting server.run()...');
     await server.run();
   } catch (error) {
     const logger = Logger.getInstance();
@@ -110,8 +143,8 @@ async function main(): Promise<void> {
     if (error instanceof Error) {
       if (error.message.includes('not found')) {
         logger.log('\nConfiguration Help:');
-        logger.log('1. Create a dw.json file with your SFCC credentials');
-        logger.log('2. Use --dw-json /path/to/dw.json');
+        logger.log('1. Open a VS Code workspace with a dw.json file (recommended - auto-discovered)');
+        logger.log('2. Use --dw-json /path/to/dw.json (explicit path)');
         logger.log('3. Set environment variables: SFCC_HOSTNAME, SFCC_USERNAME, SFCC_PASSWORD');
       }
     }

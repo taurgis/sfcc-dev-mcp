@@ -14,11 +14,34 @@ export class PathResolver {
    */
   static getCurrentWorkingDir(): string {
     // Get the directory of the current module file
+    // ts-jest may compile with a CommonJS module target in tests; suppress the
+    // diagnostic because runtime uses ESM (NodeNext) where import.meta is valid.
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
-    // Return the parent directory (project root)
-    return path.resolve(__dirname, '..');
+    // Return the project root (handles both src/ and dist/ locations)
+    return path.resolve(__dirname, '..', '..');
+  }
+
+  /**
+   * Root path for bundled AI instructions (AGENTS.md + skills)
+   */
+  static getAiInstructionsPath(): string {
+    return this.getRelativePath('ai-instructions');
+  }
+
+  /**
+   * Path to the bundled AGENTS.md
+   */
+  static getAgentsInstructionsFile(): string {
+    return path.join(this.getAiInstructionsPath(), 'AGENTS.md');
+  }
+
+  /**
+   * Path to the bundled skills directory
+   */
+  static getSkillsSourcePath(): string {
+    return path.join(this.getAiInstructionsPath(), 'skills');
   }
 
   /**
@@ -35,13 +58,6 @@ export class PathResolver {
    */
   static getDocsPath(): string {
     return this.getRelativePath('docs');
-  }
-
-  /**
-   * Get the best practices docs directory path relative to the current working directory
-   */
-  static getBestPracticesPath(): string {
-    return this.getRelativePath('docs', 'best-practices');
   }
 
   /**

@@ -7,12 +7,12 @@
  * - Advanced workflow simulation
  * - Stress testing
  * 
- * @requires mcp-conductor
+ * @requires mcp-aegis
  */
 
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
 let client;
 
@@ -22,7 +22,7 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
   // ==================================================================================
 
   before(async () => {
-    client = await connect('./conductor.config.docs-only.json');
+    client = await connect('./aegis.config.docs-only.json');
   });
 
   after(async () => {

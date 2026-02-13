@@ -8,10 +8,11 @@
 import { OCAPIConfig, OAuthTokenResponse } from '../../types/types.js';
 import { TokenManager } from './oauth-token.js';
 import { BaseHttpClient } from './http-client.js';
+import { buildOCAPIAuthUrl } from '../../utils/ocapi-url-builder.js';
 
 // OCAPI authentication constants
 const OCAPI_AUTH_CONSTANTS = {
-  AUTH_URL: 'https://account.demandware.com/dwsso/oauth2/access_token',
+  DEFAULT_AUTH_URL: 'https://account.demandware.com/dwsso/oauth2/access_token',
   GRANT_TYPE: 'client_credentials',
   FORM_CONTENT_TYPE: 'application/x-www-form-urlencoded',
 } as const;
@@ -49,6 +50,14 @@ export class OCAPIAuthClient extends BaseHttpClient {
   }
 
   /**
+   * Get the appropriate auth URL based on the hostname
+   * Uses localhost-based auth for mock servers, production auth otherwise
+   */
+  private getAuthUrl(): string {
+    return buildOCAPIAuthUrl(this.config);
+  }
+
+  /**
    * Get a valid OAuth access token
    */
   private async getAccessToken(): Promise<string> {
@@ -73,8 +82,12 @@ export class OCAPIAuthClient extends BaseHttpClient {
     const credentials = `${this.config.clientId}:${this.config.clientSecret}`;
     const encodedCredentials = Buffer.from(credentials).toString('base64');
 
+    // Get the appropriate auth URL (localhost for mock, production for real SFCC)
+    const authUrl = this.getAuthUrl();
+    this.logger.debug(`Requesting token from: ${authUrl}`);
+
     try {
-      const response = await fetch(OCAPI_AUTH_CONSTANTS.AUTH_URL, {
+      const response = await fetch(authUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${encodedCredentials}`,

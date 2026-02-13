@@ -15,13 +15,15 @@
 import { PathResolver } from '../utils/path-resolver.js';
 import { CacheManager } from '../utils/cache.js';
 import { Logger } from '../utils/logger.js';
-import { DocumentationScanner, SFCCClassInfo } from './docs/documentation-scanner.js';
-import { ClassContentParser, SFCCClassDetails, SFCCMethod } from './docs/class-content-parser.js';
+import { DocumentationScanner } from './docs/documentation-scanner.js';
+import { ClassContentParser } from './docs/class-content-parser.js';
+import type { SFCCClassInfo } from './docs/documentation-scanner.js';
+import type { SFCCClassDetails, SFCCMethod } from './docs/class-content-parser.js';
 import { ClassNameResolver } from './docs/class-name-resolver.js';
 import { ReferencedTypesExtractor } from './docs/referenced-types-extractor.js';
 
 // Re-export types for backward compatibility
-export { SFCCClassInfo, SFCCMethod, SFCCClassDetails };
+export type { SFCCClassInfo, SFCCMethod, SFCCClassDetails };
 export type { SFCCProperty, SFCCConstant } from './docs/class-content-parser.js';
 
 export interface ClassDetailsFilterOptions {
@@ -36,6 +38,7 @@ export interface ClassDetailsFilterOptions {
 export class SFCCDocumentationClient {
   private docsPath: string;
   private classCache: Map<string, SFCCClassInfo> = new Map();
+  private methodIndex: Map<string, Array<{ className: string; method: SFCCMethod }>> = new Map();
   private cacheManager: CacheManager;
   private initialized = false;
   private logger: Logger;
@@ -52,6 +55,7 @@ export class SFCCDocumentationClient {
 
   /**
    * Initialize the documentation client by scanning all available classes
+   * and building a precomputed method index for fast method searches
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
@@ -59,10 +63,48 @@ export class SFCCDocumentationClient {
     }
 
     try {
+      const startTime = Date.now();
       this.classCache = await this.documentationScanner.scanDocumentation(this.docsPath);
+
+      // Build method index in parallel for O(1) method lookups
+      await this.buildMethodIndex();
+
       this.initialized = true;
+      this.logger.debug(`Documentation initialized in ${Date.now() - startTime}ms (${this.classCache.size} classes, ${this.methodIndex.size} unique methods)`);
     } catch (error) {
       throw new Error(`Failed to initialize SFCC documentation: ${error}`);
+    }
+  }
+
+  /**
+   * Build a precomputed index mapping method names to their containing classes
+   * This enables O(1) method lookups instead of O(n) iteration over all classes
+   */
+  private async buildMethodIndex(): Promise<void> {
+    this.methodIndex.clear();
+
+    // Process classes in parallel batches for faster index building
+    const BATCH_SIZE = 50;
+    const classEntries = Array.from(this.classCache.entries());
+
+    for (let i = 0; i < classEntries.length; i += BATCH_SIZE) {
+      const batch = classEntries.slice(i, i + BATCH_SIZE);
+
+      await Promise.all(batch.map(async ([className, classInfo]) => {
+        try {
+          const details = this.classContentParser.parseClassContent(classInfo.content);
+          for (const method of details.methods) {
+            const methodKey = method.name.toLowerCase();
+            if (!this.methodIndex.has(methodKey)) {
+              this.methodIndex.set(methodKey, []);
+            }
+            this.methodIndex.get(methodKey)!.push({ className, method });
+          }
+        } catch {
+          // Skip classes that fail to parse
+          this.logger.warn(`Failed to parse methods for class: ${className}`);
+        }
+      }));
     }
   }
 
@@ -298,7 +340,9 @@ export class SFCCDocumentationClient {
   }
 
   /**
-   * Search for methods across all classes
+   * Search for methods across all classes using precomputed method index
+   * Performance: O(m) where m = number of indexed method names containing the search term
+   * Previously: O(n * p) where n = number of classes, p = avg methods per class
    */
   async searchMethods(methodName: string): Promise<{ className: string; method: SFCCMethod }[]> {
     await this.initialize();
@@ -310,18 +354,14 @@ export class SFCCDocumentationClient {
       return cachedResult;
     }
 
+    const searchTerm = methodName.toLowerCase();
     const results: { className: string; method: SFCCMethod }[] = [];
 
-    for (const [fullClassName] of this.classCache) {
-      const details = await this.getClassDetails(fullClassName);
-      const methods = details?.methods ?? [];
-      for (const method of methods) {
-        if (method.name.toLowerCase().includes(methodName.toLowerCase())) {
-          results.push({
-            className: fullClassName,
-            method,
-          });
-        }
+    // Use precomputed method index for fast lookups
+    // Search through index keys that contain the search term
+    for (const [indexedMethodName, methodEntries] of this.methodIndex) {
+      if (indexedMethodName.includes(searchTerm)) {
+        results.push(...methodEntries);
       }
     }
 

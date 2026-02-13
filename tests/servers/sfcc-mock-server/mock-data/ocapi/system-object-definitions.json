@@ -1,0 +1,172 @@
+{
+  "_v": "23.2",
+  "_type": "object_type_definitions",
+  "count": 27,
+  "data": [
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "50ddc22db56ece8a16a546bb710d894b8a3d7a90d453c7d3e68c18f1957528b4",
+      "object_type": "Appeasement",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Appeasement"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "690b6ebf6a292ebabff1bceee5700e1d23756cf795295590a6d676d80e76752c",
+      "object_type": "AppeasementItem",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/AppeasementItem"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "8428af5200166cf3149f948ea843f38832a2f77214699a5b0e26605c6098c93b",
+      "object_type": "Basket",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Basket"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "5c583fb95335bb7c08a021f15cec35d972040fd1259d1497fe70e9b0861f0b39",
+      "object_type": "BonusDiscountLineItem",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/BonusDiscountLineItem"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "509b6af7dc05ecc7c74beef901e37d6c48803b02922b782a5f13fd67f2855f61",
+      "object_type": "Campaign",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Campaign"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "3d5d0265c55926e15bcc829ded6977db8bcf0cd276a02a10823adc0e57a1e795",
+      "object_type": "Catalog",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Catalog"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "c02990e0c2dd64cecf2dd7f89b857718ddbf19c1607a30b2a964945f7d653343",
+      "object_type": "Category",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Category"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "fddeadc4d54ecd507c9eeb74388b6e51147d42f45108bb56e569316e06c0c900",
+      "object_type": "CategoryAssignment",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CategoryAssignment"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "bbd46a905ab7393d2ccbc0ffd111eee82c3c331302161308950f40c6eb23396f",
+      "object_type": "Content",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Content"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "c41b2f924e0cf0cb793bf0bd2d50e53e66308a4137d1fed613df584d7ef08a46",
+      "object_type": "Coupon",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Coupon"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "861081f499e48eb616129cd71eb4edad71914636b4f722ec5fd035139c4025ab",
+      "object_type": "CouponLineItem",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CouponLineItem"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "969b2870f867b14ec145ae39ddc0370ea64951112cde3275ff2bf063f045bf96",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "f6b5e0f6be3e55d750b49d7ebda7ce7e60548ab426deb9c38f847437b83ebc05",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "0f001293cee7e2041cb11c9ac75df963e00e87992c3fae1294f68a520de26a66",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "c551d79ad5d03e43f3818b62deb9bc022bf63ab65a25d20a5baace4814479b93",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "c791af0e68594272ed567adb2a0cd6f317649d268d4a130eaea156453ef93191",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "e0ee4be30313bff780fafbe624a7b5fa12dcd1fe612e07c8253cabeb89673eef",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "37dae93b96f46692eefa0198ebb0343f39b9087a01dc0866ac9f68d607fee347",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "3f00a07beb99dff8bd23a260e39706aef06a972abee152acbf99cb23f393a874",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "ca9c5999b32a237368365b3a6d9282112b318e83a87fa44196887ee5e27ad722",
+      "object_type": "CustomObject",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomObject"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "eefce3a725c68b0396b5fe04bfcfdd3308b7e6c2b959cdf1dc4cf6585aefb40e",
+      "object_type": "CustomerActiveData",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerActiveData"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "41677a8c9dc8a3d7bff48395880f3c80eac4d5627d82d03581f7e6ae8e36c0dd",
+      "object_type": "CustomerAddress",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerAddress"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "725f55adb3c725776cc9041735b49bad2c4986f6992fdd36c4c7e730df024acf",
+      "object_type": "CustomerCDPData",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerCDPData"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "fdcad9f0ccbe08c5620d33558d88872465bc4899fa2e1b1d5d662cf2a20e2333",
+      "object_type": "CustomerGroup",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerGroup"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "e81f19ba694f61c8c9773a14d2e1ccde997f33033948e5840ff4fa4ef44381a8",
+      "object_type": "CustomerPaymentInstrument",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/CustomerPaymentInstrument"
+    },
+    {
+      "_type": "object_type_definition",
+      "_resource_state": "f92c6870f867b14ec145ae39ddc0370ea64951112cde3275ff2bf063f045bf97",
+      "object_type": "Product",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product"
+    },
+    {
+      "_type": "object_type_definition", 
+      "_resource_state": "a93d7870f867b14ec145ae39ddc0370ea64951112cde3275ff2bf063f045bf98",
+      "object_type": "Order",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Order"
+    }
+  ],
+  "next": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions?start=27&count=25",
+  "start": 0,
+  "total": 27
+}

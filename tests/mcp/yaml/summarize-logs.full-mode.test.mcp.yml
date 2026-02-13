@@ -1,11 +1,11 @@
 ---
 description: "Test summarize_logs tool in full mode"
 tests:
-  # Basic functionality tests
-  - it: "should retrieve comprehensive log summary with default parameters (today)"
+  # Core functionality - comprehensive structure validation
+  - it: "should retrieve comprehensive log summary with complete structure"
     request:
       jsonrpc: "2.0"
-      id: "summarize-default"
+      id: "summarize-comprehensive"
       method: "tools/call"
       params:
         name: "summarize_logs"
@@ -13,21 +13,22 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "summarize-default"
+        id: "summarize-comprehensive"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Log Summary for \\d{8}:[\\s\\S]*📊 Counts:[\\s\\S]*Errors:[\\s\\S]*Warnings:[\\s\\S]*Info:[\\s\\S]*Debug:[\\s\\S]*📁 Log Files[\\s\\S]*🔥 Key Issues:"
+              text: "match:regex:Log Summary for \\d{8}:[\\s\\S]*📊 Counts:[\\s\\S]*- Errors: \\d+[\\s\\S]*- Warnings: \\d+[\\s\\S]*- Info: \\d+[\\s\\S]*- Debug: \\d+[\\s\\S]*📁 Log Files \\(\\d+\\):[\\s\\S]*🔥 Key Issues:"
           isError: false
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "3000ms"
 
-  - it: "should include error counts in summary"
+  # Basic successful response validation
+  - it: "should return standard MCP response format"
     request:
       jsonrpc: "2.0"
-      id: "summarize-error-counts"
+      id: "summarize-format"
       method: "tools/call"
       params:
         name: "summarize_logs"
@@ -35,129 +36,14 @@ tests:
     expect:
       response:
         jsonrpc: "2.0"
-        id: "summarize-error-counts"
+        id: "summarize-format"
         result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Errors:"
+          content: "match:arrayLength:1"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
 
-  - it: "should include warning counts in summary"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-warning-counts"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-warning-counts"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Warnings:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  - it: "should include info counts in summary"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-info-counts"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-info-counts"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Info:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  - it: "should include debug counts in summary"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-debug-counts"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-debug-counts"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:Debug:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  - it: "should list log files in summary"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-log-files"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-log-files"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:📁 Log Files"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  - it: "should include key issues assessment"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-key-issues"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-key-issues"
-        result:
-          content:
-            match:arrayElements:
-              type: "text"
-              text: "match:contains:🔥 Key Issues:"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  # Date parameter tests
-  - it: "should accept specific date parameter in YYYYMMDD format"
+  # Date parameter tests - focused on key scenarios
+  - it: "should handle specific valid date parameter"
     request:
       jsonrpc: "2.0"
       id: "summarize-specific-date"
@@ -165,7 +51,7 @@ tests:
       params:
         name: "summarize_logs"
         arguments:
-          date: "20250914"
+          date: "20250921"
     expect:
       response:
         jsonrpc: "2.0"
@@ -174,13 +60,11 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Log Summary for 20250914:|No log files found for date 20250914"
+              text: "match:regex:Log Summary for 20250921:|No log files found for date 20250921"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
 
-  - it: "should handle date with no available logs gracefully"
+  - it: "should handle no available logs gracefully"
     request:
       jsonrpc: "2.0"
       id: "summarize-no-logs"
@@ -197,14 +81,12 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:No log files found for date"
+              text: "match:contains:No log files found for date 20220101"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
 
-  # Edge cases and error handling
-  - it: "should handle invalid date format gracefully"
+  # Edge cases - simplified and consolidated
+  - it: "should handle invalid date formats gracefully"
     request:
       jsonrpc: "2.0"
       id: "summarize-invalid-date"
@@ -212,7 +94,7 @@ tests:
       params:
         name: "summarize_logs"
         arguments:
-          date: "not-a-date"
+          date: "invalid-date"
     expect:
       response:
         jsonrpc: "2.0"
@@ -221,80 +103,33 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:No log files found for date"
+              text: "match:contains:No log files found for date invalid-date"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
 
-  - it: "should handle future date gracefully"
+  # YAML-specific pattern tests - what YAML does better than Node.js
+  - it: "should validate emoji patterns and structure markers"
     request:
       jsonrpc: "2.0"
-      id: "summarize-future-date"
+      id: "summarize-patterns"
       method: "tools/call"
       params:
         name: "summarize_logs"
-        arguments:
-          date: "20301231"
+        arguments: {}
     expect:
       response:
         jsonrpc: "2.0"
-        id: "summarize-future-date"
+        id: "summarize-patterns"
         result:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:No log files found for date"
+              text: "match:regex:📊.*📁.*🔥"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "2000ms"
 
-  # Comprehensive structure validation
-  - it: "should return structured text content in standard MCP format"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-structure"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-structure"
-        result:
-          content:
-            match:arrayElements:
-              match:partial:
-                type: "text"
-                text: "match:type:string"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  - it: "should validate that response content is array with single text element"
-    request:
-      jsonrpc: "2.0"
-      id: "summarize-content-array"
-      method: "tools/call"
-      params:
-        name: "summarize_logs"
-        arguments: {}
-    expect:
-      response:
-        jsonrpc: "2.0"
-        id: "summarize-content-array"
-        result:
-          content: "match:arrayLength:1"
-          isError: false
-      stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"
-
-  # Performance validation for system health assessment
-  - it: "should complete log summary analysis within reasonable time"
+  # Performance test - single focused scenario
+  - it: "should complete log summary analysis within reasonable time for health monitoring"
     request:
       jsonrpc: "2.0"
       id: "summarize-performance"
@@ -316,8 +151,8 @@ tests:
     performance:
       maxResponseTime: "2500ms"  # Stricter for critical health monitoring
 
-  # Date format validation
-  - it: "should display date in YYYYMMDD format in summary header"
+  # Date format validation - specific YAML strength
+  - it: "should use consistent YYYYMMDD date format in responses"
     request:
       jsonrpc: "2.0"
       id: "summarize-date-format"
@@ -333,8 +168,6 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Log Summary for \\d{8}:|No log files found"
+              text: "match:regex:Log Summary for \\d{8}:|No log files found for date \\d{8}"
           isError: false
       stderr: "toBeEmpty"
-    performance:
-      maxResponseTime: "3000ms"

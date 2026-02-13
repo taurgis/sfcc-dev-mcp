@@ -50,7 +50,7 @@
 - [ ] README.md updated (if user-facing changes)
 - [ ] copilot-instructions.md updated (if architectural changes)
 - [ ] API documentation updated
-- [ ] Best practices guides updated
+- [ ] Agent skills updated (ai-instructions/skills)
 - [ ] Code comments added/updated
 - [ ] No documentation changes needed
 

@@ -1,0 +1,294 @@
+# ==================================================================================
+# SFCC MCP Server - get_isml_element Tool YAML Tests
+# Comprehensive testing for ISML element detail retrieval functionality
+# Tests element retrieval, filtering options, and error handling
+# 
+# Discovery Commands:
+# npx aegis query get_isml_element 'elementName:isif' --config "aegis.config.docs-only.json"
+# npx aegis query get_isml_element 'elementName:print' --config "aegis.config.docs-only.json"
+# npx aegis query get_isml_element 'elementName:nonexistent' --config "aegis.config.docs-only.json"
+# 
+# Quick Test Commands:
+# npx aegis "tests/mcp/yaml/get-isml-element.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# npx aegis "tests/mcp/yaml/get-isml-element.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# ==================================================================================
+description: "SFCC MCP Server get_isml_element tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_isml_element tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:get_isml_element
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SUCCESSFUL ELEMENT RETRIEVAL TESTS
+# ==================================================================================
+  - it: "should retrieve isif element with full details"
+    request:
+      jsonrpc: "2.0"
+      id: "get-isif-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-isif-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ISML Conditional Elements"
+          isError: false
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve isloop element details"
+    request:
+      jsonrpc: "2.0"
+      id: "get-isloop-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isloop"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-isloop-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isloop"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should retrieve isprint element details"
+    request:
+      jsonrpc: "2.0"
+      id: "get-isprint-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isprint"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-isprint-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isprint"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should normalize element name without is prefix"
+    request:
+      jsonrpc: "2.0"
+      id: "get-normalize-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "print"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-normalize-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isprint"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include section information"
+    request:
+      jsonrpc: "2.0"
+      id: "get-sections-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+          includeSections: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-sections-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:sections"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include attribute information"
+    request:
+      jsonrpc: "2.0"
+      id: "get-attributes-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isloop"
+          includeAttributes: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-attributes-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:attributes"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include full content by default"
+    request:
+      jsonrpc: "2.0"
+      id: "get-content-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+          includeContent: true
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "get-content-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:content"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+  - it: "should return error for non-existent element"
+    request:
+      jsonrpc: "2.0"
+      id: "error-notfound-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "nonexistent"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-notfound-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:not found"
+          isError: true
+      performance:
+        maxResponseTime: "800ms"
+      stderr: "toBeEmpty"
+
+  - it: "should require elementName parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:elementName"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE & RESOURCE VALIDATION
+# ==================================================================================
+  - it: "should complete element retrieval within performance SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT VALIDATION TESTS
+# ==================================================================================
+  - it: "should return valid JSON object structure"
+    request:
+      jsonrpc: "2.0"
+      id: "json-valid-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-valid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\{[\\s\\S]*\\}"
+          isError: false
+      stderr: "toBeEmpty"
+
+  - it: "should include category information"
+    request:
+      jsonrpc: "2.0"
+      id: "category-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_element"
+        arguments:
+          elementName: "isif"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:category"
+          isError: false
+      stderr: "toBeEmpty"

@@ -1,0 +1,334 @@
+# ==================================================================================
+# SFCC MCP Server - get_isml_elements_by_category Tool YAML Tests
+# Comprehensive testing for ISML element category filtering functionality
+# Tests category-based filtering for all ISML element types
+# 
+# Discovery Commands:
+# npx aegis query get_isml_elements_by_category 'category:control-flow' --config "aegis.config.docs-only.json"
+# npx aegis query get_isml_elements_by_category 'category:output' --config "aegis.config.docs-only.json"
+# npx aegis query get_isml_elements_by_category 'category:scripting' --config "aegis.config.docs-only.json"
+# npx aegis query get_isml_elements_by_category 'category:payment' --config "aegis.config.docs-only.json"
+# 
+# Quick Test Commands:
+# npx aegis "tests/mcp/yaml/get-isml-elements-by-category.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# npx aegis "tests/mcp/yaml/get-isml-elements-by-category.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# ==================================================================================
+description: "SFCC MCP Server get_isml_elements_by_category tool - comprehensive validation"
+
+# ==================================================================================
+# BASIC TOOL STRUCTURE VALIDATION
+# ==================================================================================
+tests:
+  - it: "should list get_isml_elements_by_category tool in available tools"
+    request:
+      jsonrpc: "2.0"
+      id: "tool-list-1"
+      method: "tools/list"
+      params: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "tool-list-1"
+        result:
+          tools:
+            match:arrayContains:name:get_isml_elements_by_category
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTROL FLOW CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve control-flow elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-control-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "control-flow"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-control-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isif"
+          isError: false
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+  - it: "should only return control-flow category elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-control-2"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "control-flow"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-control-2"
+        result:
+          content:
+            - type: "text"
+              text: "match:not:contains:isprint"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# OUTPUT CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve output elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-output-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "output"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-output-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isprint"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# INCLUDES CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve includes and components elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-includes-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "includes"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-includes-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isinclude"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SCRIPTING CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve scripting elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-scripting-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "scripting"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-scripting-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isscript"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CACHE CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve cache elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-cache-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "cache"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-cache-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:iscache"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# DECORATORS CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve decorator elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-decorators-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "decorators"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-decorators-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isdecorate"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PAYMENT CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve payment elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-payment-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "payment"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-payment-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:ispayment"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ANALYTICS CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve analytics elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-analytics-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "analytics"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-analytics-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isactivedatacontext"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# SPECIAL CATEGORY TESTS
+# ==================================================================================
+  - it: "should retrieve special elements"
+    request:
+      jsonrpc: "2.0"
+      id: "category-special-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "special"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "category-special-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:isredirect"
+          isError: false
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# ERROR HANDLING TESTS
+# ==================================================================================
+  - it: "should require category parameter"
+    request:
+      jsonrpc: "2.0"
+      id: "error-missing-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments: {}
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "error-missing-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:contains:category"
+          isError: true
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# PERFORMANCE & RESOURCE VALIDATION
+# ==================================================================================
+  - it: "should complete category filtering within performance SLA"
+    request:
+      jsonrpc: "2.0"
+      id: "perf-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "control-flow"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "perf-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:type:string"
+          isError: false
+      performance:
+        maxResponseTime: "1000ms"
+      stderr: "toBeEmpty"
+
+# ==================================================================================
+# CONTENT VALIDATION TESTS
+# ==================================================================================
+  - it: "should return valid JSON array structure"
+    request:
+      jsonrpc: "2.0"
+      id: "json-valid-1"
+      method: "tools/call"
+      params:
+        name: "get_isml_elements_by_category"
+        arguments:
+          category: "control-flow"
+    expect:
+      response:
+        jsonrpc: "2.0"
+        id: "json-valid-1"
+        result:
+          content:
+            - type: "text"
+              text: "match:regex:\\[[\\s\\S]*\\]"
+          isError: false
+      stderr: "toBeEmpty"

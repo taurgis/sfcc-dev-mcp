@@ -4,10 +4,10 @@
 # Tests both successful responses and error handling scenarios
 # 
 # Quick Test Commands:
-# conductor "tests/mcp/yaml/search-sfcc-methods.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --verbose
-# conductor "tests/mcp/yaml/search-sfcc-methods.docs-only.test.mcp.yml" --config "conductor.config.docs-only.json" --debug --timing
-# conductor query search_sfcc_methods '{"methodName": "get"}' --config "conductor.config.docs-only.json"
-# conductor query search_sfcc_methods '{"methodName": "create"}' --config "conductor.config.docs-only.json"
+# aegis "tests/mcp/yaml/search-sfcc-methods.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
+# aegis "tests/mcp/yaml/search-sfcc-methods.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --debug --timing
+# aegis query search_sfcc_methods '{"methodName": "get"}' --config "aegis.config.docs-only.json"
+# aegis query search_sfcc_methods '{"methodName": "create"}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 description: "SFCC MCP Server search_sfcc_methods tool - comprehensive validation"
 

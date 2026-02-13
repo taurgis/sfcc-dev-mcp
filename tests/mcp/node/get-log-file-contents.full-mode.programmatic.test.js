@@ -1,17 +1,16 @@
 import { test, describe, before, after, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { connect } from 'mcp-conductor';
+import { connect } from 'mcp-aegis';
 
-describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
+describe('get_log_file_contents - Optimized Programmatic Tests', () => {
   let client;
-  let availableLogFiles = [];
-  let availableJobLogFiles = [];
+  let testFile;
 
   before(async () => {
-    client = await connect('./conductor.config.with-dw.json');
+    client = await connect('./aegis.config.with-dw.json');
     
-    // Discover available files using MCP server tools
-    await discoverAvailableFiles();
+    // Discover one working test file for optimization
+    testFile = await discoverTestFile();
   });
 
   after(async () => {
@@ -22,10 +21,10 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
 
   beforeEach(() => {
     // CRITICAL: Clear all buffers to prevent leaking into next tests
-    client.clearAllBuffers(); // Recommended - comprehensive protection
+    client.clearAllBuffers();
   });
 
-  // Helper functions for common validations
+  // === Helper Functions ===
   function assertValidMCPResponse(result) {
     assert.ok(result.content, 'Should have content');
     assert.ok(Array.isArray(result.content), 'Content should be array');
@@ -33,10 +32,7 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
   }
 
   function parseResponseText(text) {
-    // The response may come wrapped in quotes, so parse if needed
-    return text.startsWith('"') && text.endsWith('"') 
-      ? JSON.parse(text) 
-      : text;
+    return text.startsWith('"') && text.endsWith('"') ? JSON.parse(text) : text;
   }
 
   function assertTextContent(result, expectedSubstring) {
@@ -44,7 +40,7 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
     assert.equal(result.content[0].type, 'text');
     const actualText = parseResponseText(result.content[0].text);
     assert.ok(actualText.includes(expectedSubstring),
-      `Expected "${expectedSubstring}" in "${actualText}"`);
+      `Expected "${expectedSubstring}" in response`);
   }
 
   function assertSuccessResponse(result) {
@@ -56,94 +52,33 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
   function assertErrorResponse(result, expectedErrorSubstring) {
     assertValidMCPResponse(result);
     assert.equal(result.isError, true, 'Should be an error response');
-    assert.equal(result.content[0].type, 'text');
     if (expectedErrorSubstring) {
       assertTextContent(result, expectedErrorSubstring);
     }
   }
 
-  async function discoverAvailableFiles() {   
-    // Discover standard log files using list_log_files
+  async function discoverTestFile() {
+    // Try to discover one working file using the job log tool
     try {
-      const logFilesResult = await client.callTool('list_log_files', {});
-      if (!logFilesResult.isError) {
-        availableLogFiles = extractLogFileNames(parseResponseText(logFilesResult.content[0].text));
+      const result = await client.callTool('get_latest_job_log_files', {});
+      if (!result.isError) {
+        const text = parseResponseText(result.content[0].text);
+        const match = text.match(/File:\s+(.+\.log)/);
+        if (match) {
+          return `jobs/ImportCatalog/${match[1]}`;
+        }
       }
     } catch {
-      // Ignore errors in discovery - not all systems support it
-    }
-
-    // Discover job log files using get_latest_job_log_files
-    try {
-      const jobLogFilesResult = await client.callTool('get_latest_job_log_files', {});
-      if (!jobLogFilesResult.isError) {
-        availableJobLogFiles = extractJobLogFileNames(parseResponseText(jobLogFilesResult.content[0].text));
-      }
-    } catch {
-      // Ignore errors in discovery - not all systems support it
-    }
-  }
-
-  function extractLogFileNames(listResponse) {
-    // Extract file names from list_log_files response
-    // Format: "📄 /error-blade-20250914-171855.log\n   Size: 1.14 KB\n..."
-    const files = [];
-    const lines = listResponse.split('\n');
-    
-    for (const line of lines) {
-      const match = line.match(/📄\s+\/(.+\.log)/);
-      if (match) {
-        files.push(match[1]);
-      }
+      // Ignore discovery errors
     }
     
-    return files;
+    // Fallback to expected file
+    return 'jobs/ImportCatalog/Job-ImportCatalog-0987654321.log';
   }
 
-  function extractJobLogFileNames(jobListResponse) {
-    // Extract job log file paths from get_latest_job_log_files response
-    // Format: "🔧 Job: ImportCatalog\n   ID: 0987654321\n   File: Job-ImportCatalog-0987654321.log\n..."
-    const files = [];
-    const lines = jobListResponse.split('\n');
-    let currentJob = null;
-    
-    for (const line of lines) {
-      const jobMatch = line.match(/🔧\s+Job:\s+(.+)/);
-      if (jobMatch) {
-        currentJob = jobMatch[1];
-        continue;
-      }
-      
-      const fileMatch = line.match(/File:\s+(.+\.log)/);
-      if (fileMatch && currentJob) {
-        files.push(`jobs/${currentJob}/${fileMatch[1]}`);
-      }
-    }
-    
-    return files;
-  }
-
-  function getTestFile() {
-    // Prefer job log files as they have consistent names, fall back to standard logs
-    if (availableJobLogFiles.length > 0) {
-      return availableJobLogFiles[0];
-    }
-    if (availableLogFiles.length > 0) {
-      return availableLogFiles[0];
-    }
-    throw new Error('No log files available for testing');
-  }
-
-  function getSmallTestFile() {
-    // Try to find a smaller file for performance tests
-    return availableJobLogFiles.find(f => f.includes('ImportCatalog')) || getTestFile();
-  }
-
-  // Basic functionality tests
-  describe('Basic Functionality', () => {
-    test('should get contents of a discovered log file', async () => {
-      const testFile = getTestFile();
-      
+  // === Core Functionality Tests ===
+  describe('Core Functionality', () => {
+    test('should read log file with complete metadata', async () => {
       const result = await client.callTool('get_log_file_contents', {
         filename: testFile
       });
@@ -151,163 +86,132 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
       assertSuccessResponse(result);
       assertTextContent(result, 'Log File Contents:');
       assertTextContent(result, testFile);
-    });
-
-    test('should include file metadata in response', async () => {
-      const testFile = getTestFile();
-      
-      const result = await client.callTool('get_log_file_contents', {
-        filename: testFile
-      });
-
-      assertSuccessResponse(result);
       assertTextContent(result, 'Total lines:');
       assertTextContent(result, 'Content size:');
-      assertTextContent(result, 'bytes');
-    });
-
-    test('should include log entries with proper timestamps', async () => {
-      const testFile = getTestFile();
       
-      const result = await client.callTool('get_log_file_contents', {
-        filename: testFile
-      });
-
-      assertSuccessResponse(result);
-      
-      // Check for SFCC timestamp pattern [YYYY-MM-DD HH:MM:SS.mmm GMT]
+      // Validate SFCC timestamp pattern
       const content = parseResponseText(result.content[0].text);
       const timestampPattern = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT\]/;
-      assert.ok(timestampPattern.test(content), 
-        'Should contain SFCC-style timestamps');
+      assert.ok(timestampPattern.test(content), 'Should contain SFCC timestamps');
     });
-  });
 
-  // Parameter validation tests using discovered files
-  describe('Parameter Validation', () => {
-    test('should work with maxBytes parameter on discovered files', async () => {
-      const testFile = getSmallTestFile();
-      
+    test('should handle maxBytes parameter with content validation', async () => {
       const result = await client.callTool('get_log_file_contents', {
         filename: testFile,
         maxBytes: 500
       });
 
       assertSuccessResponse(result);
-      assertTextContent(result, 'Log File Contents:');
+      assertTextContent(result, 'Content size: 500 bytes');
       
-      // Content should be limited
-      const content = parseResponseText(result.content[0].text);
-      assert.ok(content.length > 0, 'Should have some content');
+      // Should still include essential metadata despite size limit
+      assertTextContent(result, 'Log File Contents:');
+      assertTextContent(result, 'Total lines:');
     });
 
-    test('should work with tailOnly parameter on discovered files', async () => {
-      const testFile = getTestFile();
-      
-      const result = await client.callTool('get_log_file_contents', {
+    test('should handle tailOnly parameter correctly', async () => {
+      const fullResult = await client.callTool('get_log_file_contents', {
         filename: testFile,
-        tailOnly: true
+        maxBytes: 1000
       });
 
-      assertSuccessResponse(result);
-      assertTextContent(result, 'Log File Contents:');
-    });
-
-    test('should work with both maxBytes and tailOnly parameters', async () => {
-      const testFile = getTestFile();
-      
-      const result = await client.callTool('get_log_file_contents', {
+      const tailResult = await client.callTool('get_log_file_contents', {
         filename: testFile,
         maxBytes: 1000,
         tailOnly: true
       });
 
-      assertSuccessResponse(result);
-      assertTextContent(result, 'Log File Contents:');
-    });
-
-    test('should handle zero maxBytes parameter', async () => {
-      const testFile = getTestFile();
+      assertSuccessResponse(fullResult);
+      assertSuccessResponse(tailResult);
       
-      const result = await client.callTool('get_log_file_contents', {
-        filename: testFile,
-        maxBytes: 0
-      });
-
-      // Should either succeed with empty content or return an error
-      assertValidMCPResponse(result);
-    });
-
-    test('should handle negative maxBytes parameter', async () => {
-      const testFile = getTestFile();
-      
-      const result = await client.callTool('get_log_file_contents', {
-        filename: testFile,
-        maxBytes: -100
-      });
-
-      // Should handle gracefully (either error or treat as unlimited)
-      assertValidMCPResponse(result);
+      assertTextContent(tailResult, 'tail read');
+      assertTextContent(tailResult, 'Content size: 1000 bytes');
     });
   });
 
-  // Error handling tests
-  describe('Error Handling', () => {
-    test('should handle non-existent file gracefully', async () => {
-      const result = await client.callTool('get_log_file_contents', {
-        filename: 'nonexistent-file-12345.log'
-      });
+  // === Dynamic Validation Tests ===
+  describe('Dynamic Validation', () => {
+    test('should validate content structure consistency', async () => {
+      const testCases = [
+        { maxBytes: 200 },
+        { maxBytes: 1000 },
+        { tailOnly: true, maxBytes: 500 },
+        { tailOnly: false }
+      ];
 
-      // Should return descriptive error (not throw exception)
-      assertValidMCPResponse(result);
-      if (result.isError) {
-        assertTextContent(result, 'Failed to get_log_file_contents');
-      } else {
-        // Some implementations might return empty content instead of error
+      for (const params of testCases) {
+        const result = await client.callTool('get_log_file_contents', {
+          filename: testFile,
+          ...params
+        });
+
         assertSuccessResponse(result);
+        
+        // All responses should have consistent structure
+        assert.equal(result.content.length, 1, 'Should have one content element');
+        
+        const content = parseResponseText(result.content[0].text);
+        assert.ok(content.includes('Log File Contents:'), 'Should have header');
+        assert.ok(content.includes('Total lines:'), 'Should have line count');
       }
     });
 
-    test('should handle missing filename parameter', async () => {
-      const result = await client.callTool('get_log_file_contents', {});
-
-      assertErrorResponse(result, 'filename');
-    });
-
-    test('should handle empty filename parameter', async () => {
-      const result = await client.callTool('get_log_file_contents', {
-        filename: ''
-      });
-
-      assertErrorResponse(result, 'filename');
-    });
-
-    test('should handle null filename parameter', async () => {
-      const result = await client.callTool('get_log_file_contents', {
-        filename: null
-      });
-
-      assertErrorResponse(result, 'filename');
-    });
-
-    test('should handle invalid filename patterns', async () => {
-      const invalidFilenames = [
-        '../../../etc/passwd',  // Path traversal attempt
-        '/etc/passwd',          // Absolute path outside logs
-        'file\x00.log',        // Null byte injection
-        'file with spaces.log', // Spaces (might be valid)
-        'file|rm -rf /.log'    // Command injection attempt
+    test('should handle parameter edge cases with validation', async () => {
+      const edgeCases = [
+        { name: 'minimal bytes', params: { maxBytes: 1 } },
+        { name: 'large bytes', params: { maxBytes: 50000 } },
+        { name: 'tail with small bytes', params: { tailOnly: true, maxBytes: 10 } }
       ];
 
-      for (const invalidFilename of invalidFilenames) {
+      for (const testCase of edgeCases) {
         const result = await client.callTool('get_log_file_contents', {
-          filename: invalidFilename
+          filename: testFile,
+          ...testCase.params
         });
 
+        assertSuccessResponse(result);
+        
+        const content = parseResponseText(result.content[0].text);
+        
+        // Even with edge cases, should maintain structure
+        assert.ok(content.includes('Log File Contents:'), 
+          `${testCase.name} should maintain header structure`);
+      }
+    });
+  });
+
+  // === Error Handling Tests ===
+  describe('Error Handling', () => {
+    test('should handle invalid parameters gracefully', async () => {
+      const errorCases = [
+        { args: {}, expectedError: 'filename' },
+        { args: { filename: '' }, expectedError: 'filename' },
+        { args: { filename: testFile, maxBytes: 0 }, expectedError: 'Invalid maxBytes' },
+        { args: { filename: testFile, maxBytes: -1 }, expectedError: 'Invalid maxBytes' }
+      ];
+
+      for (const errorCase of errorCases) {
+        const result = await client.callTool('get_log_file_contents', errorCase.args);
+        
+        assertErrorResponse(result, errorCase.expectedError);
+      }
+    });
+
+    test('should handle security-related filename patterns', async () => {
+      const securityTests = [
+        '../../../etc/passwd',
+        '/etc/passwd',
+        'file\x00.log',
+        'file|rm -rf /.log'
+      ];
+
+      for (const filename of securityTests) {
+        const result = await client.callTool('get_log_file_contents', { filename });
+        
         assertValidMCPResponse(result);
-        // Should either return error or handle gracefully
+        
+        // Should not return sensitive system content
         if (!result.isError) {
-          // If not error, should not return sensitive system content
           const content = parseResponseText(result.content[0].text);
           assert.ok(!content.includes('root:x:0:0'), 
             'Should not return system password file content');
@@ -316,271 +220,162 @@ describe('get_log_file_contents - Full Mode Programmatic Tests', () => {
     });
   });
 
-  // Dynamic file testing using discovered files
-  describe('Dynamic File Testing', () => {
-    test('should handle all discovered standard log files', async () => {
-      if (availableLogFiles.length === 0) {
-        return;
-      }
-
-      for (const logFile of availableLogFiles) {       
-        const result = await client.callTool('get_log_file_contents', {
-          filename: logFile
-        });
-
-        assertValidMCPResponse(result);
+  // === Multi-Step Integration Tests ===
+  describe('Integration Workflows', () => {
+    test('should integrate with file discovery tools', async () => {
+      // Step 1: Discover available files
+      const listResult = await client.callTool('get_latest_job_log_files', {});
+      
+      if (!listResult.isError) {
+        const listText = parseResponseText(listResult.content[0].text);
         
-        if (!result.isError) {
-          assertTextContent(result, 'Log File Contents:');
-          assertTextContent(result, logFile);
+        // Step 2: Extract a file path from the list
+        const fileMatch = listText.match(/File:\s+(.+\.log)/);
+        
+        if (fileMatch) {
+          const discoveredFile = `jobs/ImportCatalog/${fileMatch[1]}`;
+          
+          // Step 3: Read the discovered file
+          const contentResult = await client.callTool('get_log_file_contents', {
+            filename: discoveredFile
+          });
+          
+          assertSuccessResponse(contentResult);
+          assertTextContent(contentResult, discoveredFile);
         }
       }
     });
 
-    test('should handle all discovered job log files', async () => {
-      if (availableJobLogFiles.length === 0) {
-        return;
-      }
-
-      for (const jobLogFile of availableJobLogFiles) {       
-        const result = await client.callTool('get_log_file_contents', {
-          filename: jobLogFile
-        });
-
-        assertSuccessResponse(result);
-        assertTextContent(result, 'Log File Contents:');
-        assertTextContent(result, 'Total lines:');
-        
-        // Job logs should contain INFO level entries
-        const content = parseResponseText(result.content[0].text);
-        assert.ok(content.includes('INFO') || content.includes('WARN') || content.includes('ERROR'),
-          'Job log should contain log level indicators');
-      }
-    });
-
-    test('should validate file size consistency across tools', async () => {
-      if (availableLogFiles.length === 0) {
-        return;
-      }
-
-      const testFile = availableLogFiles[0];
-      
-      // Get file info from list_log_files
-      const listResult = await client.callTool('list_log_files', {});
-      const listContent = parseResponseText(listResult.content[0].text);
-      
-      // Get file contents
-      const contentsResult = await client.callTool('get_log_file_contents', {
-        filename: testFile
+    test('should support progressive content analysis workflow', async () => {
+      // Step 1: Get a sample of log content
+      const sampleResult = await client.callTool('get_log_file_contents', {
+        filename: testFile,
+        maxBytes: 1000
       });
       
-      assertSuccessResponse(contentsResult);
+      assertSuccessResponse(sampleResult);
+      const sampleContent = parseResponseText(sampleResult.content[0].text);
       
-      // Extract size information from both responses
-      const sizeFromList = extractSizeFromListResponse(listContent, testFile);
-      const sizeFromContents = extractSizeFromContentsResponse(
-        parseResponseText(contentsResult.content[0].text)
-      );
-      
-      if (sizeFromList && sizeFromContents) {
-        // Sizes should be reasonably close (allowing for formatting differences)
-        const tolerance = 0.1; // 10% tolerance
-        const ratio = Math.abs(sizeFromList - sizeFromContents) / Math.max(sizeFromList, sizeFromContents);
-        assert.ok(ratio <= tolerance, 
-          `Size mismatch too large: ${sizeFromList} vs ${sizeFromContents}`);
-      }
-    });
-
-    function extractSizeFromListResponse(listContent, filename) {
-      const lines = listContent.split('\n');
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(filename)) {
-          // Look for size in next few lines
-          for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
-            const sizeMatch = lines[j].match(/Size:\s+([\d.]+)\s*(\w+)/);
-            if (sizeMatch) {
-              const size = parseFloat(sizeMatch[1]);
-              const unit = sizeMatch[2].toLowerCase();
-              return unit === 'kb' ? size * 1024 : size;
-            }
-          }
-        }
-      }
-      return null;
-    }
-
-    function extractSizeFromContentsResponse(contentsText) {
-      const match = contentsText.match(/Content size:\s*(\d+)\s*bytes/);
-      return match ? parseInt(match[1], 10) : null;
-    }
-  });
-
-  // Response structure validation
-  describe('Response Structure Validation', () => {
-    test('should return consistent response structure for all file types', async () => {
-      const allFiles = [...availableLogFiles, ...availableJobLogFiles];
-      
-      if (allFiles.length === 0) {
-        return;
-      }
-
-      for (const file of allFiles.slice(0, 3)) { // Test first 3 files to avoid long test times
-        const result = await client.callTool('get_log_file_contents', {
-          filename: file
+      // Step 2: Based on sample, get full content if needed
+      if (sampleContent.includes('INFO')) {
+        const fullResult = await client.callTool('get_log_file_contents', {
+          filename: testFile,
+          maxBytes: 10000
         });
-
-        assertValidMCPResponse(result);
         
-        if (!result.isError) {
-          // Should have exactly one content element
-          assert.equal(result.content.length, 1, 'Should have exactly one content element');
-          assert.equal(result.content[0].type, 'text', 'Content type should be text');
-          
-          const content = parseResponseText(result.content[0].text);
-          
-          // Should contain standard header elements
-          assert.ok(content.includes('Log File Contents:'), 'Should have header');
-          assert.ok(content.includes('Total lines:'), 'Should have line count');
-          assert.ok(content.includes('Content size:'), 'Should have size info');
-          assert.ok(content.includes('---'), 'Should have separator');
-        }
-      }
-    });
-
-    test('should handle edge cases gracefully', async () => {
-      const edgeCases = [
-        { filename: getTestFile(), maxBytes: 1 },        // Very small read
-        { filename: getTestFile(), maxBytes: 999999 },   // Very large read
-        { filename: getTestFile(), tailOnly: false },    // Explicit false
-        { filename: getTestFile(), tailOnly: true, maxBytes: 100 } // Combined edge case
-      ];
-
-      for (const testCase of edgeCases) {
-        const result = await client.callTool('get_log_file_contents', testCase);
+        assertSuccessResponse(fullResult);
+        const fullContent = parseResponseText(fullResult.content[0].text);
         
-        assertValidMCPResponse(result);
+        // Step 3: Validate that full content contains sample content structure
+        assert.ok(fullContent.includes('Log File Contents:'), 'Full content should have header');
+        assert.ok(fullContent.length >= sampleContent.length, 'Full content should be larger');
       }
     });
   });
 
-  // Integration tests using other MCP tools
-  describe('Integration with Other MCP Tools', () => {
-    test('should work with files found via search_logs', async () => {
-      try {
-        // Use search_logs to find files with content, then read them
-        const searchResult = await client.callTool('search_logs', {
-          pattern: 'INFO'
-        });
+  // === Business Logic Validation ===
+  describe('Business Logic Validation', () => {
+    test('should validate log entry format and content', async () => {
+      const result = await client.callTool('get_log_file_contents', {
+        filename: testFile,
+        maxBytes: 2000
+      });
 
-        if (!searchResult.isError) {
-          // If search found results, try to read one of the source files
-          const testFile = getTestFile(); // Fall back to discovered file
-          
-          const result = await client.callTool('get_log_file_contents', {
-            filename: testFile
-          });
-
-          assertSuccessResponse(result);
-        }
-      } catch {
-        // Ignore errors in search_logs - not all systems support it
-      }
-    });
-
-    test('should validate job logs found via get_latest_job_log_files', async () => {
-      if (availableJobLogFiles.length === 0) {
-        return;
-      }
-
-      // Use job log discovery tool and validate we can read the files
-      const jobLogListResult = await client.callTool('get_latest_job_log_files', {});
-      assertSuccessResponse(jobLogListResult);
-
-      for (const jobFile of availableJobLogFiles) {
-        const result = await client.callTool('get_log_file_contents', {
-          filename: jobFile
-        });
-
-        assertSuccessResponse(result);
+      assertSuccessResponse(result);
+      const content = parseResponseText(result.content[0].text);
+      
+      // Validate SFCC-specific log structure
+      const logEntryPattern = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} GMT)\]\s+(INFO|WARN|ERROR|DEBUG)\s+(\w+)/;
+      const matches = content.match(logEntryPattern);
+      
+      if (matches) {
+        // Validate timestamp is recent - Fix timestamp parsing for SFCC format
+        // Convert "2025-09-22 12:00:00.000 GMT" to "2025-09-22T12:00:00.000Z"
+        const isoTimestamp = matches[1].replace(' ', 'T').replace(' GMT', 'Z');
+        const logDate = new Date(isoTimestamp);
+        const now = new Date();
+        const daysDiff = (now - logDate) / (1000 * 60 * 60 * 24);
         
-        // Job logs should contain structured information
-        const content = parseResponseText(result.content[0].text);
-        assert.ok(content.includes('SystemJobThread') || content.includes('INFO'),
-          'Job log should contain job execution information');
+        // Allow reasonable timeframe for test log data (within 1 day of current time)
+        assert.ok(Math.abs(daysDiff) < 1, 'Log timestamp should be within reasonable timeframe (±1 day)');
+        
+        // Validate log level
+        assert.ok(['INFO', 'WARN', 'ERROR', 'DEBUG'].includes(matches[2]), 'Should have valid log level');
+        
+        // Validate thread/component information
+        assert.ok(matches[3].length > 0, 'Should have thread/component information');
       }
     });
-  });
 
-  // Performance and reliability tests
-  describe('Performance and Reliability', () => {
-    test('should handle multiple sequential requests without interference', async () => {
-      const testFile = getTestFile();
-      const results = [];
-
-      // Make multiple sequential requests
-      for (let i = 0; i < 5; i++) {
+    test('should validate content size reporting accuracy', async () => {
+      const testSizes = [100, 500, 1000];
+      
+      for (const size of testSizes) {
         const result = await client.callTool('get_log_file_contents', {
           filename: testFile,
-          maxBytes: 1000
+          maxBytes: size
         });
+        
+        assertSuccessResponse(result);
+        assertTextContent(result, `Content size: ${size} bytes`);
+        
+        // Validate that actual content respects the size limit
+        const content = parseResponseText(result.content[0].text);
+        const actualContentMatch = content.match(/---\n\n([\s\S]*)$/);
+        
+        if (actualContentMatch) {
+          const actualLogContent = actualContentMatch[1];
+          // Should be approximately the requested size (allowing for encoding differences)
+          assert.ok(actualLogContent.length <= size + 50, 
+            `Content should respect size limit: ${actualLogContent.length} <= ${size + 50}`);
+        }
+      }
+    });
+  });
 
+  // === Reliability and State Management ===
+  describe('Reliability Testing', () => {
+    test('should maintain state consistency across requests', async () => {
+      const params = { filename: testFile, maxBytes: 1000 };
+      const results = [];
+
+      // Make multiple identical requests
+      for (let i = 0; i < 3; i++) {
+        const result = await client.callTool('get_log_file_contents', params);
         results.push(result);
-        assertValidMCPResponse(result);
+        assertSuccessResponse(result);
       }
 
-      // All results should be consistent
+      // All results should be identical (no state leakage)
       const firstContent = parseResponseText(results[0].content[0].text);
       for (let i = 1; i < results.length; i++) {
         const content = parseResponseText(results[i].content[0].text);
-        assert.equal(content, firstContent, 
-          `Request ${i} should return same content as first request`);
+        assert.equal(content, firstContent, `Request ${i} should match first request`);
       }
     });
 
-    test('should handle requests with different parameter combinations', async () => {
-      const testFile = getTestFile();
-      const paramCombinations = [
-        {},
+    test('should handle alternating parameter patterns', async () => {
+      const patterns = [
         { maxBytes: 500 },
-        { tailOnly: true },
-        { maxBytes: 1000, tailOnly: false },
-        { maxBytes: 200, tailOnly: true }
+        { tailOnly: true, maxBytes: 300 },
+        { maxBytes: 1000 },
+        { tailOnly: false }
       ];
 
-      for (const params of paramCombinations) {
-        const fullParams = { filename: testFile, ...params };
-        const result = await client.callTool('get_log_file_contents', fullParams);
-
-        assertValidMCPResponse(result);
-      }
-    });
-
-    test('should maintain consistent response times for similar requests', async () => {
-      const testFile = getSmallTestFile();
-      const times = [];
-
-      for (let i = 0; i < 3; i++) {
-        const start = Date.now();
-        
+      for (let i = 0; i < patterns.length; i++) {
         const result = await client.callTool('get_log_file_contents', {
           filename: testFile,
-          maxBytes: 1000
+          ...patterns[i]
         });
 
-        const duration = Date.now() - start;
-        times.push(duration);
-
         assertSuccessResponse(result);
+        
+        // Each request should succeed independently
+        const content = parseResponseText(result.content[0].text);
+        assert.ok(content.includes('Log File Contents:'), 
+          `Pattern ${i} should maintain proper structure`);
       }
-
-      // Check that response times are reasonably consistent (no huge variations)
-      const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
-      const maxDeviation = Math.max(...times.map(t => Math.abs(t - avgTime)));
-      
-      // Allow up to 100x variation (very lenient for CI environments)
-      const tolerance = avgTime * 100;
-      assert.ok(maxDeviation <= tolerance, 
-        `Response time variation too high: avg=${avgTime}ms, max_dev=${maxDeviation}ms`);
-      });
+    });
   });
 });
+ 

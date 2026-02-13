@@ -1,0 +1,139 @@
+{
+  "_v": "23.2",
+  "_type": "object_attribute_definition_search_result",
+  "count": 20,
+  "hits": [
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "47de03c012d48eee975077f45131088fe24f34660ecf4dc69de5737257836fda",
+      "id": "EAN",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/EAN"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "d9215260b911efb2f40c78cb1b9a7134feca85bf429a9462371db6a16d22e456",
+      "id": "ID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/ID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5d41eb23dc9228d397af90560aaa1b8b0ff825e6d8699a56977366d3534c5cc6",
+      "id": "UPC",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/UPC"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "461201495377a8c0e50340bbce3ce929cecfbb74022d1ba87ff3bfeb2501b295",
+      "id": "UUID",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/UUID"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "94d3911611a738b687448c2742b6b61216925f45e60627906e871da0d752f35b",
+      "id": "Wool",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/Wool"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "f3714641f6cd57c36db45c8976a743e21dafdb52d753ea67013ef9a9209488f3",
+      "id": "available",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/available"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "5945247ee819586780982084e8099326c6cc04499492ff82f8603ecb224172d0",
+      "id": "availableForInStorePickup",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/availableForInStorePickup"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "835703bec9a082f3525872afaa1d371c985c70359812e1e4a751fb2d9b200df6",
+      "id": "batteryLife",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/batteryLife"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "c9b45424b52db1a01c9bcd6f2ae1919fe6a2262c3cb28ea2fbfb02324e5455b5",
+      "id": "batteryType",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/batteryType"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "725a285570d393052705c7cec8cdc689b808a455ab269a79eba2b9b945b79b5b",
+      "id": "bootType",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/bootType"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "d9c7203446e6892ca1359b6db401418f7de92065ee5a117cc3e3d7dfeef89cfc",
+      "id": "bottomType",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/bottomType"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "aa8ad7704c3818641e179362b17cdca0b56a411e0b0c2bbcd99689bc54193554",
+      "id": "brand",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/brand"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "503a227e5ed4449c29e36df3d093f000f5da55a8c3f15d50136e3a6371a0aa0a",
+      "id": "color",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/color"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "899c76f81068c25aa2ed6f38087f3247cd6452c4633bf1c261e608e21fda838f",
+      "id": "consoleWarranty",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/consoleWarranty"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "004d9acfb27ca3e2fa335ae09c02a07fd6c060c140e58ce2e6e4aa915d2afcd0",
+      "id": "creationDate",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/creationDate"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "dacb68edca840f891239ee0b21c3f49a837868a1711b7a1eaf62e4d33e468214",
+      "id": "customCSSFile",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/customCSSFile"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "743064fb382bc45d6af651418323da1cca6b7224a852267e2484fc68e442d496",
+      "id": "digitalCameraFeatures",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/digitalCameraFeatures"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "afc1313f41b50bfd537bae069415cfb31b04075fd03cae98a2983a3a13a31372",
+      "id": "digitalCameraPixels",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/digitalCameraPixels"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "94726ddc9bb160d07151aa07311b1bddea4caead2be714b6c658830faa60019b",
+      "id": "digitalCameraType",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/digitalCameraType"
+    },
+    {
+      "_type": "object_attribute_definition",
+      "_resource_state": "127032df7c9398dfa107757c42579619096b8864874fa63f60a1852487068bee",
+      "id": "digitalCameraWarranty",
+      "link": "https://localhost:3000/s/-/dw/data/v23_2/system_object_definitions/Product/attribute_definitions/digitalCameraWarranty"
+    }
+  ],
+  "next": {
+    "_type": "result_page",
+    "count": 20,
+    "start": 20
+  },
+  "query": {
+    "match_all_query": {
+      "_type": "match_all_query"
+    }
+  },
+  "start": 0,
+  "total": 113
+}
