@@ -29,17 +29,17 @@ Key architectural principles:
 
 ## Core Documentation
 
-- [Getting Started](${baseUrl}/guide): Introduction and modes
-- [AI Interface Setup](${baseUrl}/guide/ai-interfaces): Platform-specific setup for Copilot, Claude, and Cursor
-- [Configuration Guide](${baseUrl}/guide/configuration): dw.json, environment variables, and auto-discovery
-- [Features Overview](${baseUrl}/features): Complete feature breakdown
-- [Tools Catalog](${baseUrl}/tools): All tools organized by category with examples
-- [Examples](${baseUrl}/examples): Practical prompts and workflows
-- [Script Debugger](${baseUrl}/script-debugger): Sandbox evaluation via debugger API
-- [Skills](${baseUrl}/skills): Bundled skills and instruction packs
-- [Security](${baseUrl}/security): Credential and data handling guidance
-- [Development Guide](${baseUrl}/development): Architecture, testing, and contribution workflow
-- [Troubleshooting](${baseUrl}/troubleshooting): Common issues and fixes
+- [Getting Started](${baseUrl}/guide/): Introduction and modes
+- [AI Interface Setup](${baseUrl}/guide/ai-interfaces/): Platform-specific setup for Copilot, Claude, and Cursor
+- [Configuration Guide](${baseUrl}/guide/configuration/): dw.json, environment variables, and auto-discovery
+- [Features Overview](${baseUrl}/features/): Complete feature breakdown
+- [Tools Catalog](${baseUrl}/tools/): All tools organized by category with examples
+- [Examples](${baseUrl}/examples/): Practical prompts and workflows
+- [Script Debugger](${baseUrl}/script-debugger/): Sandbox evaluation via debugger API
+- [Skills](${baseUrl}/skills/): Bundled skills and instruction packs
+- [Security](${baseUrl}/security/): Credential and data handling guidance
+- [Development Guide](${baseUrl}/development/): Architecture, testing, and contribution workflow
+- [Troubleshooting](${baseUrl}/troubleshooting/): Common issues and fixes
 
 ## Tool Categories
 
