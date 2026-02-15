@@ -13,6 +13,13 @@ Represents a set of payment instruments associated with a registered customer. N
 
 ## Properties
 
+### defaultPaymentInstrument
+
+**Type:** CustomerPaymentInstrument (Read Only)
+
+The default payment instrument associated with the related customer. If not available, returns the first
+ payment instrument or null if no payment instruments are associated with the customer.
+
 ### paymentInstruments
 
 **Type:** Collection (Read Only)
@@ -29,6 +36,12 @@ A collection of all payment instruments associated with the
 **Signature:** `createPaymentInstrument(paymentMethodId : String) : CustomerPaymentInstrument`
 
 Creates a new, empty payment instrument object associated with the related customer for the given payment method.
+
+### getDefaultPaymentInstrument
+
+**Signature:** `getDefaultPaymentInstrument() : CustomerPaymentInstrument`
+
+Returns the default payment instrument associated with the related customer.
 
 ### getPaymentInstruments
 
@@ -69,6 +82,18 @@ the new payment instrument object.
 **Throws:**
 
 NullArgumentException - If passed 'paymentMethodId' is null.
+
+---
+
+### getDefaultPaymentInstrument
+
+**Signature:** `getDefaultPaymentInstrument() : CustomerPaymentInstrument`
+
+**Description:** Returns the default payment instrument associated with the related customer. If not available, returns the first payment instrument or null if no payment instruments are associated with the customer.
+
+**Returns:**
+
+The default payment instrument object.
 
 ---
 

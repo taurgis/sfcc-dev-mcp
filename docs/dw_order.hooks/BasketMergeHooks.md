@@ -22,7 +22,7 @@ This interface represents all script hooks that can be registered to merge baske
 
 **Signature:** `mergeBasket(source : Basket, currentBasket : Basket) : Status`
 
-Merges contents from a source basket (usually a former registered shopper's basket) to a destination basket (usually a former guest shopper basket that was transferred to the registered shopper upon login).
+Merges content from a source basket (typically a former registered shopper's basket) into the current basket (usually a former guest shopper's basket that was transferred to the registered shopper).
 
 ## Method Detail
 
@@ -32,11 +32,11 @@ Merges contents from a source basket (usually a former registered shopper's bask
 
 **Signature:** `mergeBasket(source : Basket, currentBasket : Basket) : Status`
 
-**Description:** Merges contents from a source basket (usually a former registered shopper's basket) to a destination basket (usually a former guest shopper basket that was transferred to the registered shopper upon login). In case of no implementation is registered, the default implementation is invoked. This method is automatically called for the following scenarios: After a successful call to the transfer Rest API with query parameter merge=true, whereby the guest and registered users, both had an active basket attached. In this scenario the registered shopper's basket will be the source of the merge and the transferred guest shopper's basket will be the destination.
+**Description:** Merges content from a source basket (typically a former registered shopper's basket) into the current basket (usually a former guest shopper's basket that was transferred to the registered shopper). If no override script is registered, the system defaults to the platform's standard basket merging logic. This method is automatically invoked after a successful execution of the /transfer REST API with the query parameter merge=true, if either the guest or the registered users had baskets assigned. The registered shopper's basket will be the source for the merge, and the transferred guest shopper's basket will be the current basket.
 
 **Parameters:**
 
-- `source`: the basket from which data should be merged into the destination, can be null e.g. in case the former guest shopper did not create a basket
-- `currentBasket`: the destination basket to merge data into
+- `source`: the basket from which data will be merged into the current basket. Will be null if the former guest shopper did not have an assigned basket.
+- `currentBasket`: the current basket to merge data into
 
 ---
