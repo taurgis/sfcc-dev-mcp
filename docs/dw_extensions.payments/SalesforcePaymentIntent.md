@@ -9,7 +9,7 @@
 
 ## Description
 
-Salesforce Payments representation of a payment intent object. See Salesforce Payments documentation for how to gain access and configure it for use on your sites. A payment intent is automatically created when a shopper is ready to pay for items in their basket. It becomes confirmed when the shopper provides information to the payment provider that is acceptable to authorize payment for a given amount. Once that information has been provided it becomes available as the payment method associated with the payment intent.
+Salesforce Payments representation of a Stripe payment intent object. See Salesforce Payments documentation for how to gain access and configure it for use on your sites. A payment intent is automatically created when a shopper is ready to pay for items in their basket. It becomes confirmed when the shopper provides information to the payment provider that is acceptable to authorize payment for a given amount. Once that information has been provided it becomes available as the payment method associated with the payment intent.
 
 ## Constants
 

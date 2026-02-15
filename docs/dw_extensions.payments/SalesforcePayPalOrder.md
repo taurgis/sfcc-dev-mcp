@@ -13,6 +13,18 @@ Salesforce Payments representation of a PayPal order object. See Salesforce Paym
 
 ## Constants
 
+### INTENT_AUTHORIZE
+
+**Type:** String = "AUTHORIZE"
+
+Represents the "AUTHORIZE" intent, meaning manual capture.
+
+### INTENT_CAPTURE
+
+**Type:** String = "CAPTURE"
+
+Represents the "CAPTURE" intent, meaning automatic capture.
+
 ### TYPE_PAYPAL
 
 **Type:** String = "paypal"
@@ -32,6 +44,12 @@ Represents the Venmo funding source.
 **Type:** Money (Read Only)
 
 The amount of this PayPal order.
+
+### authorizationID
+
+**Type:** String (Read Only)
+
+The ID of the authorization against this order, or null if not available.
 
 ### captureID
 
@@ -72,6 +90,12 @@ The shipping address for this PayPal order, or null if not known.
 **Signature:** `getAmount() : Money`
 
 Returns the amount of this PayPal order.
+
+### getAuthorizationID
+
+**Signature:** `getAuthorizationID() : String`
+
+Returns the ID of the authorization against this order, or null if not available.
 
 ### getCaptureID
 
@@ -134,6 +158,18 @@ Returns true if this PayPal order has been completed, or false if not.
 **Returns:**
 
 PayPal order amount
+
+---
+
+### getAuthorizationID
+
+**Signature:** `getAuthorizationID() : String`
+
+**Description:** Returns the ID of the authorization against this order, or null if not available.
+
+**Returns:**
+
+PayPal order authorization identifier
 
 ---
 
