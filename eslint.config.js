@@ -8,6 +8,14 @@ export default tseslint.config(
 
   // Global settings
   {
+    rules: {
+      // Preserve pre-v10 lint behavior; enable deliberately in a dedicated cleanup.
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
+    },
+  },
+
+  {
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

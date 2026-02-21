@@ -16,17 +16,6 @@ export interface CategoryWithCount extends CategoryInfo {
 }
 
 /**
- * Get a category for an item based on mappings, with fallback
- */
-export function getCategoryForItem<T extends string>(
-  itemName: string,
-  mappings: Record<string, T>,
-  fallback: T,
-): T {
-  return (mappings[itemName.toLowerCase()] ?? fallback) as T;
-}
-
-/**
  * Build category list with counts from items
  */
 export function buildCategoryList<T extends string>(
@@ -59,12 +48,3 @@ export function buildCategoryList<T extends string>(
   return categories.sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
-/**
- * Filter items by category
- */
-export function filterByCategory<T extends { category: string }>(
-  items: T[],
-  category: string,
-): T[] {
-  return items.filter(item => item.category === category);
-}

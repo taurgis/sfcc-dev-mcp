@@ -234,7 +234,7 @@ export abstract class AbstractDocumentationClient<
 
     const documents = await this.loadAllDocuments();
     // Cast documents to the expected type - we know category will be TCategory since
-    // documents are created with that constraint via createDocument and getCategoryForItem
+    // documents are created with that constraint via createDocument.
     const categoryList = buildCategoryList(
       documents as unknown as Array<{ category: TCategory }>,
       this.config.categoryDescriptions,

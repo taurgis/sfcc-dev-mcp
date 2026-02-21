@@ -148,7 +148,6 @@ sfcc-dev-mcp/
 │   │   │   ├── class-content-parser.ts # Markdown parsing and content extraction
 │   │   │   ├── class-name-resolver.ts # Class name normalization and resolution
 │   │   │   ├── referenced-types-extractor.ts # Type extraction from documentation content
-│   │   │   └── index.ts          # Module exports
 │   │   ├── cartridge/            # Cartridge generation system
 │   │   │   ├── cartridge-generation-client.ts # Main cartridge structure generator
 │   │   │   ├── cartridge-structure.ts # Directory structure definitions
@@ -168,8 +167,6 @@ sfcc-dev-mcp/
 │   ├── config/                   # Configuration management
 │   │   ├── configuration-factory.ts # Config factory for different modes
 │   │   └── dw-json-loader.ts     # dw.json configuration loader
-│   ├── constants/                # Application constants
-│   │   └── index.ts              # Constants exports
 │   ├── tool-configs/             # Tool configuration definitions
 │   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
 │   │   ├── code-version-tool-config.ts # Code version tools configuration
