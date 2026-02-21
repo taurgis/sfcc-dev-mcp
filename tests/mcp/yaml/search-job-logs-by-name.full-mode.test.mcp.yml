@@ -91,7 +91,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "Error: jobName must be a non-empty string"
+              text: "match:contains:jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -115,7 +115,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "Error: Invalid limit '-1' for search_job_logs_by_name. Must be between 1 and 1000"
+              text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
     performance:

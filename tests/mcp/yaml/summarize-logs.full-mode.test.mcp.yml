@@ -103,8 +103,8 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:No log files found for date invalid-date"
-          isError: false
+              text: "match:contains:date must match pattern"
+          isError: true
       stderr: "toBeEmpty"
 
   # YAML-specific pattern tests - what YAML does better than Node.js

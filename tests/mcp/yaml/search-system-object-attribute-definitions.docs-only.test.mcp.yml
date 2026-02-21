@@ -35,9 +35,9 @@ tests:
       stderr: "toBeEmpty"
 
   # ==================================================================================
-  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # TOOL AVAILABILITY ERROR TESTS (Tool Can Be Called But Is Unavailable)
   # ==================================================================================
-  - it: "should return authentication error when calling search_system_object_attribute_definitions in docs-only mode"
+  - it: "should return tool-not-available error when calling search_system_object_attribute_definitions in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-product"
@@ -56,13 +56,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for text query search requests"
+  - it: "should return tool-not-available error for text query search requests"
     request:
       jsonrpc: "2.0"
       id: "auth-error-text-query"
@@ -83,13 +83,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for term query requests"
+  - it: "should return tool-not-available error for term query requests"
     request:
       jsonrpc: "2.0"
       id: "auth-error-term-query"
@@ -111,13 +111,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:full mode"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should handle malformed parameters with same authentication error"
+  - it: "should return tool-not-available error for malformed parameters"
     request:
       jsonrpc: "2.0"
       id: "auth-error-malformed"
@@ -133,7 +133,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"

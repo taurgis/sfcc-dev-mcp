@@ -328,7 +328,7 @@ tests:
 # PARAMETER VALIDATION TESTS
 # ==================================================================================
 
-  - it: "should handle string start parameter (type coercion)"
+  - it: "should reject string start parameter"
     request:
       jsonrpc: "2.0"
       id: "param-string-start"
@@ -347,11 +347,10 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:type:string"
-          isError: false
-          structuredContent: "match:type:object"
+                text: "match:contains:start must be a number"
+          isError: true
 
-  - it: "should handle string count parameter (type coercion)"
+  - it: "should reject string count parameter"
     request:
       jsonrpc: "2.0"
       id: "param-string-count"
@@ -370,9 +369,8 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:type:string"
-          isError: false
-          structuredContent: "match:type:object"
+                text: "match:contains:count must be a number"
+          isError: true
 
   - it: "should handle negative start parameter gracefully"
     request:
@@ -443,7 +441,7 @@ tests:
           isError: false
           structuredContent: "match:type:object"
 
-  - it: "should handle empty select parameter"
+  - it: "should reject empty select parameter"
     request:
       jsonrpc: "2.0"
       id: "select-empty"
@@ -462,9 +460,8 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:type:string"
-          isError: false
-          structuredContent: "match:type:object"
+                text: "match:contains:select must be a non-empty string"
+          isError: true
 
 # ==================================================================================
 # DATA VALIDATION AND CONSISTENCY

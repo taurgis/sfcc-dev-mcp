@@ -205,7 +205,7 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid maxBytes"
+                  text: "match:contains:maxBytes must be >= 1"
           isError: true
       stderr: "toBeEmpty"
     performance:

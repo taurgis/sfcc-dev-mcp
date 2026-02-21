@@ -208,7 +208,7 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:Invalid limit"
+                text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
 

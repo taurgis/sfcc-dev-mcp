@@ -96,6 +96,8 @@ export const LOG_TOOLS = [
           type: 'number',
           description: 'Maximum number of bytes to read from the file (default: 1MB). Use this to limit the amount of data returned for very large files.',
           default: 1048576,
+          minimum: 1,
+          maximum: 10000000,
         },
         tailOnly: {
           type: 'boolean',

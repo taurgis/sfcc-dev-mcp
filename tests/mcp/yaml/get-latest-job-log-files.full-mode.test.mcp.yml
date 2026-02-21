@@ -110,7 +110,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit '0' for get_latest_job_log_files"
+              text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -134,7 +134,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit '-1' for get_latest_job_log_files"
+              text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -158,7 +158,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit 'invalid' for get_latest_job_log_files. Must be a valid number"
+              text: "match:contains:limit must be a number"
           isError: true
       stderr: "toBeEmpty"
     performance:

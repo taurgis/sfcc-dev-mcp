@@ -15,7 +15,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **🧪 Script Debugger** - Execute and inspect script-debugger endpoints in credentialed mode
 - **🚀 Cartridge Generation** - Automated cartridge structure creation
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
-- **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, and enum constraints before handler execution
+- **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, enum constraints, and strict top-level argument keys before handler execution
 
 ## 🚀 Quick Start
 
@@ -108,12 +108,15 @@ This server is built around a **capability-gated, modular handler architecture**
 
 ### Core Layers
 - **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions, agent instructions, script debugger). Re-exported via `tool-definitions.ts`.
-- **Tool Argument Validator** (`src/core/tool-argument-validator.ts`): Enforces runtime argument shape at the MCP boundary (required fields, primitive/object/array types, enum checks, strict top-level keys) before tool dispatch.
+- **Tool Argument Validator** (`src/core/tool-argument-validator.ts`): Enforces runtime argument shape at the MCP boundary for all tools (required fields, primitive/object/array types, enum checks, numeric ranges, string patterns/length, strict top-level keys) before tool dispatch.
 - **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
 - **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, modular log analysis, script debugger, cartridge generation, agent-instruction sync). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
+- **Call-time Capability Guarding** (`src/core/server.ts`): Rejects execution of tools that are unavailable in the current mode, so hidden tools are not callable via direct `tools/call` requests.
+- **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
+- **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
 
 ### Why This Matters
 - **Extensibility**: Adding a new tool usually means adding a schema + minimal handler logic (or a new handler if a new domain).

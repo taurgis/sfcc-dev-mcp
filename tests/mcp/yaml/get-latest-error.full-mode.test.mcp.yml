@@ -87,7 +87,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit '5'"
+              text: "match:contains:limit must be a number"
           isError: true
       stderr: "toBeEmpty"
 
@@ -108,7 +108,7 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid limit '0'"
+                text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
 
@@ -129,7 +129,7 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid limit"
+                text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
 

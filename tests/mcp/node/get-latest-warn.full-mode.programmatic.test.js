@@ -117,10 +117,10 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
   describe('Error Handling and Edge Cases', () => {
     test('should handle parameter validation errors correctly', async () => {
       const errorCases = [
-        { params: { limit: '5' }, expectedError: 'Invalid limit \'5\' for get_latest_warn. Must be a valid number' },
-        { params: { limit: 0 }, expectedError: 'Invalid limit \'0\' for get_latest_warn. Must be between 1 and 1000' },
-        { params: { limit: -5 }, expectedError: 'Invalid limit \'-5\'' },
-        { params: { limit: 9999 }, expectedError: 'Invalid limit' }
+          { params: { limit: '5' }, expectedError: 'limit must be a number' },
+          { params: { limit: 0 }, expectedError: 'limit must be >= 1' },
+          { params: { limit: -5 }, expectedError: 'limit must be >= 1' },
+          { params: { limit: 9999 }, expectedError: 'limit must be <= 1000' }
       ];
 
       for (const { params, expectedError } of errorCases) {
@@ -360,8 +360,8 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
         { params: { limit: 0 }, shouldFail: true, description: 'Zero limit validation' },
         { params: { limit: '1' }, shouldFail: true, description: 'Type validation' },
         { params: { limit: 99999 }, shouldFail: true, description: 'Range validation' },
-        { params: { date: '' }, shouldFail: false, description: 'Empty date handling' },
-        { params: { invalid: 'param' }, shouldFail: false, description: 'Unknown parameter handling' }
+          { params: { date: '' }, shouldFail: true, description: 'Empty date validation' },
+          { params: { invalid: 'param' }, shouldFail: true, description: 'Unknown parameter validation' }
       ];
       
       let failureCount = 0;

@@ -5,12 +5,12 @@
 #
 # Test Coverage:
 # - Tool unavailability in docs-only mode (not listed in tools/list)
-# - Authentication error responses when tool is called directly
+# - Tool-not-available responses when tool is called directly
 # - Consistent error messaging across different parameter scenarios
 # - Error structure validation (proper MCP response format)
 # - Performance requirements (fast failure under 1000ms)
 # - Mode verification (ensuring we're actually in docs-only mode)
-# - Authentication error precedence over parameter validation
+  # - Explicit validation failures for missing/empty required arguments
 # 
 # Quick Test Commands:
 # aegis "tests/mcp/yaml/activate-code-version.docs-only.test.mcp.yml" --config "aegis.config.docs-only.json" --verbose
@@ -58,9 +58,9 @@ tests:
       stderr: "toBeEmpty"
 
   # ==================================================================================
-  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # TOOL AVAILABILITY ERROR TESTS (Tool Can Be Called But Is Unavailable)
   # ==================================================================================
-  - it: "should return authentication error when calling activate_code_version in docs-only mode"
+  - it: "should return tool-not-available error when calling activate_code_version in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-default"
@@ -77,13 +77,13 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should return consistent error message for authentication failure"
+  - it: "should return consistent tool-not-available error message"
     request:
       jsonrpc: "2.0"
       id: "auth-error-consistent"
@@ -100,13 +100,13 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*OCAPI[\\s\\S]*not configured[\\s\\S]*"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should return authentication error regardless of code version ID validity"
+  - it: "should return tool-not-available error regardless of code version ID validity"
     request:
       jsonrpc: "2.0"
       id: "auth-error-regardless"
@@ -123,7 +123,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -154,7 +154,7 @@ tests:
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should include helpful guidance in error message"
+  - it: "should include tool availability guidance in error message"
     request:
       jsonrpc: "2.0"
       id: "helpful-error"
@@ -171,14 +171,14 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*credentials[\\s\\S]*full mode[\\s\\S]*"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
   # ==================================================================================
   # PARAMETER VALIDATION IN DOCS-ONLY MODE
   # ==================================================================================
-  - it: "should return authentication error even with missing parameters"
+  - it: "should return tool-not-available error even with missing parameters"
     request:
       jsonrpc: "2.0"
       id: "auth-error-missing-params"
@@ -194,13 +194,13 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should return authentication error even with empty parameters"
+  - it: "should return tool-not-available error even with empty parameters"
     request:
       jsonrpc: "2.0"
       id: "auth-error-empty-params"
@@ -217,7 +217,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:(OCAPI client not configured|required.*codeVersionId|invalid.*empty)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -252,7 +252,7 @@ tests:
   # ==================================================================================
   # CONSISTENCY TESTS ACROSS DIFFERENT INPUTS
   # ==================================================================================
-  - it: "should return consistent auth errors for different valid-looking IDs"
+  - it: "should return consistent availability errors for different valid-looking IDs"
     request:
       jsonrpc: "2.0"
       id: "consistent-auth-1"
@@ -269,11 +269,11 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return consistent auth errors for different format IDs"
+  - it: "should return consistent availability errors for different format IDs"
     request:
       jsonrpc: "2.0"
       id: "consistent-auth-2"
@@ -290,7 +290,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:(OCAPI client not configured|required.*codeVersionId)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 

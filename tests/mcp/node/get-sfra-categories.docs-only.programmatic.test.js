@@ -223,19 +223,18 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       assert.equal(categories.length, 7, 'Should return all categories with empty parameters');
     });
 
-    test('should ignore invalid parameters', async () => {
+      test('should reject invalid parameters', async () => {
       const result = await client.callTool('get_sfra_categories', {
         invalid: 'param',
         another: 'value',
         numeric: 123
       });
       
-      assert.equal(result.isError, false, 'Should ignore invalid parameters without error');
-      const categories = JSON.parse(result.content[0].text);
-      assert.equal(categories.length, 7, 'Should return all categories despite invalid parameters');
+        assert.equal(result.isError, true, 'Should reject invalid parameters');
+        assert.ok(result.content[0].text.includes('is not allowed'), 'Should mention unknown parameters');
     });
 
-    test('should handle special parameter values', async () => {
+      test('should reject special unknown parameter values', async () => {
       const result = await client.callTool('get_sfra_categories', {
         null_value: null,
         empty_string: '',
@@ -243,9 +242,8 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
         boolean: false
       });
       
-      assert.equal(result.isError, false, 'Should handle special parameter values without error');
-      const categories = JSON.parse(result.content[0].text);
-      assert.equal(categories.length, 7, 'Should return all categories with special parameter values');
+        assert.equal(result.isError, true, 'Should reject unknown parameters regardless of value type');
+        assert.ok(result.content[0].text.includes('is not allowed'), 'Should mention unknown parameters');
     });
   });
 
@@ -353,16 +351,16 @@ describe('SFCC Dev MCP - get_sfra_categories Tool (docs-only mode)', () => {
       const result1 = await client.callTool('get_sfra_categories', {});
       const categories1 = JSON.parse(result1.content[0].text);
       
-      // Call with parameters (should ignore them)
+        // Call with unknown parameters (should now fail validation)
       const result2 = await client.callTool('get_sfra_categories', { someParam: 'value' });
-      const categories2 = JSON.parse(result2.content[0].text);
+        assert.equal(result2.isError, true, 'Unknown parameters should be rejected');
+        assert.ok(result2.content[0].text.includes('is not allowed'));
       
       // Third call without parameters
       const result3 = await client.callTool('get_sfra_categories', {});
       const categories3 = JSON.parse(result3.content[0].text);
       
-      // All should be identical
-      assert.deepEqual(categories1, categories2, 'Results should be identical regardless of parameters');
+        // Baseline calls should remain deterministic around a failed call.
       assert.deepEqual(categories1, categories3, 'Results should be consistent across calls');
     });
   });

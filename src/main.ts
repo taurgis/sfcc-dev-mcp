@@ -22,42 +22,8 @@
 
 import { SFCCDevServer } from './core/server.js';
 import { ConfigurationFactory } from './config/configuration-factory.js';
+import { parseCommandLineArgs, hasEnvironmentCredentials } from './config/cli-options.js';
 import { Logger } from './utils/logger.js';
-
-/**
- * Parse command line arguments to extract configuration options
- */
-function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
-  const args = process.argv.slice(2);
-  const options: { dwJsonPath?: string; debug?: boolean } = {};
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-
-    if (arg === '--dw-json' && i + 1 < args.length) {
-      options.dwJsonPath = args[i + 1];
-      i++; // Skip the next argument since we consumed it
-    } else if (arg === '--debug' && i + 1 < args.length) {
-      const debugValue = args[i + 1].toLowerCase();
-      options.debug = debugValue === 'true' || debugValue === '1' || debugValue === 'yes';
-      i++; // Skip the next argument since we consumed it
-    } else if (arg === '--debug') {
-      // Allow --debug without a value to default to true
-      options.debug = true;
-    }
-  }
-
-  return options;
-}
-
-/**
- * Check if environment variables provide SFCC credentials
- */
-function hasEnvironmentCredentials(): boolean {
-  const hasBasicAuth = !!(process.env.SFCC_USERNAME && process.env.SFCC_PASSWORD);
-  const hasOAuth = !!(process.env.SFCC_CLIENT_ID && process.env.SFCC_CLIENT_SECRET);
-  return !!(process.env.SFCC_HOSTNAME && (hasBasicAuth || hasOAuth));
-}
 
 /**
  * Main application entry point

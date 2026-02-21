@@ -109,11 +109,14 @@ export const PAGINATION_SCHEMA = {
     type: 'number',
     description: 'Start index for pagination (default: 0)',
     default: 0,
+    minimum: 0,
   },
   count: {
     type: 'number',
     description: 'Number of results to return (default: 200)',
     default: 200,
+    minimum: 1,
+    maximum: 1000,
   },
   select: {
     type: 'string',
@@ -144,6 +147,7 @@ export function createSearchRequestSchema(queryDescription?: string) {
 export const DATE_PARAM_SCHEMA = {
   type: 'string',
   description: 'Date in YYYYMMDD format (default: today)',
+  pattern: '^\\d{8}$',
 } as const;
 
 /**
@@ -154,5 +158,7 @@ export function createLimitSchema(defaultValue: number, description?: string) {
     type: 'number',
     description: description ?? `Number of entries to return (default: ${defaultValue})`,
     default: defaultValue,
+    minimum: 1,
+    maximum: 1000,
   };
 }

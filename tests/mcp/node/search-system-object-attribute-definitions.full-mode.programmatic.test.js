@@ -77,7 +77,7 @@ describe('search_system_object_attribute_definitions - Full Mode Programmatic Te
       // Validate required parameters
       const required = tool.inputSchema.required || [];
       assert.ok(required.includes('objectType'), 'objectType should be required');
-      assert.ok(required.includes('searchRequest'), 'searchRequest should be required');
+      assert.ok(!required.includes('searchRequest'), 'searchRequest should be optional');
     });
   });
 
@@ -569,7 +569,9 @@ describe('search_system_object_attribute_definitions - Full Mode Programmatic Te
       assert.ok(discoveryData.hits.length > 0, 'Should discover some attributes');
 
       // Step 2: Analyze specific attribute types found in step 1
-      const valueTypes = [...new Set(discoveryData.hits.map(attr => attr.value_type))];
+        const valueTypes = [...new Set(discoveryData.hits.map(attr => attr.value_type))]
+          .filter(valueType => typeof valueType === 'string' && valueType.length > 0);
+        assert.ok(valueTypes.length > 0, 'Should discover at least one concrete value_type for refinement workflow');
       
       for (const valueType of valueTypes.slice(0, 3)) { // Test first 3 types
         const typeAnalysisResult = await client.callTool('search_system_object_attribute_definitions', {

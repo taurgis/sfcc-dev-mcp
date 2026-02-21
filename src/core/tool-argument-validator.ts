@@ -7,6 +7,11 @@ interface SchemaObject {
   items?: SchemaObject;
   enum?: unknown[];
   additionalProperties?: boolean;
+  minimum?: number;
+  maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
 }
 
 interface ValidationIssue {
@@ -87,13 +92,24 @@ export class ToolArgumentValidator {
     if (declaredType === 'string') {
       if (typeof value !== 'string' || value.trim().length === 0) {
         issues.push({ path, message: 'must be a non-empty string' });
+      } else {
+        this.validateEnum(value, schema, path, issues);
+        this.validateStringConstraints(value, schema, path, issues);
       }
       return issues;
     }
 
-    if (declaredType === 'number') {
+    if (declaredType === 'number' || declaredType === 'integer') {
       if (typeof value !== 'number' || Number.isNaN(value)) {
         issues.push({ path, message: 'must be a number' });
+      } else {
+        if (declaredType === 'integer' && !Number.isInteger(value)) {
+          issues.push({ path, message: 'must be an integer' });
+          return issues;
+        }
+
+        this.validateEnum(value, schema, path, issues);
+        this.validateNumberConstraints(value, schema, path, issues);
       }
       return issues;
     }
@@ -101,6 +117,8 @@ export class ToolArgumentValidator {
     if (declaredType === 'boolean') {
       if (typeof value !== 'boolean') {
         issues.push({ path, message: 'must be a boolean' });
+      } else {
+        this.validateEnum(value, schema, path, issues);
       }
       return issues;
     }
@@ -110,6 +128,8 @@ export class ToolArgumentValidator {
         issues.push({ path, message: 'must be an array' });
         return issues;
       }
+
+      this.validateEnum(value, schema, path, issues);
 
       if (schema.items) {
         value.forEach((item, index) => {
@@ -130,9 +150,12 @@ export class ToolArgumentValidator {
       return issues;
     }
 
+    this.validateEnum(value, schema, path, issues);
+
     const properties = schema.properties ?? {};
     const required = schema.required ?? [];
-    const strictObjectKeys = schema.additionalProperties === false;
+    const strictObjectKeys = schema.additionalProperties === false ||
+      (path === '$' && schema.additionalProperties !== true);
 
     for (const requiredKey of required) {
       if (!(requiredKey in value)) {
@@ -162,5 +185,63 @@ export class ToolArgumentValidator {
     }
 
     return issues;
+  }
+
+  private validateEnum(
+    value: unknown,
+    schema: SchemaObject,
+    path: string,
+    issues: ValidationIssue[],
+  ): void {
+    if (!schema.enum || schema.enum.length === 0) {
+      return;
+    }
+
+    const isAllowed = schema.enum.some(enumValue => Object.is(enumValue, value));
+    if (!isAllowed) {
+      const allowedValues = schema.enum.map(enumValue => JSON.stringify(enumValue)).join(', ');
+      issues.push({ path, message: `must be one of: ${allowedValues}` });
+    }
+  }
+
+  private validateNumberConstraints(
+    value: number,
+    schema: SchemaObject,
+    path: string,
+    issues: ValidationIssue[],
+  ): void {
+    if (typeof schema.minimum === 'number' && value < schema.minimum) {
+      issues.push({ path, message: `must be >= ${schema.minimum}` });
+    }
+
+    if (typeof schema.maximum === 'number' && value > schema.maximum) {
+      issues.push({ path, message: `must be <= ${schema.maximum}` });
+    }
+  }
+
+  private validateStringConstraints(
+    value: string,
+    schema: SchemaObject,
+    path: string,
+    issues: ValidationIssue[],
+  ): void {
+    if (typeof schema.minLength === 'number' && value.length < schema.minLength) {
+      issues.push({ path, message: `must be at least ${schema.minLength} characters` });
+    }
+
+    if (typeof schema.maxLength === 'number' && value.length > schema.maxLength) {
+      issues.push({ path, message: `must be at most ${schema.maxLength} characters` });
+    }
+
+    if (schema.pattern) {
+      try {
+        const regex = new RegExp(schema.pattern);
+        if (!regex.test(value)) {
+          issues.push({ path, message: `must match pattern: ${schema.pattern}` });
+        }
+      } catch {
+        // Ignore invalid schema regex at runtime to avoid blocking tool execution.
+      }
+    }
   }
 }

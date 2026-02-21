@@ -390,6 +390,56 @@ describe('ScriptDebuggerClient', () => {
       expect(result.error).toContain('Timeout waiting for script to hit breakpoint');
     });
 
+    it('should timeout hanging debugger poll requests instead of hanging indefinitely', async () => {
+      const abortError = new Error('Request aborted');
+      abortError.name = 'AbortError';
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        const method = options?.method ?? 'GET';
+
+        if ((urlStr.includes('/on/demandware.store/') || urlStr.includes('/s/')) && !urlStr.includes('/dw/debugger')) {
+          return { ok: true, status: 200, text: async () => '<html></html>' } as Response;
+        }
+
+        if (urlStr.includes('/client') && method === 'POST') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/client') && method === 'DELETE') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/breakpoints') && method === 'POST') {
+          return {
+            ok: true,
+            status: 200,
+            text: async () => JSON.stringify({ breakpoints: [{ id: 1 }] }),
+          } as Response;
+        }
+
+        if (urlStr.includes('/breakpoints') && method === 'DELETE') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/threads') && method === 'GET') {
+          return await new Promise<Response>((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => reject(abortError), { once: true });
+          });
+        }
+
+        return { ok: true, status: 204 } as Response;
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('test', {
+        breakpointFile: '/my_cartridge/cartridge/controllers/Test.js',
+        timeout: 120,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Timeout waiting for script to hit breakpoint');
+    });
+
     it('should clear storefront timeout even when trigger requests fail', async () => {
       mockExists.mockResolvedValue(true);
       const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');

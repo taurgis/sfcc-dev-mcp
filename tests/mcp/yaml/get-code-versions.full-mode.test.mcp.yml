@@ -100,7 +100,7 @@ tests:
     performance:
       maxResponseTime: "2000ms"
 
-  - it: "should ignore extra parameters gracefully"
+  - it: "should reject extra parameters with validation error"
     request:
       jsonrpc: "2.0"
       id: "extra-params"
@@ -119,8 +119,8 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-          isError: false
-          structuredContent: "match:type:object"
+                text: "match:contains:is not allowed"
+          isError: true
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"

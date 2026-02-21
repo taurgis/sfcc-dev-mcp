@@ -311,17 +311,15 @@ describe('get_job_log_entries - Full Mode Programmatic Tests', () => {
     test('should handle invalid limit values', async () => {
       // Test zero limit
       const zeroResult = await client.callTool('get_job_log_entries', { limit: 0 });
-      assertErrorResponse(zeroResult, 'Invalid limit');
-      assertTextContent(zeroResult, 'Must be between 1 and 1000');
+      assertErrorResponse(zeroResult, 'limit must be >= 1');
 
       // Test negative limit  
       const negativeResult = await client.callTool('get_job_log_entries', { limit: -5 });
-      assertErrorResponse(negativeResult, 'Invalid limit');
+      assertErrorResponse(negativeResult, 'limit must be >= 1');
 
       // Test extremely large limit
       const largeResult = await client.callTool('get_job_log_entries', { limit: 10000 });
-      assertErrorResponse(largeResult, 'Invalid limit');
-      assertTextContent(largeResult, 'Must be between 1 and 1000');
+      assertErrorResponse(largeResult, 'limit must be <= 1000');
     });
 
     test('should handle invalid log level gracefully', async () => {
@@ -344,13 +342,13 @@ describe('get_job_log_entries - Full Mode Programmatic Tests', () => {
     });
 
     test('should handle edge case job names', async () => {
-      // Empty job name should be treated as no filter
+        // Empty job name is now rejected by boundary validation.
       const emptyResult = await client.callTool('get_job_log_entries', { 
         jobName: '',
         limit: 3 
       });
-      assertSuccessResponse(emptyResult);
-      assertTextContent(emptyResult, 'Latest 3 all levels messages from latest jobs:');
+        assert.equal(emptyResult.isError, true, 'Empty jobName should be rejected');
+        assertTextContent(emptyResult, 'jobName must be a non-empty string');
 
       // Special characters should be handled gracefully
       const specialResult = await client.callTool('get_job_log_entries', { 

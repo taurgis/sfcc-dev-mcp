@@ -142,7 +142,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit"
+              text: "match:contains:limit must be a number"
           isError: true
       stderr: "toBeEmpty"
     performance:

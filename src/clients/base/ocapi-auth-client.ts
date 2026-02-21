@@ -15,6 +15,7 @@ const OCAPI_AUTH_CONSTANTS = {
   DEFAULT_AUTH_URL: 'https://account.demandware.com/dwsso/oauth2/access_token',
   GRANT_TYPE: 'client_credentials',
   FORM_CONTENT_TYPE: 'application/x-www-form-urlencoded',
+  REQUEST_TIMEOUT_MS: 15000,
 } as const;
 
 /**
@@ -85,6 +86,10 @@ export class OCAPIAuthClient extends BaseHttpClient {
     // Get the appropriate auth URL (localhost for mock, production for real SFCC)
     const authUrl = this.getAuthUrl();
     this.logger.debug(`Requesting token from: ${authUrl}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort(`OAuth request timed out after ${OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS}ms`);
+    }, OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch(authUrl, {
@@ -94,6 +99,7 @@ export class OCAPIAuthClient extends BaseHttpClient {
           'Content-Type': OCAPI_AUTH_CONSTANTS.FORM_CONTENT_TYPE,
         },
         body: `grant_type=${OCAPI_AUTH_CONSTANTS.GRANT_TYPE}`,
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -109,8 +115,17 @@ export class OCAPIAuthClient extends BaseHttpClient {
 
       return tokenResponse.access_token;
     } catch (error) {
+      const isAbort = error instanceof Error && error.name === 'AbortError';
+      if (isAbort) {
+        const timeoutError = `OAuth request timed out after ${OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS}ms`;
+        this.logger.error(timeoutError);
+        throw new Error(timeoutError);
+      }
+
       this.logger.error(`Failed to get access token: ${error}`);
       throw new Error(`Failed to get access token: ${error}`);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

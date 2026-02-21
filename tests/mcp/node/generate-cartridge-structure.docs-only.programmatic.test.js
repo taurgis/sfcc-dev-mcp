@@ -349,7 +349,11 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
 
       assert.equal(result.isError, true, 'Should return error for empty cartridge name');
       assert.ok(result.content[0].text.includes('Error'), 'Error message should be present');
-      assert.ok(result.content[0].text.includes('valid identifier'), 'Should mention valid identifier requirement');
+      assert.ok(
+        result.content[0].text.includes('cartridgeName must be a non-empty string') ||
+        result.content[0].text.includes('valid identifier'),
+        'Should mention non-empty or identifier requirement',
+      );
     });
 
     test('should reject missing cartridge name', async () => {

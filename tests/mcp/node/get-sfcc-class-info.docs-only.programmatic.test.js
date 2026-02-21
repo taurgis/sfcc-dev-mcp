@@ -777,13 +777,8 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       });
       
       assertValidMCPResponse(result);
-      const classInfo = JSON.parse(result.content[0].text);
-      
-      // Empty search should return all results (no filtering)
-      assert.strictEqual(classInfo.className, 'Product');
-      assert(classInfo.description, 'Should include description with empty search');
-      assert(Array.isArray(classInfo.properties), 'Should include all properties with empty search');
-      assert(Array.isArray(classInfo.methods), 'Should include all methods with empty search');
+        assert.equal(result.isError, true, 'Empty search should fail validation');
+        assert.ok(result.content[0].text.includes('search must be a non-empty string'));
     });
   });
 

@@ -112,6 +112,7 @@ sfcc-dev-mcp/
 │   │       ├── base-handler.ts   # Abstract base handler with common functionality
 │   │       ├── abstract-client-handler.ts # Abstract handler for client-based tools
 │   │       ├── simple-client-handler.ts # Simple handler for single-client tools
+│   │       ├── lifecycle-utils.ts # Shared client lifecycle teardown utility
 │   │       ├── client-factory.ts # Centralized client creation with dependency injection
 │   │       ├── validation-helpers.ts # Common validation utilities for handlers
 │   │       ├── docs-handler.ts   # SFCC documentation tool handler
@@ -165,8 +166,10 @@ sfcc-dev-mcp/
 │   │   ├── file-system-service.ts # File system operations service
 │   │   └── path-service.ts       # Path manipulation service
 │   ├── config/                   # Configuration management
+│   │   ├── cli-options.ts        # CLI argument and env credential detection helpers
 │   │   ├── configuration-factory.ts # Config factory for different modes
-│   │   └── dw-json-loader.ts     # dw.json configuration loader
+│   │   ├── dw-json-loader.ts     # dw.json configuration loader
+│   │   └── path-security-policy.ts # Shared path allow/block policy for config and workspace roots
 │   ├── tool-configs/             # Tool configuration definitions
 │   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
 │   │   ├── code-version-tool-config.ts # Code version tools configuration
@@ -320,7 +323,9 @@ sfcc-dev-mcp/
 - Implements the Model Context Protocol specification
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
-- Applies runtime tool argument validation (required fields, type checks, and enum checks) before dispatch
+- Applies runtime tool argument validation (required fields, type checks, enum checks, numeric ranges, and string patterns/length) before dispatch
+- Enforces strict top-level unknown-argument rejection at the MCP boundary unless explicitly allowed by schema
+- Enforces call-time capability gating so unavailable tools are rejected during `tools/call`, not just hidden from `tools/list`
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
 - Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool
@@ -466,6 +471,7 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 #### **Documentation-Only Mode**
 - No SFCC credentials required
 - Access to all documentation, cartridge scaffolding, and agent-instruction tools
+- Credentialed tools are rejected at `tools/call` with a structured `TOOL_NOT_AVAILABLE` error
 - Perfect for learning and reference
 
 #### **Full Mode**

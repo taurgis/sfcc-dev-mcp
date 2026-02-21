@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { ScriptDebuggerClient } from '../clients/script-debugger/index.js';
 
 export const SCRIPT_DEBUGGER_TOOL_NAMES = ['evaluate_script'] as const;
@@ -17,37 +16,6 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
   GenericToolSpec<ToolArguments, unknown>
 > = {
   evaluate_script: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(
-        args,
-        CommonValidations.requiredString('script'),
-        toolName,
-      );
-
-      // Optional locale
-      ValidationHelpers.validateArguments(
-        args,
-        CommonValidations.optionalField(
-          'locale',
-          'string',
-          (value: unknown) => typeof value === 'string' && value.trim().length > 0,
-          'locale must be a non-empty string when provided',
-        ),
-        toolName,
-      );
-
-      // Optional breakpointLine (defaults to 1 when breakpointFile is provided)
-      ValidationHelpers.validateArguments(
-        args,
-        CommonValidations.optionalField(
-          'breakpointLine',
-          'number',
-          (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value >= 1,
-          'breakpointLine must be an integer >= 1 when provided',
-        ),
-        toolName,
-      );
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.scriptDebuggerClient as ScriptDebuggerClient;
       const result = await client.evaluateScript(args.script as string, {

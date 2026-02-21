@@ -88,7 +88,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error: Invalid limit '5'[\\s\\S]*Must be a valid number"
+              text: "match:contains:limit must be a number"
           isError: true
       stderr: "toBeEmpty"
 
@@ -109,7 +109,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error: Invalid limit '0'[\\s\\S]*Must be between 1 and 1000"
+              text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
 
@@ -130,7 +130,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Error: Invalid limit '-5'"
+              text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
 
@@ -177,6 +177,6 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:type:string"
-          isError: false
+              text: "match:contains:date must match pattern"
+          isError: true
       stderr: "toBeEmpty"

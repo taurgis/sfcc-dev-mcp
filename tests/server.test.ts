@@ -183,6 +183,42 @@ describe('SFCCDevServer', () => {
     expect(result.structuredContent).toBeUndefined();
   });
 
+  it('rejects tools that are unavailable in the current mode before handler execution', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+    };
+
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'search_logs',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: 'should not run' }],
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler({
+      params: {
+        name: 'search_logs',
+        arguments: { pattern: 'order' },
+      },
+    }) as {
+      content: Array<{ type: string; text: string }>;
+      isError: boolean;
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]?.text).toContain('Tool not available in current mode');
+    expect(mockHandler.handle).not.toHaveBeenCalled();
+  });
+
   it('rejects missing required arguments for known tools before handler execution', async () => {
     const server = new SFCCDevServer({ hostname: '' });
     const serverAny = server as unknown as {
@@ -221,11 +257,89 @@ describe('SFCCDevServer', () => {
     expect(mockHandler.handle).not.toHaveBeenCalled();
   });
 
+  it('rejects invalid enum values before handler execution for conditional tools', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+      capabilities: { canAccessLogs: boolean; canAccessOCAPI: boolean };
+    };
+
+    // Force capability on so validation can execute instead of availability guard short-circuiting.
+    serverAny.capabilities = { canAccessLogs: true, canAccessOCAPI: false };
+
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'search_logs',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: 'should not run' }],
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler({
+      params: {
+        name: 'search_logs',
+        arguments: { pattern: 'order', logLevel: 'fatal' },
+      },
+    }) as {
+      content: Array<{ type: string; text: string }>;
+      isError: boolean;
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]?.text).toContain('must be one of');
+    expect(mockHandler.handle).not.toHaveBeenCalled();
+  });
+
+  it('rejects unknown top-level arguments before handler execution', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+    };
+
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'search_sfcc_classes',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: 'should not run' }],
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler({
+      params: {
+        name: 'search_sfcc_classes',
+        arguments: { query: 'catalog', extra: true },
+      },
+    }) as {
+      content: Array<{ type: string; text: string }>;
+      isError: boolean;
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]?.text).toContain('is not allowed');
+    expect(mockHandler.handle).not.toHaveBeenCalled();
+  });
+
   it('appends preflight notice as a separate content entry without mutating tool payload text', async () => {
     const server = new SFCCDevServer({ hostname: '' });
     const serverAny = server as unknown as {
       handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
       instructionAdvisor: { getNotice: jest.Mock };
+      allToolNames: Set<string>;
+      alwaysAvailableToolNames: Set<string>;
     };
 
     const originalPayload = JSON.stringify({ ok: true, data: [1, 2, 3] });
@@ -239,6 +353,8 @@ describe('SFCCDevServer', () => {
     };
 
     serverAny.handlers = [mockHandler];
+    serverAny.allToolNames.add('mock_tool');
+    serverAny.alwaysAvailableToolNames.add('mock_tool');
     serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue('Please decide whether to install skills.') };
 
     const mockServer = getLatestMockServer();
@@ -259,6 +375,8 @@ describe('SFCCDevServer', () => {
     const serverAny = server as unknown as {
       handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
       instructionAdvisor: { getNotice: jest.Mock };
+      allToolNames: Set<string>;
+      alwaysAvailableToolNames: Set<string>;
     };
 
     const structuredPayload = { ok: true, count: 2, ids: ['a', 'b'] };
@@ -273,6 +391,8 @@ describe('SFCCDevServer', () => {
     };
 
     serverAny.handlers = [mockHandler];
+    serverAny.allToolNames.add('mock_tool');
+    serverAny.alwaysAvailableToolNames.add('mock_tool');
     serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
 
     const mockServer = getLatestMockServer();

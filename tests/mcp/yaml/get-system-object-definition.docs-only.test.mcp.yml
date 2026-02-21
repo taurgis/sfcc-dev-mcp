@@ -33,10 +33,10 @@ tests:
       stderr: "toBeEmpty"
 
 # ==================================================================================
-# AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+# TOOL AVAILABILITY ERROR TESTS (Tool Can Be Called But Returns TOOL_NOT_AVAILABLE)
 # ==================================================================================
 
-  - it: "should return authentication error when calling get_system_object_definition in docs-only mode"
+  - it: "should return tool-not-available error when calling get_system_object_definition in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-product"
@@ -52,13 +52,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for Customer object type"
+  - it: "should return tool-not-available error for Customer object type"
     request:
       jsonrpc: "2.0"
       id: "auth-error-customer"
@@ -74,11 +74,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for any object type"
+  - it: "should return tool-not-available error for any object type"
     request:
       jsonrpc: "2.0"
       id: "auth-error-any"
@@ -94,7 +94,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:full mode"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
@@ -122,7 +122,7 @@ tests:
 # PARAMETER VALIDATION IN DOCS-ONLY MODE
 # ==================================================================================
 
-  - it: "should return authentication error even with missing objectType in docs-only mode"
+  - it: "should return tool-not-available error when objectType is missing in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "docs-missing-param"
@@ -137,11 +137,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error even with invalid parameter types in docs-only mode"
+  - it: "should return tool-not-available error for invalid objectType type in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "docs-invalid-type"
@@ -157,11 +157,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return auth error for valid parameters in docs-only mode"
+  - it: "should return tool-not-available error for valid parameters in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "docs-valid-param-auth-error"
@@ -177,7 +177,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:Error:[\\s\\S]*OCAPI[\\s\\S]*configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 

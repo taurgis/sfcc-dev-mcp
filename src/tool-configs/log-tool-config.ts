@@ -1,11 +1,6 @@
 import { GenericToolSpec, ToolExecutionContext, ToolArguments } from '../core/handlers/base-handler.js';
 import {
-  ValidationHelpers,
-  CommonValidations,
-  validateLimit,
-  validateLogLevel,
   validateFilename,
-  validateMaxBytes,
   formatLogMessage,
 } from '../core/handlers/validation-helpers.js';
 import { LogToolName, getLimit } from '../utils/log-tool-constants.js';
@@ -18,13 +13,11 @@ import { LogLevel } from '../clients/logs/log-types.js';
  */
 function createLatestLogTool(
   level: LogLevel,
-  toolName: LogToolName,
 ): GenericToolSpec<ToolArguments, unknown> {
   return {
     defaults: (args: ToolArguments) => ({
       limit: getLimit(args.limit as number, 'latest'),
     }),
-    validate: (args: ToolArguments) => validateLimit(args.limit as number, toolName),
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.getLatestLogs(level, args.limit as number, args.date as string);
@@ -39,10 +32,10 @@ function createLatestLogTool(
  * Maps each tool to its validation, execution, and messaging logic
  */
 export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments, unknown>> = {
-  get_latest_error: createLatestLogTool('error', 'get_latest_error'),
-  get_latest_warn: createLatestLogTool('warn', 'get_latest_warn'),
-  get_latest_info: createLatestLogTool('info', 'get_latest_info'),
-  get_latest_debug: createLatestLogTool('debug', 'get_latest_debug'),
+  get_latest_error: createLatestLogTool('error'),
+  get_latest_warn: createLatestLogTool('warn'),
+  get_latest_info: createLatestLogTool('info'),
+  get_latest_debug: createLatestLogTool('debug'),
 
   summarize_logs: {
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
@@ -56,13 +49,6 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
     defaults: (args: ToolArguments) => ({
       limit: getLimit(args.limit as number, 'search'),
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('pattern'), toolName);
-      validateLimit(args.limit as number, toolName);
-      if (args.logLevel) {
-        validateLogLevel(args.logLevel as string, toolName);
-      }
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.searchLogs(
@@ -89,9 +75,7 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
 
   get_log_file_contents: {
     validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('filename'), toolName);
       validateFilename(args.filename as string, toolName);
-      validateMaxBytes(args.maxBytes as number, toolName);
     },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;

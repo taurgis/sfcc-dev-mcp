@@ -52,6 +52,37 @@ import { ToolArgumentValidator } from './tool-argument-validator.js';
 
 const DEFAULT_SERVER_VERSION = '0.0.0';
 
+type ToolDefinition = {
+  name: string;
+  description: string;
+  inputSchema: unknown;
+};
+
+const ALWAYS_AVAILABLE_TOOLS: ToolDefinition[] = [
+  ...AGENT_INSTRUCTION_TOOLS,
+  ...SFCC_DOCUMENTATION_TOOLS,
+  ...SFRA_DOCUMENTATION_TOOLS,
+  ...ISML_DOCUMENTATION_TOOLS,
+  ...CARTRIDGE_GENERATION_TOOLS,
+];
+
+const LOG_CAPABILITY_TOOLS: ToolDefinition[] = [
+  ...LOG_TOOLS,
+  ...JOB_LOG_TOOLS,
+  ...SCRIPT_DEBUGGER_TOOLS,
+];
+
+const OCAPI_CAPABILITY_TOOLS: ToolDefinition[] = [
+  ...SYSTEM_OBJECT_TOOLS,
+  ...CODE_VERSION_TOOLS,
+];
+
+const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
+  ...ALWAYS_AVAILABLE_TOOLS,
+  ...LOG_CAPABILITY_TOOLS,
+  ...OCAPI_CAPABILITY_TOOLS,
+];
+
 function resolveServerVersion(): string {
   try {
     const candidatePaths = new Set<string>();
@@ -80,19 +111,6 @@ function resolveServerVersion(): string {
 
 const SERVER_VERSION = resolveServerVersion();
 const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'true';
-
-const ALWAYS_AVAILABLE_TOOL_NAMES = new Set<string>([
-  ...AGENT_INSTRUCTION_TOOLS.map(tool => tool.name),
-  ...SFCC_DOCUMENTATION_TOOLS.map(tool => tool.name),
-  ...SFRA_DOCUMENTATION_TOOLS.map(tool => tool.name),
-  ...ISML_DOCUMENTATION_TOOLS.map(tool => tool.name),
-  ...CARTRIDGE_GENERATION_TOOLS.map(tool => tool.name),
-]);
-
-const TOOL_ARGUMENT_VALIDATION_EXCLUSIONS = new Set<string>([
-  'generate_cartridge_structure',
-  'get_sfcc_class_info',
-]);
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -110,6 +128,10 @@ export class SFCCDevServer {
   private readonly hasExplicitConfiguration: boolean;
   private reconfigureQueue: Promise<void> = Promise.resolve();
   private readonly toolArgumentValidator: ToolArgumentValidator;
+  private readonly allToolNames: Set<string>;
+  private readonly alwaysAvailableToolNames: Set<string>;
+  private readonly logCapabilityToolNames: Set<string>;
+  private readonly ocapiCapabilityToolNames: Set<string>;
   private shutdownPromise: Promise<void> | null = null;
   private readonly onSigInt = (): void => {
     void this.shutdown();
@@ -132,18 +154,11 @@ export class SFCCDevServer {
     this.workspaceRootsService = new WorkspaceRootsService(this.logger);
     const advisorClient = new AgentInstructionsClient(this.workspaceRootsService, Logger.getChildLogger('AgentInstructionsAdvisor'));
     this.instructionAdvisor = new InstructionAdvisor(advisorClient, this.logger);
-    this.toolArgumentValidator = new ToolArgumentValidator([
-      ...AGENT_INSTRUCTION_TOOLS,
-      ...SFCC_DOCUMENTATION_TOOLS,
-      ...SFRA_DOCUMENTATION_TOOLS,
-      ...ISML_DOCUMENTATION_TOOLS,
-      ...CARTRIDGE_GENERATION_TOOLS,
-      ...LOG_TOOLS,
-      ...JOB_LOG_TOOLS,
-      ...SYSTEM_OBJECT_TOOLS,
-      ...CODE_VERSION_TOOLS,
-      ...SCRIPT_DEBUGGER_TOOLS,
-    ]);
+    this.toolArgumentValidator = new ToolArgumentValidator(ALL_TOOL_DEFINITIONS);
+    this.allToolNames = new Set(ALL_TOOL_DEFINITIONS.map(tool => tool.name));
+    this.alwaysAvailableToolNames = new Set(ALWAYS_AVAILABLE_TOOLS.map(tool => tool.name));
+    this.logCapabilityToolNames = new Set(LOG_CAPABILITY_TOOLS.map(tool => tool.name));
+    this.ocapiCapabilityToolNames = new Set(OCAPI_CAPABILITY_TOOLS.map(tool => tool.name));
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
@@ -352,28 +367,7 @@ export class SFCCDevServer {
    */
   private setupToolHandlers(): void {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      const tools = [];
-
-      // Always available tools
-      tools.push(...AGENT_INSTRUCTION_TOOLS);
-      tools.push(...SFCC_DOCUMENTATION_TOOLS);
-      tools.push(...SFRA_DOCUMENTATION_TOOLS);
-      tools.push(...ISML_DOCUMENTATION_TOOLS);
-      tools.push(...CARTRIDGE_GENERATION_TOOLS);
-
-      // Conditional tools based on available capabilities
-      if (this.capabilities.canAccessLogs) {
-        tools.push(...LOG_TOOLS);
-        tools.push(...JOB_LOG_TOOLS);
-        tools.push(...SCRIPT_DEBUGGER_TOOLS);
-      }
-
-      if (this.capabilities.canAccessOCAPI) {
-        tools.push(...SYSTEM_OBJECT_TOOLS);
-        tools.push(...CODE_VERSION_TOOLS);
-      }
-
-      return { tools };
+      return { tools: this.getAvailableTools() };
     });
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
@@ -383,15 +377,30 @@ export class SFCCDevServer {
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
+        if (!this.allToolNames.has(name)) {
+          this.logger.error(`Unknown tool requested: ${name}`);
+          throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
+        }
+
+        if (!this.isToolAvailable(name)) {
+          throw new ValidationError(
+            `Tool not available in current mode: ${name}`,
+            'TOOL_NOT_AVAILABLE',
+            {
+              toolName: name,
+              canAccessLogs: this.capabilities.canAccessLogs,
+              canAccessOCAPI: this.capabilities.canAccessOCAPI,
+            },
+          );
+        }
+
         const handler = this.handlers.find((h) => h.canHandle(name));
         if (!handler) {
           this.logger.error(`Unknown tool requested: ${name}`);
           throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
         }
 
-        if (this.shouldValidateToolArgs(name)) {
-          this.toolArgumentValidator.validate(name, args ?? {});
-        }
+        this.toolArgumentValidator.validate(name, args ?? {});
 
         const preflightNotice = await this.instructionAdvisor.getNotice();
         const result = await handler.handle(name, args ?? {}, startTime);
@@ -401,10 +410,10 @@ export class SFCCDevServer {
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {
-          contentType: decoratedResult.content?.[0]?.type,
-          contentLength: decoratedResult.content?.[0]?.text?.length ?? 0,
-          responsePreview: decoratedResult.content?.[0]?.text?.substring(0, 200) + (decoratedResult.content?.[0]?.text?.length > 200 ? '...' : ''),
+          contentItems: decoratedResult.content?.length ?? 0,
+          contentTypes: (decoratedResult.content ?? []).map(item => item.type),
           hasStructuredContent: decoratedResult.structuredContent !== undefined,
+          isError: decoratedResult.isError ?? false,
         });
 
         return {
@@ -442,9 +451,34 @@ export class SFCCDevServer {
     });
   }
 
-  private shouldValidateToolArgs(toolName: string): boolean {
-    return ALWAYS_AVAILABLE_TOOL_NAMES.has(toolName) &&
-      !TOOL_ARGUMENT_VALIDATION_EXCLUSIONS.has(toolName);
+  private getAvailableTools(): ToolDefinition[] {
+    const tools: ToolDefinition[] = [...ALWAYS_AVAILABLE_TOOLS];
+
+    if (this.capabilities.canAccessLogs) {
+      tools.push(...LOG_CAPABILITY_TOOLS);
+    }
+
+    if (this.capabilities.canAccessOCAPI) {
+      tools.push(...OCAPI_CAPABILITY_TOOLS);
+    }
+
+    return tools;
+  }
+
+  private isToolAvailable(toolName: string): boolean {
+    if (this.alwaysAvailableToolNames.has(toolName)) {
+      return true;
+    }
+
+    if (this.logCapabilityToolNames.has(toolName)) {
+      return this.capabilities.canAccessLogs;
+    }
+
+    if (this.ocapiCapabilityToolNames.has(toolName)) {
+      return this.capabilities.canAccessOCAPI;
+    }
+
+    return false;
   }
 
   private createStructuredError(toolName: string, error: unknown): {

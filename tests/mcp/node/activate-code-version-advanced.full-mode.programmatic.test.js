@@ -597,16 +597,13 @@ describe('activate_code_version Advanced Programmatic Tests (Full Mode)', () => 
         assert.ok(result.content, `${paramTest.name}: Should return content`);
         assert.equal(typeof result.isError, 'boolean', `${paramTest.name}: Should return boolean isError`);
         
-        if (paramTest.name === 'Extra parameters') {
-          // Extra parameters might be acceptable if codeVersionId is valid string
-          // We expect error because version doesn't exist, not parameter error
-          assert.ok(
-            result.content[0].text.includes('404') || 
-            result.content[0].text.includes('not found') ||
-            result.content[0].text.includes('codeVersionId must be a non-empty string'),
-            `${paramTest.name}: Should handle extra parameters gracefully`
-          );
-        } else {
+          if (paramTest.name === 'Extra parameters') {
+            assert.equal(result.isError, true, `${paramTest.name}: Should fail validation`);
+            assert.ok(
+              result.content[0].text.includes('is not allowed'),
+              `${paramTest.name}: Should reject unknown parameters`
+            );
+          } else {
           // Other cases should fail parameter validation
           assert.equal(result.isError, true, `${paramTest.name}: Should fail validation`);
         }

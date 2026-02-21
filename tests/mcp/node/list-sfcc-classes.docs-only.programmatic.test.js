@@ -232,7 +232,7 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       assert.ok(classArray.length > 0, 'Class array should not be empty');
     });
 
-    test('should ignore additional parameters gracefully', async () => {
+      test('should reject additional parameters with validation error', async () => {
       const result = await client.callTool('list_sfcc_classes', {
         unexpectedParam: 'should be ignored',
         anotherParam: 123,
@@ -240,12 +240,8 @@ describe('list_sfcc_classes Programmatic Tests', () => {
       });
       
       assertValidMCPResponse(result);
-      assert.equal(result.isError, false, 'Should handle extra params gracefully');
-      
-      // Result should be identical to empty params call
-      const baselineResult = await client.callTool('list_sfcc_classes', {});
-      assert.equal(result.content[0].text, baselineResult.content[0].text, 
-        'Result should be identical regardless of extra params');
+        assert.equal(result.isError, true, 'Should reject extra params');
+        assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
     });
   });
 

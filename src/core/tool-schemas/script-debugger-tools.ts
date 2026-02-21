@@ -55,16 +55,20 @@ Examples:
           type: 'number',
           description: 'Maximum time in milliseconds to wait for script execution (default: 30000). Increase for complex scripts.',
           default: 30000,
+          minimum: 1,
+          maximum: 300000,
         },
         siteId: {
           type: 'string',
           description: 'The site ID to execute the script against (e.g., "RefArch", "RefArchGlobal").',
           default: 'RefArch',
+          minLength: 1,
         },
         locale: {
           type: 'string',
           description: 'Storefront locale segment to use when triggering the Default-Start request (default: "default"). If the instance supports locale-less trigger, it will be tried first and locale will be used as fallback.',
           default: 'default',
+          minLength: 1,
         },
         breakpointFile: {
           type: 'string',
@@ -73,8 +77,9 @@ Format: /{cartridge}/cartridge/controllers/{Controller}.js
 Example: "/app_storefront_base/cartridge/controllers/Default.js"`,
         },
         breakpointLine: {
-          type: 'number',
+          type: 'integer',
           description: 'Optional: Specific line number for a single breakpoint. If omitted, breakpoints are set on strategic lines (1, 10, 20, 30, 40, 50) to catch executable code.',
+          minimum: 1,
         },
       },
       required: ['script'],

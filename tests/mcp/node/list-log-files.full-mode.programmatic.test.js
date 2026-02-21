@@ -25,7 +25,6 @@ describe('list_log_files - Full Mode Programmatic Tests - Optimized', () => {
     assert.ok(result.content, 'Should have content');
     assert.ok(Array.isArray(result.content), 'Content should be array');
     assert.equal(typeof result.isError, 'boolean', 'isError should be boolean');
-    assert.equal(result.isError, false, 'Should not be an error response');
     assert.equal(result.content[0].type, 'text');
   }
 
@@ -82,17 +81,23 @@ describe('list_log_files - Full Mode Programmatic Tests - Optimized', () => {
     test('should handle various parameter scenarios gracefully', async () => {
       // Test multiple parameter scenarios in one test
       const scenarios = [
-        {},  // Empty object
-        { unknownParam: 'value', anotherParam: 123 },  // Unknown parameters
-        { param: null },  // Null values
-        { param: '' }     // Empty strings
+          { params: {}, shouldError: false },
+          { params: { unknownParam: 'value', anotherParam: 123 }, shouldError: true },
+          { params: { param: null }, shouldError: true },
+          { params: { param: '' }, shouldError: true },
       ];
       
-      for (const params of scenarios) {
-        const result = await client.callTool('list_log_files', params);
+        for (const { params, shouldError } of scenarios) {
+          const result = await client.callTool('list_log_files', params);
         assertValidMCPResponse(result);
-        assert.ok(result.content[0].text.includes('Available log files:'),
-          `Should work with params: ${JSON.stringify(params)}`);
+          if (shouldError) {
+            assert.equal(result.isError, true, `Should reject params: ${JSON.stringify(params)}`);
+            assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
+          } else {
+            assert.equal(result.isError, false, `Should succeed with params: ${JSON.stringify(params)}`);
+            assert.ok(result.content[0].text.includes('Available log files:'),
+              `Should work with params: ${JSON.stringify(params)}`);
+          }
       }
     });
   });

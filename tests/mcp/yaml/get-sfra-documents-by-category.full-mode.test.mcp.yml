@@ -245,7 +245,7 @@ tests:
 # EDGE CASES - INVALID/EMPTY CATEGORIES
 # ==================================================================================
 
-  - it: "should handle invalid category gracefully"
+  - it: "should reject invalid category with validation error"
     request:
       jsonrpc: "2.0"
       id: "invalid-category-1"
@@ -261,8 +261,8 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"  # Empty array for invalid category
-          isError: false
+              text: "match:contains:category must be one of"
+          isError: true
       stderr: "toBeEmpty"
 
   - it: "should handle empty category gracefully"
@@ -466,7 +466,7 @@ tests:
 # CASE SENSITIVITY TESTING
 # ==================================================================================
 
-  - it: "should handle uppercase category names"
+  - it: "should reject uppercase category names"
     request:
       jsonrpc: "2.0"
       id: "case-upper-1"
@@ -482,11 +482,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"  # Expect empty array for case mismatch
-          isError: false
+              text: "match:contains:category must be one of"
+          isError: true
       stderr: "toBeEmpty"
 
-  - it: "should handle mixed case category names"
+  - it: "should reject mixed case category names"
     request:
       jsonrpc: "2.0"
       id: "case-mixed-1"
@@ -502,6 +502,6 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:^\\[\\s*\\]$"  # Expect empty array for case mismatch
-          isError: false
+              text: "match:contains:category must be one of"
+          isError: true
       stderr: "toBeEmpty"

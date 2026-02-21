@@ -95,18 +95,18 @@ describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
 
   // Parameter validation tests (core error handling)
   describe('Parameter Validation', () => {
-    test('should reject invalid limit types and values', async () => {
+      test('should reject invalid limit types and values', async () => {
       // Test string limit
       const stringResult = await client.callTool('get_latest_error', { limit: '5' });
-      assertErrorResponse(stringResult, 'Invalid limit \'5\' for get_latest_error. Must be a valid number');
+        assertErrorResponse(stringResult, 'limit must be a number');
       
       // Test zero limit
       const zeroResult = await client.callTool('get_latest_error', { limit: 0 });
-      assertErrorResponse(zeroResult, 'Invalid limit \'0\' for get_latest_error');
+        assertErrorResponse(zeroResult, 'limit must be >= 1');
       
       // Test negative limit
       const negativeResult = await client.callTool('get_latest_error', { limit: -5 });
-      assertErrorResponse(negativeResult, 'Invalid limit');
+        assertErrorResponse(negativeResult, 'limit must be >= 1');
     });
 
     test('should handle large limits appropriately', async () => {
@@ -115,7 +115,7 @@ describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
       
       // Test extremely large limit (should error)
       const hugeResult = await client.callTool('get_latest_error', { limit: 9999 });
-      assertErrorResponse(hugeResult, 'Invalid limit');
+        assertErrorResponse(hugeResult, 'limit must be <= 1000');
     });
 
     test('should handle date parameters gracefully', async () => {
@@ -195,7 +195,7 @@ describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
     test('should handle error scenarios and recover properly', async () => {
       // Test invalid parameter
       const invalidResult = await client.callTool('get_latest_error', { limit: 0 });
-      assertErrorResponse(invalidResult, 'Invalid limit');
+        assertErrorResponse(invalidResult, 'limit must be >= 1');
       
       // Test recovery with valid parameters
       const validResult = await client.callTool('get_latest_error', { limit: 1 });

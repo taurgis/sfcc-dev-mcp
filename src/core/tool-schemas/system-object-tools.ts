@@ -55,7 +55,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
   {
@@ -91,7 +91,7 @@ export const SYSTEM_OBJECT_TOOLS = [
           },
         },
       },
-      required: ['groupId', 'instanceType', 'searchRequest'],
+      required: ['groupId'],
     },
   },
   {
@@ -106,7 +106,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute groups'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
   {
@@ -121,7 +121,7 @@ export const SYSTEM_OBJECT_TOOLS = [
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
 ];

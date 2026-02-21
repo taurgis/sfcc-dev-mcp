@@ -91,7 +91,7 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:Error: jobName must be a non-empty string"
+                text: "match:contains:jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -116,7 +116,7 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:Error: jobName must be a non-empty string"
+                text: "match:contains:jobName must be a non-empty string"
           isError: true
       stderr: "toBeEmpty"
     performance:

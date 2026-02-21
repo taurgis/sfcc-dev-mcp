@@ -224,16 +224,24 @@ describe('LogToolHandler', () => {
       expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs level=all limit=20 pattern="test"');
     });
 
-    it('should throw error when pattern is missing', async () => {
+    it('should not enforce required pattern in handler (validated at MCP boundary)', async () => {
+      const mockResults = JSON.stringify({ results: [], total: 0 });
+      mockLogClient.searchLogs.mockResolvedValue(mockResults);
+
       const result = await handler.handle('search_logs', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('pattern must be a non-empty string');
+
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchLogs).toHaveBeenCalledWith(undefined, undefined, 20, undefined);
     });
 
-    it('should throw error when pattern is empty', async () => {
+    it('should allow empty pattern in handler (validated at MCP boundary)', async () => {
+      const mockResults = JSON.stringify({ results: [], total: 0 });
+      mockLogClient.searchLogs.mockResolvedValue(mockResults);
+
       const result = await handler.handle('search_logs', { pattern: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('pattern must be a non-empty string');
+
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchLogs).toHaveBeenCalledWith('', undefined, 20, undefined);
     });
   });
 
@@ -287,14 +295,14 @@ describe('LogToolHandler', () => {
       const result = await handler.handle('get_log_file_contents', {}, Date.now());
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('filename must be a non-empty string');
+      expect(result.content[0].text).toContain('Filename is required for get_log_file_contents');
     });
 
     it('should handle empty filename', async () => {
       const result = await handler.handle('get_log_file_contents', { filename: '' }, Date.now());
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('filename must be a non-empty string');
+      expect(result.content[0].text).toContain('Filename is required for get_log_file_contents');
     });
   });
 

@@ -310,7 +310,7 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should ignore invalid parameters and return normal result"
+  - it: "should reject invalid parameters with validation error"
     request:
       jsonrpc: "2.0"
       id: "test-17"
@@ -327,8 +327,8 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:\"name\": \"core\""
-          isError: false
+              text: "match:contains:is not allowed"
+          isError: true
       stderr: "toBeEmpty"
 
   # Warm-up for performance tests (reduces cold-start variance)

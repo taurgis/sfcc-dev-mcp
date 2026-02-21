@@ -95,7 +95,7 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:Invalid log level"
+                text: "match:contains:logLevel must be one of"
           isError: true
       stderr: "toBeEmpty"
     performance:
@@ -121,7 +121,7 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:Invalid limit"
+                text: "match:contains:limit must be >= 1"
           isError: true
       stderr: "toBeEmpty"
     performance:

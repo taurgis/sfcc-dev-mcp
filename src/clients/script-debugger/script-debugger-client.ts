@@ -28,6 +28,9 @@ const POLL_INTERVAL_MS = 500;
 /** Timeout for the storefront trigger request (short - we expect it to hang at breakpoint) */
 const TRIGGER_TIMEOUT_MS = 10000;
 
+/** Timeout for individual Script Debugger API calls */
+const DEBUGGER_REQUEST_TIMEOUT_MS = 10000;
+
 /**
  * Result of a script evaluation
  */
@@ -390,8 +393,13 @@ export class ScriptDebuggerClient {
     method: string,
     endpoint: string,
     body?: unknown,
+    timeoutMs: number = DEBUGGER_REQUEST_TIMEOUT_MS,
   ): Promise<T> {
     const url = `${this.debuggerBaseUrl}${endpoint}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort(`Debugger API request timed out after ${timeoutMs}ms`);
+    }, timeoutMs);
 
     this.logger.debug(`Debugger API ${method} ${endpoint}`);
 
@@ -402,13 +410,26 @@ export class ScriptDebuggerClient {
         'x-dw-client-id': this.debuggerClientId,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
     };
 
     if (body) {
       options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(url, options);
+    let response: Response;
+    try {
+      response = await fetch(url, options);
+    } catch (error) {
+      const isAbort = error instanceof Error && error.name === 'AbortError';
+      if (isAbort) {
+        throw new Error(`Debugger API request timed out after ${timeoutMs}ms: ${method} ${endpoint}`);
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     // 204 No Content is success for some operations
     if (response.status === 204) {
@@ -609,8 +630,18 @@ export class ScriptDebuggerClient {
     this.logger.debug('Waiting for halted thread', { timeout });
 
     while (Date.now() - startTime < timeout) {
+      const remainingTimeout = timeout - (Date.now() - startTime);
+      if (remainingTimeout <= 0) {
+        break;
+      }
+
       try {
-        const response = await this.debuggerRequest<ThreadsResponse>('GET', '/threads');
+        const response = await this.debuggerRequest<ThreadsResponse>(
+          'GET',
+          '/threads',
+          undefined,
+          Math.min(DEBUGGER_REQUEST_TIMEOUT_MS, remainingTimeout),
+        );
 
         if (response.script_threads && response.script_threads.length > 0) {
           const haltedThread = response.script_threads.find((t) => t.status === 'halted');

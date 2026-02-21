@@ -28,6 +28,7 @@ import { fileURLToPath } from 'url';
 import { Logger } from '../utils/logger.js';
 import { DwJsonConfig } from '../types/types.js';
 import { loadSecureDwJson } from './dw-json-loader.js';
+import { isAllowedResolvedPath, isBlockedResolvedPath } from './path-security-policy.js';
 
 /**
  * MCP client root from roots/list response
@@ -76,60 +77,6 @@ interface ValidationResult {
   resolvedPath?: string;
 }
 
-/**
- * Dangerous system paths that should never be accessed
- * These are blocked to prevent accidental or malicious access to sensitive areas
- */
-const BLOCKED_SYSTEM_PATHS: readonly string[] = [
-  '/etc',
-  '/proc',
-  '/sys',
-  '/dev',
-  '/root',
-  '/var/log',
-  '/var/run',
-  '/boot',
-  '/sbin',
-  '/bin',
-  // Windows system paths
-  'C:\\Windows',
-  'C:\\Program Files',
-  'C:\\ProgramData',
-] as const;
-
-/**
- * Sensitive directory segments that must be blocked even under otherwise
- * allowed roots (for example /Users/<user>/.ssh).
- */
-const BLOCKED_SENSITIVE_SEGMENT_PATTERNS: readonly RegExp[] = [
-  /(^|[\\/])\.ssh([\\/]|$)/i,
-  /(^|[\\/])\.gnupg([\\/]|$)/i,
-  /(^|[\\/])\.aws([\\/]|$)/i,
-  /(^|[\\/])\.config[\\/]gcloud([\\/]|$)/i,
-] as const;
-
-/**
- * Allowed path prefixes for workspace roots
- * These are the typical locations where development projects reside
- */
-const ALLOWED_PATH_PATTERNS: readonly RegExp[] = [
-  // User home directories
-  /^\/Users\/[^/]+\//i, // macOS
-  /^\/home\/[^/]+\//i, // Linux (allow all users, not just runner)
-  /^C:\\Users\\[^\\]+\\/i, // Windows
-  // Common project directories
-  /^\/opt\//i,
-  /^\/var\/www\//i,
-  /^\/srv\//i,
-  // Temp directories (for testing)
-  /^\/tmp\//i,
-  /^\/private\/tmp\//i, // macOS real temp path
-  /^\/var\/folders\//i, // macOS temp
-  /^\/private\/var\/folders\//i, // macOS real temp path (symlink resolved)
-  /^C:\\Temp\\/i, // Windows temp
-  // CI workspace paths
-  /^\/home\/runner\/work\//i, // GitHub Actions
-] as const;
 
 /**
  * Validates that a file URI is safe and converts it to an absolute path
@@ -191,13 +138,12 @@ function validatePath(inputPath: string): ValidationResult {
   }
 
   // Check against blocked system paths and sensitive directory segments
-  if (isBlockedPath(resolvedPath)) {
+  if (isBlockedResolvedPath(resolvedPath)) {
     return { isValid: false, error: 'Access to system directories is not allowed' };
   }
 
   // Check that path matches allowed patterns
-  const matchesAllowed = ALLOWED_PATH_PATTERNS.some(pattern => pattern.test(resolvedPath));
-  if (!matchesAllowed) {
+  if (!isAllowedResolvedPath(resolvedPath)) {
     return {
       isValid: false,
       error: 'Path is outside of allowed workspace directories',
@@ -236,26 +182,6 @@ function validatePath(inputPath: string): ValidationResult {
   }
 
   return { isValid: true, resolvedPath };
-}
-
-/**
- * Determine whether a resolved absolute path should be blocked.
- */
-function isBlockedPath(resolvedPath: string): boolean {
-  const lowerPath = resolvedPath.toLowerCase();
-
-  for (const blocked of BLOCKED_SYSTEM_PATHS) {
-    const blockedLower = blocked.toLowerCase();
-    if (
-      lowerPath === blockedLower ||
-      lowerPath.startsWith(`${blockedLower}/`) ||
-      lowerPath.startsWith(`${blockedLower}\\`)
-    ) {
-      return true;
-    }
-  }
-
-  return BLOCKED_SENSITIVE_SEGMENT_PATTERNS.some(pattern => pattern.test(resolvedPath));
 }
 
 /**

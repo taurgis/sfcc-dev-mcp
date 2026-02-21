@@ -11,7 +11,7 @@
 # aegis query search_system_object_attribute_groups '{"objectType": "Product", "searchRequest": {"query": {"match_all_query": {}}, "count": 3}}' --config "aegis.config.docs-only.json"
 # ==================================================================================
 
-description: "search_system_object_attribute_groups tool tests - Docs-only mode tool availability and authentication errors"
+description: "search_system_object_attribute_groups tool tests - Docs-only mode tool availability and tool-not-available errors"
 
 # ==================================================================================
 # TOOL UNAVAILABILITY IN DOCS-ONLY MODE
@@ -33,10 +33,10 @@ tests:
       stderr: "toBeEmpty"
 
 # ==================================================================================
-# AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+# TOOL AVAILABILITY ERROR TESTS (Tool Can Be Called But Is Unavailable)
 # ==================================================================================
 
-  - it: "should return authentication error when calling search_system_object_attribute_groups in docs-only mode"
+  - it: "should return tool-not-available error when calling search_system_object_attribute_groups in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-product"
@@ -56,13 +56,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for SitePreferences object type"
+  - it: "should return tool-not-available error for SitePreferences object type"
     request:
       jsonrpc: "2.0"
       id: "auth-error-siteprefs"
@@ -82,11 +82,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for Customer object type"
+  - it: "should return tool-not-available error for Customer object type"
     request:
       jsonrpc: "2.0"
       id: "auth-error-customer"
@@ -108,11 +108,11 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:full mode"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for any object type with complex query"
+  - it: "should return tool-not-available error for any object type with complex query"
     request:
       jsonrpc: "2.0"
       id: "auth-error-complex"
@@ -139,7 +139,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       stderr: "toBeEmpty"
 
@@ -147,7 +147,7 @@ tests:
   # BEHAVIOR VALIDATION IN DOCS-ONLY MODE
   # ==================================================================================
 
-  - it: "should return authentication error even for missing objectType parameter in docs-only mode"
+  - it: "should return tool-not-available error for missing objectType parameter in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "validation-missing-object-type"
@@ -166,13 +166,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error even for empty objectType parameter in docs-only mode"
+  - it: "should return tool-not-available error for empty objectType parameter in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "validation-empty-object-type"
@@ -192,13 +192,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error even for missing searchRequest parameter in docs-only mode"
+  - it: "should return tool-not-available error even for missing searchRequest parameter in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "validation-missing-search-request"
@@ -214,7 +214,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:full mode"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "500ms"
@@ -224,7 +224,7 @@ tests:
   # PERFORMANCE VALIDATION IN DOCS-ONLY MODE
   # ==================================================================================
 
-  - it: "should return authentication errors quickly in docs-only mode"
+  - it: "should return tool-not-available errors quickly in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "performance-auth-error"
@@ -244,13 +244,13 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "400ms"
       stderr: "toBeEmpty"
 
-  - it: "should handle authentication errors quickly even with missing parameters in docs-only mode"
+  - it: "should handle tool-not-available errors quickly with missing required parameters in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "performance-validation"
@@ -271,7 +271,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
       performance:
         maxResponseTime: "300ms"
