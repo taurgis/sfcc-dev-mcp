@@ -55,6 +55,7 @@ tests:
             - type: "text"
               text: "match:contains:Product"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "800ms"
       stderr: "toBeEmpty"
@@ -77,6 +78,7 @@ tests:
             - type: "text"
               text: "match:contains:Customer"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return valid JSON structure with required SFCC metadata"
@@ -97,6 +99,7 @@ tests:
             - type: "text"
               text: "match:regex:^\\{[\\s\\S]*object_type_definition[\\s\\S]*\\}$"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -162,6 +165,7 @@ tests:
             - type: "text"
               text: "match:contains:UnknownObject"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "600ms"
       stderr: "toBeEmpty"

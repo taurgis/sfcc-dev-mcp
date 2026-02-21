@@ -69,6 +69,7 @@ tests:
               type: "text"
               text: "match:regex:[\\s\\S]*code_version_result[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -94,6 +95,7 @@ tests:
               match:partial:
                 type: "text"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -118,6 +120,7 @@ tests:
               match:partial:
                 type: "text"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -143,6 +146,7 @@ tests:
               type: "text"
               text: "match:regex:[\\s\\S]*\\{[\\s\\S]*\\}[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include essential code version fields"
@@ -163,6 +167,7 @@ tests:
               type: "text"
               text: "match:regex:[\\s\\S]*_type[\\s\\S]*code_version_result[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include data array with code version objects"
@@ -183,6 +188,7 @@ tests:
               type: "text"
               text: "match:regex:[\\s\\S]*data[\\s\\S]*\\[[\\s\\S]*\\][\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include code version metadata"
@@ -203,6 +209,7 @@ tests:
               type: "text"
               text: "match:regex:[\\s\\S]*(?:id)[\\s\\S]*(?:active)[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -226,6 +233,7 @@ tests:
               match:partial:
                 type: "text"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -248,6 +256,7 @@ tests:
               match:partial:
                 type: "text"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"

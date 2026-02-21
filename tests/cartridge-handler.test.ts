@@ -20,6 +20,15 @@ describe('CartridgeToolHandler', () => {
   let context: HandlerContext;
   let handler: CartridgeToolHandler;
 
+  const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
+    const text = result.content[0]?.text;
+    if (typeof text === 'string') {
+      return text;
+    }
+
+    return JSON.stringify(result.structuredContent ?? {});
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: jest.fn(),
@@ -113,7 +122,7 @@ describe('CartridgeToolHandler', () => {
         targetPath: undefined,
         fullProjectSetup: true,
       });
-      expect(result.content[0].text).toContain('plugin_example');
+      expect(getResultText(result)).toContain('plugin_example');
     });
 
     it('should handle generate_cartridge_structure with all options', async () => {
@@ -138,7 +147,7 @@ describe('CartridgeToolHandler', () => {
         targetPath: '/custom/path',
         fullProjectSetup: false,
       });
-      expect(result.content[0].text).toContain('custom_cartridge');
+      expect(getResultText(result)).toContain('custom_cartridge');
     });
 
     it('should use default fullProjectSetup when not provided', async () => {
@@ -164,19 +173,19 @@ describe('CartridgeToolHandler', () => {
     it('should throw error when cartridgeName is missing', async () => {
       const result = await handler.handle('generate_cartridge_structure', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
     });
 
     it('should throw error when cartridgeName is empty', async () => {
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: '' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
     });
 
     it('should throw error when cartridgeName is not a string', async () => {
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: 123 }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
     });
   });
 
@@ -190,7 +199,7 @@ describe('CartridgeToolHandler', () => {
 
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: 'existing_cartridge' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Directory already exists');
+      expect(getResultText(result)).toContain('Directory already exists');
     });
 
     it('should throw error for unsupported tools', async () => {

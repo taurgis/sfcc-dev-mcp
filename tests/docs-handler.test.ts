@@ -21,6 +21,15 @@ describe('DocsToolHandler', () => {
   let context: HandlerContext;
   let handler: DocsToolHandler;
 
+  const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
+    const text = result.content[0]?.text;
+    if (typeof text === 'string') {
+      return text;
+    }
+
+    return JSON.stringify(result.structuredContent ?? {});
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: jest.fn(),
@@ -122,8 +131,8 @@ describe('DocsToolHandler', () => {
         includeInheritance: true,
         search: undefined,
       });
-      expect(result.content[0].text).toContain('Product');
-      expect(result.content[0].text).toContain('Product class description');
+      expect(getResultText(result)).toContain('Product');
+      expect(getResultText(result)).toContain('Product class description');
     });
 
     it('should handle get_sfcc_class_info with default expand', async () => {
@@ -143,7 +152,7 @@ describe('DocsToolHandler', () => {
     it('should throw error when className is missing', async () => {
       const result = await handler.handle('get_sfcc_class_info', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('className must be a non-empty string');
+      expect(getResultText(result)).toContain('className must be a non-empty string');
     });
 
     it('should handle get_sfcc_class_info with filtering options', async () => {
@@ -165,7 +174,7 @@ describe('DocsToolHandler', () => {
         includeInheritance: false,
         search: undefined,
       });
-      expect(result.content[0].text).toContain('Product');
+      expect(getResultText(result)).toContain('Product');
     });
 
     it('should handle get_sfcc_class_info with search parameter', async () => {
@@ -180,7 +189,7 @@ describe('DocsToolHandler', () => {
         includeInheritance: true,
         search: 'image',
       });
-      expect(result.content[0].text).toContain('Product');
+      expect(getResultText(result)).toContain('Product');
     });
 
     it('should handle get_sfcc_class_info with combined filtering and search', async () => {
@@ -202,7 +211,7 @@ describe('DocsToolHandler', () => {
         includeInheritance: true,
         search: 'price',
       });
-      expect(result.content[0].text).toContain('Product');
+      expect(getResultText(result)).toContain('Product');
     });
   });
 
@@ -218,8 +227,8 @@ describe('DocsToolHandler', () => {
       const result = await handler.handle('list_sfcc_classes', {}, Date.now());
 
       expect(mockDocsClient.getAvailableClasses).toHaveBeenCalled();
-      expect(result.content[0].text).toContain('Product');
-      expect(result.content[0].text).toContain('Customer');
+      expect(getResultText(result)).toContain('Product');
+      expect(getResultText(result)).toContain('Customer');
     });
   });
 
@@ -236,20 +245,20 @@ describe('DocsToolHandler', () => {
       const result = await handler.handle('search_sfcc_classes', args, Date.now());
 
       expect(mockDocsClient.searchClasses).toHaveBeenCalledWith('product');
-      expect(result.content[0].text).toContain('Product');
-      expect(result.content[0].text).toContain('ProductSearchModel');
+      expect(getResultText(result)).toContain('Product');
+      expect(getResultText(result)).toContain('ProductSearchModel');
     });
 
     it('should throw error when query is missing', async () => {
       const result = await handler.handle('search_sfcc_classes', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('query must be a non-empty string');
+      expect(getResultText(result)).toContain('query must be a non-empty string');
     });
 
     it('should throw error when query is empty', async () => {
       const result = await handler.handle('search_sfcc_classes', { query: '' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('query must be a non-empty string');
+      expect(getResultText(result)).toContain('query must be a non-empty string');
     });
   });
 
@@ -281,14 +290,14 @@ describe('DocsToolHandler', () => {
       const result = await handler.handle('search_sfcc_methods', args, Date.now());
 
       expect(mockDocsClient.searchMethods).toHaveBeenCalledWith('getID');
-      expect(result.content[0].text).toContain('getID');
-      expect(result.content[0].text).toContain('Product');
+      expect(getResultText(result)).toContain('getID');
+      expect(getResultText(result)).toContain('Product');
     });
 
     it('should throw error when methodName is missing', async () => {
       const result = await handler.handle('search_sfcc_methods', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('methodName must be a non-empty string');
+      expect(getResultText(result)).toContain('methodName must be a non-empty string');
     });
   });
 
@@ -305,13 +314,13 @@ describe('DocsToolHandler', () => {
       const result = await handler.handle('get_sfcc_class_documentation', args, Date.now());
 
       expect(mockDocsClient.getClassDocumentation).toHaveBeenCalledWith('Product');
-      expect(result.content[0].text).toContain('Detailed documentation');
+      expect(getResultText(result)).toContain('Detailed documentation');
     });
 
     it('should throw error when className is missing', async () => {
       const result = await handler.handle('get_sfcc_class_documentation', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('className must be a non-empty string');
+      expect(getResultText(result)).toContain('className must be a non-empty string');
     });
   });
 
@@ -325,7 +334,7 @@ describe('DocsToolHandler', () => {
 
       const result = await handler.handle('get_sfcc_class_info', { className: 'UnknownClass' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Documentation not found');
+      expect(getResultText(result)).toContain('Documentation not found');
     });
 
     it('should throw error for unsupported tools', async () => {

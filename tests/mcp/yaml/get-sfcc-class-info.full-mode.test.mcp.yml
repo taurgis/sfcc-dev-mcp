@@ -101,6 +101,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return JSON structure for dw.catalog.Product"
@@ -121,6 +122,7 @@ tests:
             - type: "text"
               text: "match:regex:\\{[\\s\\S]*\\}"  # Valid JSON structure
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include required class information in JSON response"
@@ -141,6 +143,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include packageName in response"
@@ -161,6 +164,7 @@ tests:
             - type: "text"
               text: "match:contains:packageName"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include description in response"
@@ -181,6 +185,7 @@ tests:
             - type: "text"
               text: "match:contains:description"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include methods in response"
@@ -201,6 +206,7 @@ tests:
             - type: "text"
               text: "match:contains:methods"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include properties in response"
@@ -221,6 +227,7 @@ tests:
             - type: "text"
               text: "match:contains:properties"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should have inheritance chain information"
@@ -241,6 +248,7 @@ tests:
             - type: "text"
               text: "match:contains:inheritance"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -265,6 +273,7 @@ tests:
             - type: "text"
               text: "match:contains:ProductVariationModel"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should work with short class names"
@@ -285,6 +294,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should work with TopLevel classes"
@@ -305,6 +315,7 @@ tests:
             - type: "text"
               text: "match:contains:Number"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -330,6 +341,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should work with expand parameter set to true"
@@ -351,6 +363,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -375,6 +388,7 @@ tests:
             - type: "text"
               text: "match:contains:dw.catalog"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return methods array for classes with methods"
@@ -395,6 +409,7 @@ tests:
             - type: "text"
               text: "match:regex:\"methods\"\\s*:\\s*\\["
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return properties array for classes with properties"
@@ -415,6 +430,7 @@ tests:
             - type: "text"
               text: "match:regex:\"properties\"\\s*:\\s*\\["
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include method signatures"
@@ -435,6 +451,7 @@ tests:
             - type: "text"
               text: "match:contains:signature"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -460,6 +477,7 @@ tests:
             - type: "text"
               text: "match:contains:dw.catalog.Product"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should get class info with expand enabled"
@@ -481,6 +499,7 @@ tests:
             - type: "text"
               text: "match:contains:dw.catalog.Catalog"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should filter out description when includeDescription is false"
@@ -502,6 +521,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should filter out constants when includeConstants is false"
@@ -523,6 +543,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should filter out properties when includeProperties is false"
@@ -544,6 +565,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should filter out methods when includeMethods is false"
@@ -565,6 +587,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should filter out inheritance when includeInheritance is false"
@@ -586,6 +609,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should apply multiple filters together (minimal response)"
@@ -611,6 +635,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should search within class info using search parameter"
@@ -632,6 +657,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should combine filtering with search functionality"
@@ -656,6 +682,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle class name without dw prefix"
@@ -676,6 +703,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle System class with all filters enabled"
@@ -702,6 +730,7 @@ tests:
             - type: "text"
               text: "match:contains:dw.system.System"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle Customer class with case-insensitive search"
@@ -723,6 +752,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle search with no matches gracefully"
@@ -744,6 +774,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -853,6 +884,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return single content item for successful calls"
@@ -871,6 +903,7 @@ tests:
         result:
           content: "match:arrayLength:1"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should not set isError flag for successful responses"
@@ -889,6 +922,7 @@ tests:
         result:
           content: "match:type:array"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -913,6 +947,7 @@ tests:
             - type: "text"
               text: "match:regex:\"methods\"[\\s\\S]*getID[\\s\\S]*getName"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle classes with variation models"
@@ -933,6 +968,7 @@ tests:
             - type: "text"
               text: "match:contains:ProductVariationModel"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle inventory-related classes"
@@ -953,6 +989,7 @@ tests:
             - type: "text"
               text: "match:contains:ProductInventoryList"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -977,6 +1014,7 @@ tests:
             - type: "text"
               text: "match:contains:Catalog"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should respond consistently for repeated calls (second time)"
@@ -997,6 +1035,7 @@ tests:
             - type: "text"
               text: "match:contains:Catalog"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle case sensitivity properly"
@@ -1041,6 +1080,7 @@ tests:
             - type: "text"
               text: "match:contains:Catalog"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "150ms"  # Documentation lookup should be very fast
       stderr: "toBeEmpty"
@@ -1064,6 +1104,7 @@ tests:
             - type: "text"
               text: "match:contains:Product"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "100ms"  # Even expanded info should be under 100ms
       stderr: "toBeEmpty"
@@ -1087,6 +1128,7 @@ tests:
             - type: "text"
               text: "match:contains:Site"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "100ms"  # Large classes should still be under 100ms
       stderr: "toBeEmpty"
@@ -1109,6 +1151,7 @@ tests:
             - type: "text"
               text: "match:contains:Customer"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "100ms"  # Standard class lookup should be under 100ms
       stderr: "toBeEmpty"
@@ -1132,6 +1175,7 @@ tests:
             - type: "text"
               text: "match:contains:Order"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "150ms"  # Basic order class lookup should be under 100ms
       stderr: "toBeEmpty"
@@ -1220,6 +1264,7 @@ tests:
             - type: "text"
               text: "match:contains:Catalog"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "150ms"  # Cached responses should be extremely fast
       stderr: "toBeEmpty"

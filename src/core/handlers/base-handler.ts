@@ -15,7 +15,12 @@ export interface HandlerContext {
 
 export interface ToolExecutionResult {
   content: Array<{ type: 'text'; text: string }>;
+  structuredContent?: Record<string, unknown>;
   isError?: boolean;
+}
+
+function isStructuredContentRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 export interface ToolArguments {
@@ -142,12 +147,23 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
   }
 
   protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
+    const structuredContent = isStructuredContentRecord(data) ? data : undefined;
+
+    if (structuredContent) {
+      return {
+        content: [],
+        structuredContent,
+        isError: false,
+      };
+    }
+
     const text = stringify
       ? (JSON.stringify(data, null, 2) ?? 'null')
       : (typeof data === 'string' ? data : (JSON.stringify(data) ?? String(data)));
 
     return {
       content: [{ type: 'text', text }],
+      structuredContent,
       isError: false,
     };
   }

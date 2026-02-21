@@ -133,6 +133,19 @@ describe('BaseToolHandler', () => {
   let context: HandlerContext;
   let handler: TestHandler;
 
+  const getObjectResult = <T = Record<string, unknown>>(result: ToolExecutionResult): T => {
+    if (result.structuredContent) {
+      return result.structuredContent as T;
+    }
+
+    const first = result.content[0];
+    if (!first) {
+      throw new Error('Expected content or structuredContent to be present');
+    }
+
+    return JSON.parse(first.text) as T;
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: jest.fn(),
@@ -334,7 +347,8 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data);
 
-      expect(response.content[0].text).toBe(JSON.stringify(data, null, 2));
+      expect(response.content).toEqual([]);
+      expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
 
@@ -342,7 +356,8 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data, false);
 
-      expect(response.content[0].text).toBe(JSON.stringify(data));
+      expect(response.content).toEqual([]);
+      expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
 
@@ -350,13 +365,21 @@ describe('BaseToolHandler', () => {
       const response = handler.testCreateResponse(null);
 
       expect(response.content[0].text).toBe('null');
+      expect(response.structuredContent).toBeUndefined();
       expect(response.isError).toBe(false);
     });
 
     it('should handle primitive values', () => {
-      expect(handler.testCreateResponse('string').content[0].text).toBe('"string"');
-      expect(handler.testCreateResponse(42).content[0].text).toBe('42');
-      expect(handler.testCreateResponse(true).content[0].text).toBe('true');
+      const stringResponse = handler.testCreateResponse('string');
+      const numberResponse = handler.testCreateResponse(42);
+      const boolResponse = handler.testCreateResponse(true);
+
+      expect(stringResponse.content[0].text).toBe('"string"');
+      expect(numberResponse.content[0].text).toBe('42');
+      expect(boolResponse.content[0].text).toBe('true');
+      expect(stringResponse.structuredContent).toBeUndefined();
+      expect(numberResponse.structuredContent).toBeUndefined();
+      expect(boolResponse.structuredContent).toBeUndefined();
     });
   });
 
@@ -433,7 +456,7 @@ describe('BaseToolHandler', () => {
     describe('default values', () => {
       it('should apply default values when not provided', async () => {
         const result = await handler.handle('defaults_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42);
@@ -442,7 +465,7 @@ describe('BaseToolHandler', () => {
       it('should not override provided values with defaults', async () => {
         const args = { defaultValue: 'custom_value', numericDefault: 100 };
         const result = await handler.handle('defaults_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
         expect(parsedResult.receivedArgs.numericDefault).toBe(100);
@@ -451,7 +474,7 @@ describe('BaseToolHandler', () => {
       it('should mix provided and default values', async () => {
         const args = { defaultValue: 'custom_value', otherParam: 'other' };
         const result = await handler.handle('defaults_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42); // default applied
@@ -462,7 +485,12 @@ describe('BaseToolHandler', () => {
     describe('execution context', () => {
       it('should provide ToolExecutionContext to tool functions', async () => {
         const result = await handler.handle('context_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{
+          hasContext: boolean;
+          hasHandlerContext: boolean;
+          hasLogger: boolean;
+          contextKeys: string[];
+        }>(result);
 
         expect(parsedResult.hasContext).toBe(true);
         expect(parsedResult.hasHandlerContext).toBe(true);
@@ -476,7 +504,7 @@ describe('BaseToolHandler', () => {
       it('should pass complex validation with valid args', async () => {
         const args = { email: 'test@example.com', age: 25 };
         const result = await handler.handle('complex_validation_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ validated: boolean; args: Record<string, unknown> }>(result);
 
         expect(parsedResult.validated).toBe(true);
         expect(parsedResult.args).toEqual(args);
@@ -540,7 +568,7 @@ describe('BaseToolHandler', () => {
 
       it('should handle empty arguments with defaults', async () => {
         const result = await handler.handle('defaults_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42);
@@ -548,7 +576,7 @@ describe('BaseToolHandler', () => {
 
       it('should pass the actual tool name to validate()', async () => {
         const result = await handler.handle('tool_name_validation_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ validated: boolean }>(result);
 
         expect(parsedResult.validated).toBe(true);
       });

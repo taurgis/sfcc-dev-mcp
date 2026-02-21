@@ -348,11 +348,12 @@ export class SFCCDevServer {
           contentType: decoratedResult.content?.[0]?.type,
           contentLength: decoratedResult.content?.[0]?.text?.length ?? 0,
           responsePreview: decoratedResult.content?.[0]?.text?.substring(0, 200) + (decoratedResult.content?.[0]?.text?.length > 200 ? '...' : ''),
-          fullResponse: decoratedResult.content?.[0]?.text,
+          hasStructuredContent: decoratedResult.structuredContent !== undefined,
         });
 
         return {
           content: decoratedResult.content,
+          structuredContent: decoratedResult.structuredContent,
           isError: decoratedResult.isError,
         };
       } catch (error) {

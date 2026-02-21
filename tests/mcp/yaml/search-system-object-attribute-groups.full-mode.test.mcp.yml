@@ -65,6 +65,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -91,6 +92,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_group_search_result\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include pagination metadata and query echo in Product search response"
@@ -115,6 +117,7 @@ tests:
             - type: "text"
               text: "match:contains:\"query\""
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return attribute groups with id and link fields for Product"
@@ -139,6 +142,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"hits\"[\\s\\S]*\"id\"[\\s\\S]*\"link\"[\\s\\S]*object_attribute_group[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -166,6 +170,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -192,6 +197,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"id\".*\"(?:CCV|Storefront|SFRA)[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -221,6 +227,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -249,6 +256,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"text_query\"[\\s\\S]*\"fields\"[\\s\\S]*\"search_phrase\"[\\s\\S]*\"External\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -276,6 +284,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"count\":\\s*2[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should support start parameter for pagination offset"
@@ -301,6 +310,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"start\":\\s*2[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should support sorting by id field in ascending order"
@@ -328,6 +338,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -404,6 +415,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -487,6 +499,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -516,6 +529,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -545,6 +559,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "1500ms"
       stderr: "toBeEmpty"
@@ -573,6 +588,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_group_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -607,6 +623,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*object_attribute_group_search_result[\\s\\S]*count.*4[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"

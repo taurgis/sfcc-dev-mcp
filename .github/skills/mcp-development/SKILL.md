@@ -1,11 +1,11 @@
 ---
 name: mcp-development
-description: Production best practices for architecting, securing, testing, and operating Model Context Protocol (MCP) servers in TypeScript, including transport design, schema validation, error handling, and deployment.
+description: Mandatory preflight for MCP server design/review/audit tasks. Defines production best practices for architecting, securing, testing, and operating TypeScript MCP servers, including transport design, schema validation, error handling, and deployment.
 ---
 
 # MCP Development Skill
 
-Use this skill when designing, implementing, reviewing, or hardening TypeScript MCP servers.
+Always load this skill before designing, implementing, reviewing, auditing, or hardening TypeScript MCP servers.
 
 ## Protocol Target
 

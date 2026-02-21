@@ -59,6 +59,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -85,6 +86,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_definition_search_result\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include query echo and pagination info in match_all_query response"
@@ -110,6 +112,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"query\"[\\s\\S]*\"match_all_query\"[\\s\\S]*\"start\"[\\s\\S]*\"total\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -139,6 +142,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -166,6 +170,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"text_query\"[\\s\\S]*\"fields\"[\\s\\S]*\"search_phrase\"[\\s\\S]*\"UPC\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -196,6 +201,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -224,6 +230,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"term_query\"[\\s\\S]*\"fields\"[\\s\\S]*\"operator\"[\\s\\S]*\"is\"[\\s\\S]*\"values\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -252,6 +259,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*5[\\s\\S]*\"count\"[\\s\\S]*3[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -281,6 +289,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -310,6 +319,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -336,6 +346,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -361,6 +372,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -386,6 +398,7 @@ tests:
             - type: "text"
               text: "match:contains:\"total\": 0"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -415,6 +428,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "1500ms"
       stderr: "toBeEmpty"
@@ -443,6 +457,7 @@ tests:
             - type: "text"
               text: "match:contains:object_attribute_definition_search_result"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -472,6 +487,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"_v\"[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_definition_search_result\"[\\s\\S]*\"hits\"[\\s\\S]*\"query\"[\\s\\S]*\"start\"[\\s\\S]*\"total\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include attribute definition details when available"
@@ -497,4 +513,5 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_attribute_definition\"[\\s\\S]*\"id\"[\\s\\S]*\"link\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

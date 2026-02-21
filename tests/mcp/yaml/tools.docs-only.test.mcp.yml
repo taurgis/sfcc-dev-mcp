@@ -370,6 +370,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should execute search_sfcc_classes with search results structure"
@@ -429,6 +430,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should execute search_sfra_documentation with search functionality"
@@ -490,6 +492,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================

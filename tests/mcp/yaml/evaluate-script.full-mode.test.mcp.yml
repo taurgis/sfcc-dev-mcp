@@ -22,6 +22,7 @@ tests:
               type: "text"
               text: "match:regex:\"result\":\\s*\"2\"|success.*true"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -45,6 +46,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -68,6 +70,7 @@ tests:
               type: "text"
               text: "match:contains:executionTimeMs"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -93,6 +96,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -117,6 +121,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -141,6 +146,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -166,6 +172,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -192,6 +199,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -216,6 +224,7 @@ tests:
               type: "text"
               text: "match:contains:success"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"
@@ -240,6 +249,7 @@ tests:
               type: "text"
               text: "match:regex:MockSiteID|success.*true"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "10000ms"

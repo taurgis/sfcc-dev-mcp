@@ -212,6 +212,40 @@ describe('SFCCDevServer', () => {
     expect(result.content[1]?.text).toContain('Please decide whether to install skills.');
   });
 
+  it('propagates structuredContent from handlers', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+    };
+
+    const structuredPayload = { ok: true, count: 2, ids: ['a', 'b'] };
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'mock_tool',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: JSON.stringify(structuredPayload) }],
+        structuredContent: structuredPayload,
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler({ params: { name: 'mock_tool', arguments: {} } }) as {
+      content: Array<{ type: string; text: string }>;
+      structuredContent?: unknown;
+      isError: boolean;
+    };
+
+    expect(result.isError).toBe(false);
+    expect(result.structuredContent).toEqual(structuredPayload);
+    expect(result.content[0]?.text).toBe(JSON.stringify(structuredPayload));
+  });
+
   it('discovers workspace roots on initialization and triggers reconfigure on success', async () => {
     const server = new SFCCDevServer({ hostname: '' });
     const serverAny = server as unknown as {

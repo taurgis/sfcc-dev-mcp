@@ -54,6 +54,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "3000ms"
       stderr: "toBeEmpty"
@@ -78,6 +79,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_type_definitions\"[\\s\\S]*\"count\"[\\s\\S]*\"start\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should contain SFCC system object types in response"
     request:
@@ -99,6 +101,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"object_type\"[\\s\\S]*(Product|Category|Order|Customer|Basket)[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
 # ==================================================================================
 # PAGINATION PARAMETER TESTS
@@ -125,6 +128,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*3[\\s\\S]*\"start\"[\\s\\S]*:[\\s]*2[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2500ms"
 
@@ -149,6 +153,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*:[\\s]*0[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
 # ==================================================================================
 # SELECT PARAMETER TESTS - OCAPI Field Selection
@@ -175,6 +180,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"count\"[\\s\\S]*\"data\"[\\s\\S]*\"start\"[\\s\\S]*\"total\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle root-level field selection"
     request:
@@ -197,6 +203,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*\"count\"[\\s\\S]*\"total\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should exclude non-selected fields when using specific selection"
     request:
@@ -219,6 +226,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*\"count\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle data-level field selection"
     request:
@@ -241,6 +249,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"start\"[\\s\\S]*\"count\"[\\s\\S]*\"data\"[\\s\\S]*\"object_type\"[\\s\\S]*\"display_name\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
 # ==================================================================================
 # EDGE CASES AND BOUNDARY CONDITIONS  
@@ -266,6 +275,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*1[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle large start parameter gracefully"
     request:
@@ -288,6 +298,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle maximum reasonable count parameter"
     request:
@@ -309,6 +320,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "5000ms"
 
@@ -337,6 +349,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle string count parameter (type coercion)"
     request:
@@ -359,6 +372,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle negative start parameter gracefully"
     request:
@@ -381,6 +395,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle zero count parameter"
     request:
@@ -403,6 +418,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle invalid select patterns gracefully"
     request:
@@ -425,6 +441,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should handle empty select parameter"
     request:
@@ -447,6 +464,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
 
 # ==================================================================================
 # DATA VALIDATION AND CONSISTENCY
@@ -472,6 +490,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"_type\"[\\s\\S]*\"object_type_definition\"[\\s\\S]*\"object_type\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should maintain consistent results across multiple calls"
     request:
@@ -494,6 +513,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"count\"[\\s\\S]*:[\\s]*3[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
 
   - it: "should include API version information"
     request:
@@ -515,3 +535,4 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*\"_v\"[\\s\\S]*\"\\d+\\.\\d+\"[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"

@@ -120,12 +120,12 @@ describe('BaseHttpClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.example.com/test-endpoint',
-        {
+        expect.objectContaining({
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer token123',
           },
-        },
+        }),
       );
       expect(result).toEqual(mockResponse);
     });
@@ -195,14 +195,76 @@ describe('BaseHttpClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.example.com/test',
-        {
+        expect.objectContaining({
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer token',
             'Custom-Header': 'custom-value',
           },
-        },
+        }),
       );
+    });
+
+    it('should timeout when request exceeds timeout budget', async () => {
+      jest.useFakeTimers();
+
+      mockFetch.mockImplementation((_url, init) => {
+        return new Promise((_resolve, reject) => {
+          const signal = (init as RequestInit | undefined)?.signal;
+          if (signal?.aborted) {
+            reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+            return;
+          }
+          signal?.addEventListener('abort', () => {
+            reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+          });
+        }) as Promise<Response>;
+      });
+
+      const request = client.testMakeRequest('/slow-endpoint', { timeoutMs: 50 });
+      const assertion = expect(request).rejects.toThrow('Request timed out after 50ms: /slow-endpoint');
+      await jest.advanceTimersByTimeAsync(51);
+
+      await assertion;
+      jest.useRealTimers();
+    });
+
+    it('should honor external abort signals', async () => {
+      mockFetch.mockImplementation((_url, init) => {
+        return new Promise((_resolve, reject) => {
+          const signal = (init as RequestInit | undefined)?.signal;
+          if (signal?.aborted) {
+            reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+            return;
+          }
+          signal?.addEventListener('abort', () => {
+            reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+          });
+        }) as Promise<Response>;
+      });
+
+      const controller = new AbortController();
+      const request = client.testMakeRequest('/abort-endpoint', {
+        signal: controller.signal,
+        timeoutMs: 1000,
+      });
+
+      await Promise.resolve();
+      controller.abort();
+      await expect(request).rejects.toThrow('Request aborted: /abort-endpoint');
+    });
+
+    it('should return undefined for 204 no-content responses', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 204,
+        headers: {
+          get: () => null,
+        },
+      } as unknown as Response);
+
+      const result = await client.testMakeRequest('/no-content');
+      expect(result).toBeUndefined();
     });
   });
 

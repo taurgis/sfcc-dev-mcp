@@ -115,7 +115,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "Error: Invalid limit '-1' for tool. Must be between 1 and 1000"
+              text: "Error: Invalid limit '-1' for search_job_logs_by_name. Must be between 1 and 1000"
           isError: true
       stderr: "toBeEmpty"
     performance:

@@ -94,6 +94,7 @@ tests:
               type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -118,6 +119,7 @@ tests:
               type: "text"
               text: "match:contains:\"id\": \"test_activation\""
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -141,6 +143,7 @@ tests:
               type: "text"
               text: "match:contains:\"id\": \"simple_id\""
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -164,6 +167,7 @@ tests:
               type: "text"
               text: "match:contains:\"id\": \"version-with-dashes\""
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -216,6 +220,7 @@ tests:
               type: "text"
               text: "match:contains:\"id\": \"reset_version\""
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"

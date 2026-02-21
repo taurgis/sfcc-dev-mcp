@@ -10,48 +10,7 @@ import { OCAPIAuthClient } from '../base/ocapi-auth-client.js';
 import { QueryBuilder } from '../../utils/query-builder.js';
 import { Validator } from '../../utils/validator.js';
 import { buildOCAPIBaseUrl } from '../../utils/ocapi-url-builder.js';
-
-/**
- * Interface for search request structure
- */
-interface SearchRequest {
-  query?: {
-    text_query?: {
-      fields: string[];
-      search_phrase: string;
-    };
-    term_query?: {
-      fields: string[];
-      operator: string;
-      values: any[];
-    };
-    filtered_query?: {
-      filter: any;
-      query: any;
-    };
-    bool_query?: {
-      must?: any[];
-      must_not?: any[];
-      should?: any[];
-    };
-    match_all_query?: {};
-  };
-  sorts?: Array<{
-    field: string;
-    sort_order?: 'asc' | 'desc';
-  }>;
-  start?: number;
-  count?: number;
-  select?: string;
-}
-
-/**
- * Site preferences search options
- */
-interface SitePreferencesOptions {
-  maskPasswords?: boolean;
-  expand?: string;
-}
+import { OCAPISearchRequest, SitePreferencesSearchOptions } from '../../types/ocapi-search.js';
 
 /**
  * OCAPI Site Preferences Client
@@ -85,9 +44,9 @@ export class OCAPISitePreferencesClient extends OCAPIAuthClient {
   async searchSitePreferences(
     groupId: string,
     instanceType: string,
-    searchRequest: SearchRequest,
-    options?: SitePreferencesOptions,
-  ): Promise<any> {
+    searchRequest: OCAPISearchRequest,
+    options?: SitePreferencesSearchOptions,
+  ): Promise<unknown> {
     Validator.validateRequired({ groupId, instanceType }, ['groupId', 'instanceType']);
     const validatedInstanceType = Validator.validateInstanceType(instanceType);
     Validator.validateSearchRequest(searchRequest);

@@ -10,45 +10,12 @@ import { OCAPIAuthClient } from '../base/ocapi-auth-client.js';
 import { QueryBuilder } from '../../utils/query-builder.js';
 import { Validator } from '../../utils/validator.js';
 import { buildOCAPIBaseUrl } from '../../utils/ocapi-url-builder.js';
+import { OCAPISearchRequest } from '../../types/ocapi-search.js';
 
 /**
  * Interface for common query parameters
  */
 interface BaseQueryParams {
-  start?: number;
-  count?: number;
-  select?: string;
-}
-
-/**
- * Interface for search request structure
- */
-interface SearchRequest {
-  query?: {
-    text_query?: {
-      fields: string[];
-      search_phrase: string;
-    };
-    term_query?: {
-      fields: string[];
-      operator: string;
-      values: any[];
-    };
-    filtered_query?: {
-      filter: any;
-      query: any;
-    };
-    bool_query?: {
-      must?: any[];
-      must_not?: any[];
-      should?: any[];
-    };
-    match_all_query?: {};
-  };
-  sorts?: Array<{
-    field: string;
-    sort_order?: 'asc' | 'desc';
-  }>;
   start?: number;
   count?: number;
   select?: string;
@@ -68,7 +35,7 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
   /**
    * Get all system object definitions
    */
-  async getSystemObjectDefinitions(params?: BaseQueryParams): Promise<any> {
+  async getSystemObjectDefinitions(params?: BaseQueryParams): Promise<unknown> {
     let endpoint = '/system_object_definitions';
 
     if (params) {
@@ -84,7 +51,7 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
   /**
    * Get a specific system object definition by object type
    */
-  async getSystemObjectDefinition(objectType: string): Promise<any> {
+  async getSystemObjectDefinition(objectType: string): Promise<unknown> {
     Validator.validateRequired({ objectType }, ['objectType']);
     Validator.validateObjectType(objectType);
 
@@ -95,7 +62,7 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
   /**
    * Search for system object definitions using complex queries
    */
-  async searchSystemObjectDefinitions(searchRequest: SearchRequest): Promise<any> {
+  async searchSystemObjectDefinitions(searchRequest: OCAPISearchRequest): Promise<unknown> {
     Validator.validateSearchRequest(searchRequest);
 
     const endpoint = '/system_object_definition_search';
@@ -107,8 +74,8 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
    */
   async searchSystemObjectAttributeDefinitions(
     objectType: string,
-    searchRequest: SearchRequest,
-  ): Promise<any> {
+    searchRequest: OCAPISearchRequest,
+  ): Promise<unknown> {
     Validator.validateRequired({ objectType }, ['objectType']);
     Validator.validateObjectType(objectType);
     Validator.validateSearchRequest(searchRequest);
@@ -122,8 +89,8 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
    */
   async searchSystemObjectAttributeGroups(
     objectType: string,
-    searchRequest: SearchRequest,
-  ): Promise<any> {
+    searchRequest: OCAPISearchRequest,
+  ): Promise<unknown> {
     Validator.validateRequired({ objectType }, ['objectType']);
     Validator.validateObjectType(objectType);
     Validator.validateSearchRequest(searchRequest);
@@ -137,8 +104,8 @@ export class OCAPISystemObjectsClient extends OCAPIAuthClient {
    */
   async searchCustomObjectAttributeDefinitions(
     objectType: string,
-    searchRequest: SearchRequest,
-  ): Promise<any> {
+    searchRequest: OCAPISearchRequest,
+  ): Promise<unknown> {
     Validator.validateRequired({ objectType }, ['objectType']);
     Validator.validateSearchRequest(searchRequest);
 
