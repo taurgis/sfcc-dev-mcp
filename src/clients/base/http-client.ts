@@ -113,7 +113,7 @@ export abstract class BaseHttpClient {
   /**
    * POST request
    */
-  protected async post<T>(endpoint: string, data?: any): Promise<T> {
+  protected async post<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'POST' };
     if (data) {
       options.body = JSON.stringify(data);
@@ -124,7 +124,7 @@ export abstract class BaseHttpClient {
   /**
    * PUT request
    */
-  protected async put<T>(endpoint: string, data?: any): Promise<T> {
+  protected async put<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'PUT' };
     if (data) {
       options.body = JSON.stringify(data);
@@ -135,7 +135,7 @@ export abstract class BaseHttpClient {
   /**
    * PATCH request
    */
-  protected async patch<T>(endpoint: string, data?: any): Promise<T> {
+  protected async patch<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'PATCH' };
     if (data) {
       options.body = JSON.stringify(data);

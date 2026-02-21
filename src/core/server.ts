@@ -8,6 +8,8 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -43,6 +45,24 @@ import { AgentInstructionsToolHandler } from './handlers/agent-instructions-hand
 import { ScriptDebuggerToolHandler } from './handlers/script-debugger-handler.js';
 import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
+
+const DEFAULT_SERVER_VERSION = '0.0.0';
+
+function resolveServerVersion(): string {
+  try {
+    const packageJsonPath = fileURLToPath(new URL('../../package.json', import.meta.url));
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as { version?: unknown };
+    if (typeof packageJson.version === 'string' && packageJson.version.trim().length > 0) {
+      return packageJson.version;
+    }
+  } catch {
+    // Fall through to environment/default fallback.
+  }
+
+  return process.env.npm_package_version ?? DEFAULT_SERVER_VERSION;
+}
+
+const SERVER_VERSION = resolveServerVersion();
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -82,7 +102,7 @@ export class SFCCDevServer {
     this.server = new Server(
       {
         name: 'SFCC Development MCP Server',
-        version: '1.0.14', // synced with package.json
+        version: SERVER_VERSION,
       },
       {
         capabilities: {
@@ -176,7 +196,7 @@ export class SFCCDevServer {
     this.logMethodEntry('reconfigureWithCredentials', { hostname: dwConfig.hostname });
 
     // Dispose of existing handlers
-    await Promise.all(this.handlers.map((handler) => handler.dispose()));
+    await this.disposeHandlersSafely('reconfigureWithCredentials');
 
     // Map dw.json config to SFCCConfig format
     this.config = ConfigurationFactory.mapDwJsonToConfig(dwConfig);
@@ -330,7 +350,7 @@ export class SFCCDevServer {
     this.logger.log('Shutting down SFCC Development MCP server...');
 
     // Dispose of all handlers
-    await Promise.all(this.handlers.map(handler => handler.dispose()));
+    await this.disposeHandlersSafely('shutdown');
 
     this.logger.log('SFCC Development MCP server shutdown complete');
     process.exit(0);
@@ -370,5 +390,21 @@ export class SFCCDevServer {
         content: [{ ...first, text: merged }, ...rest],
       };
     }
+  }
+
+  /**
+   * Dispose handlers without aborting cleanup when one handler fails.
+   */
+  private async disposeHandlersSafely(operation: string): Promise<void> {
+    const disposalResults = await Promise.allSettled(this.handlers.map(handler => handler.dispose()));
+
+    disposalResults.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const handlerName = this.handlers[index]?.constructor?.name ?? `Handler#${index}`;
+        this.logger.warn(
+          `[Server] ${operation}: failed to dispose ${handlerName}: ${String(result.reason)}`,
+        );
+      }
+    });
   }
 }

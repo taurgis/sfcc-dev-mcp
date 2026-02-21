@@ -40,7 +40,7 @@ export class ScriptDebuggerToolHandler extends AbstractClientHandler<
     return SCRIPT_DEBUGGER_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<ScriptDebuggerToolName, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<ScriptDebuggerToolName, GenericToolSpec<ToolArguments, unknown>> {
     return SCRIPT_DEBUGGER_TOOL_CONFIG;
   }
 }

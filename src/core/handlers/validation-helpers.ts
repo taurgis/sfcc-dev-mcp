@@ -5,11 +5,15 @@
 import { HandlerError, ToolArguments } from './base-handler.js';
 import { isValidLogLevel, LogLevelValues } from '../../utils/log-tool-constants.js';
 
+type ValidatorFn<T> = {
+  bivarianceHack: (value: T) => boolean;
+}['bivarianceHack'];
+
 export interface ValidationRule<T = any> {
   field: string;
   required?: boolean;
   type?: 'string' | 'number' | 'boolean' | 'object' | 'array';
-  validator?: (value: T) => boolean;
+  validator?: ValidatorFn<T>;
   errorMessage?: string;
 }
 
@@ -62,7 +66,7 @@ export class ValidationHelpers {
     }
   }
 
-  private static validateType(value: any, type: ValidationRule['type']): boolean {
+  private static validateType(value: unknown, type: ValidationRule['type']): boolean {
     switch (type) {
       case 'string':
         return typeof value === 'string';
@@ -97,7 +101,7 @@ export const CommonValidations = {
   requiredField: (
     field: string,
     type: ValidationRule['type'],
-    validator: (value: any) => boolean,
+    validator: ValidatorFn<any>,
     errorMessage: string,
   ): ValidationRule[] => [{
     field,
@@ -111,7 +115,7 @@ export const CommonValidations = {
   optionalField: (
     field: string,
     type: ValidationRule['type'],
-    validator: (value: any) => boolean,
+    validator: ValidatorFn<any>,
     errorMessage: string,
   ): ValidationRule[] => [{
     field,

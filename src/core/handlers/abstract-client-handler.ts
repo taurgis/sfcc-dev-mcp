@@ -75,7 +75,7 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
    * Abstract method to get tool configuration.
    * Each concrete handler implements this with their specific config.
    */
-  protected abstract getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, any>>;
+  protected abstract getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
 
   /**
    * Abstract method to get tool name set for O(1) lookup.

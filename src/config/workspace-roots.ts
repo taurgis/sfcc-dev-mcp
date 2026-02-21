@@ -95,11 +95,17 @@ const BLOCKED_SYSTEM_PATHS: readonly string[] = [
   'C:\\Windows',
   'C:\\Program Files',
   'C:\\ProgramData',
-  // Common sensitive directories
-  '.ssh',
-  '.gnupg',
-  '.aws',
-  '.config/gcloud',
+] as const;
+
+/**
+ * Sensitive directory segments that must be blocked even under otherwise
+ * allowed roots (for example /Users/<user>/.ssh).
+ */
+const BLOCKED_SENSITIVE_SEGMENT_PATTERNS: readonly RegExp[] = [
+  /(^|[\\/])\.ssh([\\/]|$)/i,
+  /(^|[\\/])\.gnupg([\\/]|$)/i,
+  /(^|[\\/])\.aws([\\/]|$)/i,
+  /(^|[\\/])\.config[\\/]gcloud([\\/]|$)/i,
 ] as const;
 
 /**
@@ -184,13 +190,9 @@ function validatePath(inputPath: string): ValidationResult {
     return { isValid: false, error: 'Path must be absolute' };
   }
 
-  // Check against blocked system paths
-  const lowerPath = resolvedPath.toLowerCase();
-  for (const blocked of BLOCKED_SYSTEM_PATHS) {
-    const blockedLower = blocked.toLowerCase();
-    if (lowerPath === blockedLower || lowerPath.startsWith(`${blockedLower  }/`) || lowerPath.startsWith(`${blockedLower  }\\`)) {
-      return { isValid: false, error: 'Access to system directories is not allowed' };
-    }
+  // Check against blocked system paths and sensitive directory segments
+  if (isBlockedPath(resolvedPath)) {
+    return { isValid: false, error: 'Access to system directories is not allowed' };
   }
 
   // Check that path matches allowed patterns
@@ -234,6 +236,26 @@ function validatePath(inputPath: string): ValidationResult {
   }
 
   return { isValid: true, resolvedPath };
+}
+
+/**
+ * Determine whether a resolved absolute path should be blocked.
+ */
+function isBlockedPath(resolvedPath: string): boolean {
+  const lowerPath = resolvedPath.toLowerCase();
+
+  for (const blocked of BLOCKED_SYSTEM_PATHS) {
+    const blockedLower = blocked.toLowerCase();
+    if (
+      lowerPath === blockedLower ||
+      lowerPath.startsWith(`${blockedLower}/`) ||
+      lowerPath.startsWith(`${blockedLower}\\`)
+    ) {
+      return true;
+    }
+  }
+
+  return BLOCKED_SENSITIVE_SEGMENT_PATTERNS.some(pattern => pattern.test(resolvedPath));
 }
 
 /**

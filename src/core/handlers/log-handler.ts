@@ -33,7 +33,7 @@ export class LogToolHandler extends AbstractClientHandler<LogToolName, SFCCLogCl
     return LOG_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, unknown>> {
     return LOG_TOOL_CONFIG;
   }
 }

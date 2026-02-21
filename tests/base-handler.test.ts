@@ -45,10 +45,13 @@ class TestHandler extends BaseToolHandler {
     },
     'complex_validation_tool': {
       validate: (args, toolName) => {
-        if (!args.email?.includes('@')) {
+        const email = typeof args.email === 'string' ? args.email : '';
+        const age = typeof args.age === 'number' ? args.age : 0;
+
+        if (!email.includes('@')) {
           throw new HandlerError('Invalid email format', toolName, 'VALIDATION_ERROR');
         }
-        if (!args.age || args.age < 18) {
+        if (age < 18) {
           throw new HandlerError('Age must be 18 or older', toolName, 'AGE_VALIDATION_ERROR');
         }
       },
@@ -95,7 +98,7 @@ class TestHandler extends BaseToolHandler {
     this.validateArgs(args, required, toolName);
   }
 
-  public testCreateResponse(data: any, stringify: boolean = true): ToolExecutionResult {
+  public testCreateResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
     return this.createResponse(data, stringify);
   }
 
@@ -319,7 +322,7 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data, false);
 
-      expect(response.content[0].text).toBe(data);
+      expect(response.content[0].text).toBe(JSON.stringify(data));
       expect(response.isError).toBe(false);
     });
 

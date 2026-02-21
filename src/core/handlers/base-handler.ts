@@ -18,13 +18,13 @@ export interface ToolExecutionResult {
 }
 
 export interface ToolArguments {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
  * Generic tool specification interface for declarative tool configuration
  */
-export interface GenericToolSpec<TArgs = ToolArguments, TResult = any> {
+export interface GenericToolSpec<TArgs = ToolArguments, TResult = unknown> {
   validate?: (args: TArgs, toolName: string) => void;
   defaults?: (args: TArgs) => Partial<TArgs>;
   exec: (args: TArgs, context: ToolExecutionContext) => Promise<TResult>;
@@ -36,8 +36,8 @@ export interface GenericToolSpec<TArgs = ToolArguments, TResult = any> {
  */
 export interface ToolExecutionContext {
   handlerContext: HandlerContext;
-  logger: any;
-  [key: string]: any;
+  logger: Logger;
+  [key: string]: unknown;
 }
 
 export class HandlerError extends Error {
@@ -45,7 +45,7 @@ export class HandlerError extends Error {
     message: string,
     public readonly toolName: string,
     public readonly code: string = 'HANDLER_ERROR',
-    public readonly details?: any,
+    public readonly details?: unknown,
   ) {
     super(message);
     this.name = 'HandlerError';
@@ -88,7 +88,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
     );
   }
 
-  private async dispatchTool(spec: GenericToolSpec, args: ToolArguments): Promise<any> {
+  private async dispatchTool(spec: GenericToolSpec, args: ToolArguments): Promise<unknown> {
     const context = await this.createExecutionContext();
     const processedArgs = this.applyDefaults(spec, args);
 
@@ -131,9 +131,13 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
     }
   }
 
-  protected createResponse(data: any, stringify: boolean = true): ToolExecutionResult {
+  protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
+    const text = stringify
+      ? (JSON.stringify(data, null, 2) ?? 'null')
+      : (typeof data === 'string' ? data : (JSON.stringify(data) ?? String(data)));
+
     return {
-      content: [{ type: 'text', text: stringify ? JSON.stringify(data, null, 2) : data }],
+      content: [{ type: 'text', text }],
       isError: false,
     };
   }
@@ -149,7 +153,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
   protected async executeWithLogging(
     toolName: string,
     startTime: number,
-    operation: () => Promise<any>,
+    operation: () => Promise<unknown>,
     logMessage?: string,
   ): Promise<ToolExecutionResult> {
     try {
@@ -166,7 +170,11 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       return this.createResponse(result);
     } catch (error) {
       this.logger.timing(`${toolName}_error`, startTime);
-      return this.createErrorResponse(error as Error, toolName);
+      return this.createErrorResponse(this.toError(error), toolName);
     }
+  }
+
+  private toError(error: unknown): Error {
+    return error instanceof Error ? error : new Error(String(error));
   }
 }

@@ -37,7 +37,7 @@ export class SystemObjectToolHandler extends AbstractClientHandler<SystemObjectT
     return SYSTEM_OBJECT_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>> {
     return SYSTEM_OBJECT_TOOL_CONFIG;
   }
 }

@@ -37,7 +37,7 @@ export class CodeVersionToolHandler extends AbstractClientHandler<CodeVersionToo
     return CODE_VERSION_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<CodeVersionToolName, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<CodeVersionToolName, GenericToolSpec<ToolArguments, unknown>> {
     return CODE_VERSION_TOOL_CONFIG;
   }
 }

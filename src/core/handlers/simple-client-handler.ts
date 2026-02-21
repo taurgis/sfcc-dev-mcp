@@ -6,7 +6,7 @@ import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, 
  */
 export interface SimpleClientConfig<TToolName extends string, TClient> {
   /** Tool configuration mapping tool names to specs */
-  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, any>>;
+  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
   /** Set of tool names for O(1) lookup */
   toolNameSet: Set<TToolName>;
   /** Key name for the client in the execution context */
@@ -59,7 +59,7 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
     return this.config.toolNameSet;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, unknown>> {
     return this.config.toolConfig;
   }
 

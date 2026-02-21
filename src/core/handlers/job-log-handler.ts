@@ -33,7 +33,7 @@ export class JobLogToolHandler extends AbstractClientHandler<JobLogToolName, SFC
     return JOB_LOG_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, unknown>> {
     return JOB_LOG_TOOL_CONFIG;
   }
 }

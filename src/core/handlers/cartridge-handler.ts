@@ -32,7 +32,7 @@ export class CartridgeToolHandler extends AbstractClientHandler<CartridgeToolNam
     return CARTRIDGE_TOOL_NAMES_SET;
   }
 
-  protected getToolConfig(): Record<CartridgeToolName, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<CartridgeToolName, GenericToolSpec<ToolArguments, unknown>> {
     return CARTRIDGE_TOOL_CONFIG;
   }
 }
