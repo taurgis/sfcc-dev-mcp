@@ -95,6 +95,7 @@ sfcc-dev-mcp/
 │   ├── core/                     # Core MCP server functionality
 │   │   ├── server.ts             # Main MCP server implementation
 │   │   ├── tool-definitions.ts   # Re-exports tool schemas from modular files
+│   │   ├── tool-argument-validator.ts # Runtime tool argument validation at MCP boundary
 │   │   ├── tool-schemas/         # Modular tool schema definitions
 │   │   │   ├── index.ts          # Aggregates and re-exports all tool schemas
 │   │   │   ├── shared-schemas.ts # Reusable schema components (query, pagination, etc.)
@@ -322,6 +323,7 @@ sfcc-dev-mcp/
 - Implements the Model Context Protocol specification
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
+- Applies runtime tool argument validation (required fields, type checks, and enum checks) before dispatch
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
 - Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool

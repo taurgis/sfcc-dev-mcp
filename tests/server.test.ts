@@ -173,10 +173,52 @@ describe('SFCCDevServer', () => {
 
     const mockServer = getLatestMockServer();
     const callToolHandler = getCallToolHandler(mockServer);
-    const result = await callToolHandler({ params: { name: 'unknown_tool' } });
+    const result = await callToolHandler({ params: { name: 'unknown_tool' } }) as {
+      isError: boolean;
+      structuredContent?: { error?: { code?: string } };
+    };
 
     expect(result).toMatchObject({ isError: true });
     expect(JSON.stringify(result)).toContain('Unknown tool: unknown_tool');
+    expect(result.structuredContent).toBeUndefined();
+  });
+
+  it('rejects missing required arguments for known tools before handler execution', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+    };
+
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'search_sfra_documentation',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: 'should not run' }],
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler({
+      params: {
+        name: 'search_sfra_documentation',
+        arguments: {},
+      },
+    }) as {
+      content: Array<{ type: string; text: string }>;
+      isError: boolean;
+      structuredContent?: { error?: { code?: string } };
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent).toBeUndefined();
+    expect(result.content[0]?.text).toContain('Invalid arguments for tool');
+    expect(mockHandler.handle).not.toHaveBeenCalled();
   });
 
   it('appends preflight notice as a separate content entry without mutating tool payload text', async () => {

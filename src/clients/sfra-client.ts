@@ -154,7 +154,14 @@ export class SFRAClient extends AbstractDocumentationClient<SFRADocument, SFRADo
     matches: Array<{section: string; content: string; lineNumber: number}>;
   }>> {
     const cacheKey = `sfra:search:${query.toLowerCase()}`;
-    const cached = this.cache.getSearchResults(cacheKey);
+    const cached = this.cache.getSearchResults<Array<{
+      document: string;
+      title: string;
+      category: string;
+      type: string;
+      relevanceScore: number;
+      matches: Array<{ section: string; content: string; lineNumber: number }>;
+    }>>(cacheKey);
     if (cached) { return cached; }
 
     const documents = await this.getAvailableDocuments();

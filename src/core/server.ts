@@ -47,6 +47,8 @@ import { AgentInstructionsToolHandler } from './handlers/agent-instructions-hand
 import { ScriptDebuggerToolHandler } from './handlers/script-debugger-handler.js';
 import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
+import { ValidationError } from '../utils/validator.js';
+import { ToolArgumentValidator } from './tool-argument-validator.js';
 
 const DEFAULT_SERVER_VERSION = '0.0.0';
 
@@ -77,6 +79,20 @@ function resolveServerVersion(): string {
 }
 
 const SERVER_VERSION = resolveServerVersion();
+const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'true';
+
+const ALWAYS_AVAILABLE_TOOL_NAMES = new Set<string>([
+  ...AGENT_INSTRUCTION_TOOLS.map(tool => tool.name),
+  ...SFCC_DOCUMENTATION_TOOLS.map(tool => tool.name),
+  ...SFRA_DOCUMENTATION_TOOLS.map(tool => tool.name),
+  ...ISML_DOCUMENTATION_TOOLS.map(tool => tool.name),
+  ...CARTRIDGE_GENERATION_TOOLS.map(tool => tool.name),
+]);
+
+const TOOL_ARGUMENT_VALIDATION_EXCLUSIONS = new Set<string>([
+  'generate_cartridge_structure',
+  'get_sfcc_class_info',
+]);
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -92,6 +108,8 @@ export class SFCCDevServer {
   private workspaceRootsService: WorkspaceRootsService;
   private instructionAdvisor: InstructionAdvisor;
   private readonly hasExplicitConfiguration: boolean;
+  private reconfigureQueue: Promise<void> = Promise.resolve();
+  private readonly toolArgumentValidator: ToolArgumentValidator;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -107,6 +125,18 @@ export class SFCCDevServer {
     this.workspaceRootsService = new WorkspaceRootsService(this.logger);
     const advisorClient = new AgentInstructionsClient(this.workspaceRootsService, Logger.getChildLogger('AgentInstructionsAdvisor'));
     this.instructionAdvisor = new InstructionAdvisor(advisorClient, this.logger);
+    this.toolArgumentValidator = new ToolArgumentValidator([
+      ...AGENT_INSTRUCTION_TOOLS,
+      ...SFCC_DOCUMENTATION_TOOLS,
+      ...SFRA_DOCUMENTATION_TOOLS,
+      ...ISML_DOCUMENTATION_TOOLS,
+      ...CARTRIDGE_GENERATION_TOOLS,
+      ...LOG_TOOLS,
+      ...JOB_LOG_TOOLS,
+      ...SYSTEM_OBJECT_TOOLS,
+      ...CODE_VERSION_TOOLS,
+      ...SCRIPT_DEBUGGER_TOOLS,
+    ]);
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
@@ -130,12 +160,12 @@ export class SFCCDevServer {
     // Set up callback for when client is fully initialized
     // This is when we can request workspace roots from the client
     this.server.oninitialized = async () => {
-      this.logger.log('[Server] oninitialized callback triggered - client handshake complete');
+      this.logger.debug('[Server] oninitialized callback triggered - client handshake complete');
       await this.discoverWorkspaceRoots();
     };
 
     this.server.setNotificationHandler(RootsListChangedNotificationSchema, async () => {
-      this.logger.log('[Server] Received roots/list_changed notification from client');
+      this.logger.debug('[Server] Received roots/list_changed notification from client');
       await this.discoverWorkspaceRoots(true);
     });
   }
@@ -163,57 +193,71 @@ export class SFCCDevServer {
    * variables provided credentials (those take precedence).
    */
   private async discoverWorkspaceRoots(forceRefresh: boolean = false): Promise<void> {
-    this.logger.log('[Server] discoverWorkspaceRoots called');
+    this.logger.debug('[Server] discoverWorkspaceRoots called');
 
     // Respect discovery priority for explicit config (CLI/ENV).
     if (this.hasExplicitConfiguration) {
-      this.logger.log('[Server] Explicit CLI/ENV configuration detected, skipping MCP workspace discovery');
+      this.logger.debug('[Server] Explicit CLI/ENV configuration detected, skipping MCP workspace discovery');
       return;
     }
 
     // Non-forced discovery only needs to run before we have an active host.
     if (!forceRefresh && this.isConfiguredHostname(this.config.hostname)) {
-      this.logger.log(`[Server] Already configured from workspace roots (hostname="${this.config.hostname}"), skipping duplicate discovery`);
+      this.logger.debug(`[Server] Already configured from workspace roots (hostname="${this.config.hostname}"), skipping duplicate discovery`);
       return;
     }
 
-    this.logger.log('[Server] No hostname from CLI/ENV, attempting MCP workspace roots discovery...');
+    this.logger.debug('[Server] No hostname from CLI/ENV, attempting MCP workspace roots discovery...');
 
     try {
-      this.logger.log('[Server] Calling server.listRoots()...');
+      this.logger.debug('[Server] Calling server.listRoots()...');
 
       // Request workspace roots from the MCP client
       const rootsResponse = await this.server.listRoots();
 
-      this.logger.log('[Server] listRoots() returned roots payload');
+      this.logger.debug('[Server] listRoots() returned roots payload');
 
       // Delegate discovery to the service (single responsibility)
       const discoveryResult = this.workspaceRootsService.discoverDwJson(rootsResponse?.roots);
 
       if (!discoveryResult.success || !discoveryResult.config) {
-        this.logger.log(`[Server] Discovery failed: ${discoveryResult.reason}`);
+        this.logger.debug(`[Server] Discovery failed: ${discoveryResult.reason}`);
         return;
       }
 
-      // Reconfigure the server with the discovered credentials.
-      await this.reconfigureWithCredentials(discoveryResult.config);
+      // Reconfigure the server with discovered credentials in a serialized queue.
+      await this.enqueueReconfigure(discoveryResult.config);
 
-      this.logger.log(`[Server] Successfully reconfigured with credentials from ${discoveryResult.dwJsonPath}`);
+      this.logger.log('[Server] Successfully reconfigured with credentials from workspace roots');
+      if (discoveryResult.dwJsonPath) {
+        this.logger.debug(`[Server] Discovery source: ${discoveryResult.dwJsonPath}`);
+      }
     } catch (error) {
       // The client might not support roots/list - this is not an error
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
 
-      this.logger.log(`[Server] listRoots() threw an error: ${errorMessage}`);
+      this.logger.debug(`[Server] listRoots() threw an error: ${errorMessage}`);
       if (errorStack) {
         this.logger.debug(`[Server] Error stack: ${errorStack}`);
       }
 
       // Check if the error is because the client doesn't support roots
       if (errorMessage.includes('not supported') || errorMessage.includes('Method not found')) {
-        this.logger.log('[Server] Client does not support workspace roots capability');
+        this.logger.debug('[Server] Client does not support workspace roots capability');
       }
     }
+  }
+
+  private async enqueueReconfigure(dwConfig: DwJsonConfig): Promise<void> {
+    const currentTask = this.reconfigureQueue.then(() => this.reconfigureWithCredentials(dwConfig));
+
+    this.reconfigureQueue = currentTask.catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`[Server] Reconfigure queue task failed: ${message}`);
+    });
+
+    await currentTask;
   }
 
   /**
@@ -332,12 +376,17 @@ export class SFCCDevServer {
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
-        const preflightNotice = await this.instructionAdvisor.getNotice();
         const handler = this.handlers.find((h) => h.canHandle(name));
         if (!handler) {
           this.logger.error(`Unknown tool requested: ${name}`);
-          throw new Error(`Unknown tool: ${name}`);
+          throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
         }
+
+        if (this.shouldValidateToolArgs(name)) {
+          this.toolArgumentValidator.validate(name, args ?? {});
+        }
+
+        const preflightNotice = await this.instructionAdvisor.getNotice();
         const result = await handler.handle(name, args ?? {}, startTime);
         const decoratedResult = preflightNotice
           ? this.appendPreflightNotice(result, preflightNotice)
@@ -359,15 +408,22 @@ export class SFCCDevServer {
       } catch (error) {
         this.logger.error(`Error handling tool "${name}":`, error);
         this.logger.timing(`${name}_error`, startTime);
+        const structuredError = this.createStructuredError(name, error);
         const errorResult: CallToolResult = {
           content: [
             {
               type: 'text',
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+              text: `Error: ${structuredError.message}`,
             },
           ],
           isError: true,
         };
+
+        if (INCLUDE_STRUCTURED_ERRORS) {
+          errorResult.structuredContent = {
+            error: structuredError,
+          };
+        }
 
         // Log error response in debug mode
         this.logger.debug(`Error response for ${name}:`, errorResult);
@@ -377,6 +433,41 @@ export class SFCCDevServer {
         this.logger.methodExit(`handleToolRequest:${name}`);
       }
     });
+  }
+
+  private shouldValidateToolArgs(toolName: string): boolean {
+    return ALWAYS_AVAILABLE_TOOL_NAMES.has(toolName) &&
+      !TOOL_ARGUMENT_VALIDATION_EXCLUSIONS.has(toolName);
+  }
+
+  private createStructuredError(toolName: string, error: unknown): {
+    code: string;
+    message: string;
+    toolName: string;
+    details?: unknown;
+  } {
+    if (error instanceof ValidationError) {
+      return {
+        code: error.code,
+        message: error.message,
+        toolName,
+        details: error.details,
+      };
+    }
+
+    if (error instanceof Error) {
+      return {
+        code: 'TOOL_EXECUTION_ERROR',
+        message: error.message,
+        toolName,
+      };
+    }
+
+    return {
+      code: 'TOOL_EXECUTION_ERROR',
+      message: String(error),
+      toolName,
+    };
   }
 
   /**

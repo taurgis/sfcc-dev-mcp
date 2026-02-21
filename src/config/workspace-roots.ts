@@ -273,6 +273,11 @@ export class WorkspaceRootsService {
     this.logger = logger ?? Logger.getInstance();
   }
 
+  private sanitizeRootNameForLog(root: MCPClientRoot): string {
+    const trimmedName = root.name?.trim();
+    return trimmedName && trimmedName.length > 0 ? trimmedName : '(unnamed root)';
+  }
+
   /**
    * Update workspace roots from MCP client response
    *
@@ -449,32 +454,32 @@ export class WorkspaceRootsService {
    * @returns Discovery result with config if found
    */
   discoverDwJson(clientRoots: MCPClientRoot[] | undefined): WorkspaceDiscoveryResult {
-    this.logger.log('[WorkspaceRoots] Starting dw.json discovery from client roots');
+    this.logger.debug('[WorkspaceRoots] Starting dw.json discovery from client roots');
 
     // Log what we received from the client
     if (!clientRoots) {
-      this.logger.log('[WorkspaceRoots] No roots array received from client (undefined)');
+      this.logger.debug('[WorkspaceRoots] No roots array received from client (undefined)');
       return { success: false, reason: 'No roots array received from client' };
     }
 
-    this.logger.log(`[WorkspaceRoots] Received ${clientRoots.length} root(s) from client`);
+    this.logger.debug(`[WorkspaceRoots] Received ${clientRoots.length} root(s) from client`);
 
     if (clientRoots.length === 0) {
-      this.logger.log('[WorkspaceRoots] Client returned empty roots array');
+      this.logger.debug('[WorkspaceRoots] Client returned empty roots array');
       return { success: false, reason: 'Client returned empty roots array', rootsReceived: 0 };
     }
 
-    // Log each root we received
+    // Log root names at debug level only (avoid leaking full URIs routinely).
     clientRoots.forEach((root, index) => {
-      this.logger.log(`[WorkspaceRoots] Root ${index + 1}: uri="${root.uri}", name="${root.name ?? '(none)'}"`);
+      this.logger.debug(`[WorkspaceRoots] Root ${index + 1}: ${this.sanitizeRootNameForLog(root)}`);
     });
 
     // Validate and store the workspace roots
     const validRoots = this.updateRoots(clientRoots);
-    this.logger.log(`[WorkspaceRoots] After validation: ${validRoots.length} valid root(s)`);
+    this.logger.debug(`[WorkspaceRoots] After validation: ${validRoots.length} valid root(s)`);
 
     if (validRoots.length === 0) {
-      this.logger.log('[WorkspaceRoots] No valid roots after security validation');
+      this.logger.debug('[WorkspaceRoots] No valid roots after security validation');
       return {
         success: false,
         reason: 'No valid workspace roots after security validation',
@@ -483,17 +488,12 @@ export class WorkspaceRootsService {
       };
     }
 
-    // Log validated roots
-    validRoots.forEach((root, index) => {
-      this.logger.log(`[WorkspaceRoots] Valid root ${index + 1}: path="${root.path}"`);
-    });
-
     // Search for dw.json in workspace roots
-    this.logger.log('[WorkspaceRoots] Searching for dw.json in workspace roots...');
+    this.logger.debug('[WorkspaceRoots] Searching for dw.json in workspace roots...');
     const dwJsonPath = this.findFile('dw.json');
 
     if (!dwJsonPath) {
-      this.logger.log('[WorkspaceRoots] No dw.json found in any workspace root');
+      this.logger.debug('[WorkspaceRoots] No dw.json found in any workspace root');
       return {
         success: false,
         reason: 'No dw.json found in workspace roots',
@@ -502,17 +502,17 @@ export class WorkspaceRootsService {
       };
     }
 
-    this.logger.log(`[WorkspaceRoots] Found dw.json at: ${dwJsonPath}`);
+    this.logger.debug('[WorkspaceRoots] Found dw.json in workspace roots');
 
     // Load and validate the dw.json
     try {
       const config = loadSecureDwJson(dwJsonPath);
-      this.logger.log('[WorkspaceRoots] Successfully loaded dw.json');
-      this.logger.log(`[WorkspaceRoots]   hostname: ${config.hostname}`);
-      this.logger.log(`[WorkspaceRoots]   username: ${config.username ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   password: ${config.password ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   client-id: ${config['client-id'] ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   client-secret: ${config['client-secret'] ? '(set)' : '(not set)'}`);
+      this.logger.log('[WorkspaceRoots] Discovered valid dw.json from workspace roots');
+      this.logger.debug(`[WorkspaceRoots]   hostname: ${config.hostname}`);
+      this.logger.debug(`[WorkspaceRoots]   username: ${config.username ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   password: ${config.password ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   client-id: ${config['client-id'] ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   client-secret: ${config['client-secret'] ? '(set)' : '(not set)'}`);
 
       return {
         success: true,

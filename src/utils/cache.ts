@@ -194,7 +194,7 @@ export class InMemoryCache<T> {
  * Simplified using a generic cache registry pattern
  */
 export class CacheManager {
-  private caches: Map<string, InMemoryCache<any>>;
+  private caches: Map<string, InMemoryCache<unknown>>;
 
   // Cache configuration for different data types
   private static readonly CACHE_CONFIGS = {
@@ -216,7 +216,7 @@ export class CacheManager {
    * Generic cache get operation
    */
   private getFromCache<T>(cacheName: string, key: string): T | undefined {
-    return this.caches.get(cacheName)?.get(key);
+    return this.caches.get(cacheName)?.get(key) as T | undefined;
   }
 
   /**
@@ -235,35 +235,35 @@ export class CacheManager {
     this.setInCache('fileContent', key, content);
   }
 
-  getClassDetails(key: string): any {
+  getClassDetails<T = unknown>(key: string): T | undefined {
     return this.getFromCache('classDetails', key);
   }
 
-  setClassDetails(key: string, details: any): void {
+  setClassDetails<T = unknown>(key: string, details: T): void {
     this.setInCache('classDetails', key, details);
   }
 
-  getSearchResults(key: string): any {
+  getSearchResults<T = unknown>(key: string): T | undefined {
     return this.getFromCache('searchResults', key);
   }
 
-  setSearchResults(key: string, results: any): void {
+  setSearchResults<T = unknown>(key: string, results: T): void {
     this.setInCache('searchResults', key, results);
   }
 
-  getMethodSearch(key: string): any {
+  getMethodSearch<T = unknown>(key: string): T | undefined {
     return this.getFromCache('methodSearch', key);
   }
 
-  setMethodSearch(key: string, results: any): void {
+  setMethodSearch<T = unknown>(key: string, results: T): void {
     this.setInCache('methodSearch', key, results);
   }
 
   /**
    * Get comprehensive cache statistics
    */
-  getAllStats(): Record<string, ReturnType<InMemoryCache<any>['getStats']>> {
-    const stats: Record<string, ReturnType<InMemoryCache<any>['getStats']>> = {};
+  getAllStats(): Record<string, ReturnType<InMemoryCache<unknown>['getStats']>> {
+    const stats: Record<string, ReturnType<InMemoryCache<unknown>['getStats']>> = {};
     for (const [name, cache] of this.caches) {
       stats[name] = cache.getStats();
     }

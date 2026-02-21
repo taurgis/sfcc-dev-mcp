@@ -4,7 +4,7 @@
 
 import { formatBytes } from '../../utils/utils.js';
 import { LOG_CONSTANTS, LOG_MESSAGES } from './log-constants.js';
-import type { LogSummary, LogFileInfo, LogLevel, JobLogInfo } from './log-types.js';
+import type { LogSummary, LogFileInfo, LogFileInfoList, LogLevel, JobLogInfo } from './log-types.js';
 
 export class LogFormatter {
   /**
@@ -75,8 +75,8 @@ export class LogFormatter {
   /**
    * Format log files list with metadata
    */
-  static formatLogFilesList(logFiles: LogFileInfo[]): string {
-    const totalFiles = (logFiles as any).totalCount ?? logFiles.length;
+  static formatLogFilesList(logFiles: LogFileInfoList): string {
+    const totalFiles = logFiles.totalCount ?? logFiles.length;
     const showingText = totalFiles > LOG_CONSTANTS.MAX_LOG_FILES_DISPLAY
       ? ` (showing latest ${LOG_CONSTANTS.MAX_LOG_FILES_DISPLAY} of ${totalFiles} total)`
       : '';

@@ -118,7 +118,7 @@ export abstract class AbstractDocumentationClient<
 
     // Check cache validity
     if (this.documentsCache && (now - this.lastScanTime) < AbstractDocumentationClient.SCAN_CACHE_TTL) {
-      const cached = this.cache.getSearchResults(cacheKey);
+      const cached = this.cache.getSearchResults<TSummary[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -149,7 +149,7 @@ export abstract class AbstractDocumentationClient<
     this.logger.debug(`Getting document: ${normalizedName}`);
 
     const cacheKey = `${this.config.cachePrefix}:document:${normalizedName}`;
-    const cached = this.cache.getSearchResults(cacheKey);
+    const cached = this.cache.getSearchResults<TDocument>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -227,7 +227,7 @@ export abstract class AbstractDocumentationClient<
     this.logger.debug('Getting available categories');
 
     const cacheKey = `${this.config.cachePrefix}:categories`;
-    const cached = this.cache.getSearchResults(cacheKey);
+    const cached = this.cache.getSearchResults<CategoryWithCount[]>(cacheKey);
     if (cached) {
       return cached;
     }

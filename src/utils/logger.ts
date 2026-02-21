@@ -34,6 +34,11 @@ export class Logger {
   private readonly useSyncWrites: boolean;
   private static instance: Logger | null = null;
 
+  private static shouldUseSyncWrites(customLogDir: string | undefined): boolean {
+    // Synchronous writes are only needed for deterministic unit tests.
+    return customLogDir !== undefined && process.env.NODE_ENV === 'test';
+  }
+
   /**
    * Create a new Logger instance
    * @param context The context/component name for this logger
@@ -48,8 +53,8 @@ export class Logger {
 
     // Set up log directory - use custom directory for testing or default for production
     this.logDir = customLogDir ?? join(tmpdir(), 'sfcc-mcp-logs');
-    // Custom log dirs are primarily used by tests that expect immediate writes.
-    this.useSyncWrites = customLogDir !== undefined;
+    // Only tests should force sync writes; runtime must stay non-blocking.
+    this.useSyncWrites = Logger.shouldUseSyncWrites(customLogDir);
     if (!existsSync(this.logDir)) {
       mkdirSync(this.logDir, { recursive: true });
     }

@@ -46,6 +46,8 @@ export interface ToolExecutionContext {
   [key: string]: unknown;
 }
 
+const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'true';
+
 export class HandlerError extends ValidationError {
   constructor(
     message: string,
@@ -162,10 +164,27 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected createErrorResponse(error: Error, toolName: string): ToolExecutionResult {
     this.logger.error(`Error in ${toolName}:`, error);
-    return {
+
+    const validationError = error instanceof ValidationError ? error : undefined;
+    const structuredError = {
+      code: validationError?.code ?? 'TOOL_EXECUTION_ERROR',
+      message: error.message,
+      toolName,
+      details: validationError?.details,
+    };
+
+    const response: ToolExecutionResult = {
       content: [{ type: 'text', text: `Error: ${error.message}` }],
       isError: true,
     };
+
+    if (INCLUDE_STRUCTURED_ERRORS) {
+      response.structuredContent = {
+        error: structuredError,
+      };
+    }
+
+    return response;
   }
 
   protected async executeWithLogging(
