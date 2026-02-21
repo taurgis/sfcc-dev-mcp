@@ -110,6 +110,13 @@ export class SFCCDevServer {
   private readonly hasExplicitConfiguration: boolean;
   private reconfigureQueue: Promise<void> = Promise.resolve();
   private readonly toolArgumentValidator: ToolArgumentValidator;
+  private shutdownPromise: Promise<void> | null = null;
+  private readonly onSigInt = (): void => {
+    void this.shutdown();
+  };
+  private readonly onSigTerm = (): void => {
+    void this.shutdown();
+  };
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -477,8 +484,10 @@ export class SFCCDevServer {
     const transport = new StdioServerTransport();
 
     // Set up graceful shutdown
-    process.on('SIGINT', () => this.shutdown());
-    process.on('SIGTERM', () => this.shutdown());
+    process.off('SIGINT', this.onSigInt);
+    process.off('SIGTERM', this.onSigTerm);
+    process.on('SIGINT', this.onSigInt);
+    process.on('SIGTERM', this.onSigTerm);
 
     await this.server.connect(transport);
     this.logger.log('SFCC Development MCP server running on stdio');
@@ -488,13 +497,26 @@ export class SFCCDevServer {
    * Gracefully shutdown the server and dispose of resources
    */
   private async shutdown(): Promise<void> {
-    this.logger.log('Shutting down SFCC Development MCP server...');
+    if (this.shutdownPromise) {
+      await this.shutdownPromise;
+      return;
+    }
 
-    // Dispose of all handlers
-    await this.disposeHandlersSafely('shutdown');
+    this.shutdownPromise = (async () => {
+      this.logger.log('Shutting down SFCC Development MCP server...');
 
-    this.logger.log('SFCC Development MCP server shutdown complete');
-    process.exit(0);
+      // Detach process listeners first so repeated run()/shutdown() cycles do not retain closures.
+      process.off('SIGINT', this.onSigInt);
+      process.off('SIGTERM', this.onSigTerm);
+
+      // Dispose of all handlers
+      await this.disposeHandlersSafely('shutdown');
+
+      this.logger.log('SFCC Development MCP server shutdown complete');
+      process.exit(0);
+    })();
+
+    await this.shutdownPromise;
   }
 
   /**

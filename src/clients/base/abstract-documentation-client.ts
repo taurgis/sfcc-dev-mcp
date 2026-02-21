@@ -260,6 +260,15 @@ export abstract class AbstractDocumentationClient<
     this.lastScanTime = 0;
   }
 
+  /**
+   * Destroy all cache resources and reset in-memory state.
+   */
+  destroy(): void {
+    this.cache.destroy();
+    this.documentsCache = null;
+    this.lastScanTime = 0;
+  }
+
   // ==================== Protected methods for subclass customization ====================
 
   // Batch size for parallel file reads (avoid file descriptor exhaustion)

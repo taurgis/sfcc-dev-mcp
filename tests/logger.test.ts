@@ -299,5 +299,24 @@ describe('Logger', () => {
       stderrSpy.mockRestore();
       fsMock.mockRestore();
     });
+
+    it('should drop async entries when pending write queue is saturated', () => {
+      const stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+      logger = new Logger('TEST-ASYNC');
+
+      const loggerAny = logger as any;
+      loggerAny.pendingWriteCount = (Logger as any).MAX_PENDING_WRITES;
+
+      for (let i = 0; i < 100; i++) {
+        logger.info('saturated queue message');
+      }
+
+      expect(loggerAny.droppedLogCount).toBe(100);
+      expect(stderrSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Dropped 100 log entries due to write backpressure'),
+      );
+
+      stderrSpy.mockRestore();
+    });
   });
 });

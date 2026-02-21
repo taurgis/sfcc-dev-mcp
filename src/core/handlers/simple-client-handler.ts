@@ -1,5 +1,11 @@
 import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
 
+interface LifecycleClient {
+  destroy?: () => Promise<void> | void;
+  dispose?: () => Promise<void> | void;
+  close?: () => Promise<void> | void;
+}
+
 /**
  * Configuration for creating a simple client handler
  * Reduces boilerplate for handlers that just wrap a single client
@@ -51,8 +57,32 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
   }
 
   protected async onDispose(): Promise<void> {
+    const client = this.client;
     this.client = null;
+
+    if (client) {
+      await this.teardownClient(client);
+    }
+
     this.logger.debug(`${this.config.clientDisplayName} client disposed`);
+  }
+
+  private async teardownClient(client: TClient): Promise<void> {
+    const lifecycleClient = client as unknown as LifecycleClient;
+
+    if (typeof lifecycleClient.destroy === 'function') {
+      await lifecycleClient.destroy();
+      return;
+    }
+
+    if (typeof lifecycleClient.dispose === 'function') {
+      await lifecycleClient.dispose();
+      return;
+    }
+
+    if (typeof lifecycleClient.close === 'function') {
+      await lifecycleClient.close();
+    }
   }
 
   protected getToolNameSet(): Set<TToolName> {

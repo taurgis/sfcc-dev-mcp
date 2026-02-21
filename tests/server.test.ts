@@ -360,4 +360,27 @@ describe('SFCCDevServer', () => {
     expect(mockServer.listRoots).not.toHaveBeenCalled();
     expect(serverAny.workspaceRootsService.discoverDwJson).not.toHaveBeenCalled();
   });
+
+  it('cleans up process signal listeners and exits only once during repeated shutdown calls', async () => {
+    const onSpy = jest.spyOn(process, 'on');
+    const offSpy = jest.spyOn(process, 'off');
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+
+    const server = new SFCCDevServer({ hostname: '' });
+    await server.run();
+
+    expect(onSpy).toHaveBeenCalledWith('SIGINT', expect.any(Function));
+    expect(onSpy).toHaveBeenCalledWith('SIGTERM', expect.any(Function));
+
+    await (server as unknown as { shutdown: () => Promise<void> }).shutdown();
+    await (server as unknown as { shutdown: () => Promise<void> }).shutdown();
+
+    expect(offSpy).toHaveBeenCalledWith('SIGINT', expect.any(Function));
+    expect(offSpy).toHaveBeenCalledWith('SIGTERM', expect.any(Function));
+    expect(exitSpy).toHaveBeenCalledTimes(1);
+
+    onSpy.mockRestore();
+    offSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
 });

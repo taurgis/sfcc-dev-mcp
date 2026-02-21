@@ -20,6 +20,8 @@ import { OAuthToken, OAuthTokenResponse } from '../../types/types.js';
 export class TokenManager {
   private static instance: TokenManager;
   private tokens: Map<string, OAuthToken> = new Map();
+  private static readonly MAX_TOKEN_ENTRIES = 1000;
+  private static readonly EXPIRATION_BUFFER_MS = 60 * 1000;
 
   private constructor() {}
 
@@ -56,9 +58,7 @@ export class TokenManager {
 
     // Add 60-second buffer to avoid using tokens that are about to expire
     const now = Date.now();
-    const expirationBuffer = 60 * 1000; // 60 seconds in milliseconds
-
-    const isValid = token.expiresAt > (now + expirationBuffer);
+    const isValid = token.expiresAt > (now + TokenManager.EXPIRATION_BUFFER_MS);
 
     // Proactively clean up expired tokens
     if (!isValid) {
@@ -96,6 +96,13 @@ export class TokenManager {
     }
 
     const key = this.getTokenKey(hostname, clientId);
+
+    // Keep storage bounded and clear stale entries before inserting.
+    this.cleanupExpiredTokens();
+    if (!this.tokens.has(key) && this.tokens.size >= TokenManager.MAX_TOKEN_ENTRIES) {
+      this.evictOldestToken();
+    }
+
     const now = Date.now();
 
     const token: OAuthToken = {
@@ -150,15 +157,32 @@ export class TokenManager {
    */
   cleanupExpiredTokens(): number {
     const now = Date.now();
+    const cutoff = now + TokenManager.EXPIRATION_BUFFER_MS;
     let cleanedCount = 0;
 
     for (const [key, token] of this.tokens.entries()) {
-      if (token.expiresAt <= now) {
+      if (token.expiresAt <= cutoff) {
         this.tokens.delete(key);
         cleanedCount++;
       }
     }
 
     return cleanedCount;
+  }
+
+  private evictOldestToken(): void {
+    let oldestKey: string | undefined;
+    let oldestExpiration = Number.POSITIVE_INFINITY;
+
+    for (const [key, token] of this.tokens.entries()) {
+      if (token.expiresAt < oldestExpiration) {
+        oldestExpiration = token.expiresAt;
+        oldestKey = key;
+      }
+    }
+
+    if (oldestKey) {
+      this.tokens.delete(oldestKey);
+    }
   }
 }

@@ -31,8 +31,12 @@ export class Logger {
   private debugEnabled: boolean;
   private logDir: string;
   private writeQueue: Promise<void> = Promise.resolve();
+  private pendingWriteCount = 0;
+  private droppedLogCount = 0;
   private readonly useSyncWrites: boolean;
   private static instance: Logger | null = null;
+  private static readonly MAX_PENDING_WRITES = 5000;
+  private static readonly DROP_NOTICE_INTERVAL = 100;
 
   private static shouldUseSyncWrites(customLogDir: string | undefined): boolean {
     // Synchronous writes are only needed for deterministic unit tests.
@@ -135,6 +139,19 @@ export class Logger {
    * Write log message to appropriate log file
    */
   private writeLog(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: unknown[]): void {
+    if (!this.useSyncWrites && this.pendingWriteCount >= Logger.MAX_PENDING_WRITES) {
+      this.droppedLogCount++;
+
+      // Avoid stderr spam while still surfacing sustained backpressure.
+      if (this.droppedLogCount % Logger.DROP_NOTICE_INTERVAL === 0) {
+        process.stderr.write(
+          `[LOGGER WARN] Dropped ${this.droppedLogCount} log entries due to write backpressure\n`,
+        );
+      }
+
+      return;
+    }
+
     const formattedMessage = this.formatMessage(message);
     const serializedArgs = args.map(arg => this.serializeArg(arg)).join(' ');
     const rawFullMessage = serializedArgs.length > 0
@@ -157,12 +174,16 @@ export class Logger {
       return;
     }
 
+    this.pendingWriteCount++;
     this.writeQueue = this.writeQueue
       .then(async () => {
         await fs.appendFile(logFile, logEntry, 'utf8');
       })
       .catch((error: unknown) => {
         this.handleWriteFailure(level, logEntry, error);
+      })
+      .finally(() => {
+        this.pendingWriteCount = Math.max(0, this.pendingWriteCount - 1);
       });
   }
 

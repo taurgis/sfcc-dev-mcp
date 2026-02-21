@@ -1,6 +1,12 @@
 import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
 import { ClientFactory } from './client-factory.js';
 
+interface LifecycleClient {
+  destroy?: () => Promise<void> | void;
+  dispose?: () => Promise<void> | void;
+  close?: () => Promise<void> | void;
+}
+
 /**
  * Abstract base class for handlers that need a client with factory-based creation.
  * This provides a simpler alternative to SimpleClientHandler when you need
@@ -55,8 +61,32 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
   }
 
   protected async onDispose(): Promise<void> {
+    const client = this.client;
     this.client = null;
+
+    if (client) {
+      await this.teardownClient(client);
+    }
+
     this.logger.debug(`${this.getClientDisplayName()} client disposed`);
+  }
+
+  private async teardownClient(client: TClient): Promise<void> {
+    const lifecycleClient = client as unknown as LifecycleClient;
+
+    if (typeof lifecycleClient.destroy === 'function') {
+      await lifecycleClient.destroy();
+      return;
+    }
+
+    if (typeof lifecycleClient.dispose === 'function') {
+      await lifecycleClient.dispose();
+      return;
+    }
+
+    if (typeof lifecycleClient.close === 'function') {
+      await lifecycleClient.close();
+    }
   }
 
   protected async createExecutionContext(): Promise<ToolExecutionContext> {

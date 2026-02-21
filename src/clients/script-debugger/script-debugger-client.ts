@@ -564,10 +564,10 @@ export class ScriptDebuggerClient {
    * after successfully hitting the breakpoint. In that case we should NOT retry.
    */
   private async triggerStorefrontUrl(url: string): Promise<boolean> {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TRIGGER_TIMEOUT_MS);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TRIGGER_TIMEOUT_MS);
 
+    try {
       const response = await fetch(url, {
         method: 'GET',
         signal: controller.signal,
@@ -575,8 +575,6 @@ export class ScriptDebuggerClient {
           Accept: 'text/html,application/xhtml+xml',
         },
       });
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         this.logger.debug('Storefront trigger non-OK response', { url, status: response.status });
@@ -597,6 +595,8 @@ export class ScriptDebuggerClient {
 
       this.logger.debug('Storefront trigger error', { url, error: errorMessage });
       return true;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

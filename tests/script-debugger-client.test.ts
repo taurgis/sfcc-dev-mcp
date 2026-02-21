@@ -389,6 +389,35 @@ describe('ScriptDebuggerClient', () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain('Timeout waiting for script to hit breakpoint');
     });
+
+    it('should clear storefront timeout even when trigger requests fail', async () => {
+      mockExists.mockResolvedValue(true);
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'trigger-timeout-cleaned' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes('/on/demandware.store/') && !urlStr.includes('/dw/debugger')) {
+          throw new Error('Storefront trigger failed');
+        }
+        return defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('1 + 1', { timeout: 5000 });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('trigger-timeout-cleaned');
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+
+      clearTimeoutSpy.mockRestore();
+    });
   });
 
   describe('authentication', () => {
