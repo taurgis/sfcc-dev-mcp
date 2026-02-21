@@ -46,7 +46,7 @@ export const tools: ToolMeta[] = [
     params: [
       p('destinationType', 'project|user|temp (default: project)', false),
       p('preferredRoot', 'Optional workspace root path or name when multiple roots exist', false),
-      p('skillsDir', 'Optional relative skills dir (.github/skills, .cursor/skills, .claude/skills)', false),
+      p('skillsDir', 'Optional relative skills dir (.github/skills, .agents/skills, .claude/skills, .agent/skills, .cursor/skills; for destinationType=user also checks .copilot/skills)', false),
       p('mergeStrategy', 'append|replace|skip (default: append)', false),
       p('includeAgents', 'Copy AGENTS.md (boolean, default: true)', false),
       p('includeSkills', 'Copy skills (boolean, default: true)', false),
@@ -57,7 +57,8 @@ export const tools: ToolMeta[] = [
     examples: [
       'Sync agent instructions into this SFCC project (dryRun=false)',
       'Plan what sync_agent_instructions would change (dryRun=true)',
-      'Install skills into .github/skills for GitHub Copilot'
+      'Install skills into .github/skills for GitHub Copilot',
+      'Install skills into .agents/skills for workspace-shared agents'
     ],
     tags: ['agents', 'skills', 'bootstrap', 'instructions'],
     popular: true

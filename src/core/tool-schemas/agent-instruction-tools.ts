@@ -5,7 +5,7 @@
 export const AGENT_INSTRUCTION_TOOLS = [
   {
     name: 'sync_agent_instructions',
-    description: 'ONLY FOR SALESFORCE B2C COMMERCE (SFCC) PROJECTS. IMPORTANT: Before calling this tool, ALWAYS ASK THE USER if they want to install AGENTS.md and bundled SFCC skills into their project. If the user declines, do NOT call this tool - instead call disable_agent_sync to permanently disable this suggestion. This tool installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .cursor/skills, .claude/skills).',
+    description: 'ONLY FOR SALESFORCE B2C COMMERCE (SFCC) PROJECTS. IMPORTANT: Before calling this tool, ALWAYS ASK THE USER if they want to install AGENTS.md and bundled SFCC skills into their project. If the user declines, do NOT call this tool - instead call disable_agent_sync to permanently disable this suggestion. This tool installs/merges AGENTS.md and bundled SFCC skills into the project (or a temp dir for manual merge). Supports dry-run planning, append/replace/skip merge strategies, and selecting skills directory (.github/skills, .agents/skills, .claude/skills, .agent/skills, .cursor/skills, and user-home defaults like ~/.copilot/skills).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -21,7 +21,7 @@ export const AGENT_INSTRUCTION_TOOLS = [
         },
         skillsDir: {
           type: 'string',
-          description: 'Optional relative skills directory (default prefers existing .github/skills, .cursor/skills, or .claude/skills).',
+          description: 'Optional relative skills directory (default prefers existing .github/skills, .agents/skills, .claude/skills, .agent/skills, .cursor/skills; for destinationType=user also checks .copilot/skills).',
         },
         mergeStrategy: {
           type: 'string',
