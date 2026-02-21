@@ -313,7 +313,10 @@ sfcc-dev-mcp/
 │   │   └── webdav/              # WebDAV server mocks
 │   ├── *.test.ts                # Individual test files for components
 │   └── [various test files]     # Unit and integration tests
-├── scripts/                     # Build and documentation scripts
+├── scripts/                     # Build, validation, and documentation scripts
+│   ├── convert-docs.js
+│   ├── test-published-npx.sh    # Post-publish validation against npm package via npx
+│   └── validate-server-json.js
 └── package.json                 # Node.js package configuration
 ```
 
@@ -589,10 +592,12 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **YAML Tests**: Use `mcp-yaml-testing` skill for declarative test creation
 - **Programmatic Tests**: Use `mcp-programmatic-testing` skill for complex workflows
 - **Unit Tests**: Jest for `tests/` directory; MCP tests use `node --test`
+- **Published NPX Validation**: Use `bash ./scripts/test-published-npx.sh [version]` to run MCP tests against the released npm artifact
 
 **SFCC-Specific Tasks** (see `.github/skills/` for detailed guides):
 - **Cartridge Generation**: Use `sfcc-cartridge-generation` skill for scaffolding
 - **Log Debugging**: Use `sfcc-log-debugging` skill for error investigation
+- **Published NPX Validation**: Start `npm run test:mock-server:start` locally before `bash ./scripts/test-published-npx.sh [version]` (publish workflow starts/stops the mock server automatically)
 
 **Modular Development:**
 - **Log Modules**: Modify `clients/logs/` files for log functionality changes
@@ -622,6 +627,7 @@ npx aegis query [tool_name] '[params]' --config ./aegis.config.docs-only.json
 npm run test:mcp:yaml        # YAML tests (docs-only)
 npm run test:mcp:yaml:full   # YAML tests (full mode)
 npm run test:mcp:node        # Programmatic tests
+npm run test:mcp:published-npx  # MCP tests against latest published npm package via npx
 npm test                     # Full suite (Jest + MCP)
 ```
 

@@ -75,18 +75,29 @@ jobs:
           # Push the release branch
           git push origin $BRANCH_NAME
 
-      - name: Stop SFCC mock server
-        if: always()
-        run: |
-          # Kill SFCC mock server process
-          pkill -f "node.*server.js" || true
-          # Fallback: kill any remaining server processes on port 3000
-          lsof -ti :3000 | xargs kill -9 2>/dev/null || true
-
       - name: Publish to NPM
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Wait for npm propagation buffer
+        run: |
+          echo "Waiting 120 seconds for npm registry/CDN propagation before post-publish tests..."
+          sleep 120
+
+      - name: Run post-publish MCP tests against published NPX package
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          bash ./scripts/test-published-npx.sh "$VERSION"
+
+      - name: Stop SFCC mock server
+        if: always()
+        run: |
+          # Stop the single mock server instance used by both pre- and post-publish MCP tests.
+          pkill -f "node.*server.js" || true
+          # Fallback: kill any remaining server processes on port 3000
+          lsof -ti :3000 | xargs kill -9 2>/dev/null || true
 
       - name: Install MCP Publisher
         run: |

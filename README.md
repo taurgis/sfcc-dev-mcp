@@ -200,6 +200,25 @@ The server writes logs to your system's temporary directory:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 ```
 
+## 🧪 Release Validation (Maintainers)
+
+The publish workflow runs MCP tests against the just-published npm artifact (`npx sfcc-dev-mcp@<version>`) before publishing to the MCP Registry.
+
+You can run the same validation locally:
+
+```bash
+# In a separate terminal, start the mock server first for full-mode MCP tests
+npm run test:mock-server:start
+
+# Uses latest published version by default
+npm run test:mcp:published-npx
+
+# Or pin a specific published version
+bash ./scripts/test-published-npx.sh 1.0.21
+```
+
+In GitHub Actions, the publish workflow manages the mock server lifecycle automatically.
+
 ## 📖 Documentation
 
 **📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
