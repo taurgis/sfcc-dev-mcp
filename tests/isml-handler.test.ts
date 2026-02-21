@@ -191,16 +191,36 @@ describe('ISMLToolHandler', () => {
       });
     });
 
-    it('should throw error when elementName is missing', async () => {
+    it('should not enforce missing elementName in handler (validated at MCP boundary)', async () => {
+      mockClient.getISMLElement.mockResolvedValue({
+        name: 'fallback',
+        title: 'fallback',
+        description: 'fallback element',
+        syntax: '<isfallback/>',
+      });
       const result = await handler.handle('get_isml_element', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('elementName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getISMLElement).toHaveBeenCalledWith(undefined, {
+        includeContent: true,
+        includeSections: true,
+        includeAttributes: true,
+      });
     });
 
-    it('should throw error when elementName is empty', async () => {
+    it('should not enforce empty elementName in handler (validated at MCP boundary)', async () => {
+      mockClient.getISMLElement.mockResolvedValue({
+        name: 'fallback',
+        title: 'fallback',
+        description: 'fallback element',
+        syntax: '<isfallback/>',
+      });
       const result = await handler.handle('get_isml_element', { elementName: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('elementName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getISMLElement).toHaveBeenCalledWith('', {
+        includeContent: true,
+        includeSections: true,
+        includeAttributes: true,
+      });
     });
 
     it('should throw error when element is not found', async () => {
@@ -264,16 +284,22 @@ describe('ISMLToolHandler', () => {
       expect(result.isError).toBe(false);
     });
 
-    it('should throw error when query is missing', async () => {
+    it('should not enforce missing query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_isml_elements', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.searchISMLElements).toHaveBeenCalledWith(undefined, {
+        category: undefined,
+        limit: undefined,
+      });
     });
 
-    it('should throw error when query is empty', async () => {
+    it('should not enforce empty query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_isml_elements', { query: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.searchISMLElements).toHaveBeenCalledWith('', {
+        category: undefined,
+        limit: undefined,
+      });
     });
   });
 
@@ -295,16 +321,16 @@ describe('ISMLToolHandler', () => {
       expect(getResultText(result)).toContain('isloop');
     });
 
-    it('should throw error when category is missing', async () => {
+    it('should not enforce missing category in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('get_isml_elements_by_category', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('category must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getElementsByCategory).toHaveBeenCalledWith(undefined);
     });
 
-    it('should throw error when category is empty', async () => {
+    it('should not enforce empty category in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('get_isml_elements_by_category', { category: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('category must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getElementsByCategory).toHaveBeenCalledWith('');
     });
   });
 

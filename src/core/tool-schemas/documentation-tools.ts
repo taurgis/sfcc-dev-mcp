@@ -11,6 +11,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         className: {
           type: 'string',
+          minLength: 1,
           description: "The SFCC class name (e.g., 'Catalog', 'dw.catalog.Catalog')",
         },
         expand: {
@@ -45,6 +46,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
         },
         search: {
           type: 'string',
+          minLength: 1,
           description: 'Filter class members by keyword (case-insensitive). Single word only, e.g., "price", "get", "custom".',
         },
       },
@@ -59,6 +61,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         query: {
           type: 'string',
+          minLength: 1,
           description: 'Single keyword to search class names, e.g., "catalog", "order", "basket".',
         },
       },
@@ -73,6 +76,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         methodName: {
           type: 'string',
+          minLength: 1,
           description: 'Method name to search, e.g., "getProduct", "addItem", "calculate".',
         },
       },
@@ -95,6 +99,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
       properties: {
         className: {
           type: 'string',
+          minLength: 1,
           description: 'The SFCC class name',
         },
       },

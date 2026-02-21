@@ -1,5 +1,4 @@
 import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { teardownLifecycleClient } from './lifecycle-utils.js';
 
 /**
  * Configuration for creating a simple client handler
@@ -54,10 +53,7 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
   protected async onDispose(): Promise<void> {
     const client = this.client;
     this.client = null;
-
-    if (client) {
-      await teardownLifecycleClient(client);
-    }
+    await this.teardownClient(client);
 
     this.logger.debug(`${this.config.clientDisplayName} client disposed`);
   }

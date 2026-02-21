@@ -90,8 +90,8 @@ export class ToolArgumentValidator {
     const declaredType = schema.type;
 
     if (declaredType === 'string') {
-      if (typeof value !== 'string' || value.trim().length === 0) {
-        issues.push({ path, message: 'must be a non-empty string' });
+      if (typeof value !== 'string') {
+        issues.push({ path, message: 'must be a string' });
       } else {
         this.validateEnum(value, schema, path, issues);
         this.validateStringConstraints(value, schema, path, issues);
@@ -154,14 +154,15 @@ export class ToolArgumentValidator {
 
     const properties = schema.properties ?? {};
     const required = schema.required ?? [];
+    const hasDefinedProperties = schema.properties !== undefined;
     const strictObjectKeys = schema.additionalProperties === false ||
-      (path === '$' && schema.additionalProperties !== true);
+      (schema.additionalProperties !== true && hasDefinedProperties);
 
     for (const requiredKey of required) {
       if (!(requiredKey in value)) {
         const requiredSchema = properties[requiredKey];
-        const message = requiredSchema?.type === 'string'
-          ? 'must be a non-empty string'
+        const message = requiredSchema?.type === 'string' && typeof requiredSchema?.minLength === 'number' && requiredSchema.minLength > 0
+          ? `must be at least ${requiredSchema.minLength} characters`
           : 'is required';
         issues.push({ path: `${path}.${requiredKey}`, message });
       }

@@ -11,10 +11,13 @@ export const CARTRIDGE_GENERATION_TOOLS = [
       properties: {
         cartridgeName: {
           type: 'string',
+          minLength: 1,
+          pattern: '^[a-zA-Z][a-zA-Z0-9_-]*$',
           description: 'Name of the cartridge (e.g., "plugin_example")',
         },
         targetPath: {
           type: 'string',
+          minLength: 1,
           description: 'Target directory path where the cartridge files should be placed. If not specified, files will be placed in the current working directory. Use absolute paths for best results (e.g., "/Users/username/projects/my-sfcc-project/").',
         },
         fullProjectSetup: {

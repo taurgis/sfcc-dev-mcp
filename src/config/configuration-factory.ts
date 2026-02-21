@@ -118,9 +118,25 @@ export class ConfigurationFactory {
    * @throws Error if configuration is invalid for any supported mode
    */
   private static validate(config: SFCCConfig): void {
-    const hasBasicAuth = config.username && config.password;
-    const hasOAuth = config.clientId && config.clientSecret;
+    const hasBasicUser = typeof config.username === 'string' && config.username.trim() !== '';
+    const hasBasicPassword = typeof config.password === 'string' && config.password.trim() !== '';
+    const hasBasicAuth = hasBasicUser && hasBasicPassword;
+    const hasPartialBasicAuth = hasBasicUser !== hasBasicPassword;
+
+    const hasClientId = typeof config.clientId === 'string' && config.clientId.trim() !== '';
+    const hasClientSecret = typeof config.clientSecret === 'string' && config.clientSecret.trim() !== '';
+    const hasOAuth = hasClientId && hasClientSecret;
+    const hasPartialOAuth = hasClientId !== hasClientSecret;
+
     const hasHostname = config.hostname && config.hostname.trim() !== '';
+
+    if (hasPartialBasicAuth) {
+      throw new Error('Basic auth credentials must include both username and password');
+    }
+
+    if (hasPartialOAuth) {
+      throw new Error('OAuth credentials must include both clientId and clientSecret');
+    }
 
     // Allow local mode if no credentials or hostname are provided
     if (!hasBasicAuth && !hasOAuth && !hasHostname) {

@@ -110,7 +110,7 @@ function resolveServerVersion(): string {
 }
 
 const SERVER_VERSION = resolveServerVersion();
-const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'true';
+const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS !== 'false';
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -378,8 +378,8 @@ export class SFCCDevServer {
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
-        if (!this.allToolNames.has(name)) {
-          this.logger.error(`Unknown tool requested: ${name}`);
+        const handler = this.handlers.find((h) => h.canHandle(name));
+        if (!handler) {
           throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
         }
 
@@ -393,12 +393,6 @@ export class SFCCDevServer {
               canAccessOCAPI: this.capabilities.canAccessOCAPI,
             },
           );
-        }
-
-        const handler = this.handlers.find((h) => h.canHandle(name));
-        if (!handler) {
-          this.logger.error(`Unknown tool requested: ${name}`);
-          throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
         }
 
         this.toolArgumentValidator.validate(name, args ?? {});

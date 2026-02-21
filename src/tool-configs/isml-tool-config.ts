@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { ISMLClient } from '../clients/isml-client.js';
 
 export const ISML_TOOL_NAMES = [
@@ -34,9 +33,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
       includeSections: args.includeSections ?? true,
       includeAttributes: args.includeAttributes ?? true,
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('elementName'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;
       const result = await client.getISMLElement(args.elementName as string, {
@@ -53,9 +49,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
   },
 
   search_isml_elements: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;
       return client.searchISMLElements(args.query as string, {
@@ -67,9 +60,6 @@ export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArgument
   },
 
   get_isml_elements_by_category: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('category'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;
       return client.getElementsByCategory(args.category as string);

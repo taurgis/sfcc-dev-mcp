@@ -170,22 +170,49 @@ describe('CartridgeToolHandler', () => {
       });
     });
 
-    it('should throw error when cartridgeName is missing', async () => {
+    it('should not enforce missing cartridgeName in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: undefined,
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
 
-    it('should throw error when cartridgeName is empty', async () => {
+    it('should not enforce empty cartridgeName in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: '',
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
 
-    it('should throw error when cartridgeName is not a string', async () => {
+    it('should not enforce cartridgeName type in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: 123 }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: 123,
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
   });
 

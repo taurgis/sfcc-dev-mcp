@@ -17,10 +17,12 @@ export const AGENT_INSTRUCTION_TOOLS = [
         },
         preferredRoot: {
           type: 'string',
+          minLength: 1,
           description: 'Optional workspace root path or name to target when multiple roots are available.',
         },
         skillsDir: {
           type: 'string',
+          minLength: 1,
           description: 'Optional relative skills directory (default prefers existing .github/skills, .agents/skills, .claude/skills, .agent/skills, .cursor/skills; for destinationType=user also checks .copilot/skills).',
         },
         mergeStrategy: {
@@ -51,6 +53,7 @@ export const AGENT_INSTRUCTION_TOOLS = [
         },
         tempDir: {
           type: 'string',
+          minLength: 1,
           description: 'Custom directory to use when destinationType is temp.',
         },
       },
@@ -64,6 +67,7 @@ export const AGENT_INSTRUCTION_TOOLS = [
       properties: {
         preferredRoot: {
           type: 'string',
+          minLength: 1,
           description: 'Optional workspace root path or name to target when multiple roots are available.',
         },
       },

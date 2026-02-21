@@ -2,6 +2,7 @@ import { Logger } from '../../utils/logger.js';
 import { SFCCConfig } from '../../types/types.js';
 import { WorkspaceRootsService } from '../../config/workspace-roots.js';
 import { ValidationError } from '../../utils/validator.js';
+import { teardownLifecycleClient } from './lifecycle-utils.js';
 
 export interface HandlerContext {
   logger: Logger;
@@ -46,7 +47,7 @@ export interface ToolExecutionContext {
   [key: string]: unknown;
 }
 
-const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'true';
+const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS !== 'false';
 
 export class HandlerError extends ValidationError {
   constructor(
@@ -133,6 +134,14 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
   }
 
   protected async onDispose(): Promise<void> { /* no-op */ }
+
+  protected async teardownClient(client: unknown): Promise<void> {
+    if (!client) {
+      return;
+    }
+
+    await teardownLifecycleClient(client);
+  }
 
   protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
     const structuredContent = isStructuredContentRecord(data) ? data : undefined;

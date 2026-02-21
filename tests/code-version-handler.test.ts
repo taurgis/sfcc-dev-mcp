@@ -162,16 +162,16 @@ describe('CodeVersionToolHandler', () => {
       expect(getResultText(result)).toContain('activated successfully');
     });
 
-    it('should throw error when codeVersionId is missing', async () => {
+    it('should not enforce missing codeVersionId in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('activate_code_version', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('codeVersionId must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.activateCodeVersion).toHaveBeenCalledWith(undefined);
     });
 
-    it('should throw error when codeVersionId is empty', async () => {
+    it('should not enforce empty codeVersionId in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('activate_code_version', { codeVersionId: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('codeVersionId must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.activateCodeVersion).toHaveBeenCalledWith('');
     });
   });
 

@@ -41,6 +41,7 @@ This tool automates the entire workflow using the existing Default-Start endpoin
       properties: {
         script: {
           type: 'string',
+          minLength: 1,
           description: `The JavaScript code to execute on the SFCC instance. 
 
 The script runs in a server-side context with access to all dw.* APIs.
@@ -52,7 +53,7 @@ Examples:
 - "return 1 + 1;"`,
         },
         timeout: {
-          type: 'number',
+          type: 'integer',
           description: 'Maximum time in milliseconds to wait for script execution (default: 30000). Increase for complex scripts.',
           default: 30000,
           minimum: 1,
@@ -72,6 +73,7 @@ Examples:
         },
         breakpointFile: {
           type: 'string',
+          minLength: 1,
           description: `Optional: Custom controller file path for the breakpoint. Use this if automatic detection fails.
 Format: /{cartridge}/cartridge/controllers/{Controller}.js
 Example: "/app_storefront_base/cartridge/controllers/Default.js"`,

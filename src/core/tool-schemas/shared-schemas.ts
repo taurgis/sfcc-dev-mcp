@@ -23,6 +23,7 @@ export const QUERY_SCHEMA = {
         },
         search_phrase: {
           type: 'string',
+          minLength: 1,
           description: 'Text to search for',
         },
       },
@@ -39,6 +40,7 @@ export const QUERY_SCHEMA = {
         },
         operator: {
           type: 'string',
+          minLength: 1,
           description: 'Query operator (e.g., "is", "one_of")',
         },
         values: {
@@ -106,13 +108,13 @@ export const SORTS_SCHEMA = {
  */
 export const PAGINATION_SCHEMA = {
   start: {
-    type: 'number',
+    type: 'integer',
     description: 'Start index for pagination (default: 0)',
     default: 0,
     minimum: 0,
   },
   count: {
-    type: 'number',
+    type: 'integer',
     description: 'Number of results to return (default: 200)',
     default: 200,
     minimum: 1,
@@ -120,6 +122,7 @@ export const PAGINATION_SCHEMA = {
   },
   select: {
     type: 'string',
+    minLength: 1,
     description: "Property selector (e.g., '(**)' for all properties)",
   },
 } as const;
@@ -155,7 +158,7 @@ export const DATE_PARAM_SCHEMA = {
  */
 export function createLimitSchema(defaultValue: number, description?: string) {
   return {
-    type: 'number',
+    type: 'integer',
     description: description ?? `Number of entries to return (default: ${defaultValue})`,
     default: defaultValue,
     minimum: 1,

@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { OCAPIClient } from '../clients/ocapi-client.js';
 import { OCAPISearchRequest, SitePreferencesSearchOptions } from '../types/ocapi-search.js';
 
@@ -64,9 +63,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
   },
 
   get_system_object_definition: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       const { objectType } = args as ObjectTypeArgs;
@@ -84,9 +80,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       const { objectType, searchRequest } = args as ObjectSearchArgs;
@@ -106,9 +99,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       const { objectType, searchRequest } = args as ObjectSearchArgs;
@@ -130,9 +120,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
       },
       options: args.options ?? { expand: 'value' },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('groupId'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       const { groupId, instanceType, searchRequest, options } = args as SitePreferenceSearchArgs;
@@ -154,9 +141,6 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
       const { objectType, searchRequest } = args as ObjectSearchArgs;

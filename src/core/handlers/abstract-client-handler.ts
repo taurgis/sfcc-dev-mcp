@@ -1,6 +1,5 @@
 import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
 import { ClientFactory } from './client-factory.js';
-import { teardownLifecycleClient } from './lifecycle-utils.js';
 
 /**
  * Abstract base class for handlers that need a client with factory-based creation.
@@ -58,10 +57,7 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
   protected async onDispose(): Promise<void> {
     const client = this.client;
     this.client = null;
-
-    if (client) {
-      await teardownLifecycleClient(client);
-    }
+    await this.teardownClient(client);
 
     this.logger.debug(`${this.getClientDisplayName()} client disposed`);
   }
@@ -89,4 +85,54 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
    * Each concrete handler implements this with their specific tool set.
    */
   protected abstract getToolNameSet(): Set<TToolName>;
+}
+
+export interface ConfiguredClientHandlerOptions<TToolName extends string, TClient> {
+  createClient: (clientFactory: ClientFactory) => TClient | null;
+  clientContextKey: string;
+  clientDisplayName: string;
+  clientRequiredError: string;
+  toolNameSet: Set<TToolName>;
+  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
+}
+
+/**
+ * Config-driven client handler that removes repetitive overrides in concrete handlers.
+ */
+export class ConfiguredClientHandler<TToolName extends string, TClient>
+  extends AbstractClientHandler<TToolName, TClient> {
+  private readonly options: ConfiguredClientHandlerOptions<TToolName, TClient>;
+
+  constructor(
+    context: HandlerContext,
+    subLoggerName: string,
+    options: ConfiguredClientHandlerOptions<TToolName, TClient>,
+  ) {
+    super(context, subLoggerName);
+    this.options = options;
+  }
+
+  protected createClient(): TClient | null {
+    return this.options.createClient(this.clientFactory);
+  }
+
+  protected getClientContextKey(): string {
+    return this.options.clientContextKey;
+  }
+
+  protected getClientDisplayName(): string {
+    return this.options.clientDisplayName;
+  }
+
+  protected getClientRequiredError(): string {
+    return this.options.clientRequiredError;
+  }
+
+  protected getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>> {
+    return this.options.toolConfig;
+  }
+
+  protected getToolNameSet(): Set<TToolName> {
+    return this.options.toolNameSet;
+  }
 }

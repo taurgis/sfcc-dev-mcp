@@ -323,8 +323,8 @@ sfcc-dev-mcp/
 - Implements the Model Context Protocol specification
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
-- Applies runtime tool argument validation (required fields, type checks, enum checks, numeric ranges, and string patterns/length) before dispatch
-- Enforces strict top-level unknown-argument rejection at the MCP boundary unless explicitly allowed by schema
+- Applies runtime tool argument validation (required fields, type checks, enum checks, integer/numeric ranges, and string patterns/length) before dispatch
+- Enforces strict unknown-argument rejection for object schemas that declare properties (at top-level and nested object levels) unless explicitly allowed by schema
 - Enforces call-time capability gating so unavailable tools are rejected during `tools/call`, not just hidden from `tools/list`
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
@@ -333,6 +333,7 @@ sfcc-dev-mcp/
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
 - **AbstractClientHandler** (`abstract-client-handler.ts`): Abstract handler for tools that require client instantiation
+- **ConfiguredClientHandler** (`abstract-client-handler.ts`): Config-driven client handler that removes repetitive createClient/context/tool wiring in concrete handlers
 - **SimpleClientHandler** (`simple-client-handler.ts`): Simplified handler for single-client tools with less boilerplate
 - **ClientFactory** (`client-factory.ts`): Centralized client creation with dependency injection support for testing and clean architecture
 - **ValidationHelpers** (`validation-helpers.ts`): Common validation utilities shared across all handlers

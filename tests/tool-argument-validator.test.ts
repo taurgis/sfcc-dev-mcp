@@ -112,4 +112,110 @@ describe('ToolArgumentValidator', () => {
       validator.validate('date_tool', { date: '20260221' });
     }).not.toThrow();
   });
+
+  it('allows empty strings unless minLength is declared', () => {
+    const validator = new ToolArgumentValidator([
+      {
+        name: 'string_tool',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            text: { type: 'string' },
+          },
+          required: ['text'],
+        },
+      },
+    ]);
+
+    expect(() => {
+      validator.validate('string_tool', { text: '' });
+    }).not.toThrow();
+  });
+
+  it('enforces minLength when declared', () => {
+    const validator = new ToolArgumentValidator([
+      {
+        name: 'string_tool',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            text: { type: 'string', minLength: 1 },
+          },
+          required: ['text'],
+        },
+      },
+    ]);
+
+    expect(() => {
+      validator.validate('string_tool', { text: '' });
+    }).toThrow(ToolArgumentValidationError);
+
+    expect(() => {
+      validator.validate('string_tool', { text: 'ok' });
+    }).not.toThrow();
+  });
+
+  it('rejects unknown nested keys when nested schema declares properties', () => {
+    const validator = new ToolArgumentValidator([
+      {
+        name: 'nested_tool',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            request: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'object',
+                  properties: {
+                    term: { type: 'string' },
+                  },
+                  required: ['term'],
+                },
+              },
+              required: ['query'],
+            },
+          },
+          required: ['request'],
+        },
+      },
+    ]);
+
+    expect(() => {
+      validator.validate('nested_tool', {
+        request: {
+          query: {
+            term: 'ok',
+            extraQueryField: true,
+          },
+        },
+      });
+    }).toThrow(ToolArgumentValidationError);
+  });
+
+  it('allows unknown nested keys when nested object has no declared properties', () => {
+    const validator = new ToolArgumentValidator([
+      {
+        name: 'open_nested_tool',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            payload: {
+              type: 'object',
+            },
+          },
+          required: ['payload'],
+        },
+      },
+    ]);
+
+    expect(() => {
+      validator.validate('open_nested_tool', {
+        payload: {
+          dynamicField: 'ok',
+          another: 42,
+        },
+      });
+    }).not.toThrow();
+  });
 });

@@ -19,6 +19,7 @@ export const CODE_VERSION_TOOLS = [
       properties: {
         codeVersionId: {
           type: 'string',
+          minLength: 1,
           description: 'ID of the inactive code version to activate.',
         },
       },

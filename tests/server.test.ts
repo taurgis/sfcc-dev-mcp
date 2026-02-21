@@ -182,7 +182,7 @@ describe('SFCCDevServer', () => {
 
     expect(result).toMatchObject({ isError: true });
     expect(JSON.stringify(result)).toContain('Unknown tool: unknown_tool');
-    expect(result.structuredContent).toBeUndefined();
+    expect(result.structuredContent?.error?.code).toBe('UNKNOWN_TOOL');
   });
 
   it('rejects tools that are unavailable in the current mode before handler execution', async () => {
@@ -254,7 +254,7 @@ describe('SFCCDevServer', () => {
     };
 
     expect(result.isError).toBe(true);
-    expect(result.structuredContent).toBeUndefined();
+    expect(result.structuredContent?.error?.code).toBe('INVALID_TOOL_ARGUMENTS');
     expect(result.content[0]?.text).toContain('Invalid arguments for tool');
     expect(mockHandler.handle).not.toHaveBeenCalled();
   });

@@ -149,10 +149,22 @@ describe('DocsToolHandler', () => {
       });
     });
 
-    it('should throw error when className is missing', async () => {
+    it('should not enforce missing className in handler (validated at MCP boundary)', async () => {
+      mockDocsClient.getClassDetailsExpanded.mockResolvedValue({
+        className: 'Fallback',
+        description: 'Fallback description',
+        methods: [],
+      });
       const result = await handler.handle('get_sfcc_class_info', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('className must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockDocsClient.getClassDetailsExpanded).toHaveBeenCalledWith(undefined, false, {
+        includeDescription: true,
+        includeConstants: true,
+        includeProperties: true,
+        includeMethods: true,
+        includeInheritance: true,
+        search: undefined,
+      });
     });
 
     it('should handle get_sfcc_class_info with filtering options', async () => {
@@ -249,16 +261,16 @@ describe('DocsToolHandler', () => {
       expect(getResultText(result)).toContain('ProductSearchModel');
     });
 
-    it('should throw error when query is missing', async () => {
+    it('should not enforce missing query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_sfcc_classes', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockDocsClient.searchClasses).toHaveBeenCalledWith(undefined);
     });
 
-    it('should throw error when query is empty', async () => {
+    it('should not enforce empty query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_sfcc_classes', { query: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockDocsClient.searchClasses).toHaveBeenCalledWith('');
     });
   });
 
@@ -294,10 +306,10 @@ describe('DocsToolHandler', () => {
       expect(getResultText(result)).toContain('Product');
     });
 
-    it('should throw error when methodName is missing', async () => {
+    it('should not enforce missing methodName in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_sfcc_methods', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('methodName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockDocsClient.searchMethods).toHaveBeenCalledWith(undefined);
     });
   });
 
@@ -317,10 +329,11 @@ describe('DocsToolHandler', () => {
       expect(getResultText(result)).toContain('Detailed documentation');
     });
 
-    it('should throw error when className is missing', async () => {
+    it('should not enforce missing className in handler (validated at MCP boundary)', async () => {
+      mockDocsClient.getClassDocumentation.mockResolvedValue('Fallback documentation');
       const result = await handler.handle('get_sfcc_class_documentation', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(getResultText(result)).toContain('className must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockDocsClient.getClassDocumentation).toHaveBeenCalledWith(undefined);
     });
   });
 

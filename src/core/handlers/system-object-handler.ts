@@ -1,5 +1,5 @@
 import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { AbstractClientHandler } from './abstract-client-handler.js';
+import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { ClientFactory } from './client-factory.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
 import {
@@ -12,32 +12,15 @@ import {
  * Handler for system object tools using config-driven dispatch.
  * Provides access to SFCC system object definitions, attributes, and site preferences.
  */
-export class SystemObjectToolHandler extends AbstractClientHandler<SystemObjectToolName, OCAPIClient> {
+export class SystemObjectToolHandler extends ConfiguredClientHandler<SystemObjectToolName, OCAPIClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
-    super(context, subLoggerName);
-  }
-
-  protected createClient(): OCAPIClient | null {
-    return this.clientFactory.createOCAPIClient();
-  }
-
-  protected getClientContextKey(): string {
-    return 'ocapiClient';
-  }
-
-  protected getClientDisplayName(): string {
-    return 'OCAPI (System Objects)';
-  }
-
-  protected getClientRequiredError(): string {
-    return ClientFactory.getClientRequiredError('OCAPI');
-  }
-
-  protected getToolNameSet(): Set<SystemObjectToolName> {
-    return SYSTEM_OBJECT_TOOL_NAMES_SET;
-  }
-
-  protected getToolConfig(): Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>> {
-    return SYSTEM_OBJECT_TOOL_CONFIG;
+    super(context, subLoggerName, {
+      createClient: (clientFactory) => clientFactory.createOCAPIClient(),
+      clientContextKey: 'ocapiClient',
+      clientDisplayName: 'OCAPI (System Objects)',
+      clientRequiredError: ClientFactory.getClientRequiredError('OCAPI'),
+      toolNameSet: SYSTEM_OBJECT_TOOL_NAMES_SET,
+      toolConfig: SYSTEM_OBJECT_TOOL_CONFIG as Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>>,
+    });
   }
 }
