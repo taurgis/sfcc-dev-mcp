@@ -6,6 +6,22 @@ import { LOG_TOOLS } from '../src/core/tool-schemas/log-tools.js';
 import { SFCC_DOCUMENTATION_TOOLS } from '../src/core/tool-schemas/documentation-tools.js';
 
 describe('ToolArgumentValidator', () => {
+  it('throws at construction time for invalid schema regex patterns', () => {
+    expect(() => {
+      new ToolArgumentValidator([
+        {
+          name: 'invalid_pattern_tool',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              value: { type: 'string', pattern: '[unclosed' },
+            },
+          },
+        },
+      ]);
+    }).toThrow('Invalid schema pattern for tool "invalid_pattern_tool" at $.value');
+  });
+
   it('rejects invalid enum values', () => {
     const validator = new ToolArgumentValidator(LOG_TOOLS);
 

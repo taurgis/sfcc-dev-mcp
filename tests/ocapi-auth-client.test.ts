@@ -154,7 +154,7 @@ describe('OCAPIAuthClient', () => {
       } as Response);
 
       await expect((client as any).getAuthHeaders()).rejects.toThrow(
-        'Failed to get access token: Error: OAuth authentication failed: 401 Unauthorized - Invalid credentials',
+        'Failed to get access token: OAuth authentication failed: 401 Unauthorized - Invalid credentials',
       );
     });
 
@@ -163,7 +163,7 @@ describe('OCAPIAuthClient', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       await expect((client as any).getAuthHeaders()).rejects.toThrow(
-        'Failed to get access token: Error: Network error',
+        'Failed to get access token: Network error',
       );
     });
 

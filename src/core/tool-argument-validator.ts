@@ -63,9 +63,35 @@ export class ToolArgumentValidator {
   private readonly toolSchemas: Map<string, SchemaObject>;
 
   constructor(definitions: ToolSchemaDefinition[]) {
+    for (const definition of definitions) {
+      this.assertValidSchemaPatterns(definition.name, definition.inputSchema, '$');
+    }
+
     this.toolSchemas = new Map(
       definitions.map(definition => [definition.name, toSchemaObject(definition.inputSchema)]),
     );
+  }
+
+  private assertValidSchemaPatterns(toolName: string, schema: unknown, path: string): void {
+    const schemaObject = toSchemaObject(schema);
+
+    if (schemaObject.pattern) {
+      try {
+        // Validate pattern at startup so malformed schema doesn't silently weaken runtime validation.
+        void new RegExp(schemaObject.pattern);
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new Error(`Invalid schema pattern for tool "${toolName}" at ${path}: ${reason}`);
+      }
+    }
+
+    if (schemaObject.items) {
+      this.assertValidSchemaPatterns(toolName, schemaObject.items, `${path}.items`);
+    }
+
+    for (const [key, propertySchema] of Object.entries(schemaObject.properties ?? {})) {
+      this.assertValidSchemaPatterns(toolName, propertySchema, `${path}.${key}`);
+    }
   }
 
   validate(toolName: string, args: unknown): void {
@@ -235,13 +261,9 @@ export class ToolArgumentValidator {
     }
 
     if (schema.pattern) {
-      try {
-        const regex = new RegExp(schema.pattern);
-        if (!regex.test(value)) {
-          issues.push({ path, message: `must match pattern: ${schema.pattern}` });
-        }
-      } catch {
-        // Ignore invalid schema regex at runtime to avoid blocking tool execution.
+      const regex = new RegExp(schema.pattern);
+      if (!regex.test(value)) {
+        issues.push({ path, message: `must match pattern: ${schema.pattern}` });
       }
     }
   }

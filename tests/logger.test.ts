@@ -150,6 +150,38 @@ describe('Logger', () => {
       expect(logContent).toContain('"key": "value"');
       expect(logContent).toContain('"number": 42');
     });
+
+    it('masks sensitive JSON credential fields before writing logs', () => {
+      logger.info('credentials payload', {
+        password: 'super-secret',
+        clientSecret: 'client-secret-value',
+        'client-secret': 'legacy-client-secret',
+        accessToken: 'access-token-value',
+      });
+
+      const logFile = join(testLogDir, 'sfcc-mcp-info.log');
+      const logContent = readFileSync(logFile, 'utf8');
+
+      expect(logContent).toContain('"password": "[REDACTED]"');
+      expect(logContent).toContain('"client-secret": "[REDACTED]"');
+      expect(logContent).toContain('"access_token": "[REDACTED]"');
+      expect(logContent).not.toContain('super-secret');
+      expect(logContent).not.toContain('client-secret-value');
+      expect(logContent).not.toContain('legacy-client-secret');
+      expect(logContent).not.toContain('access-token-value');
+    });
+
+    it('masks bearer/basic auth tokens in plain text log messages', () => {
+      logger.warn('auth headers', 'Authorization: Bearer aaa.bbb.ccc', 'Authorization: Basic dGVzdDp0ZXN0');
+
+      const logFile = join(testLogDir, 'sfcc-mcp-warn.log');
+      const logContent = readFileSync(logFile, 'utf8');
+
+      expect(logContent).toContain('Bearer [REDACTED]');
+      expect(logContent).toContain('Basic [REDACTED]');
+      expect(logContent).not.toContain('aaa.bbb.ccc');
+      expect(logContent).not.toContain('dGVzdDp0ZXN0');
+    });
   });
 
   describe('debug logging methods', () => {

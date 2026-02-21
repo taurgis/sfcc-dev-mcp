@@ -57,8 +57,8 @@ export class ClassNameResolver {
    */
   static findClassMatches(
     targetClassName: string,
-    classCache: Map<string, any>,
-  ): Array<{ key: string; info: any }> {
+    classCache: Map<string, ClassCacheEntry>,
+  ): Array<{ key: string; info: ClassCacheEntry }> {
     const normalizedTarget = this.normalizeClassName(targetClassName);
     const simpleTarget = this.extractSimpleClassName(normalizedTarget);
 
@@ -73,8 +73,8 @@ export class ClassNameResolver {
    */
   static resolveClassName(
     className: string,
-    classCache: Map<string, any>,
-  ): { key: string; info: any } | null {
+    classCache: Map<string, ClassCacheEntry>,
+  ): { key: string; info: ClassCacheEntry } | null {
     // Normalize class name to support both formats
     const normalizedClassName = this.normalizeClassName(className);
 
@@ -96,4 +96,9 @@ export class ClassNameResolver {
 
     return null;
   }
+}
+
+export interface ClassCacheEntry {
+  className: string;
+  [key: string]: unknown;
 }

@@ -129,7 +129,6 @@ export class SFCCDevServer {
   private readonly hasExplicitConfiguration: boolean;
   private reconfigureQueue: Promise<void> = Promise.resolve();
   private readonly toolArgumentValidator: ToolArgumentValidator;
-  private readonly allToolNames: Set<string>;
   private readonly alwaysAvailableToolNames: Set<string>;
   private readonly logCapabilityToolNames: Set<string>;
   private readonly ocapiCapabilityToolNames: Set<string>;
@@ -156,7 +155,6 @@ export class SFCCDevServer {
     const advisorClient = new AgentInstructionsClient(this.workspaceRootsService, Logger.getChildLogger('AgentInstructionsAdvisor'));
     this.instructionAdvisor = new InstructionAdvisor(advisorClient, this.logger);
     this.toolArgumentValidator = new ToolArgumentValidator(ALL_TOOL_DEFINITIONS);
-    this.allToolNames = new Set(ALL_TOOL_DEFINITIONS.map(tool => tool.name));
     this.alwaysAvailableToolNames = new Set(ALWAYS_AVAILABLE_TOOLS.map(tool => tool.name));
     this.logCapabilityToolNames = new Set(LOG_CAPABILITY_TOOLS.map(tool => tool.name));
     this.ocapiCapabilityToolNames = new Set(OCAPI_CAPABILITY_TOOLS.map(tool => tool.name));
@@ -268,6 +266,8 @@ export class SFCCDevServer {
       // Check if the error is because the client doesn't support roots
       if (errorMessage.includes('not supported') || errorMessage.includes('Method not found')) {
         this.logger.debug('[Server] Client does not support workspace roots capability');
+      } else {
+        this.logger.warn(`[Server] Workspace roots discovery failed unexpectedly: ${errorMessage}`);
       }
     }
   }

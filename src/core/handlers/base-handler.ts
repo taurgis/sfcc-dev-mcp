@@ -89,21 +89,22 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       throw new Error(`No configuration found for tool: ${toolName}`);
     }
 
+    const processedArgs = this.applyDefaults(spec, args);
+
     return this.executeWithLogging(
       toolName,
       startTime,
-      () => this.dispatchTool(toolName, spec, args),
-      spec.logMessage(this.applyDefaults(spec, args)),
+      () => this.dispatchTool(toolName, spec, processedArgs),
+      spec.logMessage(processedArgs),
     );
   }
 
   private async dispatchTool(
     toolName: string,
     spec: GenericToolSpec,
-    args: ToolArguments,
+    processedArgs: ToolArguments,
   ): Promise<unknown> {
     const context = await this.createExecutionContext();
-    const processedArgs = this.applyDefaults(spec, args);
 
     if (spec.validate) {
       spec.validate(processedArgs, toolName);

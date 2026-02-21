@@ -119,11 +119,12 @@ export class OCAPIAuthClient extends BaseHttpClient {
       if (isAbort) {
         const timeoutError = `OAuth request timed out after ${OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS}ms`;
         this.logger.error(timeoutError);
-        throw new Error(timeoutError);
+        throw new Error(timeoutError, { cause: error });
       }
 
-      this.logger.error(`Failed to get access token: ${error}`);
-      throw new Error(`Failed to get access token: ${error}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get access token: ${message}`);
+      throw new Error(`Failed to get access token: ${message}`, { cause: error });
     } finally {
       clearTimeout(timeoutId);
     }

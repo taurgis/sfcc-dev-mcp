@@ -340,7 +340,6 @@ describe('SFCCDevServer', () => {
     const serverAny = server as unknown as {
       handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
       instructionAdvisor: { getNotice: jest.Mock };
-      allToolNames: Set<string>;
       alwaysAvailableToolNames: Set<string>;
     };
 
@@ -355,7 +354,6 @@ describe('SFCCDevServer', () => {
     };
 
     serverAny.handlers = [mockHandler];
-    serverAny.allToolNames.add('mock_tool');
     serverAny.alwaysAvailableToolNames.add('mock_tool');
     serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue('Please decide whether to install skills.') };
 
@@ -377,7 +375,6 @@ describe('SFCCDevServer', () => {
     const serverAny = server as unknown as {
       handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
       instructionAdvisor: { getNotice: jest.Mock };
-      allToolNames: Set<string>;
       alwaysAvailableToolNames: Set<string>;
     };
 
@@ -393,7 +390,6 @@ describe('SFCCDevServer', () => {
     };
 
     serverAny.handlers = [mockHandler];
-    serverAny.allToolNames.add('mock_tool');
     serverAny.alwaysAvailableToolNames.add('mock_tool');
     serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
 
