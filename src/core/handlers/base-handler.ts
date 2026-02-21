@@ -148,18 +148,10 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
     const structuredContent = isStructuredContentRecord(data) ? data : undefined;
-
-    if (structuredContent) {
-      return {
-        content: [],
-        structuredContent,
-        isError: false,
-      };
-    }
-
+    const payload = structuredContent ?? data;
     const text = stringify
-      ? (JSON.stringify(data, null, 2) ?? 'null')
-      : (typeof data === 'string' ? data : (JSON.stringify(data) ?? String(data)));
+      ? (JSON.stringify(payload, null, 2) ?? 'null')
+      : (typeof payload === 'string' ? payload : (JSON.stringify(payload) ?? String(payload)));
 
     return {
       content: [{ type: 'text', text }],

@@ -347,7 +347,7 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data);
 
-      expect(response.content).toEqual([]);
+      expect(response.content[0].text).toBe(JSON.stringify(data, null, 2));
       expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
@@ -356,7 +356,7 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data, false);
 
-      expect(response.content).toEqual([]);
+      expect(response.content[0].text).toBe(JSON.stringify(data));
       expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
