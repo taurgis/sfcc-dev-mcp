@@ -7,6 +7,12 @@
   "bin": {
     "sfcc-dev-mcp": "./dist/main.js"
   },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taurgis/sfcc-dev-mcp.git"
