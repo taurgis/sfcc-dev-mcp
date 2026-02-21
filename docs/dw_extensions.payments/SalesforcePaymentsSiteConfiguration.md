@@ -26,6 +26,14 @@ Returns true if the capture method is set to automatic for credit card Payment I
 
 Returns true if Express Checkout is enabled for the site.
 
+### futureUsageOffSession
+
+**Type:** boolean (Read Only)
+
+Returns true if the payment card credential storage is configured to set up all applicable payments for off
+ session reuse, or false if the credential storage is configured to set up for on session reuse only the payments
+ for which the shopper actively confirms use of saved credentials.
+
 ### multiStepCheckoutEnabled
 
 **Type:** boolean (Read Only)
@@ -47,6 +55,12 @@ Returns true if the capture method is set to automatic for credit card Payment I
 **Signature:** `isExpressCheckoutEnabled() : boolean`
 
 Returns true if Express Checkout is enabled for the site.
+
+### isFutureUsageOffSession
+
+**Signature:** `isFutureUsageOffSession() : boolean`
+
+Returns true if the payment card credential storage is configured to set up all applicable payments for off session reuse, or false if the credential storage is configured to set up for on session reuse only the payments for which the shopper actively confirms use of saved credentials.
 
 ### isMultiStepCheckoutEnabled
 
@@ -79,6 +93,18 @@ true if the credit card capture method is automatic, or false if it is manual
 **Returns:**
 
 true if Express Checkout is enabled for the site, or false if not
+
+---
+
+### isFutureUsageOffSession
+
+**Signature:** `isFutureUsageOffSession() : boolean`
+
+**Description:** Returns true if the payment card credential storage is configured to set up all applicable payments for off session reuse, or false if the credential storage is configured to set up for on session reuse only the payments for which the shopper actively confirms use of saved credentials.
+
+**Returns:**
+
+true if the future usage is off session, or false if on session
 
 ---
 

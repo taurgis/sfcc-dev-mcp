@@ -73,11 +73,23 @@ A payments site configuration object for the current site.
 
 Attaches the given payment method to the given customer.
 
+### authorizePayPalOrder
+
+**Signature:** `static authorizePayPalOrder(paypalOrder : SalesforcePayPalOrder) : Status`
+
+Authorizes the given PayPal order.
+
 ### cancelPaymentIntent
 
 **Signature:** `static cancelPaymentIntent(paymentIntent : SalesforcePaymentIntent, paymentIntentProperties : Object) : Status`
 
 Cancels the given payment intent.
+
+### captureAdyenPayment
+
+**Signature:** `static captureAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, amount : Money, transactionProperties : Object) : Status`
+
+Captures funds for the given order payment instrument.
 
 ### capturePaymentIntent
 
@@ -85,11 +97,23 @@ Cancels the given payment intent.
 
 Captures funds for the given payment intent.
 
+### capturePayPalOrder
+
+**Signature:** `static capturePayPalOrder(paypalOrder : SalesforcePayPalOrder) : Status`
+
+Captures funds for the given PayPal order.
+
 ### confirmPaymentIntent
 
 **Signature:** `static confirmPaymentIntent(order : Order, paymentMethod : SalesforcePaymentMethod, paymentIntentProperties : Object) : Status`
 
 Confirms a new payment intent using the given payment method, and associates it with the given order.
+
+### createAdyenPaymentIntent
+
+**Signature:** `static createAdyenPaymentIntent(order : Order, shipment : Shipment, zoneId : String, amount : Money, customerRequired : boolean, paymentData : Object, paymentIntentProperties : Object) : Status`
+
+Creates an Adyen payment intent using the given information, and associates it with the given order.
 
 ### createPaymentIntent
 
@@ -97,11 +121,23 @@ Confirms a new payment intent using the given payment method, and associates it 
 
 Creates a payment intent using the given information, and associates it with the given basket.
 
+### createPayPalOrder
+
+**Signature:** `static createPayPalOrder(basket : Basket, shipment : Shipment, zoneId : String, amount : Money, paypalOrderProperties : Object) : Status`
+
+Creates a PayPal order using the given information, and associates it with the given basket.
+
 ### detachPaymentMethod
 
 **Signature:** `static detachPaymentMethod(paymentMethod : SalesforcePaymentMethod) : void`
 
 Detaches the given payment method from its associated customer.
+
+### getAdyenSavedPaymentMethods
+
+**Signature:** `static getAdyenSavedPaymentMethods(customer : Customer) : Collection`
+
+Returns a collection containing the Adyen payment methods saved to be presented to the given customer for reuse in checkouts.
 
 ### getAttachedPaymentMethods
 
@@ -139,6 +175,12 @@ Returns the payment intent for the given order, or null if the given order has n
 
 Returns a payments site configuration object for the current site.
 
+### getPaymentsZone
+
+**Signature:** `static getPaymentsZone(zoneId : String) : SalesforcePaymentsZone`
+
+Returns a payments zone object for the passed in payments zone ID.
+
 ### getPayPalOrder
 
 **Signature:** `static getPayPalOrder(basket : Basket) : SalesforcePayPalOrder`
@@ -157,11 +199,23 @@ Returns the PayPal order for the given order, or null if the given order has non
 
 Returns a collection containing the payment methods saved to be presented to the given customer for reuse in checkouts.
 
+### handleAdyenAdditionalDetails
+
+**Signature:** `static handleAdyenAdditionalDetails(order : Order, zoneId : String, data : Object) : Status`
+
+Handles the given additional Adyen payment details and associates the associated payment with the given order, if applicable.
+
 ### onCustomerRegistered
 
 **Signature:** `static onCustomerRegistered(order : Order) : void`
 
 Handles the account registration of the shopper who placed the given order.
+
+### refundAdyenPayment
+
+**Signature:** `static refundAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, amount : Money, transactionProperties : Object) : Status`
+
+Refunds previously captured funds for the given order payment instrument.
 
 ### refundPaymentIntent
 
@@ -169,11 +223,29 @@ Handles the account registration of the shopper who placed the given order.
 
 Refunds previously captured funds for the given payment intent.
 
+### removeAdyenSavedPaymentMethod
+
+**Signature:** `static removeAdyenSavedPaymentMethod(savedPaymentMethod : SalesforceAdyenSavedPaymentMethod) : void`
+
+Deletes an Adyen saved payment method.
+
 ### removeSavedPaymentMethod
 
 **Signature:** `static removeSavedPaymentMethod(paymentMethod : SalesforcePaymentMethod) : void`
 
 Removes the given saved payment method so that it is no longer presented to the given customer for reuse in checkouts.
+
+### resolvePaymentsZone
+
+**Signature:** `static resolvePaymentsZone(paymentsZoneProperties : Object) : SalesforcePaymentsZone`
+
+Resolves and returns the payments zone object for the passed in payments zone properties object.
+
+### reverseAdyenPayment
+
+**Signature:** `static reverseAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, transactionProperties : Object) : Status`
+
+Reverses the authorisation for the given order payment instrument.
 
 ### savePaymentMethod
 
@@ -218,6 +290,26 @@ Exception - if there was an error attaching the payment method to the customer
 
 ---
 
+### authorizePayPalOrder
+
+**Signature:** `static authorizePayPalOrder(paypalOrder : SalesforcePayPalOrder) : Status`
+
+**Description:** Authorizes the given PayPal order. The PayPal order must be in a status that supports authorization. See the PayPal documentation for more details.
+
+**Parameters:**
+
+- `paypalOrder`: PayPal order to authorize
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'error' contains the PayPal error information, if it is available in the response.
+
+**Throws:**
+
+Exception - if there was an error authorizing the PayPal order
+
+---
+
 ### cancelPaymentIntent
 
 **Signature:** `static cancelPaymentIntent(paymentIntent : SalesforcePaymentIntent, paymentIntentProperties : Object) : Status`
@@ -246,6 +338,28 @@ Exception - if there was an error canceling the payment intent
 
 ---
 
+### captureAdyenPayment
+
+**Signature:** `static captureAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, amount : Money, transactionProperties : Object) : Status`
+
+**Description:** Captures funds for the given order payment instrument. The order payment instrument must be in a state that supports capture. The amount must be less than or equal to the amount available to capture. The following Transaction properties are supported: reference - optional reference for the transaction, for example order number
+
+**Parameters:**
+
+- `orderPaymentInstrument`: payment instrument to capture
+- `amount`: amount to capture
+- `transactionProperties`: properties to pass to the capture Adyen Payment API
+
+**Returns:**
+
+Status 'OK' or 'ERROR'.
+
+**Throws:**
+
+Exception - if there was an error capturing the payment instrument
+
+---
+
 ### capturePaymentIntent
 
 **Signature:** `static capturePaymentIntent(paymentIntent : SalesforcePaymentIntent, amount : Money) : Status`
@@ -264,6 +378,26 @@ Status 'OK' or 'ERROR'. Status detail 'error' contains the Stripe error informat
 **Throws:**
 
 Exception - if there was an error capturing the payment intent
+
+---
+
+### capturePayPalOrder
+
+**Signature:** `static capturePayPalOrder(paypalOrder : SalesforcePayPalOrder) : Status`
+
+**Description:** Captures funds for the given PayPal order. The PayPal order must be in a status that supports capture. See the PayPal documentation for more details.
+
+**Parameters:**
+
+- `paypalOrder`: PayPal order to capture
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'error' contains the PayPal error information, if it is available in the response.
+
+**Throws:**
+
+Exception - if there was an error capturing the PayPal order
 
 ---
 
@@ -289,11 +423,33 @@ Exception - if the parameter validation failed or there's an error confirming th
 
 ---
 
+### createAdyenPaymentIntent
+
+**Signature:** `static createAdyenPaymentIntent(order : Order, shipment : Shipment, zoneId : String, amount : Money, customerRequired : boolean, paymentData : Object, paymentIntentProperties : Object) : Status`
+
+**Description:** Creates an Adyen payment intent using the given information, and associates it with the given order. The following Payment Intent properties are supported: type - required payment method type, such as SalesforcePaymentMethod.TYPE_CARD cardCaptureAutomatic - optional true if the credit card payment should be automatically captured at the time of the sale, or false if the credit card payment should be captured later storePaymentMethod - optional true if the payment method should be stored for future usage, or false if not If cardCaptureAutomatic is provided it is used to determine card capture timing, and otherwise the default card capture timing set for the site is used.
+
+**Parameters:**
+
+- `order`: order to checkout and pay using Salesforce Payments
+- `shipment`: shipment to use for shipping information in the payment intent
+- `zoneId`: id of the payment zone
+- `amount`: payment amount
+- `customerRequired`: true if an Adyen shopper reference must be associated with the transaction and needs to be created if it does not already exist for the given ecom customer or false a shopper reference does not have to be associated with the transaction. A customer is required if storing a payment method for future usage or using an existing stored payment method.
+- `paymentData`: Adyen specific payment data passed directly from the client as-is
+- `paymentIntentProperties`: properties to pass to the create Payment Intent API
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'paymentintent' contains the payment intent, if it is available in the Adyen response. Status detail 'error' contains the Adyen error information, if it is available in the response.
+
+---
+
 ### createPaymentIntent
 
 **Signature:** `static createPaymentIntent(basket : Basket, shipment : Shipment, zoneId : String, amount : Money, stripeCustomerRequired : boolean, paymentIntentProperties : Object) : Status`
 
-**Description:** Creates a payment intent using the given information, and associates it with the given basket. The following Payment Intent properties are supported: type - required payment method type, such as SalesforcePaymentMethod.TYPE_CARD statementDescriptor - optional statement descriptor cardCaptureAutomatic - optional true if the credit card payment should be automatically captured at the time of the sale, or false if the credit card payment should be captured later The stripeCustomerRequired must be set to true if the payment will be set up for future usage, whether on session or off session. If true then if a Stripe Customer is associated with the shopper then it will be used, and otherwise a new Stripe Customer will be created. The new Stripe Customer will be associated with the shopper if logged into a registered customer account for the site. If cardCaptureAutomatic is provided it is used to determine card capture timing, and otherwise the default card capture timing set for the site is used. If statementDescriptor is provided it is used as the complete description that appears on your customers' statements for the payment, and if not a default statement descriptor is used. If a default statement descriptor is set for the site it is used as the default, and otherwise the default statement descriptor for the account will apply.
+**Description:** Creates a payment intent using the given information, and associates it with the given basket. The following Payment Intent properties are supported: type - required payment method type, such as SalesforcePaymentMethod.TYPE_CARD statementDescriptor - optional statement descriptor cardCaptureAutomatic - optional true if the credit card payment should be automatically captured at the time of the sale, or false if the credit card payment should be captured later setupFutureUsage - optional future usage setup value, such as SalesforcePaymentIntent.SETUP_FUTURE_USAGE_ON_SESSION The stripeCustomerRequired must be set to true if the payment will be set up for future usage, whether on session or off session. If true then if a Stripe Customer is associated with the shopper then it will be used, and otherwise a new Stripe Customer will be created. The new Stripe Customer will be associated with the shopper if logged into a registered customer account for the site. If cardCaptureAutomatic is provided it is used to determine card capture timing, and otherwise the default card capture timing set for the site is used. If statementDescriptor is provided it is used as the complete description that appears on your customers' statements for the payment, and if not a default statement descriptor is used. If a default statement descriptor is set for the site it is used as the default, and otherwise the default statement descriptor for the account will apply. If setupFutureUsage is provided it will be used to prepare the payment to be set up for future usage at confirmation time. When set, this future usage setup value must match the value used at confirmation time.
 
 **Parameters:**
 
@@ -307,6 +463,26 @@ Exception - if the parameter validation failed or there's an error confirming th
 **Returns:**
 
 Status 'OK' or 'ERROR'. Status detail 'paymentintent' contains the payment intent, if it is available in the Stripe response. Status detail 'error' contains the Stripe error information, if it is available in the response.
+
+---
+
+### createPayPalOrder
+
+**Signature:** `static createPayPalOrder(basket : Basket, shipment : Shipment, zoneId : String, amount : Money, paypalOrderProperties : Object) : Status`
+
+**Description:** Creates a PayPal order using the given information, and associates it with the given basket. The following PayPal order properties are supported: fundingSource - required funding source, such as SalesforcePayPalOrder.TYPE_PAYPAL intent - optional order capture timing intent, such as SalesforcePayPalOrder.INTENT_AUTHORIZE or SalesforcePayPalOrder.INTENT_CAPTURE shippingPreference - optional shipping preference, such as "GET_FROM_FILE" userAction - optional user action, such as "PAY_NOW" If intent is provided it is used to determine manual or automatic capture, and otherwise the default card capture timing set for the site is used.
+
+**Parameters:**
+
+- `basket`: basket to checkout and pay using Salesforce Payments
+- `shipment`: shipment to use for shipping information in the payment intent
+- `zoneId`: id of the payment zone
+- `amount`: payment amount
+- `paypalOrderProperties`: properties to pass to the create PayPal order API
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'paypalorder' contains the PayPal order, if it is available in the PayPal response. Status detail 'error' contains the PayPal error information, if it is available in the response.
 
 ---
 
@@ -327,6 +503,26 @@ use removeSavedPaymentMethod(SalesforcePaymentMethod)
 **Throws:**
 
 Exception - if there was an error detaching the payment method from its customer
+
+---
+
+### getAdyenSavedPaymentMethods
+
+**Signature:** `static getAdyenSavedPaymentMethods(customer : Customer) : Collection`
+
+**Description:** Returns a collection containing the Adyen payment methods saved to be presented to the given customer for reuse in checkouts. The collection will be empty if there are no payment methods saved for the customer, or there was an error retrieving the saved payment methods.
+
+**Parameters:**
+
+- `customer`: customer whose saved payment methods to get
+
+**Returns:**
+
+collection of saved payment methods
+
+**Throws:**
+
+Exception - if the given customer is null or undefined, or there is configuration missing that is required to retrieve the saved payment methods
 
 ---
 
@@ -450,6 +646,22 @@ Exception - if there is no current site
 
 ---
 
+### getPaymentsZone
+
+**Signature:** `static getPaymentsZone(zoneId : String) : SalesforcePaymentsZone`
+
+**Description:** Returns a payments zone object for the passed in payments zone ID.
+
+**Parameters:**
+
+- `zoneId`: ID of the payments zone to retrieve and use to checkout and pay using Salesforce Payments
+
+**Returns:**
+
+a payments zone or null if no payments zone with the given ID exists
+
+---
+
 ### getPayPalOrder
 
 **Signature:** `static getPayPalOrder(basket : Basket) : SalesforcePayPalOrder`
@@ -506,7 +718,25 @@ collection of saved payment methods
 
 **Throws:**
 
-Exception - if the given customer is null or undefined, or there is an error getting the saved payment methods
+Exception - if the given customer is null or undefined, or there is configuration missing that is required to retrieve the saved payment methods
+
+---
+
+### handleAdyenAdditionalDetails
+
+**Signature:** `static handleAdyenAdditionalDetails(order : Order, zoneId : String, data : Object) : Status`
+
+**Description:** Handles the given additional Adyen payment details and associates the associated payment with the given order, if applicable. Pass the state data from the Adyen onAdditionalDetails event as-is, without any encoding or other changes to the data or its structure. See the Adyen documentation for more information.
+
+**Parameters:**
+
+- `order`: order to checkout and pay using Salesforce Payments
+- `zoneId`: id of the payment zone
+- `data`: additional details state data
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'adyenpayment' contains the payment details, if it is available in the Adyen response and the response resultCode is 'Authorised'. Status detail 'error' contains the Adyen error information, if it is available in the response.
 
 ---
 
@@ -523,6 +753,28 @@ Exception - if the given customer is null or undefined, or there is an error get
 **Throws:**
 
 Exception - if there was an error attaching the payment method to the customer
+
+---
+
+### refundAdyenPayment
+
+**Signature:** `static refundAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, amount : Money, transactionProperties : Object) : Status`
+
+**Description:** Refunds previously captured funds for the given order payment instrument. The order payment instrument must be in a state that supports refund. The amount must be less than or equal to the amount available to refund. The following Transaction properties are supported: reference - optional reference for the transaction, for example order number
+
+**Parameters:**
+
+- `orderPaymentInstrument`: payment instrument to refund
+- `amount`: amount to refund
+- `transactionProperties`: properties to pass to the refund Adyen Payment API
+
+**Returns:**
+
+Status 'OK' or 'ERROR'.
+
+**Throws:**
+
+Exception - if there was an error refunding the payment instrument
 
 ---
 
@@ -554,6 +806,22 @@ Exception - if there was an error refunding the payment intent
 
 ---
 
+### removeAdyenSavedPaymentMethod
+
+**Signature:** `static removeAdyenSavedPaymentMethod(savedPaymentMethod : SalesforceAdyenSavedPaymentMethod) : void`
+
+**Description:** Deletes an Adyen saved payment method.
+
+**Parameters:**
+
+- `savedPaymentMethod`: the saved payment method to delete
+
+**Throws:**
+
+Exception - if the saved payment method is null or undefined, or there is configuration missing that is required to delete the saved payment method
+
+---
+
 ### removeSavedPaymentMethod
 
 **Signature:** `static removeSavedPaymentMethod(paymentMethod : SalesforcePaymentMethod) : void`
@@ -567,6 +835,47 @@ Exception - if there was an error refunding the payment intent
 **Throws:**
 
 Exception - if there was an error removing the saved payment method from its customer
+
+---
+
+### resolvePaymentsZone
+
+**Signature:** `static resolvePaymentsZone(paymentsZoneProperties : Object) : SalesforcePaymentsZone`
+
+**Description:** Resolves and returns the payments zone object for the passed in payments zone properties object. If an empty object is provided, the default payments zone will be returned if it exists. The following payments zone properties are supported: countryCode - optional country code of the shopper, or null if not known currency - optional basket currency, or null if not known
+
+**Parameters:**
+
+- `paymentsZoneProperties`: properties to use to retrieve the payments zone for to use to checkout and pay using Salesforce Payments
+
+**Returns:**
+
+a payments zone
+
+**Throws:**
+
+Exception - if no default payments zone exists
+
+---
+
+### reverseAdyenPayment
+
+**Signature:** `static reverseAdyenPayment(orderPaymentInstrument : OrderPaymentInstrument, transactionProperties : Object) : Status`
+
+**Description:** Reverses the authorisation for the given order payment instrument. The order payment instrument must be in a state that supports reversal. The following Transaction properties are supported: reference - optional reference for the transaction, for example order number
+
+**Parameters:**
+
+- `orderPaymentInstrument`: payment instrument to reverse
+- `transactionProperties`: properties to pass to the reverse Adyen Payment API
+
+**Returns:**
+
+Status 'OK' or 'ERROR'.
+
+**Throws:**
+
+Exception - if there was an error reversing the payment instrument
 
 ---
 

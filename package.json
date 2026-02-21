@@ -1,12 +1,18 @@
 {
   "name": "sfcc-dev-mcp",
-  "version": "1.0.16",
+  "version": "1.0.19",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "mcpName": "io.github.taurgis/sfcc-dev-mcp",
   "main": "dist/index.js",
   "bin": {
     "sfcc-dev-mcp": "./dist/main.js"
   },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taurgis/sfcc-dev-mcp.git"

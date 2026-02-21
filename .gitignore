@@ -9,5 +9,5 @@ tests/servers/webdav/node_modules/
 tests/servers/ocapi/node_modules/
 tests/servers/sfcc-mock-server/node_modules/
 
-tmp/
-logs/
+/tmp/
+/logs/
