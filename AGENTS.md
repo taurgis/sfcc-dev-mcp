@@ -472,6 +472,7 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 - Both pairs together
 
 When `hostname` is present, at least one complete credential pair must be provided.
+When credentials are provided, `hostname` is required.
 
 > **Note**: CWD-based auto-discovery is intentionally disabled because MCP servers often start with `cwd` set to the user's home directory, not the project directory. The MCP workspace roots mechanism provides reliable project context.
 

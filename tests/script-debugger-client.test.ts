@@ -468,6 +468,48 @@ describe('ScriptDebuggerClient', () => {
 
       clearTimeoutSpy.mockRestore();
     });
+
+    it('should reuse a single debugger session for concurrent evaluations', async () => {
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'shared-session' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const options = {
+        breakpointFile: '/my_cartridge/cartridge/controllers/Test.js',
+        breakpointLine: 15,
+        timeout: 5000,
+      };
+
+      const [resultA, resultB] = await Promise.all([
+        client.evaluateScript('1 + 1', options),
+        client.evaluateScript('2 + 2', options),
+      ]);
+
+      expect(resultA.success).toBe(true);
+      expect(resultB.success).toBe(true);
+
+      const fetchMock = global.fetch as unknown as jest.Mock;
+      const createSessionCalls = fetchMock.mock.calls.filter(([url, requestOptions]) => {
+        const method = (requestOptions as RequestInit | undefined)?.method ?? 'GET';
+        return method === 'POST' && url.toString().includes('/client');
+      });
+
+      const deleteSessionCalls = fetchMock.mock.calls.filter(([url, requestOptions]) => {
+        const method = (requestOptions as RequestInit | undefined)?.method ?? 'GET';
+        return method === 'DELETE' && url.toString().includes('/client');
+      });
+
+      expect(createSessionCalls).toHaveLength(1);
+      expect(deleteSessionCalls).toHaveLength(1);
+    });
   });
 
   describe('authentication', () => {

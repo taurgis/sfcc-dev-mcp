@@ -101,6 +101,15 @@ describe('ConfigurationFactory', () => {
       }).toThrow('When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided');
     });
 
+    it('should validate configuration and throw error for credentials without hostname', () => {
+      expect(() => {
+        ConfigurationFactory.create({
+          username: 'testuser',
+          password: 'testpass',
+        });
+      }).toThrow('When credentials are provided, hostname must also be provided');
+    });
+
     it('should validate configuration and throw error for invalid hostname format', () => {
       expect(() => {
         ConfigurationFactory.create({

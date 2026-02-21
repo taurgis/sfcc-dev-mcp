@@ -176,7 +176,7 @@ describe('JobLogToolHandler', () => {
 
       const result = await handler.handle('get_job_log_entries', {}, Date.now());
 
-      expect(mockLogClient.getJobLogEntries).toHaveBeenCalledWith('all', 50, undefined); // default limit is 50 for job entries
+      expect(mockLogClient.getJobLogEntries).toHaveBeenCalledWith('all', 10, undefined); // default limit is 10 for job entries
       expect(result.content[0].text).toContain(mockResult);
     });
 

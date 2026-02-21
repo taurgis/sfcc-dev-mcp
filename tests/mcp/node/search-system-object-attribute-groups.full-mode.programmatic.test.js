@@ -360,19 +360,20 @@ describe('search_system_object_attribute_groups - Full Mode Comprehensive Tests'
 
     it('should handle concurrent requests efficiently', async () => {
       const startTime = Date.now();
-      
-      const promises = Array.from({ length: 3 }, (_, i) => 
-        callTool({
+
+      const results = [];
+      for (let i = 0; i < 3; i++) {
+        const result = await callTool({
           objectType: 'Product',
           searchRequest: {
             query: { match_all_query: {} },
             start: i * 2,
             count: 2
           }
-        })
-      );
-      
-      const results = await Promise.all(promises);
+        });
+        results.push(result);
+      }
+
       const duration = Date.now() - startTime;
       
       ok(results.length === 3, 'Should handle all concurrent requests');
@@ -523,18 +524,18 @@ describe('search_system_object_attribute_groups - Full Mode Comprehensive Tests'
 
     it('should respect OCAPI rate limiting and security constraints', async () => {
       // Make multiple rapid requests to test rate limiting handling
-      const promises = Array.from({ length: 5 }, () => 
-        callTool({
-          objectType: 'Product',
-          searchRequest: {
-            query: { match_all_query: {} },
-            count: 1
-          }
-        })
-      );
-
       try {
-        const results = await Promise.all(promises);
+        const results = [];
+        for (let i = 0; i < 5; i++) {
+          const result = await callTool({
+            objectType: 'Product',
+            searchRequest: {
+              query: { match_all_query: {} },
+              count: 1,
+            },
+          });
+          results.push(result);
+        }
         
         // All requests should succeed or fail gracefully
         results.forEach((result, index) => {

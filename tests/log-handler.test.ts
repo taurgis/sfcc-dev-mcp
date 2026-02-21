@@ -147,8 +147,8 @@ describe('LogToolHandler', () => {
     it('should handle get_latest_warn with default parameters', async () => {
       await handler.handle('get_latest_warn', {}, Date.now());
 
-      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('warn', 10, undefined);
-      expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest warn logs limit=10 date=today');
+      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('warn', 20, undefined);
+      expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest warn logs limit=20 date=today');
     });
 
     it('should handle get_latest_info', async () => {
@@ -160,7 +160,7 @@ describe('LogToolHandler', () => {
     it('should handle get_latest_debug', async () => {
       await handler.handle('get_latest_debug', { date: '20230101' }, Date.now());
 
-      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('debug', 10, '20230101');
+      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('debug', 20, '20230101');
     });
   });
 

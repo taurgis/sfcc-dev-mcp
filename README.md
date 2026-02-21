@@ -57,6 +57,7 @@ Create a `dw.json` file with your SFCC credentials. You can use either auth mode
 ```
 
 At least one complete credential pair is required when `hostname` is set.
+If credentials are provided, `hostname` is also required.
 
 ### Option 3: Auto-Discovery (Recommended for VS Code users)
 Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:

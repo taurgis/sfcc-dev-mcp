@@ -128,6 +128,13 @@ export class ConfigurationFactory {
       return;
     }
 
+    // Credentials without hostname is an invalid partial configuration.
+    if (!hasHostname && (hasBasicAuth || hasOAuth)) {
+      throw new Error(
+        'When credentials are provided, hostname must also be provided',
+      );
+    }
+
     // If hostname is provided, require credentials
     if (hasHostname && !hasBasicAuth && !hasOAuth) {
       throw new Error(

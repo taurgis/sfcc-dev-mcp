@@ -22,9 +22,9 @@ export const LogLevelValues = {
 
 // Default limits for different tool types
 export const DEFAULT_LIMITS = {
-  latest: 10,
+  latest: 20,
   search: 20,
-  jobEntries: 50,
+  jobEntries: 10,
   jobSearch: 20,
   jobFiles: 10,
 } as const;

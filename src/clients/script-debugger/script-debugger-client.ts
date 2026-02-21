@@ -132,9 +132,9 @@ export class ScriptDebuggerClient {
   private cachedAuthHeader: string | null = null;
   private webdavClient: WebDAVClient | null = null;
   private isDebuggerEnabled = false;
-
-  // Active cartridge config - determined at runtime based on what exists
-  private activeCartridgeConfig: CartridgeConfig | null = null;
+  private evaluationQueue: Promise<void> = Promise.resolve();
+  private queuedEvaluations = 0;
+  private activeEvaluations = 0;
 
   constructor(config: SFCCConfig, logger?: Logger) {
     this.config = config;
@@ -166,36 +166,22 @@ export class ScriptDebuggerClient {
     } = {},
   ): Promise<ScriptEvaluationResult> {
     const startTime = Date.now();
-    const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
-    const siteId = options.siteId ?? DEFAULT_SITE_ID;
-    const locale = this.normalizeLocale(options.locale ?? DEFAULT_LOCALE);
-    const warnings: string[] = [];
+    return this.enqueueSerializedEvaluation(async () => {
+      const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
+      const siteId = options.siteId ?? DEFAULT_SITE_ID;
+      const locale = this.normalizeLocale(options.locale ?? DEFAULT_LOCALE);
+      const warnings: string[] = [];
 
-    this.logger.debug('Starting script evaluation', {
-      scriptLength: script.length,
-      timeout,
-      siteId,
-      customBreakpoint: options.breakpointFile ? `${options.breakpointFile}:${options.breakpointLine}` : undefined,
-    });
+      this.logger.debug('Starting script evaluation', {
+        scriptLength: script.length,
+        timeout,
+        siteId,
+        customBreakpoint: options.breakpointFile ? `${options.breakpointFile}:${options.breakpointLine}` : undefined,
+      });
 
-    try {
-      // Step 1: Use custom breakpoint or detect storefront cartridge
-      if (options.breakpointFile) {
-        // Use custom breakpoint configuration - single line or default to lines 1-50
-        const customLines = options.breakpointLine ? [options.breakpointLine] : DEFAULT_BREAKPOINT_LINES;
-        this.activeCartridgeConfig = {
-          cartridge: '', // Not used for custom - path is complete
-          controllerPath: options.breakpointFile,
-          breakpointLines: customLines,
-          type: 'sfra', // Doesn't matter for custom
-        };
-        this.logger.debug('Using custom breakpoint', {
-          file: options.breakpointFile,
-          lines: options.breakpointLine ?? 'strategic (1,10,20,30,40,50)',
-        });
-      } else {
-        // Auto-detect storefront cartridge (SFRA or SiteGenesis)
-        const cartridgeConfig = await this.detectStorefrontCartridge();
+      try {
+        // Resolve breakpoint target for this request.
+        const cartridgeConfig = await this.resolveCartridgeConfig(options);
         if (!cartridgeConfig) {
           return {
             success: false,
@@ -210,92 +196,153 @@ export class ScriptDebuggerClient {
           };
         }
 
-        this.activeCartridgeConfig = cartridgeConfig;
-        this.logger.debug('Using detected cartridge config', {
-          cartridge: cartridgeConfig.cartridge,
-          type: cartridgeConfig.type,
-          breakpointLines: 'strategic (1,10,20,30,40,50)',
+        // Reuse one debugger session across queued evaluations.
+        await this.ensureDebuggerSession();
+        await this.clearBreakpoints();
+
+        // Set breakpoints for this specific request only.
+        await this.setBreakpoints(cartridgeConfig);
+
+        // Trigger request execution in storefront.
+        const triggerPromise = this.triggerDefaultStart(siteId, locale);
+
+        // Poll for halted thread
+        const thread = await this.waitForHaltedThread(timeout);
+
+        if (!thread) {
+          await this.clearBreakpoints();
+          return {
+            success: false,
+            error: 'Timeout waiting for script to hit breakpoint. The Default-Start endpoint may not have been triggered correctly.',
+            executionTimeMs: Date.now() - startTime,
+            warnings: [
+              `Ensure the site "${siteId}" exists and has app_storefront_base in its cartridge path`,
+              'Check that the Default-Start route is accessible',
+              'Verify script debugging is enabled',
+            ],
+          };
+        }
+
+        // Evaluate expression in halted context.
+        const evalResult = await this.evaluateInContext(thread.id, script);
+        await this.clearBreakpoints();
+        await this.resumeThread(thread.id);
+
+        // Let trigger settle in background (timeout is expected in some cases).
+        triggerPromise.catch(() => {
+          // Expected - request may timeout after thread resumes.
         });
-      }
 
-      // Step 2: Enable the debugger (create client)
-      await this.enableDebugger();
+        return {
+          success: true,
+          result: evalResult,
+          executionTimeMs: Date.now() - startTime,
+          warnings: warnings.length > 0 ? warnings : undefined,
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.logger.error('Script evaluation failed', { error: errorMessage });
 
-      // Step 3: Set breakpoints on Default.js controller (lines 1-50 by default)
-      await this.setBreakpoints();
+        try {
+          await this.cleanup(false);
+        } catch (cleanupError) {
+          this.logger.debug('Cleanup after error failed', { cleanupError });
+        }
 
-      // Step 4: Trigger Default-Start via HTTP (async - don't await fully)
-      const triggerPromise = this.triggerDefaultStart(siteId, locale);
-
-      // Step 5: Poll for halted thread
-      const thread = await this.waitForHaltedThread(timeout);
-
-      if (!thread) {
-        // Cleanup and return error
-        await this.cleanup();
         return {
           success: false,
-          error: 'Timeout waiting for script to hit breakpoint. The Default-Start endpoint may not have been triggered correctly.',
+          error: errorMessage,
           executionTimeMs: Date.now() - startTime,
-          warnings: [
-            `Ensure the site "${siteId}" exists and has app_storefront_base in its cartridge path`,
-            'Check that the Default-Start route is accessible',
-            'Verify script debugging is enabled',
-          ],
+          warnings: this.getErrorGuidance(errorMessage),
         };
       }
+    });
+  }
 
-      // Step 6: Evaluate the user's expression in the halted context
-      const evalResult = await this.evaluateInContext(thread.id, script);
+  private async enqueueSerializedEvaluation<T>(operation: () => Promise<T>): Promise<T> {
+    this.queuedEvaluations++;
 
-      // Step 7: Delete breakpoints immediately (we have our result)
+    const run = async (): Promise<T> => {
+      this.queuedEvaluations = Math.max(0, this.queuedEvaluations - 1);
+      this.activeEvaluations++;
+
       try {
-        await this.debuggerRequest('DELETE', '/breakpoints');
-      } catch {
-        // Ignore - best effort cleanup
-      }
+        return await operation();
+      } finally {
+        this.activeEvaluations = Math.max(0, this.activeEvaluations - 1);
 
-      // Step 8: Resume the thread
-      await this.resumeThread(thread.id);
-
-      // Step 9: Disable debugger client (don't wait for trigger - it will complete/timeout on its own)
-      if (this.isDebuggerEnabled) {
-        try {
-          await this.debuggerRequest('DELETE', '/client');
-          this.isDebuggerEnabled = false;
-        } catch {
-          // Ignore
+        if (this.activeEvaluations === 0 && this.queuedEvaluations === 0) {
+          await this.disableDebuggerSession();
         }
       }
+    };
 
-      // Don't await triggerPromise - let it complete/timeout in background
-      triggerPromise.catch(() => {
-        // Expected - request may timeout after thread resumes
+    const resultPromise = this.evaluationQueue.then(run, run);
+    this.evaluationQueue = resultPromise.then(() => undefined, () => undefined);
+
+    return resultPromise;
+  }
+
+  private async resolveCartridgeConfig(options: {
+    breakpointFile?: string;
+    breakpointLine?: number;
+  }): Promise<CartridgeConfig | null> {
+    if (options.breakpointFile) {
+      const customLines = options.breakpointLine ? [options.breakpointLine] : DEFAULT_BREAKPOINT_LINES;
+      this.logger.debug('Using custom breakpoint', {
+        file: options.breakpointFile,
+        lines: options.breakpointLine ?? 'strategic (1,10,20,30,40,50)',
       });
 
       return {
-        success: true,
-        result: evalResult,
-        executionTimeMs: Date.now() - startTime,
-        warnings: warnings.length > 0 ? warnings : undefined,
+        cartridge: '',
+        controllerPath: options.breakpointFile,
+        breakpointLines: customLines,
+        type: 'sfra',
       };
+    }
+
+    const detected = await this.detectStorefrontCartridge();
+    if (detected) {
+      this.logger.debug('Using detected cartridge config', {
+        cartridge: detected.cartridge,
+        type: detected.type,
+        breakpointLines: 'strategic (1,10,20,30,40,50)',
+      });
+    }
+
+    return detected;
+  }
+
+  private async ensureDebuggerSession(): Promise<void> {
+    if (this.isDebuggerEnabled) {
+      return;
+    }
+
+    await this.enableDebugger();
+  }
+
+  private async clearBreakpoints(): Promise<void> {
+    try {
+      await this.debuggerRequest('DELETE', '/breakpoints');
+    } catch {
+      // Ignore - best effort cleanup.
+    }
+  }
+
+  private async disableDebuggerSession(): Promise<void> {
+    if (!this.isDebuggerEnabled) {
+      return;
+    }
+
+    try {
+      await this.debuggerRequest('DELETE', '/client');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.error('Script evaluation failed', { error: errorMessage });
-
-      // Always try to cleanup
-      try {
-        await this.cleanup();
-      } catch (cleanupError) {
-        this.logger.debug('Cleanup after error failed', { cleanupError });
-      }
-
-      return {
-        success: false,
-        error: errorMessage,
-        executionTimeMs: Date.now() - startTime,
-        warnings: this.getErrorGuidance(errorMessage),
-      };
+      this.logger.debug('Failed to disable debugger session', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      this.isDebuggerEnabled = false;
     }
   }
 
@@ -495,21 +542,17 @@ export class ScriptDebuggerClient {
    * Set breakpoints on the controller.
    * Creates multiple breakpoints (lines 1-50 by default) to ensure we catch executable code.
    */
-  private async setBreakpoints(): Promise<number[]> {
-    if (!this.activeCartridgeConfig) {
-      throw new Error('No active cartridge config - call detectStorefrontCartridge first');
-    }
-
+  private async setBreakpoints(config: CartridgeConfig): Promise<number[]> {
     // For custom breakpoints, controllerPath is the full path
     // For auto-detected, we combine cartridge + controllerPath
-    const scriptPath = this.activeCartridgeConfig.cartridge
-      ? `/${this.activeCartridgeConfig.cartridge}${this.activeCartridgeConfig.controllerPath}`
-      : this.activeCartridgeConfig.controllerPath;
+    const scriptPath = config.cartridge
+      ? `/${config.cartridge}${config.controllerPath}`
+      : config.controllerPath;
 
     // Normalize to array of line numbers
-    const lineNumbers = Array.isArray(this.activeCartridgeConfig.breakpointLines)
-      ? this.activeCartridgeConfig.breakpointLines
-      : [this.activeCartridgeConfig.breakpointLines];
+    const lineNumbers = Array.isArray(config.breakpointLines)
+      ? config.breakpointLines
+      : [config.breakpointLines];
 
     this.logger.debug('Setting breakpoints', { scriptPath, lines: lineNumbers.length > 5 ? `${lineNumbers[0]}-${lineNumbers[lineNumbers.length - 1]}` : lineNumbers });
 
@@ -709,27 +752,25 @@ export class ScriptDebuggerClient {
   /**
    * Cleanup: remove breakpoints, disable debugger
    */
-  private async cleanup(): Promise<void> {
+  private async cleanup(disableDebugger: boolean = true): Promise<void> {
     this.logger.debug('Starting cleanup');
 
     // Remove all breakpoints
-    try {
-      await this.debuggerRequest('DELETE', '/breakpoints');
-    } catch {
-      // Ignore errors
-    }
+    await this.clearBreakpoints();
 
     // Disable debugger (also resumes any halted threads)
-    if (this.isDebuggerEnabled) {
-      try {
-        await this.debuggerRequest('DELETE', '/client');
-        this.isDebuggerEnabled = false;
-      } catch {
-        // Ignore errors
-      }
+    if (disableDebugger) {
+      await this.disableDebuggerSession();
     }
 
     this.logger.debug('Cleanup complete');
+  }
+
+  async destroy(): Promise<void> {
+    await this.evaluationQueue;
+    await this.cleanup(true);
+    this.cachedAuthHeader = null;
+    this.webdavClient = null;
   }
 
   /**
@@ -768,8 +809,8 @@ export class ScriptDebuggerClient {
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
       // Try to create and immediately delete a client to test connectivity
-      await this.enableDebugger();
-      await this.cleanup();
+      await this.ensureDebuggerSession();
+      await this.cleanup(true);
 
       return {
         success: true,

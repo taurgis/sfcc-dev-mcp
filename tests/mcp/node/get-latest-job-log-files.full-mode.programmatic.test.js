@@ -396,16 +396,15 @@ describe('get_latest_job_log_files - Full Mode Programmatic Tests (Optimized)', 
     });
 
     test('should handle rapid sequential requests without interference', async () => {
-      const promises = [];
       const requestCount = 5;
-      
-      // Fire multiple requests simultaneously
+
+      // Fire multiple requests sequentially to respect MCP single-buffer transport.
+      const results = [];
       for (let i = 0; i < requestCount; i++) {
-        promises.push(client.callTool('get_latest_job_log_files', { limit: 2 }));
+        const result = await client.callTool('get_latest_job_log_files', { limit: 2 });
+        results.push(result);
       }
-      
-      const results = await Promise.all(promises);
-      
+
       // All requests should succeed
       for (let i = 0; i < requestCount; i++) {
         assertSuccessResponse(results[i]);

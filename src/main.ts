@@ -25,6 +25,23 @@ import { ConfigurationFactory } from './config/configuration-factory.js';
 import { parseCommandLineArgs, hasEnvironmentCredentials } from './config/cli-options.js';
 import { Logger } from './utils/logger.js';
 
+function redactCliArgs(args: string[]): string[] {
+  const sensitiveTokens = ['password', 'secret', 'token', 'client-secret', 'client_secret'];
+
+  return args.map(arg => {
+    const lowerArg = arg.toLowerCase();
+    if (sensitiveTokens.some(token => lowerArg.includes(token))) {
+      if (arg.includes('=')) {
+        const [key] = arg.split('=', 1);
+        return `${key}=[REDACTED]`;
+      }
+      return '[REDACTED]';
+    }
+
+    return arg;
+  });
+}
+
 /**
  * Main application entry point
  *
@@ -47,7 +64,8 @@ async function main(): Promise<void> {
 
     logger.log('Starting SFCC Development MCP Server...');
     logger.log(`[main] Current working directory: ${process.cwd()}`);
-    logger.log(`[main] Command line args: ${JSON.stringify(process.argv.slice(2))}`);
+    logger.log(`[main] Command line args count: ${process.argv.slice(2).length}`);
+    logger.debug(`[main] Command line args (redacted): ${JSON.stringify(redactCliArgs(process.argv.slice(2)))}`);
     if (debug) {
       logger.log('[main] Debug mode enabled');
     }
