@@ -8,11 +8,13 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 import {
+  type CallToolResult,
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  RootsListChangedNotificationSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 import { Logger } from '../utils/logger.js';
@@ -50,10 +52,22 @@ const DEFAULT_SERVER_VERSION = '0.0.0';
 
 function resolveServerVersion(): string {
   try {
-    const packageJsonPath = fileURLToPath(new URL('../../package.json', import.meta.url));
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as { version?: unknown };
-    if (typeof packageJson.version === 'string' && packageJson.version.trim().length > 0) {
-      return packageJson.version;
+    const candidatePaths = new Set<string>();
+
+    if (process.argv[1]) {
+      candidatePaths.add(resolve(dirname(process.argv[1]), '..', 'package.json'));
+    }
+    candidatePaths.add(resolve(process.cwd(), 'package.json'));
+
+    for (const packageJsonPath of candidatePaths) {
+      if (!existsSync(packageJsonPath)) {
+        continue;
+      }
+
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as { version?: unknown };
+      if (typeof packageJson.version === 'string' && packageJson.version.trim().length > 0) {
+        return packageJson.version;
+      }
     }
   } catch {
     // Fall through to environment/default fallback.
@@ -77,6 +91,7 @@ export class SFCCDevServer {
   private handlers: BaseToolHandler[] = [];
   private workspaceRootsService: WorkspaceRootsService;
   private instructionAdvisor: InstructionAdvisor;
+  private readonly hasExplicitConfiguration: boolean;
 
   /**
    * Initialize the SFCC Development MCP Server
@@ -86,6 +101,7 @@ export class SFCCDevServer {
   constructor(config: SFCCConfig) {
     this.logger = Logger.getChildLogger('Server');
     this.config = config;
+    this.hasExplicitConfiguration = this.isConfiguredHostname(config.hostname);
     this.logMethodEntry('constructor', { hostname: config.hostname });
     this.capabilities = ConfigurationFactory.getCapabilities(config);
     this.workspaceRootsService = new WorkspaceRootsService(this.logger);
@@ -117,14 +133,23 @@ export class SFCCDevServer {
       this.logger.log('[Server] oninitialized callback triggered - client handshake complete');
       await this.discoverWorkspaceRoots();
     };
+
+    this.server.setNotificationHandler(RootsListChangedNotificationSchema, async () => {
+      this.logger.log('[Server] Received roots/list_changed notification from client');
+      await this.discoverWorkspaceRoots(true);
+    });
   }
 
-  private logMethodEntry(methodName: string, params?: any): void {
+  private logMethodEntry(methodName: string, params?: unknown): void {
     this.logger.methodEntry(methodName, params);
   }
 
-  private logMethodExit(methodName: string, result?: any): void {
+  private logMethodExit(methodName: string, result?: unknown): void {
     this.logger.methodExit(methodName, result);
+  }
+
+  private isConfiguredHostname(hostname: string | undefined): boolean {
+    return !!(hostname && hostname.trim().length > 0 && hostname !== 'Local Mode');
   }
 
   /**
@@ -137,13 +162,18 @@ export class SFCCDevServer {
    * Priority: This is only called when no CLI parameter or environment
    * variables provided credentials (those take precedence).
    */
-  private async discoverWorkspaceRoots(): Promise<void> {
+  private async discoverWorkspaceRoots(forceRefresh: boolean = false): Promise<void> {
     this.logger.log('[Server] discoverWorkspaceRoots called');
 
-    // If we already have a fully configured server (hostname is set), skip discovery
-    // This respects the priority: CLI > ENV > MCP workspace roots
-    if (this.config.hostname && this.config.hostname !== 'Local Mode' && this.config.hostname !== '') {
-      this.logger.log(`[Server] Already configured via CLI or ENV (hostname="${this.config.hostname}"), skipping MCP workspace discovery`);
+    // Respect discovery priority for explicit config (CLI/ENV).
+    if (this.hasExplicitConfiguration) {
+      this.logger.log('[Server] Explicit CLI/ENV configuration detected, skipping MCP workspace discovery');
+      return;
+    }
+
+    // Non-forced discovery only needs to run before we have an active host.
+    if (!forceRefresh && this.isConfiguredHostname(this.config.hostname)) {
+      this.logger.log(`[Server] Already configured from workspace roots (hostname="${this.config.hostname}"), skipping duplicate discovery`);
       return;
     }
 
@@ -155,7 +185,7 @@ export class SFCCDevServer {
       // Request workspace roots from the MCP client
       const rootsResponse = await this.server.listRoots();
 
-      this.logger.log(`[Server] listRoots() returned: ${JSON.stringify(rootsResponse)}`);
+      this.logger.log('[Server] listRoots() returned roots payload');
 
       // Delegate discovery to the service (single responsibility)
       const discoveryResult = this.workspaceRootsService.discoverDwJson(rootsResponse?.roots);
@@ -165,7 +195,7 @@ export class SFCCDevServer {
         return;
       }
 
-      // Reconfigure the server with the discovered credentials
+      // Reconfigure the server with the discovered credentials.
       await this.reconfigureWithCredentials(discoveryResult.config);
 
       this.logger.log(`[Server] Successfully reconfigured with credentials from ${discoveryResult.dwJsonPath}`);
@@ -195,11 +225,18 @@ export class SFCCDevServer {
   private async reconfigureWithCredentials(dwConfig: DwJsonConfig): Promise<void> {
     this.logMethodEntry('reconfigureWithCredentials', { hostname: dwConfig.hostname });
 
+    const nextConfig = ConfigurationFactory.mapDwJsonToConfig(dwConfig);
+    if (this.hasSameConnectionConfig(this.config, nextConfig)) {
+      this.logger.log('[Server] Discovered configuration matches active settings, skipping reconfigure');
+      this.logMethodExit('reconfigureWithCredentials', { skipped: true });
+      return;
+    }
+
     // Dispose of existing handlers
     await this.disposeHandlersSafely('reconfigureWithCredentials');
 
-    // Map dw.json config to SFCCConfig format
-    this.config = ConfigurationFactory.mapDwJsonToConfig(dwConfig);
+    // Apply mapped config from discovered dw.json.
+    this.config = nextConfig;
 
     // Update capabilities
     this.capabilities = ConfigurationFactory.getCapabilities(this.config);
@@ -226,6 +263,15 @@ export class SFCCDevServer {
     }
 
     this.logMethodExit('reconfigureWithCredentials');
+  }
+
+  private hasSameConnectionConfig(current: SFCCConfig, next: SFCCConfig): boolean {
+    return current.hostname === next.hostname &&
+      current.username === next.username &&
+      current.password === next.password &&
+      current.clientId === next.clientId &&
+      current.clientSecret === next.clientSecret &&
+      current.siteId === next.siteId;
   }
 
   // Register modular handlers (each encapsulates its own responsibility)
@@ -279,7 +325,7 @@ export class SFCCDevServer {
       return { tools };
     });
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
+    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
       const { name, arguments: args } = request.params;
       const startTime = Date.now();
 
@@ -294,7 +340,7 @@ export class SFCCDevServer {
         }
         const result = await handler.handle(name, args ?? {}, startTime);
         const decoratedResult = preflightNotice
-          ? this.attachError(result, preflightNotice)
+          ? this.appendPreflightNotice(result, preflightNotice)
           : result;
 
         // Log the full response in debug mode
@@ -305,11 +351,14 @@ export class SFCCDevServer {
           fullResponse: decoratedResult.content?.[0]?.text,
         });
 
-        return decoratedResult as any;
+        return {
+          content: decoratedResult.content,
+          isError: decoratedResult.isError,
+        };
       } catch (error) {
         this.logger.error(`Error handling tool "${name}":`, error);
         this.logger.timing(`${name}_error`, startTime);
-        const errorResult = {
+        const errorResult: CallToolResult = {
           content: [
             {
               type: 'text',
@@ -322,7 +371,7 @@ export class SFCCDevServer {
         // Log error response in debug mode
         this.logger.debug(`Error response for ${name}:`, errorResult);
 
-        return errorResult as any;
+        return errorResult;
       } finally {
         this.logger.methodExit(`handleToolRequest:${name}`);
       }
@@ -357,39 +406,24 @@ export class SFCCDevServer {
   }
 
   /**
-   * Inject a preflight error into JSON responses while preserving existing structure.
-   * Falls back to text concatenation if the payload is not valid JSON.
+   * Append advisory text as a separate content item without mutating tool payloads.
    */
-  private attachError(result: ToolExecutionResult, errorMessage: string): ToolExecutionResult {
-    const content = result?.content ?? [];
-    const [first, ...rest] = content;
-
-    if (first?.type !== 'text' || typeof first.text !== 'string') {
+  private appendPreflightNotice(result: ToolExecutionResult, notice: string): ToolExecutionResult {
+    const trimmedNotice = notice.trim();
+    if (trimmedNotice.length === 0) {
       return result;
     }
 
-    try {
-      const parsed = JSON.parse(first.text);
-      const existingErrors = Array.isArray(parsed.error)
-        ? parsed.error
-        : parsed.error
-          ? [parsed.error]
-          : [];
-
-      const combinedErrors = [...existingErrors, errorMessage];
-      parsed.error = combinedErrors.length === 1 ? combinedErrors[0] : combinedErrors;
-
-      return {
-        ...result,
-        content: [{ ...first, text: JSON.stringify(parsed, null, 2) }, ...rest],
-      };
-    } catch {
-      const merged = [errorMessage, first.text].filter(Boolean).join('\n\n');
-      return {
-        ...result,
-        content: [{ ...first, text: merged }, ...rest],
-      };
+    const content = result?.content ?? [];
+    const alreadyIncluded = content.some(item => item.type === 'text' && item.text === trimmedNotice);
+    if (alreadyIncluded) {
+      return result;
     }
+
+    return {
+      ...result,
+      content: [...content, { type: 'text', text: trimmedNotice }],
+    };
   }
 
   /**

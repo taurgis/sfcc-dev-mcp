@@ -15,7 +15,7 @@ export const CODE_VERSION_TOOL_NAMES_SET = new Set<CodeVersionToolName>(CODE_VER
  * Configuration for code version tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSpec<ToolArguments, any>> = {
+export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_code_versions: {
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.codeVersionsClient as OCAPICodeVersionsClient;

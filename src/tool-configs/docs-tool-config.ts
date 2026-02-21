@@ -18,7 +18,7 @@ export const DOC_TOOL_NAMES_SET = new Set<DocToolName>(DOC_TOOL_NAMES);
  * Configuration for SFCC documentation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments, any>> = {
+export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_sfcc_class_info: {
     defaults: (args: ToolArguments) => ({
       ...args,

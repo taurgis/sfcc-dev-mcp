@@ -19,7 +19,7 @@ import { LogLevel } from '../clients/logs/log-types.js';
 function createLatestLogTool(
   level: LogLevel,
   toolName: LogToolName,
-): GenericToolSpec<ToolArguments, any> {
+): GenericToolSpec<ToolArguments, unknown> {
   return {
     defaults: (args: ToolArguments) => ({
       limit: getLimit(args.limit as number, 'latest'),
@@ -38,7 +38,7 @@ function createLatestLogTool(
  * Configuration for standard log tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments, any>> = {
+export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_latest_error: createLatestLogTool('error', 'get_latest_error'),
   get_latest_warn: createLatestLogTool('warn', 'get_latest_warn'),
   get_latest_info: createLatestLogTool('info', 'get_latest_info'),
@@ -67,7 +67,7 @@ export const LOG_TOOL_CONFIG: Record<LogToolName, GenericToolSpec<ToolArguments,
       const client = context.logClient as SFCCLogClient;
       return client.searchLogs(
         args.pattern as string,
-        args.logLevel as any,
+        args.logLevel as LogLevel | undefined,
         args.limit as number,
         args.date as string,
       );

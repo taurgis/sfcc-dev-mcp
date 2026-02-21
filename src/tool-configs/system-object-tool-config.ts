@@ -19,7 +19,7 @@ export const SYSTEM_OBJECT_TOOL_NAMES_SET = new Set<SystemObjectToolName>(SYSTEM
  * Configuration for system object tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> = {
+export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_system_object_definitions: {
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;

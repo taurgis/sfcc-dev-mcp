@@ -14,7 +14,10 @@ export const AGENT_INSTRUCTION_TOOL_NAMES_SET = new Set<AgentInstructionToolName
 const DESTINATION_VALUES = ['project', 'user', 'temp'];
 const MERGE_VALUES = ['append', 'replace', 'skip'];
 
-export const AGENT_INSTRUCTION_TOOL_CONFIG: Record<AgentInstructionToolName, GenericToolSpec<ToolArguments, any>> = {
+export const AGENT_INSTRUCTION_TOOL_CONFIG: Record<
+  AgentInstructionToolName,
+  GenericToolSpec<ToolArguments, unknown>
+> = {
   sync_agent_instructions: {
     validate: (args: ToolArguments, toolName: string) => {
       ValidationHelpers.validateArguments(args, [
@@ -22,14 +25,14 @@ export const AGENT_INSTRUCTION_TOOL_CONFIG: Record<AgentInstructionToolName, Gen
           field: 'destinationType',
           required: false,
           type: 'string',
-          validator: (value: string) => DESTINATION_VALUES.includes(value),
+          validator: (value: unknown) => typeof value === 'string' && DESTINATION_VALUES.includes(value),
           errorMessage: 'destinationType must be one of project | user | temp',
         },
         {
           field: 'mergeStrategy',
           required: false,
           type: 'string',
-          validator: (value: string) => MERGE_VALUES.includes(value),
+          validator: (value: unknown) => typeof value === 'string' && MERGE_VALUES.includes(value),
           errorMessage: 'mergeStrategy must be one of append | replace | skip',
         },
         { field: 'preferredRoot', required: false, type: 'string' },
@@ -44,15 +47,15 @@ export const AGENT_INSTRUCTION_TOOL_CONFIG: Record<AgentInstructionToolName, Gen
     exec: async (args: ToolArguments, context) => {
       const client = context.agentInstructionsClient as AgentInstructionsClient;
       return client.syncInstructions({
-        destinationType: args.destinationType,
-        preferredRoot: args.preferredRoot,
-        skillsDir: args.skillsDir,
-        mergeStrategy: args.mergeStrategy,
-        includeAgents: args.includeAgents,
-        includeSkills: args.includeSkills,
-        installMissingOnly: args.installMissingOnly,
-        dryRun: args.dryRun,
-        tempDir: args.tempDir,
+        destinationType: args.destinationType as 'project' | 'user' | 'temp' | undefined,
+        preferredRoot: args.preferredRoot as string | undefined,
+        skillsDir: args.skillsDir as string | undefined,
+        mergeStrategy: args.mergeStrategy as 'append' | 'replace' | 'skip' | undefined,
+        includeAgents: args.includeAgents as boolean | undefined,
+        includeSkills: args.includeSkills as boolean | undefined,
+        installMissingOnly: args.installMissingOnly as boolean | undefined,
+        dryRun: args.dryRun as boolean | undefined,
+        tempDir: args.tempDir as string | undefined,
       });
     },
     logMessage: (args: ToolArguments) => `Sync agent instructions (${args.destinationType ?? 'project'})`,
@@ -68,7 +71,7 @@ export const AGENT_INSTRUCTION_TOOL_CONFIG: Record<AgentInstructionToolName, Gen
       const advisor = context.instructionAdvisor as InstructionAdvisor;
 
       // Get workspace root from client status
-      const status = await client.getStatus(args.preferredRoot);
+      const status = await client.getStatus(args.preferredRoot as string | undefined);
       if (!status.workspaceRoot) {
         return {
           success: false,

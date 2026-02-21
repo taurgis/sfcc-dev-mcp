@@ -126,7 +126,7 @@ describe('ValidationHelpers', () => {
           field: 'email',
           required: true,
           type: 'string',
-          validator: (value: string) => value.includes('@'),
+          validator: (value: unknown) => typeof value === 'string' && value.includes('@'),
           errorMessage: 'email must be a valid email address',
         },
       ];
@@ -146,7 +146,7 @@ describe('ValidationHelpers', () => {
           field: 'email',
           required: true,
           type: 'string',
-          validator: (value: string) => value.includes('@'),
+          validator: (value: unknown) => typeof value === 'string' && value.includes('@'),
           errorMessage: 'email must be a valid email address',
         },
       ];
@@ -262,7 +262,7 @@ describe('ValidationHelpers', () => {
         const rules = CommonValidations.requiredField(
           'myField',
           'number',
-          (value: number) => value > 0,
+          (value: unknown) => typeof value === 'number' && value > 0,
           'myField must be positive',
         );
         expect(rules).toEqual([{
@@ -278,7 +278,7 @@ describe('ValidationHelpers', () => {
         const rules = CommonValidations.optionalField(
           'optionalField',
           'boolean',
-          (value: boolean) => typeof value === 'boolean',
+          (value: unknown) => typeof value === 'boolean',
           'optionalField must be boolean',
         );
         expect(rules[0].required).toBe(false);
@@ -288,7 +288,7 @@ describe('ValidationHelpers', () => {
         const rules = CommonValidations.requiredField(
           'cartridgeName',
           'string',
-          (value: string) => /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
+          (value: unknown) => typeof value === 'string' && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
           'cartridgeName must be a valid identifier (letters, numbers, underscore, hyphen)',
         );
 

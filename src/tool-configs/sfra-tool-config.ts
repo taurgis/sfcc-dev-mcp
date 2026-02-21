@@ -18,7 +18,7 @@ export const SFRA_TOOL_NAMES_SET = new Set<SFRAToolName>(SFRA_TOOL_NAMES);
  * Configuration for SFRA documentation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArguments, any>> = {
+export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_available_sfra_documents: {
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;

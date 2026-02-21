@@ -14,7 +14,7 @@ export const SCRIPT_DEBUGGER_TOOL_NAMES_SET = new Set<ScriptDebuggerToolName>(SC
  */
 export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
   ScriptDebuggerToolName,
-  GenericToolSpec<ToolArguments, any>
+  GenericToolSpec<ToolArguments, unknown>
 > = {
   evaluate_script: {
     validate: (args: ToolArguments, toolName: string) => {
@@ -30,7 +30,7 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
         CommonValidations.optionalField(
           'locale',
           'string',
-          (value: string) => value.trim().length > 0,
+          (value: unknown) => typeof value === 'string' && value.trim().length > 0,
           'locale must be a non-empty string when provided',
         ),
         toolName,
@@ -42,7 +42,7 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
         CommonValidations.optionalField(
           'breakpointLine',
           'number',
-          (value: number) => Number.isInteger(value) && value >= 1,
+          (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value >= 1,
           'breakpointLine must be an integer >= 1 when provided',
         ),
         toolName,

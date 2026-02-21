@@ -1,6 +1,7 @@
 import { Logger } from '../../utils/logger.js';
 import { SFCCConfig } from '../../types/types.js';
 import { WorkspaceRootsService } from '../../config/workspace-roots.js';
+import { ValidationError } from '../../utils/validator.js';
 
 export interface HandlerContext {
   logger: Logger;
@@ -40,14 +41,14 @@ export interface ToolExecutionContext {
   [key: string]: unknown;
 }
 
-export class HandlerError extends Error {
+export class HandlerError extends ValidationError {
   constructor(
     message: string,
     public readonly toolName: string,
     public readonly code: string = 'HANDLER_ERROR',
     public readonly details?: unknown,
   ) {
-    super(message);
+    super(message, code, details);
     this.name = 'HandlerError';
   }
 }
@@ -83,17 +84,21 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
     return this.executeWithLogging(
       toolName,
       startTime,
-      () => this.dispatchTool(spec, args),
+      () => this.dispatchTool(toolName, spec, args),
       spec.logMessage(this.applyDefaults(spec, args)),
     );
   }
 
-  private async dispatchTool(spec: GenericToolSpec, args: ToolArguments): Promise<unknown> {
+  private async dispatchTool(
+    toolName: string,
+    spec: GenericToolSpec,
+    args: ToolArguments,
+  ): Promise<unknown> {
     const context = await this.createExecutionContext();
     const processedArgs = this.applyDefaults(spec, args);
 
     if (spec.validate) {
-      spec.validate(processedArgs, 'tool');
+      spec.validate(processedArgs, toolName);
     }
 
     return spec.exec(processedArgs, context);
@@ -112,15 +117,20 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
   protected async onInitialize(): Promise<void> { /* no-op */ }
 
   async dispose(): Promise<void> {
-    await this.onDispose();
-    this._isInitialized = false;
+    try {
+      await this.onDispose();
+    } finally {
+      // Always reset lifecycle state, even when disposal fails.
+      this._isInitialized = false;
+    }
   }
 
   protected async onDispose(): Promise<void> { /* no-op */ }
 
   protected validateArgs(args: ToolArguments, required: string[], toolName: string): void {
     for (const field of required) {
-      if (!args?.[field]) {
+      const value = args?.[field];
+      if (value === undefined || value === null || (typeof value === 'string' && value.trim().length === 0)) {
         throw new HandlerError(
           `${field} is required`,
           toolName,

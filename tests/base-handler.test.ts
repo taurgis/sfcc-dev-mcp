@@ -58,6 +58,15 @@ class TestHandler extends BaseToolHandler {
       exec: async (args) => ({ validated: true, args }),
       logMessage: () => 'Testing complex validation',
     },
+    'tool_name_validation_tool': {
+      validate: (_args, toolName) => {
+        if (toolName !== 'tool_name_validation_tool') {
+          throw new Error(`Unexpected tool name: ${toolName}`);
+        }
+      },
+      exec: async () => ({ validated: true }),
+      logMessage: () => 'Testing tool name propagation',
+    },
   };
 
   constructor(context: HandlerContext, subLoggerName: string = 'Test') {
@@ -69,7 +78,15 @@ class TestHandler extends BaseToolHandler {
   }
 
   protected getToolNameSet(): Set<string> {
-    return new Set(['test_tool', 'failing_tool', 'validate_tool', 'defaults_tool', 'context_tool', 'complex_validation_tool']);
+    return new Set([
+      'test_tool',
+      'failing_tool',
+      'validate_tool',
+      'defaults_tool',
+      'context_tool',
+      'complex_validation_tool',
+      'tool_name_validation_tool',
+    ]);
   }
 
   protected async createExecutionContext(): Promise<ToolExecutionContext> {
@@ -199,6 +216,9 @@ describe('BaseToolHandler', () => {
     });
 
     it('should handle disposal errors', async () => {
+      await handler.handle('test_tool', {}, Date.now());
+      expect(handler.getIsInitialized()).toBe(true);
+
       handler.disposeError = new Error('Disposal failed');
 
       await expect(handler.dispose()).rejects.toThrow('Disposal failed');
@@ -524,6 +544,13 @@ describe('BaseToolHandler', () => {
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42);
+      });
+
+      it('should pass the actual tool name to validate()', async () => {
+        const result = await handler.handle('tool_name_validation_tool', {}, Date.now());
+        const parsedResult = JSON.parse(result.content[0].text);
+
+        expect(parsedResult.validated).toBe(true);
       });
     });
   });

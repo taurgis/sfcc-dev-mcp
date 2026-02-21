@@ -18,7 +18,7 @@ export const ISML_TOOL_NAMES_SET = new Set<ISMLToolName>(ISML_TOOL_NAMES);
  * Configuration for ISML documentation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArguments, any>> = {
+export const ISML_TOOL_CONFIG: Record<ISMLToolName, GenericToolSpec<ToolArguments, unknown>> = {
   list_isml_elements: {
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ismlClient as ISMLClient;

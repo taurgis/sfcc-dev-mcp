@@ -14,7 +14,7 @@ export const CARTRIDGE_TOOL_NAMES_SET = new Set<CartridgeToolName>(CARTRIDGE_TOO
  * Configuration for cartridge generation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<ToolArguments, any>> = {
+export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<ToolArguments, unknown>> = {
   generate_cartridge_structure: {
     defaults: (args: ToolArguments) => ({
       ...args,
@@ -24,7 +24,7 @@ export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<To
       ValidationHelpers.validateArguments(args, CommonValidations.requiredField(
         'cartridgeName',
         'string',
-        (value: string) => /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
+        (value: unknown) => typeof value === 'string' && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
         'cartridgeName must be a valid identifier (letters, numbers, underscore, hyphen)',
       ), toolName);
     },

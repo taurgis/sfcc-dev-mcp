@@ -9,7 +9,7 @@ type ValidatorFn<T> = {
   bivarianceHack: (value: T) => boolean;
 }['bivarianceHack'];
 
-export interface ValidationRule<T = any> {
+export interface ValidationRule<T = unknown> {
   field: string;
   required?: boolean;
   type?: 'string' | 'number' | 'boolean' | 'object' | 'array';
@@ -93,7 +93,7 @@ export const CommonValidations = {
     field,
     required: true,
     type: 'string',
-    validator: (value: string) => value.trim().length > 0,
+    validator: (value: unknown) => typeof value === 'string' && value.trim().length > 0,
     errorMessage: customMessage ?? `${field} must be a non-empty string`,
   }],
 
@@ -101,7 +101,7 @@ export const CommonValidations = {
   requiredField: (
     field: string,
     type: ValidationRule['type'],
-    validator: ValidatorFn<any>,
+    validator: ValidatorFn<unknown>,
     errorMessage: string,
   ): ValidationRule[] => [{
     field,
@@ -115,7 +115,7 @@ export const CommonValidations = {
   optionalField: (
     field: string,
     type: ValidationRule['type'],
-    validator: ValidatorFn<any>,
+    validator: ValidatorFn<unknown>,
     errorMessage: string,
   ): ValidationRule[] => [{
     field,
@@ -134,7 +134,12 @@ export const CommonValidations = {
 export function validateLogLevel(level: string, toolName: string): void {
   if (!isValidLogLevel(level)) {
     const validLevels = Object.values(LogLevelValues).join(', ');
-    throw new Error(`Invalid log level '${level}' for ${toolName}. Valid levels: ${validLevels}`);
+    throw new HandlerError(
+      `Invalid log level '${level}' for ${toolName}. Valid levels: ${validLevels}`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'level', value: level, validLevels: Object.values(LogLevelValues) },
+    );
   }
 }
 
@@ -142,10 +147,20 @@ export function validateLogLevel(level: string, toolName: string): void {
 export function validateLimit(limit: number | undefined, toolName: string): void {
   if (limit === undefined) { return; }
   if (typeof limit !== 'number' || isNaN(limit)) {
-    throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be a valid number`);
+    throw new HandlerError(
+      `Invalid limit '${limit}' for ${toolName}. Must be a valid number`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'limit', value: limit },
+    );
   }
   if (limit <= 0 || limit > 1000) {
-    throw new Error(`Invalid limit '${limit}' for ${toolName}. Must be between 1 and 1000`);
+    throw new HandlerError(
+      `Invalid limit '${limit}' for ${toolName}. Must be between 1 and 1000`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'limit', value: limit, min: 1, max: 1000 },
+    );
   }
 }
 
@@ -153,33 +168,68 @@ export function validateLimit(limit: number | undefined, toolName: string): void
 export function validateMaxBytes(maxBytes: number | undefined, toolName: string): void {
   if (maxBytes === undefined) { return; }
   if (typeof maxBytes !== 'number' || isNaN(maxBytes)) {
-    throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be a valid number`);
+    throw new HandlerError(
+      `Invalid maxBytes '${maxBytes}' for ${toolName}. Must be a valid number`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'maxBytes', value: maxBytes },
+    );
   }
   if (maxBytes <= 0 || maxBytes > 10_000_000) {
-    throw new Error(`Invalid maxBytes '${maxBytes}' for ${toolName}. Must be between 1 and 10,000,000`);
+    throw new HandlerError(
+      `Invalid maxBytes '${maxBytes}' for ${toolName}. Must be between 1 and 10,000,000`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'maxBytes', value: maxBytes, min: 1, max: 10_000_000 },
+    );
   }
 }
 
 /** Validate filename parameter */
 export function validateFilename(filename: string, toolName: string): void {
   if (!filename || filename.trim().length === 0) {
-    throw new Error(`Filename is required for ${toolName}`);
+    throw new HandlerError(
+      `Filename is required for ${toolName}`,
+      toolName,
+      'MISSING_ARGUMENT',
+      { field: 'filename' },
+    );
   }
   // Check for path traversal attempts
   if (filename.includes('..') || filename.includes('\\')) {
-    throw new Error(`Invalid filename '${filename}' for ${toolName}. Path traversal not allowed`);
+    throw new HandlerError(
+      `Invalid filename '${filename}' for ${toolName}. Path traversal not allowed`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'filename', value: filename, reason: 'path_traversal' },
+    );
   }
   // Check for null byte injection
   if (filename.includes('\0') || filename.includes('\x00')) {
-    throw new Error(`Invalid filename for ${toolName}. Contains invalid characters`);
+    throw new HandlerError(
+      `Invalid filename for ${toolName}. Contains invalid characters`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'filename', value: filename, reason: 'invalid_characters' },
+    );
   }
   // Check for absolute path attempts
   if (filename.startsWith('/') && !filename.startsWith('/Logs/') && !filename.startsWith('/jobs/')) {
-    throw new Error(`Invalid filename '${filename}' for ${toolName}. Absolute paths outside /Logs/ are not allowed`);
+    throw new HandlerError(
+      `Invalid filename '${filename}' for ${toolName}. Absolute paths outside /Logs/ are not allowed`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'filename', value: filename, reason: 'absolute_path_not_allowed' },
+    );
   }
   // Check filename length to prevent DoS
   if (filename.length > 1024) {
-    throw new Error(`Invalid filename for ${toolName}. Filename too long`);
+    throw new HandlerError(
+      `Invalid filename for ${toolName}. Filename too long`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'filename', length: filename.length, maxLength: 1024 },
+    );
   }
 }
 

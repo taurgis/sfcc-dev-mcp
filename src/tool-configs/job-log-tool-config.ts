@@ -8,12 +8,13 @@ import {
 } from '../core/handlers/validation-helpers.js';
 import { JobLogToolName, getLimit } from '../utils/log-tool-constants.js';
 import { SFCCLogClient } from '../clients/log-client.js';
+import type { LogLevel } from '../clients/logs/log-types.js';
 
 /**
  * Configuration for job log tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArguments, any>> = {
+export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_latest_job_log_files: {
     defaults: (args: ToolArguments) => ({
       limit: getLimit(args.limit as number, 'jobFiles'),
@@ -59,7 +60,7 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.logClient as SFCCLogClient;
       return client.getJobLogEntries(
-        args.level as any,
+        args.level as LogLevel | 'all',
         args.limit as number,
         args.jobName as string,
       );
@@ -84,7 +85,7 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
         ValidationHelpers.validateArguments(args, CommonValidations.optionalField(
           'jobName',
           'string',
-          (value: string) => typeof value === 'string' && value.trim().length > 0,
+          (value: unknown) => typeof value === 'string' && value.trim().length > 0,
           'jobName must be a non-empty string',
         ), toolName);
       }
@@ -93,7 +94,7 @@ export const JOB_LOG_TOOL_CONFIG: Record<JobLogToolName, GenericToolSpec<ToolArg
       const client = context.logClient as SFCCLogClient;
       return client.searchJobLogs(
         args.pattern as string,
-        args.level as any,
+        args.level as LogLevel | 'all' | undefined,
         args.limit as number,
         args.jobName as string,
       );
