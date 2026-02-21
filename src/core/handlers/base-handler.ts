@@ -134,20 +134,6 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected async onDispose(): Promise<void> { /* no-op */ }
 
-  protected validateArgs(args: ToolArguments, required: string[], toolName: string): void {
-    for (const field of required) {
-      const value = args?.[field];
-      if (value === undefined || value === null || (typeof value === 'string' && value.trim().length === 0)) {
-        throw new HandlerError(
-          `${field} is required`,
-          toolName,
-          'MISSING_ARGUMENT',
-          { required, provided: Object.keys(args || {}) },
-        );
-      }
-    }
-  }
-
   protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
     const structuredContent = isStructuredContentRecord(data) ? data : undefined;
     const payload = structuredContent ?? data;

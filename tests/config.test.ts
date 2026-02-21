@@ -64,8 +64,6 @@ describe('dw-json-loader.ts and configuration-factory.ts', () => {
     it('should load a valid dw.json file with OAuth credentials', () => {
       const oauthDwJson: DwJsonConfig = {
         hostname: 'test-instance.demandware.net',
-        username: 'testuser',
-        password: 'testpass',
         'client-id': 'test-client-id',
         'client-secret': 'test-client-secret',
       };
@@ -112,7 +110,7 @@ describe('dw-json-loader.ts and configuration-factory.ts', () => {
     it('should throw error for incomplete configuration', () => {
       const incompleteDwJson = {
         hostname: 'test-instance.demandware.net',
-        // Missing username and password
+        // Missing both auth modes
       };
 
       const testFile = join(testDir, 'incomplete-dw.json');
@@ -120,7 +118,35 @@ describe('dw-json-loader.ts and configuration-factory.ts', () => {
 
       expect(() => {
         loadSecureDwJson(testFile);
-      }).toThrow('Configuration file must contain hostname, username, and password fields');
+      }).toThrow('Configuration file must include either username/password or client-id/client-secret credentials');
+    });
+
+    it('should throw error when basic auth pair is incomplete', () => {
+      const incompleteBasicAuth: DwJsonConfig = {
+        hostname: 'test-instance.demandware.net',
+        username: 'testuser',
+      };
+
+      const testFile = join(testDir, 'incomplete-dw.json');
+      writeFileSync(testFile, JSON.stringify(incompleteBasicAuth, null, 2));
+
+      expect(() => {
+        loadSecureDwJson(testFile);
+      }).toThrow('Basic auth credentials must include both username and password');
+    });
+
+    it('should throw error when OAuth pair is incomplete', () => {
+      const incompleteOAuth: DwJsonConfig = {
+        hostname: 'test-instance.demandware.net',
+        'client-id': 'test-client-id',
+      };
+
+      const testFile = join(testDir, 'incomplete-dw.json');
+      writeFileSync(testFile, JSON.stringify(incompleteOAuth, null, 2));
+
+      expect(() => {
+        loadSecureDwJson(testFile);
+      }).toThrow('OAuth credentials must include both client-id and client-secret');
     });
 
     it('should throw error for invalid hostname format', () => {

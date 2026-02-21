@@ -111,9 +111,31 @@ function validateFileSize(filePath: string): void {
  * @throws Error if required fields are missing or invalid
  */
 function validateDwJsonContent(dwConfig: DwJsonConfig): void {
-  // Validate required fields
-  if (!dwConfig.hostname || !dwConfig.username || !dwConfig.password) {
-    throw new Error('Configuration file must contain hostname, username, and password fields');
+  // Validate required hostname
+  if (!dwConfig.hostname) {
+    throw new Error('Configuration file must contain a hostname field');
+  }
+
+  const hasBasicUser = typeof dwConfig.username === 'string' && dwConfig.username.trim().length > 0;
+  const hasBasicPassword = typeof dwConfig.password === 'string' && dwConfig.password.trim().length > 0;
+  const hasBasicAuth = hasBasicUser && hasBasicPassword;
+
+  const hasClientId = typeof dwConfig['client-id'] === 'string' && dwConfig['client-id'].trim().length > 0;
+  const hasClientSecret = typeof dwConfig['client-secret'] === 'string' && dwConfig['client-secret'].trim().length > 0;
+  const hasOAuth = hasClientId && hasClientSecret;
+
+  if ((hasBasicUser && !hasBasicPassword) || (!hasBasicUser && hasBasicPassword)) {
+    throw new Error('Basic auth credentials must include both username and password');
+  }
+
+  if ((hasClientId && !hasClientSecret) || (!hasClientId && hasClientSecret)) {
+    throw new Error('OAuth credentials must include both client-id and client-secret');
+  }
+
+  if (!hasBasicAuth && !hasOAuth) {
+    throw new Error(
+      'Configuration file must include either username/password or client-id/client-secret credentials',
+    );
   }
 
   // Additional validation for hostname format (trim whitespace first)

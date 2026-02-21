@@ -119,6 +119,7 @@ const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS === 'tr
  */
 export class SFCCDevServer {
   private server!: Server;
+  private transport: StdioServerTransport | null = null;
   private logger: Logger;
   private config: SFCCConfig;
   private capabilities: ReturnType<typeof ConfigurationFactory.getCapabilities>;
@@ -515,7 +516,7 @@ export class SFCCDevServer {
    * Start the MCP server
    */
   async run(): Promise<void> {
-    const transport = new StdioServerTransport();
+    this.transport = new StdioServerTransport();
 
     // Set up graceful shutdown
     process.off('SIGINT', this.onSigInt);
@@ -523,7 +524,7 @@ export class SFCCDevServer {
     process.on('SIGINT', this.onSigInt);
     process.on('SIGTERM', this.onSigTerm);
 
-    await this.server.connect(transport);
+    await this.server.connect(this.transport);
     this.logger.log('SFCC Development MCP server running on stdio');
   }
 
@@ -546,11 +547,44 @@ export class SFCCDevServer {
       // Dispose of all handlers
       await this.disposeHandlersSafely('shutdown');
 
+      await this.closeConnectionsSafely();
+      await this.flushLogsSafely();
+
       this.logger.log('SFCC Development MCP server shutdown complete');
-      process.exit(0);
     })();
 
     await this.shutdownPromise;
+  }
+
+  private async closeConnectionsSafely(): Promise<void> {
+    const serverWithClose = this.server as Server & { close?: () => Promise<void> | void };
+    const transportWithClose = this.transport as (StdioServerTransport & { close?: () => Promise<void> | void }) | null;
+
+    try {
+      if (typeof serverWithClose.close === 'function') {
+        await serverWithClose.close();
+      }
+    } catch (error) {
+      this.logger.warn(`[Server] shutdown: failed to close server connection: ${String(error)}`);
+    }
+
+    try {
+      if (transportWithClose && typeof transportWithClose.close === 'function') {
+        await transportWithClose.close();
+      }
+    } catch (error) {
+      this.logger.warn(`[Server] shutdown: failed to close stdio transport: ${String(error)}`);
+    } finally {
+      this.transport = null;
+    }
+  }
+
+  private async flushLogsSafely(): Promise<void> {
+    try {
+      await this.logger.flush();
+    } catch (error) {
+      process.stderr.write(`[Server] Failed to flush logs during shutdown: ${String(error)}\n`);
+    }
   }
 
   /**

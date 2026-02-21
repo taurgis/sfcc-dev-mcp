@@ -1,4 +1,4 @@
-import { BaseToolHandler, HandlerContext, ToolArguments, ToolExecutionResult, HandlerError, GenericToolSpec, ToolExecutionContext } from '../src/core/handlers/base-handler.js';
+import { BaseToolHandler, HandlerContext, ToolExecutionResult, HandlerError, GenericToolSpec, ToolExecutionContext } from '../src/core/handlers/base-handler.js';
 import { Logger } from '../src/utils/logger.js';
 
 // Mock implementation for testing
@@ -20,7 +20,15 @@ class TestHandler extends BaseToolHandler {
     },
     'validate_tool': {
       validate: (args, toolName) => {
-        this.validateArgs(args, ['required_field'], toolName);
+        const value = args.required_field;
+        if (typeof value !== 'string' || value.trim().length === 0) {
+          throw new HandlerError(
+            'required_field is required',
+            toolName,
+            'MISSING_ARGUMENT',
+            { required: ['required_field'], provided: Object.keys(args || {}) },
+          );
+        }
       },
       exec: async (args) => `validate_tool executed successfully with ${JSON.stringify(args)}`,
       logMessage: () => 'Testing validation tool',
@@ -108,11 +116,6 @@ class TestHandler extends BaseToolHandler {
     if (this.disposeError) {
       throw this.disposeError;
     }
-  }
-
-  // Expose protected methods for testing
-  public testValidateArgs(args: ToolArguments, required: string[], toolName: string): void {
-    this.validateArgs(args, required, toolName);
   }
 
   public testCreateResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
@@ -286,59 +289,6 @@ describe('BaseToolHandler', () => {
       const errorResult = await handler.handle('validate_tool', {}, Date.now());
       expect(errorResult.isError).toBe(true);
       expect(errorResult.content[0].text).toContain('required_field is required');
-    });
-  });
-
-  describe('validateArgs', () => {
-    it('should pass when all required fields are present', () => {
-      const args = { field1: 'value1', field2: 'value2' };
-
-      expect(() => {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      }).not.toThrow();
-    });
-
-    it('should throw HandlerError when required field is missing', () => {
-      const args = { field1: 'value1' };
-
-      expect(() => {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      }).toThrow(HandlerError);
-
-      try {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      } catch (error) {
-        expect(error).toBeInstanceOf(HandlerError);
-        expect((error as HandlerError).message).toBe('field2 is required');
-        expect((error as HandlerError).toolName).toBe('test_tool');
-        expect((error as HandlerError).code).toBe('MISSING_ARGUMENT');
-        expect((error as HandlerError).details).toEqual({
-          required: ['field1', 'field2'],
-          provided: ['field1'],
-        });
-      }
-    });
-
-    it('should throw when required field is null or undefined', () => {
-      expect(() => {
-        handler.testValidateArgs({ field1: null }, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-
-      expect(() => {
-        handler.testValidateArgs({ field1: undefined }, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-    });
-
-    it('should handle empty args object', () => {
-      expect(() => {
-        handler.testValidateArgs({}, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-    });
-
-    it('should handle null args', () => {
-      expect(() => {
-        handler.testValidateArgs(null as any, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
     });
   });
 

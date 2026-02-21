@@ -312,6 +312,13 @@ export class Logger {
   }
 
   /**
+   * Wait for pending asynchronous log writes to complete.
+   */
+  public async flush(): Promise<void> {
+    await this.writeQueue;
+  }
+
+  /**
    * Get the current log directory
    */
   public getLogDirectory(): string {

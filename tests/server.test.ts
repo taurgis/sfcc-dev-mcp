@@ -72,6 +72,7 @@ interface MockMcpServer {
   listRoots: jest.Mock;
   sendToolListChanged: jest.Mock;
   connect: jest.Mock;
+  close: jest.Mock;
 }
 
 const serverInstances: MockMcpServer[] = [];
@@ -86,6 +87,7 @@ jest.mock('@modelcontextprotocol/sdk/server/index.js', () => {
         listRoots: jest.fn().mockResolvedValue({ roots: [] }),
         sendToolListChanged: jest.fn().mockResolvedValue(undefined),
         connect: jest.fn().mockResolvedValue(undefined),
+        close: jest.fn().mockResolvedValue(undefined),
       };
 
       serverInstances.push(mockServer);
@@ -481,13 +483,13 @@ describe('SFCCDevServer', () => {
     expect(serverAny.workspaceRootsService.discoverDwJson).not.toHaveBeenCalled();
   });
 
-  it('cleans up process signal listeners and exits only once during repeated shutdown calls', async () => {
+  it('cleans up process signal listeners and closes server only once during repeated shutdown calls', async () => {
     const onSpy = jest.spyOn(process, 'on');
     const offSpy = jest.spyOn(process, 'off');
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
 
     const server = new SFCCDevServer({ hostname: '' });
     await server.run();
+    const mockServer = getLatestMockServer();
 
     expect(onSpy).toHaveBeenCalledWith('SIGINT', expect.any(Function));
     expect(onSpy).toHaveBeenCalledWith('SIGTERM', expect.any(Function));
@@ -497,10 +499,9 @@ describe('SFCCDevServer', () => {
 
     expect(offSpy).toHaveBeenCalledWith('SIGINT', expect.any(Function));
     expect(offSpy).toHaveBeenCalledWith('SIGTERM', expect.any(Function));
-    expect(exitSpy).toHaveBeenCalledTimes(1);
+    expect(mockServer.close).toHaveBeenCalledTimes(1);
 
     onSpy.mockRestore();
     offSpy.mockRestore();
-    exitSpy.mockRestore();
   });
 });

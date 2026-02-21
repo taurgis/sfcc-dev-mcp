@@ -43,7 +43,9 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-Create a `dw.json` file with your SFCC credentials:
+Create a `dw.json` file with your SFCC credentials. You can use either auth mode (or both):
+- Basic auth: `username` + `password`
+- OAuth: `client-id` + `client-secret`
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
@@ -53,6 +55,8 @@ Create a `dw.json` file with your SFCC credentials:
   "client-secret": "your-client-secret"
 }
 ```
+
+At least one complete credential pair is required when `hostname` is set.
 
 ### Option 3: Auto-Discovery (Recommended for VS Code users)
 Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:

@@ -115,7 +115,8 @@ async function main(): Promise<void> {
       }
     }
 
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
 }
 
@@ -123,5 +124,5 @@ async function main(): Promise<void> {
 main().catch((error) => {
   const logger = Logger.getInstance();
   logger.error('Unhandled error:', error);
-  process.exit(1);
+  process.exitCode = 1;
 });
