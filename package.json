@@ -41,7 +41,7 @@
     "test:mcp:yaml": "aegis 'tests/mcp/yaml/*.docs-only.test.mcp.yml' --config './aegis.config.docs-only.json'",
     "test:mcp:yaml:full": "aegis 'tests/mcp/yaml/*.full-mode.test.mcp.yml' --config './aegis.config.with-dw.json'",
     "test:mcp:node": "node --test tests/mcp/node/*.programmatic.test.js",
-    "test:mcp:all": "npm run test:mcp:yaml & p1=$!; npm run test:mcp:yaml:full & p2=$!; npm run test:mcp:node & p3=$!; wait $p1; s1=$?; wait $p2; s2=$?; wait $p3; s3=$?; [ $s1 -eq 0 ] && [ $s2 -eq 0 ] && [ $s3 -eq 0 ]",
+    "test:mcp:all": "npm run test:mcp:yaml & p1=$!; npm run test:mcp:yaml:full & p2=$!; wait $p1; s1=$?; wait $p2; s2=$?; [ $s1 -eq 0 ] && [ $s2 -eq 0 ] && npm run test:mcp:node",
     "test:mcp:ci": "npm run test:mcp:yaml -- --json && npm run test:mcp:yaml:full -- --json && npm run test:mcp:node",
     "test:mcp:published-npx": "bash ./scripts/test-published-npx.sh",
     "test:all": "npm run test:unit & p1=$!; npm run test:mock-server:setup & p2=$!; wait $p1; s1=$?; wait $p2; s2=$?; [ $s1 -eq 0 ] && [ $s2 -eq 0 ] && npm run test:mcp:all",
