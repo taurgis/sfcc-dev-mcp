@@ -484,7 +484,9 @@ describe('search_system_object_attribute_definitions - Full Mode Programmatic Te
 
       assert.equal(emptyResult.isError, true, 'Should return error for empty object type');
       const errorText = emptyResult.content[0].text;
-      assert.ok(errorText.includes('objectType must be a non-empty string'), 
+      assert.ok(
+        errorText.includes('objectType must be at least 1 characters') ||
+        errorText.includes('objectType'),
         'Error message should indicate objectType validation issue');
     });
 

@@ -35,6 +35,7 @@ export const SFRA_DOCUMENTATION_TOOLS = [
         query: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Search term, e.g., "middleware", "routing", "cache", "cart", "pricing".',
         },
       },

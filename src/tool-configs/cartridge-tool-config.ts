@@ -1,6 +1,7 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
 import { CartridgeGenerationClient } from '../clients/cartridge/index.js';
+import { validateTargetPathWithinWorkspace } from '../core/handlers/validation-helpers.js';
 
 export const CARTRIDGE_TOOL_NAMES = [
   'generate_cartridge_structure',
@@ -21,9 +22,15 @@ export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<To
     }),
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.cartridgeClient as CartridgeGenerationClient;
+      const validatedTargetPath = validateTargetPathWithinWorkspace(
+        args.targetPath,
+        context,
+        'generate_cartridge_structure',
+      );
+
       return client.generateCartridgeStructure({
         cartridgeName: args.cartridgeName as string,
-        targetPath: args.targetPath as string | undefined,
+        targetPath: validatedTargetPath,
         fullProjectSetup: args.fullProjectSetup as boolean,
       });
     },

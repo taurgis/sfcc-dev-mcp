@@ -194,6 +194,7 @@ tests:
               type: "text"
               text: "match:contains:already active"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -244,8 +245,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:codeVersionId must be a non-empty string"
+              text: "match:regex:codeVersionId (must be at least 1 characters|must be a non-empty string|is required|must be a string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -267,8 +269,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:codeVersionId must be a non-empty string"
+              text: "match:regex:codeVersionId (must be at least 1 characters|must be a non-empty string|is required|must be a string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -290,8 +293,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:codeVersionId must be a non-empty string"
+              text: "match:regex:codeVersionId (must be at least 1 characters|must be a non-empty string|is required|must be a string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -318,6 +322,7 @@ tests:
               type: "text"
               text: "match:regex:Error[\\s\\S]*404[\\s\\S]*not found[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -341,6 +346,7 @@ tests:
               type: "text"
               text: "match:contains:Invalid code version ID format"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -368,6 +374,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include SFCC fault information in error response"
@@ -389,6 +396,7 @@ tests:
               type: "text"
               text: "match:regex:Error[\\s\\S]*(fault|InvalidParameterException|404)[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -413,6 +421,7 @@ tests:
               type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -439,6 +448,7 @@ tests:
               type: "text"
               text: "match:regex:Error[\\s\\S]*(404|not found)[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -462,6 +472,7 @@ tests:
               type: "text"
               text: "match:contains:Invalid code version ID format"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "2000ms"
@@ -488,6 +499,7 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return consistent error format for different invalid version"
@@ -509,4 +521,5 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

@@ -241,6 +241,7 @@ tests:
             - type: "text"
               text: "match:contains:query"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return empty array for no matches"

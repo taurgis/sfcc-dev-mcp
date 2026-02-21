@@ -108,7 +108,7 @@ tests:
               match:partial:
                 text: "match:contains:limit must be >= 1"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should return error for negative limit"
     request:
       jsonrpc: "2.0"
@@ -128,7 +128,7 @@ tests:
               match:partial:
                 text: "match:contains:limit must be >= 1"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should handle invalid limit type gracefully"
     request:
       jsonrpc: "2.0"
@@ -148,7 +148,7 @@ tests:
               match:partial:
                 text: "match:contains:limit must be a number"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should handle invalid date gracefully"
     request:
       jsonrpc: "2.0"
@@ -169,7 +169,7 @@ tests:
               match:partial:
                 text: "match:contains:date must match pattern"
           isError: true
-
+          structuredContent: "match:type:object"
   # ========================================
   # EDGE CASES
   # ========================================

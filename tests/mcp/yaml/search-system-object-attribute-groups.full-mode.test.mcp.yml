@@ -365,8 +365,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:objectType must be a non-empty string"
+              text: "match:regex:objectType (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "800ms"
       stderr: "toBeEmpty"
@@ -391,8 +392,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:objectType must be a non-empty string"
+              text: "match:regex:objectType (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "800ms"
       stderr: "toBeEmpty"
@@ -442,6 +444,7 @@ tests:
             - type: "text"
               text: "match:contains:ObjectTypeNotFoundException"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -468,6 +471,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*No object type with ID[\\s\\S]*NonExistentObject[\\s\\S]*could be found[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================

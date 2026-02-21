@@ -184,7 +184,7 @@ describe('get_latest_debug - Full Mode Programmatic Tests (Optimized)', () => {
           { date: 'invalid-date', expectError: true, expectedText: 'date must match pattern' },
         { date: '20261231', expectSuccess: true }, // Future date
         { date: '20240101', expectSuccess: true }, // Past date
-          { date: 123, expectError: true, expectedText: 'date must be a non-empty string' },
+          { date: 123, expectError: true, expectedText: 'date' },
           { date: '2024-01-01', expectError: true, expectedText: 'date must match pattern' },
       ];
 

@@ -59,7 +59,7 @@ describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
     test('should retrieve error messages with default parameters', async () => {
       const result = await client.callTool('get_latest_error', {});
       
-      assertSuccessWithLimit(result, 10); // Default limit is 10
+      assertSuccessWithLimit(result, 20); // Current default limit is 20
       
       // Verify SFCC-specific content is present
       const text = result.content[0].text;
@@ -138,7 +138,7 @@ describe('get_latest_error - Full Mode Programmatic Tests (Optimized)', () => {
 
     test('should handle missing arguments gracefully', async () => {
       const result = await client.callTool('get_latest_error');
-      assertSuccessWithLimit(result, 10); // Should use default limit
+      assertSuccessWithLimit(result, 20); // Should use current default limit
     });
   });
 

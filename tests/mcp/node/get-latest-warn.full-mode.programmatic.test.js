@@ -75,7 +75,7 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
     test('should retrieve latest warn messages with default parameters', async () => {
       const result = await client.callTool('get_latest_warn', {});
       
-      assertLogFormat(result, 10); // Default limit is 10
+      assertLogFormat(result, 20); // Current default limit is 20
       
       // Should contain SFCC-specific patterns
       const text = result.content[0].text;
@@ -106,9 +106,12 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
         assert.equal(result.isError, false, `Call ${index} should not be error`);
         assert.equal(result.content[0].type, 'text', `Call ${index} should have text content`);
         
-        const expectedLimit = params.limit || 10;
-        assert.ok(result.content[0].text.includes(`Latest ${expectedLimit} warn messages`), 
-          `Call ${index} should contain 'Latest ${expectedLimit}' in response`);
+        const expectedLimit = params.limit || 20;
+        const responseText = result.content[0].text;
+        assert.ok(
+          responseText.includes(`Latest ${expectedLimit}`) && responseText.toLowerCase().includes('warn'),
+          `Call ${index} should contain latest warn summary for limit ${expectedLimit}`,
+        );
       });
     });
   });
@@ -286,7 +289,7 @@ describe('get_latest_warn - Full Mode Programmatic Tests', () => {
           
           // Verify state consistency for successful operations
           const text = opResult.result.content[0].text;
-          const expectedLimit = opResult.params.limit || 10;
+          const expectedLimit = opResult.params.limit || 20;
           assert.ok(text.includes(`Latest ${expectedLimit} warn messages`),
             `Operation ${index} should show correct limit: ${expectedLimit}`);
         }

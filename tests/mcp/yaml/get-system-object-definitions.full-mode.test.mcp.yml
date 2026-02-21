@@ -349,7 +349,7 @@ tests:
                 type: "text"
                 text: "match:contains:start must be a number"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should reject string count parameter"
     request:
       jsonrpc: "2.0"
@@ -371,7 +371,7 @@ tests:
                 type: "text"
                 text: "match:contains:count must be a number"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should handle negative start parameter gracefully"
     request:
       jsonrpc: "2.0"
@@ -460,9 +460,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:select must be a non-empty string"
+                text: "match:regex:select (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
-
+          structuredContent: "match:type:object"
 # ==================================================================================
 # DATA VALIDATION AND CONSISTENCY
 # ==================================================================================

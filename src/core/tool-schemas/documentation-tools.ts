@@ -77,6 +77,7 @@ export const SFCC_DOCUMENTATION_TOOLS = [
         methodName: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Method name to search, e.g., "getProduct", "addItem", "calculate".',
         },
       },

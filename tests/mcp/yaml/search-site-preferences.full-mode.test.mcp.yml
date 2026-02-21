@@ -405,6 +405,7 @@ tests:
             - type: "text"
               text: "match:contains:CustomPreferenceGroupNotFoundException"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "1000ms"
       stderr: "toBeEmpty"
@@ -429,8 +430,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:groupId must be a non-empty string"
+              text: "match:regex:groupId (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "1000ms"
       stderr: "toBeEmpty"

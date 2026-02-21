@@ -1948,6 +1948,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle invalid class with specific error message"
@@ -1968,6 +1969,7 @@ tests:
             - type: "text"
               text: "match:contains:not found"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle empty class name"
@@ -1986,8 +1988,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:non-empty string"
+              text: "match:regex:(non-empty string|must be at least 1 characters|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing className parameter with error response"
@@ -2005,8 +2008,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:non-empty string"
+              text: "match:regex:(non-empty string|must be at least 1 characters|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle null className gracefully"
@@ -2027,6 +2031,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle numeric className gracefully"
@@ -2047,6 +2052,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -2071,6 +2077,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle class names with special characters"
@@ -2091,6 +2098,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle very long invalid class names"
@@ -2111,6 +2119,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -2327,6 +2336,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "300ms"  # Error handling should be faster
       stderr: "toBeEmpty"
@@ -2347,8 +2357,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:non-empty string"
+              text: "match:regex:(non-empty string|must be at least 1 characters|is required)"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "300ms"  # CI-friendly threshold for validation path
       stderr: "toBeEmpty"
@@ -2413,4 +2424,5 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

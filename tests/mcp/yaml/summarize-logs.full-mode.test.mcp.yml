@@ -105,6 +105,7 @@ tests:
               type: "text"
               text: "match:contains:date must match pattern"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # YAML-specific pattern tests - what YAML does better than Node.js

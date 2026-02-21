@@ -799,6 +799,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle empty class name"
@@ -819,6 +820,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing className parameter with error response"
@@ -838,6 +840,7 @@ tests:
             - type: "text"
               text: "match:contains:className"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle malformed class names"
@@ -858,6 +861,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -1056,6 +1060,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -1198,6 +1203,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "50ms"  # Error handling should be very fast
       stderr: "toBeEmpty"
@@ -1220,6 +1226,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "250ms"  # Validation errors should be fast (CI-friendly threshold)
       stderr: "toBeEmpty"
@@ -1242,6 +1249,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "250ms"  # Invalid input should fail quickly (CI-friendly threshold)
       stderr: "toBeEmpty"

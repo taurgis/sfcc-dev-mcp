@@ -133,6 +133,7 @@ export const JOB_LOG_TOOLS = [
         jobName: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'The job name to search for (partial matches supported)',
         },
         limit: createLimitSchema(DEFAULT_LIMITS.jobFiles, `Number of job log files to return (default: ${DEFAULT_LIMITS.jobFiles})`),
@@ -156,6 +157,7 @@ export const JOB_LOG_TOOLS = [
         jobName: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Optional job name to filter results to a specific job',
         },
       },
@@ -182,6 +184,7 @@ export const JOB_LOG_TOOLS = [
         jobName: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Optional job name to restrict search to a specific job',
         },
       },
@@ -197,6 +200,7 @@ export const JOB_LOG_TOOLS = [
         jobName: {
           type: 'string',
           minLength: 1,
+          pattern: '.*\\S.*',
           description: 'The job name to get execution summary for',
         },
       },

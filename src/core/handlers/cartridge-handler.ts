@@ -1,4 +1,4 @@
-import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { HandlerContext } from './base-handler.js';
 import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { CartridgeGenerationClient } from '../../clients/cartridge/index.js';
 import {
@@ -19,7 +19,7 @@ export class CartridgeToolHandler extends ConfiguredClientHandler<CartridgeToolN
       clientDisplayName: 'Cartridge Generation',
       clientRequiredError: 'Cartridge Generation client not initialized',
       toolNameSet: CARTRIDGE_TOOL_NAMES_SET,
-      toolConfig: CARTRIDGE_TOOL_CONFIG as Record<CartridgeToolName, GenericToolSpec<ToolArguments, unknown>>,
+      toolConfig: CARTRIDGE_TOOL_CONFIG,
     });
   }
 }

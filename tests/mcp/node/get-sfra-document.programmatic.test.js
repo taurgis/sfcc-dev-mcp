@@ -226,7 +226,7 @@ describe('get_sfra_document Tool - Programmatic Tests', () => {
     test('should validate input parameters thoroughly', async () => {
       const invalidInputs = [
         { args: {}, expectedError: 'documentName', description: 'missing parameter' },
-        { args: { documentName: '' }, expectedError: 'non-empty', description: 'empty string' },
+        { args: { documentName: '' }, expectedError: 'at least 1 characters', description: 'empty string' },
         { args: { documentName: null }, expectedError: 'string', description: 'null value' },
         { args: { documentName: 123 }, expectedError: 'string', description: 'numeric value' },
         { args: { documentName: 'invalid/path/name' }, expectedError: 'not found', description: 'invalid path' },

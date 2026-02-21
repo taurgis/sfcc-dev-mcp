@@ -683,6 +683,7 @@ tests:
                 type: "text"
                 text: "match:contains:is not allowed"
           isError: true
+          structuredContent: "match:type:object"
       stderr: toBeEmpty
 
 

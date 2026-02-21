@@ -98,6 +98,7 @@ tests:
                 type: "text"
                 text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"  # Error should be fast
 
@@ -116,7 +117,7 @@ tests:
         result:
           content: "match:type:array"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should fail fast when calling unlisted tool with parameters"
     request:
       jsonrpc: "2.0"
@@ -138,6 +139,7 @@ tests:
                 type: "text"
                 text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"  # Should fail quickly
 
@@ -255,3 +257,4 @@ tests:
                 type: "text"
                 text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"

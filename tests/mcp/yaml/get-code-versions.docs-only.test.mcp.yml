@@ -55,6 +55,7 @@ tests:
               type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -77,6 +78,7 @@ tests:
               type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -103,6 +105,7 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should reject unknown parameters with validation error"
@@ -124,6 +127,7 @@ tests:
               type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -149,6 +153,7 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "500ms"
@@ -171,6 +176,7 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"

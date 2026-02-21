@@ -307,6 +307,7 @@ tests:
             - type: "text"
               text: "match:contains:not found"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle empty document name"
@@ -327,6 +328,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found|invalid)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle invalid document name characters"
@@ -347,6 +349,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found|invalid)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing documentName parameter"
@@ -366,6 +369,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|required|missing|documentName|non-empty string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Case sensitivity tests - it appears the tool is case-insensitive
@@ -541,4 +545,5 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

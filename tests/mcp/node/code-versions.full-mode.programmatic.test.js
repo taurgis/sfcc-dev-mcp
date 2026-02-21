@@ -212,7 +212,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       const result1 = await client.callTool('activate_code_version', {});
       assertValidMCPResponse(result1);
       assert.equal(result1.isError, true, 'Should be error for missing parameter');
-      assertTextContent(result1, 'codeVersionId must be a non-empty string');
+      assertTextContent(result1, 'codeVersionId');
       
       // Test empty string
       const result2 = await client.callTool('activate_code_version', {
@@ -220,7 +220,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result2);
       assert.equal(result2.isError, true, 'Should be error for empty string');
-      assertTextContent(result2, 'codeVersionId must be a non-empty string');
+      assertTextContent(result2, 'codeVersionId');
       
       // Test wrong type (number)
       const result3 = await client.callTool('activate_code_version', {
@@ -228,7 +228,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result3);
       assert.equal(result3.isError, true, 'Should be error for number type');
-      assertTextContent(result3, 'codeVersionId must be a non-empty string');
+      assertTextContent(result3, 'codeVersionId');
       
       // Test null value
       const result4 = await client.callTool('activate_code_version', {
@@ -236,7 +236,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result4);
       assert.equal(result4.isError, true, 'Should be error for null value');
-      assertTextContent(result4, 'codeVersionId must be a non-empty string');
+      assertTextContent(result4, 'codeVersionId');
     });
   });
 

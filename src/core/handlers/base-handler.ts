@@ -3,6 +3,7 @@ import { SFCCConfig } from '../../types/types.js';
 import { WorkspaceRootsService } from '../../config/workspace-roots.js';
 import { ValidationError } from '../../utils/validator.js';
 import { teardownLifecycleClient } from './lifecycle-utils.js';
+import { createToolErrorResponse } from '../tool-error-response.js';
 
 export interface HandlerContext {
   logger: Logger;
@@ -46,8 +47,6 @@ export interface ToolExecutionContext {
   logger: Logger;
   [key: string]: unknown;
 }
-
-const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS !== 'false';
 
 export class HandlerError extends ValidationError {
   constructor(
@@ -160,27 +159,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected createErrorResponse(error: Error, toolName: string): ToolExecutionResult {
     this.logger.error(`Error in ${toolName}:`, error);
-
-    const validationError = error instanceof ValidationError ? error : undefined;
-    const structuredError = {
-      code: validationError?.code ?? 'TOOL_EXECUTION_ERROR',
-      message: error.message,
-      toolName,
-      details: validationError?.details,
-    };
-
-    const response: ToolExecutionResult = {
-      content: [{ type: 'text', text: `Error: ${error.message}` }],
-      isError: true,
-    };
-
-    if (INCLUDE_STRUCTURED_ERRORS) {
-      response.structuredContent = {
-        error: structuredError,
-      };
-    }
-
-    return response;
+    return createToolErrorResponse(toolName, error);
   }
 
   protected async executeWithLogging(

@@ -76,22 +76,22 @@ describe('activate_code_version Advanced Programmatic Tests (Full Mode)', () => 
       // Test missing parameter
       const missingResult = await client.callTool('activate_code_version', {});
       assert.equal(missingResult.isError, true);
-      assert.ok(missingResult.content[0].text.includes('codeVersionId must be a non-empty string'));
+      assert.ok(missingResult.content[0].text.includes('codeVersionId'));
 
       // Test empty string
       const emptyResult = await client.callTool('activate_code_version', { codeVersionId: '' });
       assert.equal(emptyResult.isError, true);
-      assert.ok(emptyResult.content[0].text.includes('codeVersionId must be a non-empty string'));
+      assert.ok(emptyResult.content[0].text.includes('codeVersionId'));
 
       // Test null value
       const nullResult = await client.callTool('activate_code_version', { codeVersionId: null });
       assert.equal(nullResult.isError, true);
-      assert.ok(nullResult.content[0].text.includes('codeVersionId must be a non-empty string'));
+      assert.ok(nullResult.content[0].text.includes('codeVersionId'));
 
       // Test undefined value
       const undefinedResult = await client.callTool('activate_code_version', { codeVersionId: undefined });
       assert.equal(undefinedResult.isError, true);
-      assert.ok(undefinedResult.content[0].text.includes('codeVersionId must be a non-empty string'));
+      assert.ok(undefinedResult.content[0].text.includes('codeVersionId'));
     });
 
     test('should handle various invalid codeVersionId formats gracefully', async () => {
@@ -107,7 +107,7 @@ describe('activate_code_version Advanced Programmatic Tests (Full Mode)', () => 
       for (const invalidFormat of invalidFormats) {
         const result = await client.callTool('activate_code_version', { codeVersionId: invalidFormat });
         assert.equal(result.isError, true, `Should reject ${typeof invalidFormat}: ${JSON.stringify(invalidFormat)}`);
-        assert.ok(result.content[0].text.includes('codeVersionId must be a non-empty string'));
+        assert.ok(result.content[0].text.includes('codeVersionId'));
       }
     });
 

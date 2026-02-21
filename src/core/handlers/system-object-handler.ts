@@ -1,4 +1,4 @@
-import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { HandlerContext } from './base-handler.js';
 import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { ClientFactory } from './client-factory.js';
 import { OCAPIClient } from '../../clients/ocapi-client.js';
@@ -20,7 +20,7 @@ export class SystemObjectToolHandler extends ConfiguredClientHandler<SystemObjec
       clientDisplayName: 'OCAPI (System Objects)',
       clientRequiredError: ClientFactory.getClientRequiredError('OCAPI'),
       toolNameSet: SYSTEM_OBJECT_TOOL_NAMES_SET,
-      toolConfig: SYSTEM_OBJECT_TOOL_CONFIG as Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>>,
+      toolConfig: SYSTEM_OBJECT_TOOL_CONFIG,
     });
   }
 }

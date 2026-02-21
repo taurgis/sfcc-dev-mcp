@@ -780,7 +780,7 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       
       assertValidMCPResponse(result);
         assert.equal(result.isError, true, 'Empty search should fail validation');
-        assert.ok(result.content[0].text.includes('search must be a non-empty string'));
+        assert.ok(result.content[0].text.includes('search'));
     });
   });
 

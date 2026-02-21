@@ -427,6 +427,7 @@ sfcc-dev-mcp/
 
 4. **Cartridge Generation Tools** (1 tool)
    - Automated cartridge structure creation with direct file generation
+   - `targetPath` writes are constrained to discovered workspace roots (or `cwd` fallback) to limit filesystem blast radius
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 

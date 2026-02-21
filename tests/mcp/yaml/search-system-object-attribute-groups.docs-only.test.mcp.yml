@@ -58,6 +58,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -84,6 +85,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return tool-not-available error for Customer object type"
@@ -110,6 +112,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return tool-not-available error for any object type with complex query"
@@ -141,6 +144,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================
@@ -168,6 +172,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -194,6 +199,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -216,6 +222,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -246,6 +253,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "400ms"
       stderr: "toBeEmpty"
@@ -273,6 +281,7 @@ tests:
             - type: "text"
               text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "300ms"
       stderr: "toBeEmpty"

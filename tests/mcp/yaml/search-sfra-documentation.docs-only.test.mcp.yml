@@ -100,10 +100,11 @@ tests:
         id: "test-5"
         result:
           isError: true
+          structuredContent: "match:type:object"
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:query must be a non-empty string"
+              text: "match:regex:query (must be at least 1 characters|is required|must be a non-empty string)"
       stderr: "toBeEmpty"
 
   - it: "should reject missing query parameter"
@@ -120,10 +121,11 @@ tests:
         id: "test-6"
         result:
           isError: true
+          structuredContent: "match:type:object"
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:query must be a non-empty string"
+              text: "match:regex:query (must be at least 1 characters|is required|must be a non-empty string)"
       stderr: "toBeEmpty"
 
   - it: "should return results with document categories for complex queries"

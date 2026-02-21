@@ -70,8 +70,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:pattern must be a non-empty string"
+                text: "match:regex:pattern (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
@@ -97,6 +98,7 @@ tests:
                 type: "text"
                 text: "match:contains:logLevel must be one of"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
@@ -123,6 +125,7 @@ tests:
                 type: "text"
                 text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"

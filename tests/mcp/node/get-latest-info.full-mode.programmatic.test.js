@@ -196,7 +196,7 @@ describe('get_latest_info Tool - Advanced Programmatic Tests (Full Mode)', () =>
             `Valid parameter combination should succeed: ${JSON.stringify(params)}`);
           
           // Verify expected limit is reflected in response
-          const expectedLimit = params.limit || 10; // default limit
+          const expectedLimit = params.limit || 20; // current default limit
           assert.ok(result.content[0].text.includes(`Latest ${expectedLimit} info messages`),
             `Should show correct limit for combination: ${JSON.stringify(params)}`);
         }

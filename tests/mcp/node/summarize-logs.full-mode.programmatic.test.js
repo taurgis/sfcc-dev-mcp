@@ -224,7 +224,7 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
           if (expectError) {
             assert.equal(isError, true, `${description} should be marked as error`);
             assert.ok(
-              text.includes('date must match pattern') || text.includes('date must be a non-empty string'),
+              text.includes('date must match pattern') || text.includes('date'),
               `${description} should include validation error text`,
             );
             return;

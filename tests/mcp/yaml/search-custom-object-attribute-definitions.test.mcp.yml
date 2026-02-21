@@ -237,6 +237,7 @@ tests:
                 type: "text"
                 text: "match:contains:objectType must be a non-empty string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "800ms"
@@ -264,6 +265,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*ObjectTypeNotFoundException[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "800ms"
@@ -290,6 +292,7 @@ tests:
                 type: "text"
                 text: "match:regex:[\\s\\S]*PropertyConstraintViolationException[\\s\\S]*"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "800ms"
@@ -316,6 +319,7 @@ tests:
                 type: "text"
                 text: "match:contains:objectType"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Performance Tests

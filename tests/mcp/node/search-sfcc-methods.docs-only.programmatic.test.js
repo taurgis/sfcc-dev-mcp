@@ -195,7 +195,11 @@ describe('search_sfcc_methods Programmatic Tests', () => {
       assertValidMCPResponse(result);
       assert.equal(result.isError, true, 'Should be an error response');
       assert.ok(result.content[0].text.includes('Error:'), 'Should contain error message');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('at least 1 characters'),
+        'Should specify validation requirement',
+      );
       
       // Error responses should be reasonably fast (CI-friendly)
     });

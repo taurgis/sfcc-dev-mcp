@@ -62,7 +62,7 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
     return this.config.toolNameSet;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, unknown>> {
+  protected getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>> {
     return this.config.toolConfig;
   }
 

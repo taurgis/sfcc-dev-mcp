@@ -1,6 +1,7 @@
 import { CartridgeToolHandler } from '../src/core/handlers/cartridge-handler.js';
 import { HandlerContext } from '../src/core/handlers/base-handler.js';
 import { Logger } from '../src/utils/logger.js';
+import { join, parse, resolve } from 'path';
 
 // Mock cartridge client
 const mockCartridgeClient = {
@@ -19,6 +20,8 @@ describe('CartridgeToolHandler', () => {
   let mockClient: typeof mockCartridgeClient;
   let context: HandlerContext;
   let handler: CartridgeToolHandler;
+  const workspaceScopedPath = join(process.cwd(), 'tmp', 'handler-tests');
+  const outsideWorkspacePath = join(parse(process.cwd()).root, 'tmp', 'outside-workspace');
 
   const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
     const text = result.content[0]?.text;
@@ -137,14 +140,14 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'custom_cartridge',
-        targetPath: '/custom/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: false,
       };
       const result = await handler.handle('generate_cartridge_structure', args, Date.now());
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'custom_cartridge',
-        targetPath: '/custom/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: false,
       });
       expect(getResultText(result)).toContain('custom_cartridge');
@@ -159,13 +162,13 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'test_cartridge',
-        targetPath: '/test/path',
+        targetPath: workspaceScopedPath,
       };
       await handler.handle('generate_cartridge_structure', args, Date.now());
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'test_cartridge',
-        targetPath: '/test/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: true,
       });
     });
@@ -232,6 +235,21 @@ describe('CartridgeToolHandler', () => {
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
         .rejects.toThrow('Unsupported tool');
+    });
+
+    it('should reject targetPath outside workspace boundaries', async () => {
+      const result = await handler.handle(
+        'generate_cartridge_structure',
+        {
+          cartridgeName: 'outside_workspace',
+          targetPath: outsideWorkspacePath,
+        },
+        Date.now(),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(getResultText(result)).toContain('Path must be within workspace roots or current working directory');
+      expect(mockClient.generateCartridgeStructure).not.toHaveBeenCalled();
     });
   });
 
@@ -310,7 +328,7 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'full_cartridge',
-        targetPath: '/workspace/my-project',
+        targetPath: resolve(workspaceScopedPath, 'full-cartridge'),
         fullProjectSetup: false,
       };
 
@@ -318,7 +336,7 @@ describe('CartridgeToolHandler', () => {
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'full_cartridge',
-        targetPath: '/workspace/my-project',
+        targetPath: resolve(workspaceScopedPath, 'full-cartridge'),
         fullProjectSetup: false,
       });
     });

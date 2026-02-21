@@ -4,6 +4,8 @@
 
 import { HandlerError, ToolArguments } from './base-handler.js';
 import { isValidLogLevel, LogLevelValues } from '../../utils/log-tool-constants.js';
+import { resolve, relative, isAbsolute } from 'path';
+import { ToolExecutionContext } from './base-handler.js';
 
 type ValidatorFn<T> = {
   bivarianceHack: (value: T) => boolean;
@@ -257,4 +259,66 @@ export function formatLogMessage(
   if (params.maxBytes !== undefined) { parts.push(`maxBytes=${params.maxBytes}`); }
   if (params.tailOnly !== undefined) { parts.push(`tailOnly=${params.tailOnly}`); }
   return parts.join(' ');
+}
+
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+  const rel = relative(rootPath, candidatePath);
+  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
+}
+
+/**
+ * Validate targetPath writes stay inside workspace roots (if discovered) or current working directory.
+ */
+export function validateTargetPathWithinWorkspace(
+  targetPath: unknown,
+  context: ToolExecutionContext,
+  toolName: string,
+): string | undefined {
+  const hasExplicitTargetPath = typeof targetPath === 'string' && targetPath.trim().length > 0;
+
+  if (targetPath !== undefined && targetPath !== null && typeof targetPath !== 'string') {
+    throw new HandlerError(
+      `Invalid targetPath for ${toolName}. targetPath must be a string when provided`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'targetPath', actualType: typeof targetPath },
+    );
+  }
+
+  if (typeof targetPath === 'string' && (targetPath.includes('\0') || targetPath.includes('\x00'))) {
+    throw new HandlerError(
+      `Invalid targetPath for ${toolName}. Contains invalid characters`,
+      toolName,
+      'INVALID_ARGUMENT',
+      { field: 'targetPath', reason: 'invalid_characters' },
+    );
+  }
+
+  const resolvedTargetPath = hasExplicitTargetPath
+    ? resolve(targetPath as string)
+    : resolve(process.cwd());
+
+  const workspaceRoots = context.handlerContext.workspaceRootsService
+    ?.getRoots()
+    .map(root => resolve(root.path)) ?? [];
+
+  const allowedRoots = workspaceRoots.length > 0
+    ? workspaceRoots
+    : [resolve(process.cwd())];
+
+  const isAllowed = allowedRoots.some(root => isPathWithinRoot(root, resolvedTargetPath));
+  if (!isAllowed) {
+    throw new HandlerError(
+      `Invalid targetPath for ${toolName}. Path must be within workspace roots or current working directory`,
+      toolName,
+      'TARGET_PATH_OUTSIDE_WORKSPACE',
+      {
+        field: 'targetPath',
+        targetPath: resolvedTargetPath,
+        allowedRoots,
+      },
+    );
+  }
+
+  return hasExplicitTargetPath ? resolvedTargetPath : undefined;
 }

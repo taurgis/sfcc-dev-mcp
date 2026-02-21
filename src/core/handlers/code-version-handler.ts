@@ -1,4 +1,4 @@
-import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { HandlerContext } from './base-handler.js';
 import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { ClientFactory } from './client-factory.js';
 import { OCAPICodeVersionsClient } from '../../clients/ocapi/code-versions-client.js';
@@ -20,7 +20,7 @@ export class CodeVersionToolHandler extends ConfiguredClientHandler<CodeVersionT
       clientDisplayName: 'OCAPI (Code Versions)',
       clientRequiredError: ClientFactory.getClientRequiredError('OCAPI'),
       toolNameSet: CODE_VERSION_TOOL_NAMES_SET,
-      toolConfig: CODE_VERSION_TOOL_CONFIG as Record<CodeVersionToolName, GenericToolSpec<ToolArguments, unknown>>,
+      toolConfig: CODE_VERSION_TOOL_CONFIG,
     });
   }
 }

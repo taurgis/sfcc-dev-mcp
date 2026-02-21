@@ -263,6 +263,7 @@ tests:
             - type: "text"
               text: "match:contains:category must be one of"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle empty category gracefully"
@@ -283,6 +284,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -304,8 +306,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:category must be a non-empty string"
+              text: "match:regex:category (is required|must be a non-empty string|must be at least 1 characters)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle null category parameter"
@@ -326,6 +329,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -458,6 +462,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "200ms"  # Error handling should be very fast
       stderr: "toBeEmpty"
@@ -484,6 +489,7 @@ tests:
             - type: "text"
               text: "match:contains:category must be one of"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should reject mixed case category names"
@@ -504,4 +510,5 @@ tests:
             - type: "text"
               text: "match:contains:category must be one of"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

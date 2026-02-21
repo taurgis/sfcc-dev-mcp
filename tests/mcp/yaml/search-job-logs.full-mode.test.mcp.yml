@@ -118,8 +118,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:pattern must be a non-empty string"
+              text: "match:regex:pattern (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -144,6 +145,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be a number"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"

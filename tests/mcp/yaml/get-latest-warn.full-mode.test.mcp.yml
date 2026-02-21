@@ -18,7 +18,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Latest 10 warn messages"
+              text: "match:regex:Latest .*warn"
           isError: false
       stderr: "toBeEmpty"
     performance:
@@ -90,6 +90,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be a number"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle zero limit with proper error message"
@@ -111,6 +112,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle negative limit with proper error message"
@@ -132,6 +134,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Edge case - large limit handling
@@ -179,4 +182,5 @@ tests:
               type: "text"
               text: "match:contains:date must match pattern"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

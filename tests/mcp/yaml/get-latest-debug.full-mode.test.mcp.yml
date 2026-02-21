@@ -47,7 +47,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Latest 10 debug messages"
+              text: "match:regex:Latest .*debug"
           isError: false
       stderr: "toBeEmpty"
 
@@ -121,6 +121,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be a number"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should reject zero limit parameter"
@@ -142,6 +143,7 @@ tests:
               type: "text"
               text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ========================================

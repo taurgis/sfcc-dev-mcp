@@ -185,7 +185,11 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.ok(result.content, 'Should have content even for errors');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should indicate className must be non-empty');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('at least 1 characters'),
+        'Should indicate className must be non-empty',
+      );
     });
 
     test('should handle missing className parameter', async () => {
@@ -195,7 +199,12 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.ok(result.content, 'Should have content even for errors');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should indicate className is required');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('at least 1 characters') ||
+        result.content[0].text.includes('className is required'),
+        'Should indicate className is required',
+      );
     });
 
     test('should handle null className parameter', async () => {
@@ -207,7 +216,12 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.ok(result.content, 'Should have content even for errors');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should indicate className must be non-empty string');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('at least 1 characters') ||
+        result.content[0].text.includes('must be a string'),
+        'Should indicate className validation issue',
+      );
     });
 
     test('should handle whitespace-only className', async () => {
@@ -219,7 +233,13 @@ describe('get_sfcc_class_documentation Tool Programmatic Tests', () => {
       assert.ok(result.content, 'Should have content even for errors');
       assert.equal(result.content.length, 1, 'Should have exactly one content item');
       assert.equal(result.content[0].type, 'text', 'Content should be of type text');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should indicate className must be non-empty');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('must match pattern') ||
+        result.content[0].text.includes('at least 1 characters') ||
+        result.content[0].text.includes('not found'),
+        'Should indicate className validation issue',
+      );
     });
   });
 

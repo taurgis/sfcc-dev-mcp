@@ -120,8 +120,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:objectType must be a non-empty string"
+              text: "match:regex:objectType (must be at least 1 characters|must be a non-empty string|is required|must be a string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle invalid parameter type gracefully"
@@ -140,8 +141,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:objectType must be a non-empty string"
+              text: "match:regex:objectType (must be at least 1 characters|must be a non-empty string|is required|must be a string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # ==================================================================================

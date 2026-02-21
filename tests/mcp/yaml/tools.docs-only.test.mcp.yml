@@ -481,7 +481,7 @@ tests:
         name: "generate_cartridge_structure"
         arguments:
           cartridgeName: "yaml_test_cartridge"
-          targetPath: "/tmp/yaml-test-output"
+          targetPath: "./tmp/yaml-test-output"
           fullProjectSetup: false
     expect:
       response:
@@ -516,6 +516,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing required parameters with error response"
@@ -535,4 +536,5 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

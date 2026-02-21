@@ -49,6 +49,7 @@ import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
 import { ValidationError } from '../utils/validator.js';
 import { ToolArgumentValidator } from './tool-argument-validator.js';
+import { createToolErrorResponse } from './tool-error-response.js';
 
 const DEFAULT_SERVER_VERSION = '0.0.0';
 
@@ -110,7 +111,6 @@ function resolveServerVersion(): string {
 }
 
 const SERVER_VERSION = resolveServerVersion();
-const INCLUDE_STRUCTURED_ERRORS = process.env.SFCC_MCP_STRUCTURED_ERRORS !== 'false';
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -419,22 +419,7 @@ export class SFCCDevServer {
       } catch (error) {
         this.logger.error(`Error handling tool "${name}":`, error);
         this.logger.timing(`${name}_error`, startTime);
-        const structuredError = this.createStructuredError(name, error);
-        const errorResult: CallToolResult = {
-          content: [
-            {
-              type: 'text',
-              text: `Error: ${structuredError.message}`,
-            },
-          ],
-          isError: true,
-        };
-
-        if (INCLUDE_STRUCTURED_ERRORS) {
-          errorResult.structuredContent = {
-            error: structuredError,
-          };
-        }
+        const errorResult: CallToolResult = createToolErrorResponse(name, error);
 
         // Log error response in debug mode
         this.logger.debug(`Error response for ${name}:`, errorResult);
@@ -474,36 +459,6 @@ export class SFCCDevServer {
     }
 
     return false;
-  }
-
-  private createStructuredError(toolName: string, error: unknown): {
-    code: string;
-    message: string;
-    toolName: string;
-    details?: unknown;
-  } {
-    if (error instanceof ValidationError) {
-      return {
-        code: error.code,
-        message: error.message,
-        toolName,
-        details: error.details,
-      };
-    }
-
-    if (error instanceof Error) {
-      return {
-        code: 'TOOL_EXECUTION_ERROR',
-        message: error.message,
-        toolName,
-      };
-    }
-
-    return {
-      code: 'TOOL_EXECUTION_ERROR',
-      message: String(error),
-      toolName,
-    };
   }
 
   /**
