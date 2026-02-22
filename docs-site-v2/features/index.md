@@ -11,7 +11,7 @@ The server provides a focused set of capabilities for local SFCC development. Us
 
 - Generate a production-ready cartridge or full project scaffold
 - Standard structure: controllers, models, ISML, scripts, configs
-- Direct file creation in the target path
+- Direct file creation with path safety checks (writes stay inside workspace roots, or `cwd` fallback when roots are unavailable; fallback is blocked when `cwd` resolves to home)
 
 Try asking:
 

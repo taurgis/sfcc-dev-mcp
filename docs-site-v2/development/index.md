@@ -103,6 +103,13 @@ sfcc-dev-mcp/
   - Data API credentials + hostname: system & custom objects, site preferences, code versions.
 - Tools requiring unavailable capabilities are hidden from `tools/list` and rejected at `tools/call`.
 
+## Runtime validation boundary
+
+- `src/core/tool-argument-validator.ts` validates tool arguments at call time before handler execution.
+- Validation includes required fields, scalar/object/array types, enum values, integer/number ranges, string constraints, and regex patterns.
+- Object schemas with declared properties reject unknown keys by default (top-level and nested), unless `additionalProperties: true` is explicitly set.
+- Validation errors are returned as structured tool errors (`INVALID_TOOL_ARGUMENTS`) so clients can recover predictably.
+
 ## Adding a new tool
 
 1. Define the schema in the correct `src/core/tool-schemas/*` file.

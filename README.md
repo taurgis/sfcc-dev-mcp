@@ -13,7 +13,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
 - **🧪 Script Debugger** - Execute and inspect script-debugger endpoints in credentialed mode
-- **🚀 Cartridge Generation** - Automated cartridge structure creation with workspace-bound path safety (writes stay inside workspace roots or current working directory)
+- **🚀 Cartridge Generation** - Automated cartridge structure creation with workspace-bound path safety (writes stay inside workspace roots, or current working directory fallback when roots are unavailable; home-directory fallback is blocked)
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
 - **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, enum constraints, integer/numeric bounds, and strict unknown-key checks for object schemas (top-level and nested) before handler execution
 

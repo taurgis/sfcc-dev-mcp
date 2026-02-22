@@ -88,6 +88,7 @@ Both modes are designed for **local single-developer use**. Docs mode has a zero
 		<strong>Mitigated by design:</strong>
 		<ul>
 			<li>Path validation and schema checks</li>
+			<li>Cartridge generation path is constrained to workspace roots (or current working directory fallback), with home-directory fallback blocked</li>
 			<li>Read-only log operations</li>
 			<li>Scoped tool registration based on credentials</li>
 			<li>Memory-only caching</li>

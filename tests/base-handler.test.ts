@@ -97,7 +97,7 @@ class TestHandler extends BaseToolHandler {
     ]);
   }
 
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+  protected async createExecutionContext(_toolName: string): Promise<ToolExecutionContext> {
     return {
       handlerContext: this.context,
       logger: this.logger,

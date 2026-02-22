@@ -304,6 +304,15 @@ describe('LogToolHandler', () => {
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain('Filename is required for get_log_file_contents');
     });
+
+    it('should return isError when log client throws during file read', async () => {
+      mockLogClient.getLogFileContents.mockRejectedValue(new Error('Read failed'));
+
+      const result = await handler.handle('get_log_file_contents', { filename: 'broken.log' }, Date.now());
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Read failed');
+    });
   });
 
   describe('list_log_files tool', () => {

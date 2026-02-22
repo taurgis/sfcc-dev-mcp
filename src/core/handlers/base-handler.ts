@@ -72,7 +72,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected abstract getToolConfig(): Record<TToolName, GenericToolSpec>;
   protected abstract getToolNameSet(): Set<string>;
-  protected abstract createExecutionContext(): Promise<ToolExecutionContext>;
+  protected abstract createExecutionContext(toolName: string): Promise<ToolExecutionContext>;
 
   canHandle(toolName: string): boolean {
     return this.getToolNameSet().has(toolName);
@@ -80,12 +80,12 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
     if (!this.canHandle(toolName)) {
-      throw new Error(`Unsupported tool: ${toolName}`);
+      throw new ValidationError(`Unsupported tool: ${toolName}`, 'UNKNOWN_TOOL', { toolName });
     }
 
     const spec = this.getToolConfig()[toolName as TToolName];
     if (!spec) {
-      throw new Error(`No configuration found for tool: ${toolName}`);
+      throw new ValidationError(`No configuration found for tool: ${toolName}`, 'TOOL_CONFIG_NOT_FOUND', { toolName });
     }
 
     const processedArgs = this.applyDefaults(spec, args);
@@ -103,7 +103,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
     spec: GenericToolSpec,
     processedArgs: ToolArguments,
   ): Promise<unknown> {
-    const context = await this.createExecutionContext();
+    const context = await this.createExecutionContext(toolName);
 
     if (spec.validate) {
       spec.validate(processedArgs, toolName);

@@ -7,8 +7,8 @@ description: Learn how to run the SFCC Dev MCP server locally, choose docs or fu
 
 The SFCC Development MCP Server runs locally and exposes a set of tools that let your AI assistant query SFCC documentation, analyze logs, explore metadata, and scaffold cartridges.
 
-<Callout title="AI instructions required" variant="warn">
-Install the instruction files from `ai-instructions/` so your assistant can use the MCP tools correctly.
+<Callout title="AI instructions recommended" variant="warn">
+The server works without instruction files, but adding `ai-instructions/` improves tool use consistency and response quality.
 </Callout>
 
 ## What it does

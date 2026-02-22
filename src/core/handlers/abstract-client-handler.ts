@@ -1,4 +1,4 @@
-import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments, HandlerError } from './base-handler.js';
 import { ClientFactory } from './client-factory.js';
 
 /**
@@ -62,9 +62,14 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
     this.logger.debug(`${this.getClientDisplayName()} client disposed`);
   }
 
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+  protected async createExecutionContext(toolName: string): Promise<ToolExecutionContext> {
     if (!this.client) {
-      throw new Error(this.getClientRequiredError());
+      throw new HandlerError(
+        this.getClientRequiredError(),
+        toolName,
+        'CLIENT_NOT_INITIALIZED',
+        { clientDisplayName: this.getClientDisplayName() },
+      );
     }
 
     return {

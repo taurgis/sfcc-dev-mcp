@@ -63,10 +63,10 @@
     <div class="home-warning">
       <div class="home-warning__icon">⚠️</div>
       <div>
-        <h3>Essential: AI instructions required</h3>
+        <h3>Recommended: AI instructions pack</h3>
         <p>
-          Your AI needs specific instructions to use the MCP server effectively. Use the ready-to-go instruction files
-          for GitHub Copilot, Claude, and Cursor.
+          The server works without extra instructions, but adding the ready-to-go files improves reliability,
+          tool selection, and prompt quality for GitHub Copilot, Claude, and Cursor.
         </p>
         <div class="home-warning__actions">
           <a class="home-button home-button--danger" href="https://github.com/taurgis/sfcc-dev-mcp/tree/main/ai-instructions" target="_blank" rel="noopener noreferrer">Download AI instructions</a>
@@ -221,7 +221,7 @@
   <section class="home-section home-section--features">
     <div class="home-section__header">
       <h2>Everything you need</h2>
-      <p>38 specialized tools for comprehensive SFCC development support.</p>
+      <p>40 specialized tools for comprehensive SFCC development support.</p>
     </div>
 
     <div class="feature-grid">

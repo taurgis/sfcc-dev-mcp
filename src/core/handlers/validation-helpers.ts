@@ -2,131 +2,11 @@
  * Validation helpers for handler arguments
  */
 
-import { HandlerError, ToolArguments } from './base-handler.js';
+import { HandlerError } from './base-handler.js';
 import { isValidLogLevel, LogLevelValues } from '../../utils/log-tool-constants.js';
 import { resolve, relative, isAbsolute } from 'path';
 import { ToolExecutionContext } from './base-handler.js';
-
-type ValidatorFn<T> = {
-  bivarianceHack: (value: T) => boolean;
-}['bivarianceHack'];
-
-export interface ValidationRule<T = unknown> {
-  field: string;
-  required?: boolean;
-  type?: 'string' | 'number' | 'boolean' | 'object' | 'array';
-  validator?: ValidatorFn<T>;
-  errorMessage?: string;
-}
-
-export class ValidationHelpers {
-  /**
-   * Validate arguments against a set of rules
-   */
-  static validateArguments(
-    args: ToolArguments,
-    rules: ValidationRule[],
-    toolName: string,
-  ): void {
-    for (const rule of rules) {
-      const value = args?.[rule.field];
-
-      // Check required fields
-      if (rule.required && (value === undefined || value === null || value === '')) {
-        throw new HandlerError(
-          rule.errorMessage ?? `${rule.field} is required`,
-          toolName,
-          'MISSING_ARGUMENT',
-          { field: rule.field, rules },
-        );
-      }
-
-      // Skip type and custom validation if value is not present and not required
-      if (!rule.required && (value === undefined || value === null)) {
-        continue;
-      }
-
-      // Check type (including for required fields that have values)
-      if (rule.type && value !== undefined && value !== null && !this.validateType(value, rule.type)) {
-        throw new HandlerError(
-          rule.errorMessage ?? `${rule.field} must be of type ${rule.type}`,
-          toolName,
-          'INVALID_TYPE',
-          { field: rule.field, expectedType: rule.type, actualType: typeof value },
-        );
-      }
-
-      // Custom validation
-      if (rule.validator && !rule.validator(value)) {
-        throw new HandlerError(
-          rule.errorMessage ?? `${rule.field} validation failed`,
-          toolName,
-          'VALIDATION_FAILED',
-          { field: rule.field, value },
-        );
-      }
-    }
-  }
-
-  private static validateType(value: unknown, type: ValidationRule['type']): boolean {
-    switch (type) {
-      case 'string':
-        return typeof value === 'string';
-      case 'number':
-        return typeof value === 'number' && !isNaN(value);
-      case 'boolean':
-        return typeof value === 'boolean';
-      case 'object':
-        return typeof value === 'object' && value !== null && !Array.isArray(value);
-      case 'array':
-        return Array.isArray(value);
-      default:
-        return true;
-    }
-  }
-}
-
-/**
- * Common validation rules factory
- */
-export const CommonValidations = {
-  /** Create a required string field validation */
-  requiredString: (field: string, customMessage?: string): ValidationRule[] => [{
-    field,
-    required: true,
-    type: 'string',
-    validator: (value: unknown) => typeof value === 'string' && value.trim().length > 0,
-    errorMessage: customMessage ?? `${field} must be a non-empty string`,
-  }],
-
-  /** Create a required field validation with custom validator */
-  requiredField: (
-    field: string,
-    type: ValidationRule['type'],
-    validator: ValidatorFn<unknown>,
-    errorMessage: string,
-  ): ValidationRule[] => [{
-    field,
-    required: true,
-    type,
-    validator,
-    errorMessage,
-  }],
-
-  /** Create an optional field validation */
-  optionalField: (
-    field: string,
-    type: ValidationRule['type'],
-    validator: ValidatorFn<unknown>,
-    errorMessage: string,
-  ): ValidationRule[] => [{
-    field,
-    required: false,
-    type,
-    validator,
-    errorMessage,
-  }],
-};
+import { homedir } from 'os';
 
 // =============================================================================
 // Log-specific validators (consolidated from log-validation.ts)
@@ -302,9 +182,26 @@ export function validateTargetPathWithinWorkspace(
     ?.getRoots()
     .map(root => resolve(root.path)) ?? [];
 
+  const cwdRoot = resolve(process.cwd());
+  const homeRoot = resolve(homedir());
+
+  if (workspaceRoots.length === 0 && cwdRoot === homeRoot) {
+    throw new HandlerError(
+      `Invalid targetPath for ${toolName}. Workspace roots are unavailable and current working directory resolves to the home directory`,
+      toolName,
+      'TARGET_PATH_OUTSIDE_WORKSPACE',
+      {
+        field: 'targetPath',
+        targetPath: resolvedTargetPath,
+        cwd: cwdRoot,
+        reason: 'home_directory_cwd_without_workspace_roots',
+      },
+    );
+  }
+
   const allowedRoots = workspaceRoots.length > 0
     ? workspaceRoots
-    : [resolve(process.cwd())];
+    : [cwdRoot];
 
   const isAllowed = allowedRoots.some(root => isPathWithinRoot(root, resolvedTargetPath));
   if (!isAllowed) {

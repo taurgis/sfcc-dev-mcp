@@ -44,7 +44,7 @@ export const skills: SkillMeta[] = [
   },
   {
     name: 'sfcc-localization',
-    description: '',
+    description: 'Guide for localizing templates, forms, and content in Salesforce B2C Commerce. Use this when implementing multi-language support, resource bundles, locale-specific content, and internationalization features.',
     dirName: 'sfcc-localization',
     githubUrl: 'https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-localization/SKILL.md'
   },

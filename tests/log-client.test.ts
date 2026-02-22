@@ -741,6 +741,29 @@ describe('SFCCLogClient', () => {
       expect(mockWebdavClient.getFileContents).toHaveBeenCalledWith('test.log', { format: 'text' });
       expect(result).toContain('Small file');
     });
+
+    it('should reject when reading log file contents fails', async () => {
+      mockWebdavClient.getFileContents.mockRejectedValue(new Error('Read failed'));
+
+      await expect(logClient.getLogFileContents('broken.log', undefined, false))
+        .rejects.toThrow('Failed to get_log_file_contents: Read failed');
+    });
+  });
+
+  describe('job log error propagation', () => {
+    it('should reject when getLatestJobLogFiles fails', async () => {
+      mockWebdavClient.getDirectoryContents.mockRejectedValue(new Error('Job list failed'));
+
+      await expect(logClient.getLatestJobLogFiles(10))
+        .rejects.toThrow('Failed to get_latest_job_log_files:');
+    });
+
+    it('should reject when getJobExecutionSummary fails', async () => {
+      mockWebdavClient.getDirectoryContents.mockRejectedValue(new Error('Job lookup failed'));
+
+      await expect(logClient.getJobExecutionSummary('NightlyJob'))
+        .rejects.toThrow('Failed to get_job_execution_summary:');
+    });
   });
 
   describe('error handling', () => {
