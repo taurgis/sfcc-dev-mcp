@@ -47,6 +47,7 @@ import { AgentInstructionsToolHandler } from './handlers/agent-instructions-hand
 import { ScriptDebuggerToolHandler } from './handlers/script-debugger-handler.js';
 import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
+import { SFCCLogClient } from '../clients/log-client.js';
 import { ValidationError } from '../utils/validator.js';
 import { ToolArgumentValidator } from './tool-argument-validator.js';
 import { createToolErrorResponse } from './tool-error-response.js';
@@ -111,6 +112,9 @@ function resolveServerVersion(): string {
 }
 
 const SERVER_VERSION = resolveServerVersion();
+
+type LogCapabilityState = 'available' | 'unavailable' | 'unknown';
+
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -132,6 +136,8 @@ export class SFCCDevServer {
   private readonly alwaysAvailableToolNames: Set<string>;
   private readonly logCapabilityToolNames: Set<string>;
   private readonly ocapiCapabilityToolNames: Set<string>;
+  private logCapabilityState: LogCapabilityState;
+  private logCapabilityProbePromise: Promise<void> | null = null;
   private shutdownPromise: Promise<void> | null = null;
   private readonly onSigInt = (): void => {
     void this.shutdown();
@@ -158,6 +164,7 @@ export class SFCCDevServer {
     this.alwaysAvailableToolNames = new Set(ALWAYS_AVAILABLE_TOOLS.map(tool => tool.name));
     this.logCapabilityToolNames = new Set(LOG_CAPABILITY_TOOLS.map(tool => tool.name));
     this.ocapiCapabilityToolNames = new Set(OCAPI_CAPABILITY_TOOLS.map(tool => tool.name));
+    this.logCapabilityState = this.determineInitialLogCapabilityState();
     this.initializeServer();
     this.registerHandlers();
     this.setupToolHandlers();
@@ -201,6 +208,70 @@ export class SFCCDevServer {
 
   private isConfiguredHostname(hostname: string | undefined): boolean {
     return !!(hostname && hostname.trim().length > 0 && hostname !== 'Local Mode');
+  }
+
+  private hasBasicWebDAVCredentials(config: SFCCConfig = this.config): boolean {
+    return !!(config.username && config.password);
+  }
+
+  private hasClientCredentials(config: SFCCConfig = this.config): boolean {
+    return !!(config.clientId && config.clientSecret);
+  }
+
+  private determineInitialLogCapabilityState(): LogCapabilityState {
+    if (!this.capabilities.canAccessLogs) {
+      return 'unavailable';
+    }
+
+    if (this.hasBasicWebDAVCredentials()) {
+      return 'available';
+    }
+
+    if (this.hasClientCredentials()) {
+      return 'unknown';
+    }
+
+    return 'unavailable';
+  }
+
+  private async ensureLogCapabilityResolved(): Promise<void> {
+    if (this.logCapabilityState !== 'unknown') {
+      return;
+    }
+
+    this.logCapabilityProbePromise ??= (async () => {
+      const verified = await this.verifyWebDAVLogAccess();
+      this.logCapabilityState = verified ? 'available' : 'unavailable';
+      this.logger.log(`[Server] WebDAV capability probe result: ${this.logCapabilityState}`);
+    })().finally(() => {
+      this.logCapabilityProbePromise = null;
+    });
+
+    await this.logCapabilityProbePromise;
+  }
+
+  private async verifyWebDAVLogAccess(): Promise<boolean> {
+    if (!this.capabilities.canAccessLogs) {
+      return false;
+    }
+
+    if (this.hasBasicWebDAVCredentials()) {
+      return true;
+    }
+
+    if (!this.hasClientCredentials()) {
+      return false;
+    }
+
+    try {
+      const probeClient = new SFCCLogClient(this.config, Logger.getChildLogger('LogCapabilityProbe'));
+      await probeClient.listLogFiles();
+      return true;
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`[Server] WebDAV capability probe failed: ${reason}`);
+      return false;
+    }
   }
 
   /**
@@ -307,6 +378,8 @@ export class SFCCDevServer {
 
     // Update capabilities
     this.capabilities = ConfigurationFactory.getCapabilities(this.config);
+    this.logCapabilityState = this.determineInitialLogCapabilityState();
+    this.logCapabilityProbePromise = null;
 
     this.logger.log('Server reconfigured with discovered credentials');
     this.logger.log(`  Hostname: ${this.config.hostname}`);
@@ -368,6 +441,7 @@ export class SFCCDevServer {
    */
   private setupToolHandlers(): void {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      await this.ensureLogCapabilityResolved();
       return { tools: this.getAvailableTools() };
     });
 
@@ -378,6 +452,10 @@ export class SFCCDevServer {
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
+        if (this.logCapabilityToolNames.has(name)) {
+          await this.ensureLogCapabilityResolved();
+        }
+
         const handler = this.handlers.find((h) => h.canHandle(name));
         if (!handler) {
           throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
@@ -389,7 +467,8 @@ export class SFCCDevServer {
             'TOOL_NOT_AVAILABLE',
             {
               toolName: name,
-              canAccessLogs: this.capabilities.canAccessLogs,
+              canAccessLogs: this.logCapabilityState === 'available',
+              logCapabilityState: this.logCapabilityState,
               canAccessOCAPI: this.capabilities.canAccessOCAPI,
             },
           );
@@ -434,7 +513,7 @@ export class SFCCDevServer {
   private getAvailableTools(): ToolDefinition[] {
     const tools: ToolDefinition[] = [...ALWAYS_AVAILABLE_TOOLS];
 
-    if (this.capabilities.canAccessLogs) {
+    if (this.logCapabilityState === 'available') {
       tools.push(...LOG_CAPABILITY_TOOLS);
     }
 
@@ -451,7 +530,7 @@ export class SFCCDevServer {
     }
 
     if (this.logCapabilityToolNames.has(toolName)) {
-      return this.capabilities.canAccessLogs;
+      return this.logCapabilityState === 'available';
     }
 
     if (this.ocapiCapabilityToolNames.has(toolName)) {

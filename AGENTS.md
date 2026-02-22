@@ -329,6 +329,7 @@ sfcc-dev-mcp/
 - Applies runtime tool argument validation (required fields, type checks, enum checks, integer/numeric ranges, and string patterns/length) before dispatch
 - Enforces strict unknown-argument rejection for object schemas that declare properties (at top-level and nested object levels) unless explicitly allowed by schema
 - Enforces call-time capability gating so unavailable tools are rejected during `tools/call`, not just hidden from `tools/list`
+- Performs runtime WebDAV capability verification for OAuth-only configurations before exposing log/job-log/script-debugger tools, reducing false-positive tool availability
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
 - Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool
@@ -511,6 +512,9 @@ Before updating any documentation with tool counts or quantitative information, 
 # Runtime tool count verification (40 tools across all categories)
 npx tsx -e "import {SFCC_DOCUMENTATION_TOOLS,SFRA_DOCUMENTATION_TOOLS,ISML_DOCUMENTATION_TOOLS,LOG_TOOLS,JOB_LOG_TOOLS,SYSTEM_OBJECT_TOOLS,CARTRIDGE_GENERATION_TOOLS,CODE_VERSION_TOOLS,AGENT_INSTRUCTION_TOOLS,SCRIPT_DEBUGGER_TOOLS} from './src/core/tool-definitions.ts'; const total=SFCC_DOCUMENTATION_TOOLS.length+SFRA_DOCUMENTATION_TOOLS.length+ISML_DOCUMENTATION_TOOLS.length+LOG_TOOLS.length+JOB_LOG_TOOLS.length+SYSTEM_OBJECT_TOOLS.length+CARTRIDGE_GENERATION_TOOLS.length+CODE_VERSION_TOOLS.length+AGENT_INSTRUCTION_TOOLS.length+SCRIPT_DEBUGGER_TOOLS.length; console.log('Total tools:', total);"
 
+# Enforce docs-site tool catalog parity with runtime schemas
+npm run validate:tools-sync
+
 # Individual category counts (from modular schema files)
 echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
 echo "SFRA tools:" && grep -c "name: '" src/core/tool-schemas/sfra-tools.ts
@@ -628,6 +632,7 @@ npm run test:mcp:yaml        # YAML tests (docs-only)
 npm run test:mcp:yaml:full   # YAML tests (full mode)
 npm run test:mcp:node        # Programmatic tests
 npm run test:mcp:published-npx  # MCP tests against latest published npm package via npx
+npm run validate:tools-sync   # Validate docs tool catalog is in sync with runtime schemas
 npm test                     # Full suite (Jest + MCP)
 ```
 

@@ -7,6 +7,11 @@ import {
   AGENT_INSTRUCTION_TOOLS,
   CARTRIDGE_GENERATION_TOOLS,
   ISML_DOCUMENTATION_TOOLS,
+  LOG_TOOLS,
+  JOB_LOG_TOOLS,
+  SCRIPT_DEBUGGER_TOOLS,
+  SYSTEM_OBJECT_TOOLS,
+  CODE_VERSION_TOOLS,
   SFCC_DOCUMENTATION_TOOLS,
   SFRA_DOCUMENTATION_TOOLS,
 } from '../src/core/tool-definitions.js';
@@ -59,6 +64,17 @@ jest.mock('../src/clients/agent-instructions-client.js', () => ({
       };
     }
   },
+}));
+
+let mockLogCapabilityProbe: jest.Mock;
+
+jest.mock('../src/clients/log-client.js', () => ({
+  SFCCLogClient: jest.fn().mockImplementation(() => {
+    mockLogCapabilityProbe ??= jest.fn().mockResolvedValue('ok');
+    return {
+      listLogFiles: mockLogCapabilityProbe,
+    };
+  }),
 }));
 
 type RequestHandler = (request: { params: { name: string; arguments?: Record<string, unknown> } }) => Promise<unknown>;
@@ -144,6 +160,7 @@ describe('SFCCDevServer', () => {
   beforeEach(() => {
     serverInstances.length = 0;
     jest.clearAllMocks();
+    mockLogCapabilityProbe = jest.fn().mockResolvedValue('ok');
   });
 
   it('returns docs-only tool surface when credentials are unavailable', async () => {
@@ -161,6 +178,63 @@ describe('SFCCDevServer', () => {
       CARTRIDGE_GENERATION_TOOLS.length;
 
     expect(result.tools).toHaveLength(expectedDocsOnlyCount);
+  });
+
+  it('hides log tools in OAuth-only mode when WebDAV capability probe fails', async () => {
+    mockLogCapabilityProbe.mockRejectedValueOnce(new Error('401 Unauthorized'));
+
+    const server = new SFCCDevServer({
+      hostname: 'example.sandbox.us01.dx.commercecloud.salesforce.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    });
+    expect(server).toBeDefined();
+
+    const mockServer = getLatestMockServer();
+    const listToolsHandler = getListToolsHandler(mockServer);
+    const result = await listToolsHandler();
+
+    const expectedCount = AGENT_INSTRUCTION_TOOLS.length +
+      SFCC_DOCUMENTATION_TOOLS.length +
+      SFRA_DOCUMENTATION_TOOLS.length +
+      ISML_DOCUMENTATION_TOOLS.length +
+      CARTRIDGE_GENERATION_TOOLS.length +
+      SYSTEM_OBJECT_TOOLS.length +
+      CODE_VERSION_TOOLS.length;
+
+    expect(result.tools).toHaveLength(expectedCount);
+    expect(mockLogCapabilityProbe).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps full tool surface in OAuth-only mode when WebDAV capability probe succeeds', async () => {
+    mockLogCapabilityProbe.mockResolvedValueOnce('ok');
+
+    const server = new SFCCDevServer({
+      hostname: 'example.sandbox.us01.dx.commercecloud.salesforce.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    });
+    expect(server).toBeDefined();
+
+    const mockServer = getLatestMockServer();
+    const listToolsHandler = getListToolsHandler(mockServer);
+    const first = await listToolsHandler();
+    const second = await listToolsHandler();
+
+    const expectedCount = AGENT_INSTRUCTION_TOOLS.length +
+      SFCC_DOCUMENTATION_TOOLS.length +
+      SFRA_DOCUMENTATION_TOOLS.length +
+      ISML_DOCUMENTATION_TOOLS.length +
+      CARTRIDGE_GENERATION_TOOLS.length +
+      LOG_TOOLS.length +
+      JOB_LOG_TOOLS.length +
+      SCRIPT_DEBUGGER_TOOLS.length +
+      SYSTEM_OBJECT_TOOLS.length +
+      CODE_VERSION_TOOLS.length;
+
+    expect(first.tools).toHaveLength(expectedCount);
+    expect(second.tools).toHaveLength(expectedCount);
+    expect(mockLogCapabilityProbe).toHaveBeenCalledTimes(1);
   });
 
   it('returns tool error for unknown tools', async () => {
@@ -265,10 +339,12 @@ describe('SFCCDevServer', () => {
       handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
       instructionAdvisor: { getNotice: jest.Mock };
       capabilities: { canAccessLogs: boolean; canAccessOCAPI: boolean };
+      logCapabilityState: 'available' | 'unavailable' | 'unknown';
     };
 
     // Force capability on so validation can execute instead of availability guard short-circuiting.
     serverAny.capabilities = { canAccessLogs: true, canAccessOCAPI: false };
+    serverAny.logCapabilityState = 'available';
 
     const mockHandler = {
       canHandle: (toolName: string) => toolName === 'search_logs',

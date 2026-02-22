@@ -120,6 +120,7 @@ This server is built around a **capability-gated, modular handler architecture**
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
 - **Call-time Capability Guarding** (`src/core/server.ts`): Rejects execution of tools that are unavailable in the current mode, so hidden tools are not callable via direct `tools/call` requests.
+- **Runtime WebDAV Verification** (`src/core/server.ts`): For OAuth-only configurations (`client-id`/`client-secret` without `username`/`password`), log/job-log/script-debugger tool exposure is gated by a one-time WebDAV capability probe to avoid false-positive tool availability.
 - **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
 - **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
 
@@ -207,6 +208,9 @@ The publish workflow runs MCP tests against the just-published npm artifact (`np
 You can run the same validation locally:
 
 ```bash
+# Ensure docs-site tool catalog stays in sync with runtime tool definitions
+npm run validate:tools-sync
+
 # In a separate terminal, start the mock server first for full-mode MCP tests
 npm run test:mock-server:start
 

@@ -18,6 +18,18 @@ describe('CLI option parsing', () => {
     expect(parseCommandLineArgs(['--debug', 'yes'])).toEqual({ debug: true });
   });
 
+  it('throws when --dw-json is missing a value', () => {
+    expect(() => parseCommandLineArgs(['--dw-json'])).toThrow(
+      'Missing value for --dw-json. Provide a path to dw.json.',
+    );
+  });
+
+  it('throws when --dw-json is followed by another flag', () => {
+    expect(() => parseCommandLineArgs(['--dw-json', '--debug'])).toThrow(
+      'Missing value for --dw-json. Provide a path to dw.json.',
+    );
+  });
+
   it('detects environment credentials with hostname and auth pair', () => {
     const env = {
       SFCC_HOSTNAME: 'example.com',

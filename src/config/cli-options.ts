@@ -26,8 +26,13 @@ export function parseCommandLineArgs(argv: string[] = process.argv.slice(2)): Cl
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
 
-    if (arg === '--dw-json' && i + 1 < argv.length) {
-      options.dwJsonPath = argv[i + 1];
+    if (arg === '--dw-json') {
+      const nextToken = argv[i + 1];
+      if (!nextToken || isFlagToken(nextToken)) {
+        throw new Error('Missing value for --dw-json. Provide a path to dw.json.');
+      }
+
+      options.dwJsonPath = nextToken;
       i++;
       continue;
     }

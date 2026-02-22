@@ -46,7 +46,7 @@ Both modes are designed for **local single-developer use**. Docs mode has a zero
 		<h3>Full mode (<code>--dw-json</code>)</h3>
 		<ul>
 			<li>Uses the same credentials you already use locally</li>
-			<li>WebDAV (logs + job logs) and OCAPI Data API tooling</li>
+			<li>WebDAV (logs + job logs), OCAPI Data API tooling, and script debugger workflows</li>
 			<li>Capability-gated: tools only register if required credentials exist</li>
 		</ul>
 	</div>

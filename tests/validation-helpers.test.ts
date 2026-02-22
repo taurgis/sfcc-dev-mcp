@@ -1,5 +1,6 @@
 import { join, resolve } from 'path';
 import { homedir } from 'os';
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync } from 'fs';
 import {
   validateFilename,
   formatLogMessage,
@@ -76,6 +77,26 @@ describe('validation-helpers', () => {
         expect(() => validateTargetPathWithinWorkspace(join(homedir(), 'tmp', 'out'), context, 'generate_cartridge_structure')).toThrow('Workspace roots are unavailable and current working directory resolves to the home directory');
       } finally {
         cwdSpy.mockRestore();
+      }
+    });
+
+    it('rejects symlink escape outside workspace roots', () => {
+      const sandboxRoot = mkdtempSync(join(process.cwd(), 'tmp-validation-root-'));
+      const outsideRoot = mkdtempSync(join(process.cwd(), 'tmp-validation-outside-'));
+
+      try {
+        const symlinkPath = join(sandboxRoot, 'escape-link');
+        mkdirSync(outsideRoot, { recursive: true });
+        symlinkSync(outsideRoot, symlinkPath);
+
+        const context = createContext([sandboxRoot]);
+        const escapedTarget = join(symlinkPath, 'generated-cartridge');
+
+        expect(() => validateTargetPathWithinWorkspace(escapedTarget, context, 'generate_cartridge_structure')).toThrow(HandlerError);
+        expect(() => validateTargetPathWithinWorkspace(escapedTarget, context, 'generate_cartridge_structure')).toThrow('Path must be within workspace roots or current working directory');
+      } finally {
+        rmSync(sandboxRoot, { recursive: true, force: true });
+        rmSync(outsideRoot, { recursive: true, force: true });
       }
     });
   });

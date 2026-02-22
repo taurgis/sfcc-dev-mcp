@@ -212,6 +212,7 @@
           <li>Real-time log analysis</li>
           <li>System and custom object exploration</li>
           <li>Code version management</li>
+          <li>Script debugger evaluation</li>
         </ul>
         <div class="mode-card__badge">Requires SFCC credentials</div>
       </div>

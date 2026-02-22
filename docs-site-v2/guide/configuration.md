@@ -44,6 +44,8 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 
 ## Minimal dw.json (logs and job logs)
 
+Use this when you want WebDAV-backed tooling with username/password credentials.
+
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
@@ -71,8 +73,8 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 | Field | Required for | Notes |
 | --- | --- | --- |
 | `hostname` | All authenticated tools | Sandbox domain (no protocol) |
-| `username` / `password` | Logs + job logs | WebDAV credentials |
-| `client-id` / `client-secret` | System & custom objects, site prefs, code versions | OCAPI Data API |
+| `username` / `password` | WebDAV-backed tools | Enables logs, job logs, and script debugger access |
+| `client-id` / `client-secret` | OCAPI Data API + WebDAV-backed tools | Enables system/custom objects, site prefs, code versions, and can also authenticate WebDAV tools |
 | `code-version` | Code version operations | Optional default |
 | `site-id` | Site-specific actions | Optional |
 
@@ -89,11 +91,11 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 | SFRA docs | ✔ | ✔ |
 | ISML docs | ✔ | ✔ |
 | Cartridge generation | ✔ | ✔ |
-| Log analysis (runtime) | — | ✔ (requires WebDAV creds) |
-| Job logs | — | ✔ (requires WebDAV creds) |
+| Log analysis (runtime) | — | ✔ (requires WebDAV-capable credentials) |
+| Job logs | — | ✔ (requires WebDAV-capable credentials) |
 | System & custom objects / site prefs | — | ✔ (requires client-id/client-secret) |
 | Code versions | — | ✔ (requires client-id/client-secret) |
-| Script debugger | — | ✔ (requires authenticated full mode) |
+| Script debugger | — | ✔ (requires WebDAV-capable credentials) |
 
 </div>
 
@@ -163,7 +165,8 @@ Add these resources in Business Manager: Administration -> Site Development -> O
 
 ## Notes
 
-- Logs and job logs use WebDAV with username and password.
+- Logs and job logs use WebDAV with either `username`/`password` or `client-id`/`client-secret`.
+- For OAuth-only setups (`client-id`/`client-secret` without `username`/`password`), the server performs a one-time WebDAV capability probe before exposing log, job-log, and script-debugger tools.
 - System objects and site preferences use OCAPI Data API (`client-id` and `client-secret`).
 - Code version activation requires Data API access plus `patch` permission.
 

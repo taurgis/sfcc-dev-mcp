@@ -7,6 +7,7 @@ import { isValidLogLevel, LogLevelValues } from '../../utils/log-tool-constants.
 import { resolve, relative, isAbsolute } from 'path';
 import { ToolExecutionContext } from './base-handler.js';
 import { homedir } from 'os';
+import { existsSync, realpathSync } from 'fs';
 
 // =============================================================================
 // Log-specific validators (consolidated from log-validation.ts)
@@ -146,6 +147,32 @@ function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
   return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
 }
 
+function resolvePathForBoundaryCheck(inputPath: string): string {
+  const normalizedPath = resolve(inputPath);
+
+  if (existsSync(normalizedPath)) {
+    return realpathSync(normalizedPath);
+  }
+
+  // Resolve symlinks in the nearest existing parent so non-existing targets are checked safely.
+  let parentPath = normalizedPath;
+  while (true) {
+    const nextParent = resolve(parentPath, '..');
+    if (nextParent === parentPath) {
+      return normalizedPath;
+    }
+
+    parentPath = nextParent;
+    if (!existsSync(parentPath)) {
+      continue;
+    }
+
+    const realParent = realpathSync(parentPath);
+    const relativeSuffix = relative(parentPath, normalizedPath);
+    return resolve(realParent, relativeSuffix);
+  }
+}
+
 /**
  * Validate targetPath writes stay inside workspace roots (if discovered) or current working directory.
  */
@@ -177,6 +204,7 @@ export function validateTargetPathWithinWorkspace(
   const resolvedTargetPath = hasExplicitTargetPath
     ? resolve(targetPath as string)
     : resolve(process.cwd());
+  const canonicalTargetPath = resolvePathForBoundaryCheck(resolvedTargetPath);
 
   const workspaceRoots = context.handlerContext.workspaceRootsService
     ?.getRoots()
@@ -192,18 +220,18 @@ export function validateTargetPathWithinWorkspace(
       'TARGET_PATH_OUTSIDE_WORKSPACE',
       {
         field: 'targetPath',
-        targetPath: resolvedTargetPath,
+        targetPath: canonicalTargetPath,
         cwd: cwdRoot,
         reason: 'home_directory_cwd_without_workspace_roots',
       },
     );
   }
 
-  const allowedRoots = workspaceRoots.length > 0
+  const allowedRoots = (workspaceRoots.length > 0
     ? workspaceRoots
-    : [cwdRoot];
+    : [cwdRoot]).map(root => resolvePathForBoundaryCheck(root));
 
-  const isAllowed = allowedRoots.some(root => isPathWithinRoot(root, resolvedTargetPath));
+  const isAllowed = allowedRoots.some(root => isPathWithinRoot(root, canonicalTargetPath));
   if (!isAllowed) {
     throw new HandlerError(
       `Invalid targetPath for ${toolName}. Path must be within workspace roots or current working directory`,
@@ -211,11 +239,11 @@ export function validateTargetPathWithinWorkspace(
       'TARGET_PATH_OUTSIDE_WORKSPACE',
       {
         field: 'targetPath',
-        targetPath: resolvedTargetPath,
+        targetPath: canonicalTargetPath,
         allowedRoots,
       },
     );
   }
 
-  return hasExplicitTargetPath ? resolvedTargetPath : undefined;
+  return hasExplicitTargetPath ? canonicalTargetPath : undefined;
 }
