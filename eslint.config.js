@@ -100,6 +100,15 @@ export default tseslint.config(
     },
   },
 
+  // Runtime source files (stdio safety)
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    rules: {
+      // Prevent accidental stdout writes in MCP stdio server paths.
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+
   // Script files
   {
     files: ['scripts/**/*.js'],

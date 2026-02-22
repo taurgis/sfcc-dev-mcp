@@ -13,8 +13,33 @@ PACKAGE_NAME="${SFCC_MCP_NPX_PACKAGE_NAME:-sfcc-dev-mcp}"
 REQUESTED_VERSION="${1:-${SFCC_MCP_NPX_VERSION:-}}"
 WAIT_ATTEMPTS="${SFCC_MCP_NPX_WAIT_ATTEMPTS:-20}"
 WAIT_SECONDS="${SFCC_MCP_NPX_WAIT_SECONDS:-15}"
-MCP_TEST_COMMAND="${SFCC_MCP_PUBLISHED_TEST_COMMAND:-npm run test:mcp:all}"
+MCP_TEST_SCRIPT="${SFCC_MCP_PUBLISHED_TEST_SCRIPT:-test:mcp:all}"
+LEGACY_MCP_TEST_COMMAND="${SFCC_MCP_PUBLISHED_TEST_COMMAND:-}"
 NPX_PREFIX_DIR=""
+
+resolve_test_script() {
+  local script_name="$1"
+  local legacy_command="$2"
+
+  if [[ -n "$legacy_command" ]]; then
+    if [[ "$legacy_command" =~ ^npm[[:space:]]+run[[:space:]]+([A-Za-z0-9:_-]+)$ ]]; then
+      script_name="${BASH_REMATCH[1]}"
+    else
+      echo "Unsupported SFCC_MCP_PUBLISHED_TEST_COMMAND format: ${legacy_command}" >&2
+      echo "Use SFCC_MCP_PUBLISHED_TEST_SCRIPT=<npm-script-name> or SFCC_MCP_PUBLISHED_TEST_COMMAND='npm run <script>'" >&2
+      return 1
+    fi
+  fi
+
+  if [[ ! "$script_name" =~ ^[A-Za-z0-9:_-]+$ ]]; then
+    echo "Invalid SFCC_MCP_PUBLISHED_TEST_SCRIPT value: ${script_name}" >&2
+    return 1
+  fi
+
+  printf '%s' "$script_name"
+}
+
+MCP_TEST_SCRIPT="$(resolve_test_script "$MCP_TEST_SCRIPT" "$LEGACY_MCP_TEST_COMMAND")"
 
 if [[ -n "$REQUESTED_VERSION" ]]; then
   PACKAGE_VERSION="$REQUESTED_VERSION"
@@ -77,7 +102,7 @@ jq --arg pkg "$PACKAGE_SPEC" \
   "$FULL_CONFIG" > "${FULL_CONFIG}.tmp"
 mv "${FULL_CONFIG}.tmp" "$FULL_CONFIG"
 
-echo "Executing MCP tests: ${MCP_TEST_COMMAND}"
-bash -lc "$MCP_TEST_COMMAND"
+echo "Executing MCP tests: npm run ${MCP_TEST_SCRIPT}"
+npm run "$MCP_TEST_SCRIPT"
 
 echo "Published NPX validation completed successfully for ${PACKAGE_SPEC}"

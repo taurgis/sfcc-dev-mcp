@@ -29,7 +29,7 @@ Install the instruction files from `ai-instructions/` so your assistant can use 
 ### Full mode
 
 - Requires a valid dw.json
-- Adds log and job log tooling, system and custom object introspection, site preferences, and code version tools
+- Adds log and job log tooling, system and custom object introspection, site preferences, code version tools, and script debugger access
 
 <Callout title="Auto-detection" variant="info">
 If your MCP client supports workspace roots, the server can auto-detect `dw.json` from your open workspace after initialization. This only runs when CLI and environment credentials are not provided.

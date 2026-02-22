@@ -147,9 +147,9 @@ Choose your preferred AI assistant:
 
 | Interface | Best For | Setup Guide |
 |-----------|----------|-------------|
-| **Claude Desktop** | Multi-turn conversations, debugging | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#claude-desktop) |
-| **GitHub Copilot** | VS Code integration, inline suggestions | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#github-copilot) |
-| **Cursor** | Modern AI-powered editor | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#cursor) |
+| **Claude Desktop** | Multi-turn conversations, debugging | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
+| **GitHub Copilot** | VS Code integration, inline suggestions | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
+| **Cursor** | Modern AI-powered editor | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
 
 ## 📦 Installation
 
@@ -221,17 +221,17 @@ In GitHub Actions, the publish workflow manages the mock server lifecycle automa
 
 ## 📖 Documentation
 
-**📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
+**📚 [Complete Documentation](https://sfcc-mcp-dev.rhino-inquisitor.com/)** - Comprehensive guides and references
 
 Documentation source lives in `docs-site-v2/` (VitePress). The legacy React site remains in `docs-site/`.
 
 Quick Links:
-- **[Installation Guide](https://taurgis.github.io/sfcc-dev-mcp/installation)** - Detailed installation options
-- **[AI Interface Setup](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces)** - Configure Claude Desktop, GitHub Copilot, or Cursor
-- **[Configuration Guide](https://taurgis.github.io/sfcc-dev-mcp/configuration)** - SFCC credentials and Data API setup
-- **[Available Tools](https://taurgis.github.io/sfcc-dev-mcp/tools)** - Complete tool reference
-- **[Examples](https://taurgis.github.io/sfcc-dev-mcp/examples)** - Real-world usage patterns
-- **[Troubleshooting](https://taurgis.github.io/sfcc-dev-mcp/troubleshooting)** - Common issues and solutions
+- **[Getting Started](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/)** - Installation and first-run setup
+- **[AI Interface Setup](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/)** - Configure Claude Desktop, GitHub Copilot, or Cursor
+- **[Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/configuration/)** - SFCC credentials and Data API setup
+- **[Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/tools/)** - Complete tool reference
+- **[Examples](https://sfcc-mcp-dev.rhino-inquisitor.com/examples/)** - Real-world usage patterns
+- **[Troubleshooting](https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting/)** - Common issues and solutions
 
 ## 🛠️ Example AI Interactions
 
@@ -287,4 +287,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🚀 Ready to supercharge your SFCC development with AI?**
 
-**[📖 Get Started with the Full Documentation](https://taurgis.github.io/sfcc-dev-mcp/)**
+**[📖 Get Started with the Full Documentation](https://sfcc-mcp-dev.rhino-inquisitor.com/)**

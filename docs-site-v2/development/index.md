@@ -65,7 +65,8 @@ sfcc-dev-mcp/
 │   │       ├── system-object-handler.ts
 │   │       ├── code-version-handler.ts
 │   │       ├── cartridge-handler.ts
-│   │       └── agent-instructions-handler.ts
+│   │       ├── agent-instructions-handler.ts
+│   │       └── script-debugger-handler.ts
 │   ├── clients/                   # API & domain clients (logic, not routing)
 │   │   ├── base/                  # Shared HTTP + auth
 │   │   ├── logs/                  # Modular log system
@@ -78,6 +79,7 @@ sfcc-dev-mcp/
 │   │   ├── ocapi/
 │   │   ├── ocapi-client.ts
 │   │   ├── log-client.ts
+│   │   ├── script-debugger/
 │   ├── services/                 # Dependency injection service layer
 │   ├── tool-configs/             # Tool grouping & category configs
 │   ├── config/                   # Configuration + dw.json loading
@@ -93,13 +95,13 @@ sfcc-dev-mcp/
 
 ## Configuration and capability gating
 
-- `configuration-factory.ts`: derives capabilities (`canAccessLogs`, `canAccessJobLogs`, `canAccessOCAPI`, `canAccessSitePrefs`).
+- `configuration-factory.ts`: derives capabilities (`canAccessLogs`, `canAccessOCAPI`, `canAccessWebDAV`, `isLocalMode`).
 - `dw-json-loader.ts`: secure credential ingestion and validation.
 - Capability gating rules:
-	- No credentials: docs-only tools (docs, SFRA, ISML, cartridge generation, agent instructions).
-	- WebDAV credentials: runtime logs + job logs.
-	- Data API credentials: system & custom objects, site preferences, code versions.
-- Tools requiring unavailable capabilities are not registered.
+  - No credentials: docs-only tools (docs, SFRA, ISML, cartridge generation, agent instructions).
+  - WebDAV credentials + hostname: runtime logs, job logs, and script debugger.
+  - Data API credentials + hostname: system & custom objects, site preferences, code versions.
+- Tools requiring unavailable capabilities are hidden from `tools/list` and rejected at `tools/call`.
 
 ## Adding a new tool
 

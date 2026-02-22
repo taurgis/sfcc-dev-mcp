@@ -35,7 +35,7 @@ Key behaviors (from the server logic):
 If your client does not support `roots/list`, auto-discovery will be skipped and you must pass `--dw-json` or environment variables.
 
 <Callout title="Quick start" variant="info">
-Start in docs mode, then add `dw.json` only when you need logs, job logs, system objects, or code versions.
+Start in docs mode, then add `dw.json` only when you need logs, job logs, system objects, code versions, or script debugger access.
 </Callout>
 
 ## dw.json builder
@@ -93,6 +93,7 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 | Job logs | — | ✔ (requires WebDAV creds) |
 | System & custom objects / site prefs | — | ✔ (requires client-id/client-secret) |
 | Code versions | — | ✔ (requires client-id/client-secret) |
+| Script debugger | — | ✔ (requires authenticated full mode) |
 
 </div>
 
@@ -169,28 +170,6 @@ Add these resources in Business Manager: Administration -> Site Development -> O
 <Callout title="Debug mode" variant="info">
 Use `--debug true` temporarily when diagnosing tool behavior.
 </Callout>
-
-## Tool availability by mode
-
-| Category | Docs mode | Full mode |
-| --- | --- | --- |
-| Documentation, SFRA, ISML | Yes | Yes |
-| Cartridge generation | Yes | Yes |
-| Agent instructions | Yes | Yes |
-| Logs and job logs | No | Yes |
-| System objects and site preferences | No | Yes |
-| Code versions | No | Yes |
-| Script debugger | No | Yes |
-
-## Supported dw.json fields
-
-| Field | Required for | Notes |
-| --- | --- | --- |
-| `hostname` | All authenticated tools | Sandbox hostname |
-| `username` / `password` | Logs and job logs | WebDAV access |
-| `client-id` / `client-secret` | System objects, site preferences, code versions | OCAPI Data API |
-| `code-version` | Code version operations | Optional |
-| `site-id` | Site-specific operations | Optional |
 
 ## Security basics
 
