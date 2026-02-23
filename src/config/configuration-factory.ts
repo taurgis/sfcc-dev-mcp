@@ -10,6 +10,10 @@ import { existsSync } from 'fs';
 import { resolve } from 'path';
 import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 import { loadSecureDwJson } from './dw-json-loader.js';
+import {
+  assertCredentialConsistency,
+  assertValidHostnameFormat,
+} from './credential-validation.js';
 
 export class ConfigurationFactory {
   /**
@@ -118,25 +122,14 @@ export class ConfigurationFactory {
    * @throws Error if configuration is invalid for any supported mode
    */
   private static validate(config: SFCCConfig): void {
-    const hasBasicUser = typeof config.username === 'string' && config.username.trim() !== '';
-    const hasBasicPassword = typeof config.password === 'string' && config.password.trim() !== '';
-    const hasBasicAuth = hasBasicUser && hasBasicPassword;
-    const hasPartialBasicAuth = hasBasicUser !== hasBasicPassword;
-
-    const hasClientId = typeof config.clientId === 'string' && config.clientId.trim() !== '';
-    const hasClientSecret = typeof config.clientSecret === 'string' && config.clientSecret.trim() !== '';
-    const hasOAuth = hasClientId && hasClientSecret;
-    const hasPartialOAuth = hasClientId !== hasClientSecret;
+    const { hasBasicAuth, hasOAuth } = assertCredentialConsistency({
+      username: config.username,
+      password: config.password,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+    });
 
     const hasHostname = config.hostname && config.hostname.trim() !== '';
-
-    if (hasPartialBasicAuth) {
-      throw new Error('Basic auth credentials must include both username and password');
-    }
-
-    if (hasPartialOAuth) {
-      throw new Error('OAuth credentials must include both clientId and clientSecret');
-    }
 
     // Allow local mode if no credentials or hostname are provided
     if (!hasBasicAuth && !hasOAuth && !hasHostname) {
@@ -160,10 +153,7 @@ export class ConfigurationFactory {
 
     // Additional hostname validation if provided
     if (hasHostname) {
-      const trimmedHostname = config.hostname!.trim();
-      if (!trimmedHostname.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
-        throw new Error('Invalid hostname format in configuration');
-      }
+      assertValidHostnameFormat(config.hostname!, 'Invalid hostname format in configuration');
     }
   }
 

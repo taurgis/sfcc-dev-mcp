@@ -16,6 +16,10 @@ import { readFileSync, existsSync, statSync, realpathSync } from 'fs';
 import { resolve, basename, extname, normalize, isAbsolute } from 'path';
 import { DwJsonConfig } from '../types/types.js';
 import { isAllowedResolvedPath, isBlockedResolvedPath } from './path-security-policy.js';
+import {
+  assertCredentialConsistency,
+  assertValidHostnameFormat,
+} from './credential-validation.js';
 
 /**
  * Validates that a file path is safe to access and prevents path traversal attacks
@@ -116,33 +120,22 @@ function validateDwJsonContent(dwConfig: DwJsonConfig): void {
     throw new Error('Configuration file must contain a hostname field');
   }
 
-  const hasBasicUser = typeof dwConfig.username === 'string' && dwConfig.username.trim().length > 0;
-  const hasBasicPassword = typeof dwConfig.password === 'string' && dwConfig.password.trim().length > 0;
-  const hasBasicAuth = hasBasicUser && hasBasicPassword;
-
-  const hasClientId = typeof dwConfig['client-id'] === 'string' && dwConfig['client-id'].trim().length > 0;
-  const hasClientSecret = typeof dwConfig['client-secret'] === 'string' && dwConfig['client-secret'].trim().length > 0;
-  const hasOAuth = hasClientId && hasClientSecret;
-
-  if ((hasBasicUser && !hasBasicPassword) || (!hasBasicUser && hasBasicPassword)) {
-    throw new Error('Basic auth credentials must include both username and password');
-  }
-
-  if ((hasClientId && !hasClientSecret) || (!hasClientId && hasClientSecret)) {
-    throw new Error('OAuth credentials must include both client-id and client-secret');
-  }
-
-  if (!hasBasicAuth && !hasOAuth) {
-    throw new Error(
+  assertCredentialConsistency(
+    {
+      username: dwConfig.username,
+      password: dwConfig.password,
+      clientId: dwConfig['client-id'],
+      clientSecret: dwConfig['client-secret'],
+    },
+    {
+      oauthPairMessage: 'OAuth credentials must include both client-id and client-secret',
+      requireAnyCredentialsMessage:
       'Configuration file must include either username/password or client-id/client-secret credentials',
-    );
-  }
+    },
+  );
 
   // Additional validation for hostname format (trim whitespace first)
-  const trimmedHostname = dwConfig.hostname.trim();
-  if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
-    throw new Error('Invalid hostname format in configuration');
-  }
+  assertValidHostnameFormat(dwConfig.hostname, 'Invalid hostname format in configuration');
 }
 
 /**

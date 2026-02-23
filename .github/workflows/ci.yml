@@ -34,6 +34,9 @@ jobs:
     - name: Validate skills catalog sync
       run: npm run validate:skills-sync
 
+    - name: Validate server metadata
+      run: npm run validate:server-json
+
   security:
     runs-on: ubuntu-latest
     permissions:

@@ -122,8 +122,10 @@ This server is built around a **capability-gated, modular handler architecture**
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
+- **Shared Credential Validation** (`src/config/credential-validation.ts`): Centralizes auth-pair completeness and hostname-format validation for both `dw.json` loading and runtime configuration creation.
 - **Call-time Capability Guarding** (`src/core/server.ts`): Rejects execution of tools that are unavailable in the current mode, so hidden tools are not callable via direct `tools/call` requests.
 - **Call Lifecycle Signals** (`src/core/server.ts`): `tools/call` handling supports cancellation via request abort signals and emits best-effort progress notifications when the caller provides `_meta.progressToken`.
+- **Tool Error Sanitization** (`src/core/tool-error-response.ts`): Sanitizes upstream execution errors before returning MCP tool responses, reducing accidental leakage of backend payload details.
 - **Runtime WebDAV Verification** (`src/core/server.ts`): For OAuth-only configurations (`client-id`/`client-secret` without `username`/`password`), log/job-log/script-debugger tool exposure is gated by a one-time WebDAV capability probe to avoid false-positive tool availability.
 - **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
 - **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
@@ -220,6 +222,9 @@ npm run validate:tools-sync
 
 # Ensure docs-site skills catalog stays in sync with bundled skills
 npm run validate:skills-sync
+
+# Ensure MCP registry metadata stays in sync with package.json
+npm run validate:server-json
 
 # In a separate terminal, start the mock server first for full-mode MCP tests
 npm run test:mock-server:start

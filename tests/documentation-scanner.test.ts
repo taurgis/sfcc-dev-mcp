@@ -37,6 +37,23 @@ describe('DocumentationScanner', () => {
     // Setup default path mock behavior
     mockPath.join.mockImplementation((...segments) => segments.join('/'));
     mockPath.resolve.mockImplementation((filePath) => `/resolved/${filePath}`);
+    mockPath.relative.mockImplementation((from, to) => {
+      const root = String(from).replace(/\/+$/, '');
+      const target = String(to);
+      const rootedPrefix = `${root}/`;
+
+      if (target === root) {
+        return '';
+      }
+
+      if (target.startsWith(rootedPrefix)) {
+        return target.slice(rootedPrefix.length);
+      }
+
+      return `../${target.split('/').pop() ?? ''}`;
+    });
+    mockPath.isAbsolute.mockImplementation((value) => String(value).startsWith('/'));
+    mockFs.realpath.mockImplementation(async (input) => String(input));
   });
 
   afterEach(() => {
@@ -494,6 +511,52 @@ describe('DocumentationScanner', () => {
 
       expect(result.size).toBe(0);
       expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('does not reference a markdown file'));
+    });
+
+    it('should reject canonical file paths that escape package/docs roots', async () => {
+      const mockDirent = (name: string) => ({
+        name,
+        isDirectory: () => true,
+        isFile: () => false,
+        isSymbolicLink: () => false,
+        isBlockDevice: () => false,
+        isCharacterDevice: () => false,
+        isFIFO: () => false,
+        isSocket: () => false,
+      });
+
+      mockFs.readdir.mockResolvedValueOnce([mockDirent('dw_catalog')] as any);
+      mockFs.readdir.mockResolvedValueOnce(['Product.md'] as any);
+
+      mockPath.resolve.mockImplementation((filePath) => {
+        if (filePath === '/docs') {
+          return '/resolved/docs';
+        }
+        if (filePath === '/docs/dw_catalog') {
+          return '/resolved/docs/dw_catalog';
+        }
+        if (filePath === '/docs/dw_catalog/Product.md') {
+          return '/resolved/docs/dw_catalog/Product.md';
+        }
+
+        return `/resolved${filePath}`;
+      });
+
+      // Simulate a symlink target escaping the docs root.
+      mockFs.realpath.mockImplementation(async (input) => {
+        const inputPath = String(input);
+        if (inputPath.endsWith('/Product.md')) {
+          return '/outside/secret/Product.md';
+        }
+
+        return inputPath;
+      });
+
+      const result = await scanner.scanDocumentation('/docs');
+
+      expect(result.size).toBe(0);
+      expect(mockFs.readFile).not.toHaveBeenCalled();
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('outside allowed directory'));
     });
   });
 

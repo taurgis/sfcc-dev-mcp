@@ -171,6 +171,7 @@ sfcc-dev-mcp/
 │   ├── config/                   # Configuration management
 │   │   ├── cli-options.ts        # CLI argument and env credential detection helpers
 │   │   ├── configuration-factory.ts # Config factory for different modes
+│   │   ├── credential-validation.ts # Shared auth-pair and hostname validation helpers
 │   │   ├── dw-json-loader.ts     # dw.json configuration loader
 │   │   └── path-security-policy.ts # Shared path allow/block policy for config and workspace roots
 │   ├── tool-configs/             # Tool configuration definitions
@@ -401,6 +402,7 @@ sfcc-dev-mcp/
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
+- **Credential Validation** (`credential-validation.ts`): Shared helpers for auth-pair completeness and hostname format validation across config loading paths
 - **Config Loader** (`dw-json-loader.ts`): Handles dw.json and environment variable loading
 - **CLI Option Helpers** (`cli-options.ts`): Parses `--dw-json` and strict `--debug` values (`true/false`, `1/0`, `yes/no`) with fail-fast errors for invalid boolean tokens
 
@@ -527,6 +529,9 @@ npm run validate:tools-sync
 # Enforce docs-site skills catalog parity with bundled skills
 npm run validate:skills-sync
 
+# Enforce MCP registry metadata parity with package.json
+npm run validate:server-json
+
 # Individual category counts (from modular schema files)
 echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
 echo "SFRA tools:" && grep -c "name: '" src/core/tool-schemas/sfra-tools.ts
@@ -646,6 +651,7 @@ npm run test:mcp:node        # Programmatic tests
 npm run test:mcp:published-npx  # MCP tests against latest published npm package via npx
 npm run validate:tools-sync   # Validate docs tool catalog is in sync with runtime schemas
 npm run validate:skills-sync  # Validate docs skills catalog is in sync with bundled skills
+npm run validate:server-json  # Validate server.json schema and version parity with package.json
 npm test                     # Full suite (Jest + MCP)
 ```
 

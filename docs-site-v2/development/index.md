@@ -38,6 +38,7 @@ npm test
 npm run test:mcp:yaml
 npm run test:mcp:node
 npm run lint
+npm run validate:server-json
 npm run validate:tools-sync
 npm run validate:skills-sync
 ```
@@ -107,6 +108,7 @@ sfcc-dev-mcp/
 
 - `configuration-factory.ts`: derives capabilities (`canAccessLogs`, `canAccessOCAPI`, `canAccessWebDAV`, `isLocalMode`).
 - `dw-json-loader.ts`: secure credential ingestion and validation.
+- `credential-validation.ts`: shared auth-pair and hostname validation used by both config paths.
 - Capability gating rules:
   - No credentials: docs-only tools (docs, SFRA, ISML, cartridge generation, agent instructions).
   - WebDAV credentials + hostname: runtime logs, job logs, and script debugger.
@@ -120,6 +122,7 @@ sfcc-dev-mcp/
 - Shared OCAPI query schemas support `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query`.
 - Object schemas with declared properties reject unknown keys by default (top-level and nested), unless `additionalProperties: true` is explicitly set.
 - Validation errors are returned as structured tool errors (`INVALID_TOOL_ARGUMENTS`) so clients can recover predictably.
+- Non-validation execution errors are sanitized before returning tool responses (for example, upstream HTTP response bodies are stripped) to reduce accidental data leakage.
 
 ## Progress and cancellation
 
@@ -157,6 +160,8 @@ git push origin main --tags
 Checklist:
 
 - Update README.md and AGENTS.md if tool counts or categories change
+- Keep `server.json` version fields aligned with `package.json` (`version` and `packages[0].version`)
+- Run `npm run validate:server-json` after version bumps and before tagging
 - Run `npm test` and `npm run lint:check`
 - Verify docs build in `docs-site-v2`
 
