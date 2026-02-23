@@ -278,8 +278,8 @@ Overview of the feature and when to use it.
 
 ## Detailed References
 
-- [Advanced Patterns](references/ADVANCED.md)
-- [Configuration Options](references/CONFIG.md)
+- [Advanced Patterns](./ADVANCED.md)
+- [Configuration Options](./CONFIG.md)
 ```
 
 ### XML/Configuration Skill

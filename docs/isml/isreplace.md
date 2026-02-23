@@ -779,5 +779,5 @@ Ensure proper encoding in decorator templates:
 - [isdecorate Element](./isdecorate.md)
 - [isinclude Element](./isinclude.md)
 - [SFRA Controllers Skill](../../ai-instructions/skills/sfcc-sfra-controllers/SKILL.md)
-- [Template Composition Patterns](./template-patterns.md)
+- [Template Composition Patterns](./isdecorate.md)
 - [ISML Development Skill](../../ai-instructions/skills/sfcc-isml-development/SKILL.md)

@@ -709,7 +709,7 @@ res.render('template', {
 ## See Also
 
 - [URLUtils Class](../dw_web/URLUtils.md)
-- [Response Class](../dw_web/Response.md)
+- [Response Documentation (SFRA)](../sfra/response.md)
 - [ISML Conditional Statements](./isif.md)
 - [ISML Cache Element](./iscache.md)
 - [SFRA Controllers Skill](../../ai-instructions/skills/sfcc-sfra-controllers/SKILL.md)

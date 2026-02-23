@@ -868,7 +868,7 @@ Distinguish between trusted content and user input:
 
 ## See Also
 
-- [ISML Expression Syntax](./expressions.md)
+- [ISML Script and Expression Usage](./isscript.md)
 - [StringUtils Class](../dw_util/StringUtils.md)
 - [SecureEncoder Class](../dw_util/SecureEncoder.md)
 - [Money Class](../dw_value/Money.md)
