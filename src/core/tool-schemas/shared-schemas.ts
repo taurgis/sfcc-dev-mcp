@@ -72,6 +72,23 @@ export const QUERY_SCHEMA = {
         },
       },
     },
+    filtered_query: {
+      type: 'object',
+      description: 'Apply a filter expression to a nested query',
+      properties: {
+        filter: {
+          type: 'object',
+          description: 'Filter object used to constrain matching records',
+          additionalProperties: true,
+        },
+        query: {
+          type: 'object',
+          description: 'Nested query definition evaluated after filter application',
+          additionalProperties: true,
+        },
+      },
+      required: ['filter', 'query'],
+    },
     match_all_query: {
       type: 'object',
       description: 'Match all documents - useful when you want all results or to filter with sorts/pagination only.',

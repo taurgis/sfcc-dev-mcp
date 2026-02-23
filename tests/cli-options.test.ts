@@ -16,6 +16,13 @@ describe('CLI option parsing', () => {
   it('parses explicit debug values', () => {
     expect(parseCommandLineArgs(['--debug', 'false'])).toEqual({ debug: false });
     expect(parseCommandLineArgs(['--debug', 'yes'])).toEqual({ debug: true });
+    expect(parseCommandLineArgs(['--debug', '0'])).toEqual({ debug: false });
+  });
+
+  it('throws when --debug receives an invalid value', () => {
+    expect(() => parseCommandLineArgs(['--debug', 'maybe'])).toThrow(
+      'Invalid value for --debug: "maybe". Use true/false, 1/0, or yes/no.',
+    );
   });
 
   it('throws when --dw-json is missing a value', () => {

@@ -8,9 +8,22 @@ export interface CliOptions {
 }
 
 const TRUE_VALUES = new Set(['true', '1', 'yes']);
+const FALSE_VALUES = new Set(['false', '0', 'no']);
 
 function parseBoolean(value: string): boolean {
-  return TRUE_VALUES.has(value.toLowerCase());
+  const normalized = value.toLowerCase();
+
+  if (TRUE_VALUES.has(normalized)) {
+    return true;
+  }
+
+  if (FALSE_VALUES.has(normalized)) {
+    return false;
+  }
+
+  throw new Error(
+    `Invalid value for --debug: "${value}". Use true/false, 1/0, or yes/no.`,
+  );
 }
 
 function isFlagToken(value: string | undefined): boolean {

@@ -4,6 +4,7 @@ import {
 } from '../src/core/tool-argument-validator.js';
 import { LOG_TOOLS } from '../src/core/tool-schemas/log-tools.js';
 import { SFCC_DOCUMENTATION_TOOLS } from '../src/core/tool-schemas/documentation-tools.js';
+import { SYSTEM_OBJECT_TOOLS } from '../src/core/tool-schemas/system-object-tools.js';
 
 describe('ToolArgumentValidator', () => {
   it('throws at construction time for invalid schema regex patterns', () => {
@@ -230,6 +231,32 @@ describe('ToolArgumentValidator', () => {
         payload: {
           dynamicField: 'ok',
           another: 42,
+        },
+      });
+    }).not.toThrow();
+  });
+
+  it('accepts filtered_query for OCAPI search request schemas', () => {
+    const validator = new ToolArgumentValidator(SYSTEM_OBJECT_TOOLS);
+
+    expect(() => {
+      validator.validate('search_system_object_attribute_definitions', {
+        objectType: 'Product',
+        searchRequest: {
+          query: {
+            filtered_query: {
+              filter: {
+                term_query: {
+                  fields: ['id'],
+                  operator: 'is',
+                  values: ['my-attribute'],
+                },
+              },
+              query: {
+                match_all_query: {},
+              },
+            },
+          },
         },
       });
     }).not.toThrow();

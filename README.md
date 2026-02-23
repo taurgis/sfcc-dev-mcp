@@ -16,6 +16,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **🚀 Cartridge Generation** - Automated cartridge structure creation with workspace-bound path safety (writes stay inside workspace roots, or current working directory fallback when roots are unavailable; home-directory fallback is blocked)
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
 - **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, enum constraints, integer/numeric bounds, and strict unknown-key checks for object schemas (top-level and nested) before handler execution
+- **⏱️ MCP Progress + Cancellation** - Tool calls honor request cancellation signals and emit out-of-band `notifications/progress` updates when clients provide a `progressToken`
 
 ## 🚀 Quick Start
 
@@ -114,12 +115,14 @@ This server is built around a **capability-gated, modular handler architecture**
 ### Core Layers
 - **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions, agent instructions, script debugger). Re-exported via `tool-definitions.ts`.
 - **Tool Argument Validator** (`src/core/tool-argument-validator.ts`): Enforces runtime argument shape at the MCP boundary for all tools (required fields, primitive/object/array types, enum checks, integer/numeric ranges, string patterns/length, and strict unknown-key checks for object schemas at top-level and nested levels) before tool dispatch.
+- **OCAPI Query Coverage** (`src/core/tool-schemas/shared-schemas.ts`): Shared search schemas include `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query` so MCP boundary validation aligns with supported OCAPI query patterns.
 - **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization, with config-driven wiring via `ConfiguredClientHandler` to reduce repetitive boilerplate (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
 - **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, modular log analysis, script debugger, cartridge generation, agent-instruction sync). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
 - **Call-time Capability Guarding** (`src/core/server.ts`): Rejects execution of tools that are unavailable in the current mode, so hidden tools are not callable via direct `tools/call` requests.
+- **Call Lifecycle Signals** (`src/core/server.ts`): `tools/call` handling supports cancellation via request abort signals and emits best-effort progress notifications when the caller provides `_meta.progressToken`.
 - **Runtime WebDAV Verification** (`src/core/server.ts`): For OAuth-only configurations (`client-id`/`client-secret` without `username`/`password`), log/job-log/script-debugger tool exposure is gated by a one-time WebDAV capability probe to avoid false-positive tool availability.
 - **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
 - **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
@@ -180,6 +183,8 @@ npx -y sfcc-dev-mcp --debug
 # Or with configuration file
 npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
 ```
+
+`--debug` accepts `true/false`, `1/0`, or `yes/no`. Invalid values fail fast with a clear error message.
 
 ### Log File Locations
 

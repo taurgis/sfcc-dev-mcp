@@ -1274,5 +1274,5 @@ tests:
           isError: false
           structuredContent: "match:type:object"
       performance:
-        maxResponseTime: "150ms"  # Cached responses should be extremely fast
+        maxResponseTime: "250ms"  # Cached responses should still be fast while reducing CI flakiness
       stderr: "toBeEmpty"

@@ -114,6 +114,12 @@ function resolveServerVersion(): string {
 const SERVER_VERSION = resolveServerVersion();
 
 type LogCapabilityState = 'available' | 'unavailable' | 'unknown';
+type ProgressToken = string | number;
+
+interface ToolRequestExecutionExtras {
+  signal?: AbortSignal;
+  sendNotification?: (notification: { method: string; params?: Record<string, unknown> }) => Promise<void>;
+}
 
 /**
  * MCP Server implementation for SFCC development assistance
@@ -445,16 +451,27 @@ export class SFCCDevServer {
       return { tools: this.getAvailableTools() };
     });
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
+    this.server.setRequestHandler(CallToolRequestSchema, async (request, extra): Promise<CallToolResult> => {
       const { name, arguments: args } = request.params;
       const startTime = Date.now();
+      const progressToken = request.params._meta?.progressToken;
+      const executionExtras: ToolRequestExecutionExtras = {
+        signal: extra?.signal,
+        sendNotification: extra?.sendNotification,
+      };
 
       this.logger.methodEntry(`handleToolRequest:${name}`, args);
 
       try {
+        this.assertRequestNotCancelled(name, executionExtras.signal);
+        await this.emitProgress(executionExtras, progressToken, 0, 100, `Starting ${name}`);
+
         if (this.logCapabilityToolNames.has(name)) {
           await this.ensureLogCapabilityResolved();
         }
+
+        this.assertRequestNotCancelled(name, executionExtras.signal);
+        await this.emitProgress(executionExtras, progressToken, 20, 100, 'Resolving handler');
 
         const handler = this.handlers.find((h) => h.canHandle(name));
         if (!handler) {
@@ -474,13 +491,25 @@ export class SFCCDevServer {
           );
         }
 
+        this.assertRequestNotCancelled(name, executionExtras.signal);
+        await this.emitProgress(executionExtras, progressToken, 40, 100, 'Validating arguments');
+
         this.toolArgumentValidator.validate(name, args ?? {});
 
+        this.assertRequestNotCancelled(name, executionExtras.signal);
+        await this.emitProgress(executionExtras, progressToken, 60, 100, 'Executing tool');
+
         const preflightNotice = await this.instructionAdvisor.getNotice();
-        const result = await handler.handle(name, args ?? {}, startTime);
+        const result = await this.awaitWithCancellation(
+          name,
+          handler.handle(name, args ?? {}, startTime),
+          executionExtras.signal,
+        );
         const decoratedResult = preflightNotice
           ? this.appendPreflightNotice(result, preflightNotice)
           : result;
+
+        await this.emitProgress(executionExtras, progressToken, 100, 100, `${name} complete`);
 
         // Log the full response in debug mode
         this.logger.debug(`Full response for ${name}:`, {
@@ -650,5 +679,78 @@ export class SFCCDevServer {
         );
       }
     });
+  }
+
+  private assertRequestNotCancelled(toolName: string, signal?: AbortSignal): void {
+    if (signal?.aborted) {
+      throw new ValidationError(
+        `Tool call cancelled: ${toolName}`,
+        'REQUEST_CANCELLED',
+        { toolName },
+      );
+    }
+  }
+
+  private async awaitWithCancellation<T>(
+    toolName: string,
+    operation: Promise<T>,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    this.assertRequestNotCancelled(toolName, signal);
+
+    if (!signal) {
+      return operation;
+    }
+
+    return await new Promise<T>((resolve, reject) => {
+      const onAbort = (): void => {
+        reject(new ValidationError(
+          `Tool call cancelled: ${toolName}`,
+          'REQUEST_CANCELLED',
+          { toolName },
+        ));
+      };
+
+      signal.addEventListener('abort', onAbort, { once: true });
+
+      operation.then(
+        (value) => {
+          signal.removeEventListener('abort', onAbort);
+          resolve(value);
+        },
+        (error) => {
+          signal.removeEventListener('abort', onAbort);
+          reject(error);
+        },
+      );
+    });
+  }
+
+  private async emitProgress(
+    extra: ToolRequestExecutionExtras,
+    progressToken: ProgressToken | undefined,
+    progress: number,
+    total: number,
+    message: string,
+  ): Promise<void> {
+    if (progressToken === undefined || !extra.sendNotification) {
+      return;
+    }
+
+    try {
+      await extra.sendNotification({
+        method: 'notifications/progress',
+        params: {
+          progressToken,
+          progress,
+          total,
+          message,
+        },
+      });
+    } catch (error) {
+      // Progress updates are best effort and should never fail tool execution.
+      const reason = error instanceof Error ? error.message : String(error);
+      this.logger.debug(`[Server] Failed to emit progress notification: ${reason}`);
+    }
   }
 }

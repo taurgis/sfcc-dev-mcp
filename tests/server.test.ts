@@ -77,7 +77,21 @@ jest.mock('../src/clients/log-client.js', () => ({
   }),
 }));
 
-type RequestHandler = (request: { params: { name: string; arguments?: Record<string, unknown> } }) => Promise<unknown>;
+type RequestHandlerExtra = {
+  signal?: AbortSignal;
+  sendNotification?: (notification: { method: string; params: unknown }) => Promise<void>;
+};
+
+type RequestHandler = (
+  request: {
+    params: {
+      name: string;
+      arguments?: Record<string, unknown>;
+      _meta?: { progressToken?: string | number };
+    };
+  },
+  extra?: RequestHandlerExtra,
+) => Promise<unknown>;
 type ListToolsHandler = () => Promise<{ tools: unknown[] }>;
 type NotificationHandler = (notification: { method: string; params?: Record<string, unknown> }) => Promise<void> | void;
 
@@ -575,5 +589,86 @@ describe('SFCCDevServer', () => {
 
     onSpy.mockRestore();
     offSpy.mockRestore();
+  });
+
+  it('emits progress notifications when a progress token is provided', async () => {
+    const server = new SFCCDevServer({ hostname: '' });
+    const serverAny = server as unknown as {
+      handlers: Array<{ canHandle: (toolName: string) => boolean; handle: jest.Mock }>;
+      instructionAdvisor: { getNotice: jest.Mock };
+    };
+
+    const mockHandler = {
+      canHandle: (toolName: string) => toolName === 'search_sfcc_classes',
+      handle: jest.fn().mockResolvedValue({
+        content: [{ type: 'text', text: '{"ok":true}' }],
+        isError: false,
+      }),
+      dispose: jest.fn().mockResolvedValue(undefined),
+    };
+
+    serverAny.handlers = [mockHandler];
+    serverAny.instructionAdvisor = { getNotice: jest.fn().mockResolvedValue(undefined) };
+
+    const sendNotification = jest.fn().mockResolvedValue(undefined);
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const result = await callToolHandler(
+      {
+        params: {
+          name: 'search_sfcc_classes',
+          arguments: { query: 'catalog' },
+          _meta: { progressToken: 'progress-1' },
+        },
+      },
+      {
+        signal: new AbortController().signal,
+        sendNotification,
+      },
+    ) as { isError: boolean };
+
+    expect(result.isError).toBe(false);
+    expect(sendNotification).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'notifications/progress',
+      params: expect.objectContaining({
+        progressToken: 'progress-1',
+        progress: 0,
+      }),
+    }));
+    expect(sendNotification).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'notifications/progress',
+      params: expect.objectContaining({
+        progressToken: 'progress-1',
+        progress: 100,
+      }),
+    }));
+  });
+
+  it('returns REQUEST_CANCELLED when the tool call signal is already aborted', async () => {
+    new SFCCDevServer({ hostname: '' });
+
+    const mockServer = getLatestMockServer();
+    const callToolHandler = getCallToolHandler(mockServer);
+    const abortController = new AbortController();
+    abortController.abort();
+
+    const result = await callToolHandler(
+      {
+        params: {
+          name: 'search_sfcc_classes',
+          arguments: { query: 'catalog' },
+        },
+      },
+      {
+        signal: abortController.signal,
+        sendNotification: jest.fn().mockResolvedValue(undefined),
+      },
+    ) as {
+      isError: boolean;
+      structuredContent?: { error?: { code?: string } };
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent?.error?.code).toBe('REQUEST_CANCELLED');
   });
 });

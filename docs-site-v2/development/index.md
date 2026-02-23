@@ -29,6 +29,8 @@ npm run dev -- --debug
 npm run dev -- --dw-json /path/to/dw.json --debug false
 ```
 
+`--debug` accepts `true/false`, `1/0`, or `yes/no`. Invalid values fail fast.
+
 ## Tests and lint
 
 ```bash
@@ -107,8 +109,14 @@ sfcc-dev-mcp/
 
 - `src/core/tool-argument-validator.ts` validates tool arguments at call time before handler execution.
 - Validation includes required fields, scalar/object/array types, enum values, integer/number ranges, string constraints, and regex patterns.
+- Shared OCAPI query schemas support `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query`.
 - Object schemas with declared properties reject unknown keys by default (top-level and nested), unless `additionalProperties: true` is explicitly set.
 - Validation errors are returned as structured tool errors (`INVALID_TOOL_ARGUMENTS`) so clients can recover predictably.
+
+## Progress and cancellation
+
+- `tools/call` handlers receive an abort signal from the MCP SDK and return `REQUEST_CANCELLED` when the request is aborted.
+- When clients provide `_meta.progressToken`, the server emits best-effort `notifications/progress` updates through request-scoped notification APIs.
 
 ## Adding a new tool
 
@@ -121,7 +129,8 @@ sfcc-dev-mcp/
 
 ## Testing strategy
 
-- Unit tests: `npm test`
+- Unit tests: `npm run test:unit`
+- Full suite (unit + MCP): `npm test`
 - YAML MCP tests: `npm run test:mcp:yaml`
 - Programmatic MCP tests: `npm run test:mcp:node`
 - Lint: `npm run lint`

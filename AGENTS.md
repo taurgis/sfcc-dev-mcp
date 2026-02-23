@@ -328,7 +328,9 @@ sfcc-dev-mcp/
 - Manages configuration modes (documentation-only vs. full)
 - Applies runtime tool argument validation (required fields, type checks, enum checks, integer/numeric ranges, and string patterns/length) before dispatch
 - Enforces strict unknown-argument rejection for object schemas that declare properties (at top-level and nested object levels) unless explicitly allowed by schema
+- Shared OCAPI query schema supports `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query`
 - Enforces call-time capability gating so unavailable tools are rejected during `tools/call`, not just hidden from `tools/list`
+- Emits best-effort `notifications/progress` updates when `_meta.progressToken` is provided on `tools/call`, and returns structured cancellation errors for aborted calls
 - Performs runtime WebDAV capability verification for OAuth-only configurations before exposing log/job-log/script-debugger tools, reducing false-positive tool availability
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
@@ -395,6 +397,7 @@ sfcc-dev-mcp/
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
 - **Config Loader** (`dw-json-loader.ts`): Handles dw.json and environment variable loading
+- **CLI Option Helpers** (`cli-options.ts`): Parses `--dw-json` and strict `--debug` values (`true/false`, `1/0`, `yes/no`) with fail-fast errors for invalid boolean tokens
 
 #### **Service Layer** (`services/`)
 - **Service Interfaces** (`index.ts`): Exports clean abstractions for system operations (IFileSystemService, IPathService)

@@ -169,9 +169,10 @@ Add these resources in Business Manager: Administration -> Site Development -> O
 - For OAuth-only setups (`client-id`/`client-secret` without `username`/`password`), the server performs a one-time WebDAV capability probe before exposing log, job-log, and script-debugger tools.
 - System objects and site preferences use OCAPI Data API (`client-id` and `client-secret`).
 - Code version activation requires Data API access plus `patch` permission.
+- For long-running tool calls, clients may request out-of-band progress updates via `_meta.progressToken`; cancelled requests return `REQUEST_CANCELLED`.
 
 <Callout title="Debug mode" variant="info">
-Use `--debug true` temporarily when diagnosing tool behavior.
+Use `--debug` (or `--debug true/false`, `1/0`, `yes/no`) temporarily when diagnosing tool behavior.
 </Callout>
 
 ## Security basics
