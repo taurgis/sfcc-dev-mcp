@@ -11,7 +11,6 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import {
-  type CallToolResult,
   CallToolRequestSchema,
   ListToolsRequestSchema,
   RootsListChangedNotificationSchema,
@@ -21,20 +20,17 @@ import { Logger } from '../utils/logger.js';
 import { ConfigurationFactory } from '../config/configuration-factory.js';
 import { WorkspaceRootsService } from '../config/workspace-roots.js';
 import {
-  SFCC_DOCUMENTATION_TOOLS,
-  SFRA_DOCUMENTATION_TOOLS,
-  ISML_DOCUMENTATION_TOOLS,
-  LOG_TOOLS,
-  JOB_LOG_TOOLS,
-  SYSTEM_OBJECT_TOOLS,
-  CARTRIDGE_GENERATION_TOOLS,
-  CODE_VERSION_TOOLS,
-  AGENT_INSTRUCTION_TOOLS,
-  SCRIPT_DEBUGGER_TOOLS,
-} from './tool-definitions.js';
+  ALL_TOOL_DEFINITIONS,
+  createToolNameSets,
+  getAvailableTools,
+  isToolAvailable,
+  type LogCapabilityState,
+  type ToolDefinition,
+  type ToolNameSets,
+} from './server-tool-catalog.js';
 
 // Modular tool handlers
-import { BaseToolHandler, HandlerContext, ToolExecutionResult } from './handlers/base-handler.js';
+import { BaseToolHandler, HandlerContext } from './handlers/base-handler.js';
 import { LogToolHandler } from './handlers/log-handler.js';
 import { JobLogToolHandler } from './handlers/job-log-handler.js';
 import { DocsToolHandler } from './handlers/docs-handler.js';
@@ -48,42 +44,14 @@ import { ScriptDebuggerToolHandler } from './handlers/script-debugger-handler.js
 import { InstructionAdvisor } from './instruction-advisor.js';
 import { AgentInstructionsClient } from '../clients/agent-instructions-client.js';
 import { SFCCLogClient } from '../clients/log-client.js';
-import { ValidationError } from '../utils/validator.js';
 import { ToolArgumentValidator } from './tool-argument-validator.js';
-import { createToolErrorResponse } from './tool-error-response.js';
+import { createToolCallHandler } from './server-tool-call-lifecycle.js';
+import {
+  discoverWorkspaceRootsFlow,
+  reconfigureWithCredentialsFlow,
+} from './server-workspace-discovery.js';
 
 const DEFAULT_SERVER_VERSION = '0.0.0';
-
-type ToolDefinition = {
-  name: string;
-  description: string;
-  inputSchema: unknown;
-};
-
-const ALWAYS_AVAILABLE_TOOLS: ToolDefinition[] = [
-  ...AGENT_INSTRUCTION_TOOLS,
-  ...SFCC_DOCUMENTATION_TOOLS,
-  ...SFRA_DOCUMENTATION_TOOLS,
-  ...ISML_DOCUMENTATION_TOOLS,
-  ...CARTRIDGE_GENERATION_TOOLS,
-];
-
-const LOG_CAPABILITY_TOOLS: ToolDefinition[] = [
-  ...LOG_TOOLS,
-  ...JOB_LOG_TOOLS,
-  ...SCRIPT_DEBUGGER_TOOLS,
-];
-
-const OCAPI_CAPABILITY_TOOLS: ToolDefinition[] = [
-  ...SYSTEM_OBJECT_TOOLS,
-  ...CODE_VERSION_TOOLS,
-];
-
-const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
-  ...ALWAYS_AVAILABLE_TOOLS,
-  ...LOG_CAPABILITY_TOOLS,
-  ...OCAPI_CAPABILITY_TOOLS,
-];
 
 function resolveServerVersion(): string {
   try {
@@ -113,14 +81,6 @@ function resolveServerVersion(): string {
 
 const SERVER_VERSION = resolveServerVersion();
 
-type LogCapabilityState = 'available' | 'unavailable' | 'unknown';
-type ProgressToken = string | number;
-
-interface ToolRequestExecutionExtras {
-  signal?: AbortSignal;
-  sendNotification?: (notification: { method: string; params?: Record<string, unknown> }) => Promise<void>;
-}
-
 /**
  * MCP Server implementation for SFCC development assistance
  *
@@ -142,6 +102,7 @@ export class SFCCDevServer {
   private readonly alwaysAvailableToolNames: Set<string>;
   private readonly logCapabilityToolNames: Set<string>;
   private readonly ocapiCapabilityToolNames: Set<string>;
+  private readonly toolNameSets: ToolNameSets;
   private logCapabilityState: LogCapabilityState;
   private logCapabilityProbePromise: Promise<void> | null = null;
   private shutdownPromise: Promise<void> | null = null;
@@ -167,9 +128,10 @@ export class SFCCDevServer {
     const advisorClient = new AgentInstructionsClient(this.workspaceRootsService, Logger.getChildLogger('AgentInstructionsAdvisor'));
     this.instructionAdvisor = new InstructionAdvisor(advisorClient, this.logger);
     this.toolArgumentValidator = new ToolArgumentValidator(ALL_TOOL_DEFINITIONS);
-    this.alwaysAvailableToolNames = new Set(ALWAYS_AVAILABLE_TOOLS.map(tool => tool.name));
-    this.logCapabilityToolNames = new Set(LOG_CAPABILITY_TOOLS.map(tool => tool.name));
-    this.ocapiCapabilityToolNames = new Set(OCAPI_CAPABILITY_TOOLS.map(tool => tool.name));
+    this.toolNameSets = createToolNameSets();
+    this.alwaysAvailableToolNames = this.toolNameSets.alwaysAvailable;
+    this.logCapabilityToolNames = this.toolNameSets.logCapability;
+    this.ocapiCapabilityToolNames = this.toolNameSets.ocapiCapability;
     this.logCapabilityState = this.determineInitialLogCapabilityState();
     this.initializeServer();
     this.registerHandlers();
@@ -291,62 +253,16 @@ export class SFCCDevServer {
    * variables provided credentials (those take precedence).
    */
   private async discoverWorkspaceRoots(forceRefresh: boolean = false): Promise<void> {
-    this.logger.debug('[Server] discoverWorkspaceRoots called');
-
-    // Respect discovery priority for explicit config (CLI/ENV).
-    if (this.hasExplicitConfiguration) {
-      this.logger.debug('[Server] Explicit CLI/ENV configuration detected, skipping MCP workspace discovery');
-      return;
-    }
-
-    // Non-forced discovery only needs to run before we have an active host.
-    if (!forceRefresh && this.isConfiguredHostname(this.config.hostname)) {
-      this.logger.debug(`[Server] Already configured from workspace roots (hostname="${this.config.hostname}"), skipping duplicate discovery`);
-      return;
-    }
-
-    this.logger.debug('[Server] No hostname from CLI/ENV, attempting MCP workspace roots discovery...');
-
-    try {
-      this.logger.debug('[Server] Calling server.listRoots()...');
-
-      // Request workspace roots from the MCP client
-      const rootsResponse = await this.server.listRoots();
-
-      this.logger.debug('[Server] listRoots() returned roots payload');
-
-      // Delegate discovery to the service (single responsibility)
-      const discoveryResult = this.workspaceRootsService.discoverDwJson(rootsResponse?.roots);
-
-      if (!discoveryResult.success || !discoveryResult.config) {
-        this.logger.debug(`[Server] Discovery failed: ${discoveryResult.reason}`);
-        return;
-      }
-
-      // Reconfigure the server with discovered credentials in a serialized queue.
-      await this.enqueueReconfigure(discoveryResult.config);
-
-      this.logger.log('[Server] Successfully reconfigured with credentials from workspace roots');
-      if (discoveryResult.dwJsonPath) {
-        this.logger.debug(`[Server] Discovery source: ${discoveryResult.dwJsonPath}`);
-      }
-    } catch (error) {
-      // The client might not support roots/list - this is not an error
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const errorStack = error instanceof Error ? error.stack : '';
-
-      this.logger.debug(`[Server] listRoots() threw an error: ${errorMessage}`);
-      if (errorStack) {
-        this.logger.debug(`[Server] Error stack: ${errorStack}`);
-      }
-
-      // Check if the error is because the client doesn't support roots
-      if (errorMessage.includes('not supported') || errorMessage.includes('Method not found')) {
-        this.logger.debug('[Server] Client does not support workspace roots capability');
-      } else {
-        this.logger.warn(`[Server] Workspace roots discovery failed unexpectedly: ${errorMessage}`);
-      }
-    }
+    await discoverWorkspaceRootsFlow({
+      logger: this.logger,
+      forceRefresh,
+      hasExplicitConfiguration: this.hasExplicitConfiguration,
+      currentConfig: this.config,
+      isConfiguredHostname: (hostname: string | undefined) => this.isConfiguredHostname(hostname),
+      listRoots: async () => await this.server.listRoots(),
+      workspaceRootsService: this.workspaceRootsService,
+      enqueueReconfigure: async (dwConfig: DwJsonConfig) => await this.enqueueReconfigure(dwConfig),
+    });
   }
 
   private async enqueueReconfigure(dwConfig: DwJsonConfig): Promise<void> {
@@ -369,46 +285,30 @@ export class SFCCDevServer {
   private async reconfigureWithCredentials(dwConfig: DwJsonConfig): Promise<void> {
     this.logMethodEntry('reconfigureWithCredentials', { hostname: dwConfig.hostname });
 
-    const nextConfig = ConfigurationFactory.mapDwJsonToConfig(dwConfig);
-    if (this.hasSameConnectionConfig(this.config, nextConfig)) {
-      this.logger.log('[Server] Discovered configuration matches active settings, skipping reconfigure');
-      this.logMethodExit('reconfigureWithCredentials', { skipped: true });
-      return;
-    }
+    const result = await reconfigureWithCredentialsFlow({
+      logger: this.logger,
+      dwConfig,
+      currentConfig: this.config,
+      mapDwJsonToConfig: ConfigurationFactory.mapDwJsonToConfig,
+      hasSameConnectionConfig: (current: SFCCConfig, next: SFCCConfig) => this.hasSameConnectionConfig(current, next),
+      disposeHandlers: async () => await this.disposeHandlersSafely('reconfigureWithCredentials'),
+      applyConfig: (nextConfig: SFCCConfig) => {
+        this.config = nextConfig;
+        this.capabilities = ConfigurationFactory.getCapabilities(this.config);
+        this.logCapabilityState = this.determineInitialLogCapabilityState();
+        this.logCapabilityProbePromise = null;
 
-    // Dispose of existing handlers
-    await this.disposeHandlersSafely('reconfigureWithCredentials');
+        return {
+          hostname: this.config.hostname,
+          canAccessLogs: this.capabilities.canAccessLogs,
+          canAccessOCAPI: this.capabilities.canAccessOCAPI,
+        };
+      },
+      registerHandlers: () => this.registerHandlers(),
+      sendToolListChanged: async () => await this.server.sendToolListChanged(),
+    });
 
-    // Apply mapped config from discovered dw.json.
-    this.config = nextConfig;
-
-    // Update capabilities
-    this.capabilities = ConfigurationFactory.getCapabilities(this.config);
-    this.logCapabilityState = this.determineInitialLogCapabilityState();
-    this.logCapabilityProbePromise = null;
-
-    this.logger.log('Server reconfigured with discovered credentials');
-    this.logger.log(`  Hostname: ${this.config.hostname}`);
-    this.logger.log(`  Can access logs: ${this.capabilities.canAccessLogs}`);
-    this.logger.log(`  Can access OCAPI: ${this.capabilities.canAccessOCAPI}`);
-
-    // Re-register handlers with new configuration
-    this.registerHandlers();
-
-    // Notify the client that the tools list has changed
-    // This is critical - without this notification, the client won't know
-    // that additional tools are now available
-    try {
-      this.logger.log('[Server] Sending tools/list_changed notification to client...');
-      await this.server.sendToolListChanged();
-      this.logger.log('[Server] Successfully sent tools/list_changed notification');
-    } catch (error) {
-      // Some clients may not support this notification - log but don't fail
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.log(`[Server] Failed to send tools/list_changed notification: ${errorMessage}`);
-    }
-
-    this.logMethodExit('reconfigureWithCredentials');
+    this.logMethodExit('reconfigureWithCredentials', { skipped: result.skipped });
   }
 
   private hasSameConnectionConfig(current: SFCCConfig, next: SFCCConfig): boolean {
@@ -451,122 +351,35 @@ export class SFCCDevServer {
       return { tools: this.getAvailableTools() };
     });
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request, extra): Promise<CallToolResult> => {
-      const { name, arguments: args } = request.params;
-      const startTime = Date.now();
-      const progressToken = request.params._meta?.progressToken;
-      const executionExtras: ToolRequestExecutionExtras = {
-        signal: extra?.signal,
-        sendNotification: extra?.sendNotification,
-      };
-
-      this.logger.methodEntry(`handleToolRequest:${name}`, args);
-
-      try {
-        this.assertRequestNotCancelled(name, executionExtras.signal);
-        await this.emitProgress(executionExtras, progressToken, 0, 100, `Starting ${name}`);
-
-        if (this.logCapabilityToolNames.has(name)) {
-          await this.ensureLogCapabilityResolved();
-        }
-
-        this.assertRequestNotCancelled(name, executionExtras.signal);
-        await this.emitProgress(executionExtras, progressToken, 20, 100, 'Resolving handler');
-
-        const handler = this.handlers.find((h) => h.canHandle(name));
-        if (!handler) {
-          throw new ValidationError(`Unknown tool: ${name}`, 'UNKNOWN_TOOL', { toolName: name });
-        }
-
-        if (!this.isToolAvailable(name)) {
-          throw new ValidationError(
-            `Tool not available in current mode: ${name}`,
-            'TOOL_NOT_AVAILABLE',
-            {
-              toolName: name,
-              canAccessLogs: this.logCapabilityState === 'available',
-              logCapabilityState: this.logCapabilityState,
-              canAccessOCAPI: this.capabilities.canAccessOCAPI,
-            },
-          );
-        }
-
-        this.assertRequestNotCancelled(name, executionExtras.signal);
-        await this.emitProgress(executionExtras, progressToken, 40, 100, 'Validating arguments');
-
-        this.toolArgumentValidator.validate(name, args ?? {});
-
-        this.assertRequestNotCancelled(name, executionExtras.signal);
-        await this.emitProgress(executionExtras, progressToken, 60, 100, 'Executing tool');
-
-        const preflightNotice = await this.instructionAdvisor.getNotice();
-        const result = await this.awaitWithCancellation(
-          name,
-          handler.handle(name, args ?? {}, startTime),
-          executionExtras.signal,
-        );
-        const decoratedResult = preflightNotice
-          ? this.appendPreflightNotice(result, preflightNotice)
-          : result;
-
-        await this.emitProgress(executionExtras, progressToken, 100, 100, `${name} complete`);
-
-        // Log the full response in debug mode
-        this.logger.debug(`Full response for ${name}:`, {
-          contentItems: decoratedResult.content?.length ?? 0,
-          contentTypes: (decoratedResult.content ?? []).map(item => item.type),
-          hasStructuredContent: decoratedResult.structuredContent !== undefined,
-          isError: decoratedResult.isError ?? false,
-        });
-
-        return {
-          content: decoratedResult.content,
-          structuredContent: decoratedResult.structuredContent,
-          isError: decoratedResult.isError,
-        };
-      } catch (error) {
-        this.logger.error(`Error handling tool "${name}":`, error);
-        this.logger.timing(`${name}_error`, startTime);
-        const errorResult: CallToolResult = createToolErrorResponse(name, error);
-
-        // Log error response in debug mode
-        this.logger.debug(`Error response for ${name}:`, errorResult);
-
-        return errorResult;
-      } finally {
-        this.logger.methodExit(`handleToolRequest:${name}`);
-      }
-    });
+    this.server.setRequestHandler(
+      CallToolRequestSchema,
+      createToolCallHandler({
+        logger: this.logger,
+        getHandlers: () => this.handlers,
+        logCapabilityToolNames: this.logCapabilityToolNames,
+        ensureLogCapabilityResolved: async () => await this.ensureLogCapabilityResolved(),
+        isToolAvailable: (toolName: string) => this.isToolAvailable(toolName),
+        getCapabilitySnapshot: () => ({
+          logCapabilityState: this.logCapabilityState,
+          canAccessOCAPI: this.capabilities.canAccessOCAPI,
+        }),
+        toolArgumentValidator: this.toolArgumentValidator,
+        getPreflightNotice: async () => await this.instructionAdvisor.getNotice(),
+      }),
+    );
   }
 
   private getAvailableTools(): ToolDefinition[] {
-    const tools: ToolDefinition[] = [...ALWAYS_AVAILABLE_TOOLS];
-
-    if (this.logCapabilityState === 'available') {
-      tools.push(...LOG_CAPABILITY_TOOLS);
-    }
-
-    if (this.capabilities.canAccessOCAPI) {
-      tools.push(...OCAPI_CAPABILITY_TOOLS);
-    }
-
-    return tools;
+    return getAvailableTools(this.logCapabilityState, this.capabilities.canAccessOCAPI);
   }
 
   private isToolAvailable(toolName: string): boolean {
-    if (this.alwaysAvailableToolNames.has(toolName)) {
-      return true;
-    }
-
-    if (this.logCapabilityToolNames.has(toolName)) {
-      return this.logCapabilityState === 'available';
-    }
-
-    if (this.ocapiCapabilityToolNames.has(toolName)) {
-      return this.capabilities.canAccessOCAPI;
-    }
-
-    return false;
+    return isToolAvailable(
+      toolName,
+      this.logCapabilityState,
+      this.capabilities.canAccessOCAPI,
+      this.toolNameSets,
+    );
   }
 
   /**
@@ -645,27 +458,6 @@ export class SFCCDevServer {
   }
 
   /**
-   * Append advisory text as a separate content item without mutating tool payloads.
-   */
-  private appendPreflightNotice(result: ToolExecutionResult, notice: string): ToolExecutionResult {
-    const trimmedNotice = notice.trim();
-    if (trimmedNotice.length === 0) {
-      return result;
-    }
-
-    const content = result?.content ?? [];
-    const alreadyIncluded = content.some(item => item.type === 'text' && item.text === trimmedNotice);
-    if (alreadyIncluded) {
-      return result;
-    }
-
-    return {
-      ...result,
-      content: [...content, { type: 'text', text: trimmedNotice }],
-    };
-  }
-
-  /**
    * Dispose handlers without aborting cleanup when one handler fails.
    */
   private async disposeHandlersSafely(operation: string): Promise<void> {
@@ -679,78 +471,5 @@ export class SFCCDevServer {
         );
       }
     });
-  }
-
-  private assertRequestNotCancelled(toolName: string, signal?: AbortSignal): void {
-    if (signal?.aborted) {
-      throw new ValidationError(
-        `Tool call cancelled: ${toolName}`,
-        'REQUEST_CANCELLED',
-        { toolName },
-      );
-    }
-  }
-
-  private async awaitWithCancellation<T>(
-    toolName: string,
-    operation: Promise<T>,
-    signal?: AbortSignal,
-  ): Promise<T> {
-    this.assertRequestNotCancelled(toolName, signal);
-
-    if (!signal) {
-      return operation;
-    }
-
-    return await new Promise<T>((resolve, reject) => {
-      const onAbort = (): void => {
-        reject(new ValidationError(
-          `Tool call cancelled: ${toolName}`,
-          'REQUEST_CANCELLED',
-          { toolName },
-        ));
-      };
-
-      signal.addEventListener('abort', onAbort, { once: true });
-
-      operation.then(
-        (value) => {
-          signal.removeEventListener('abort', onAbort);
-          resolve(value);
-        },
-        (error) => {
-          signal.removeEventListener('abort', onAbort);
-          reject(error);
-        },
-      );
-    });
-  }
-
-  private async emitProgress(
-    extra: ToolRequestExecutionExtras,
-    progressToken: ProgressToken | undefined,
-    progress: number,
-    total: number,
-    message: string,
-  ): Promise<void> {
-    if (progressToken === undefined || !extra.sendNotification) {
-      return;
-    }
-
-    try {
-      await extra.sendNotification({
-        method: 'notifications/progress',
-        params: {
-          progressToken,
-          progress,
-          total,
-          message,
-        },
-      });
-    } catch (error) {
-      // Progress updates are best effort and should never fail tool execution.
-      const reason = error instanceof Error ? error.message : String(error);
-      this.logger.debug(`[Server] Failed to emit progress notification: ${reason}`);
-    }
   }
 }

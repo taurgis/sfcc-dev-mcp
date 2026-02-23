@@ -12,6 +12,7 @@
 import { createClient, WebDAVClient } from 'webdav';
 import { Logger } from '../../utils/logger.js';
 import { SFCCConfig } from '../../types/types.js';
+import { createTimeoutAbortController, isAbortError } from '../../utils/abort-utils.js';
 
 /** Default timeout for script evaluation in milliseconds */
 const DEFAULT_TIMEOUT_MS = 30000;
@@ -443,10 +444,10 @@ export class ScriptDebuggerClient {
     timeoutMs: number = DEBUGGER_REQUEST_TIMEOUT_MS,
   ): Promise<T> {
     const url = `${this.debuggerBaseUrl}${endpoint}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort(`Debugger API request timed out after ${timeoutMs}ms`);
-    }, timeoutMs);
+    const timeoutController = createTimeoutAbortController({
+      timeoutMs,
+      timeoutMessage: `Debugger API request timed out after ${timeoutMs}ms`,
+    });
 
     this.logger.debug(`Debugger API ${method} ${endpoint}`);
 
@@ -457,7 +458,7 @@ export class ScriptDebuggerClient {
         'x-dw-client-id': this.debuggerClientId,
         'Content-Type': 'application/json',
       },
-      signal: controller.signal,
+      signal: timeoutController?.signal,
     };
 
     if (body) {
@@ -468,14 +469,13 @@ export class ScriptDebuggerClient {
     try {
       response = await fetch(url, options);
     } catch (error) {
-      const isAbort = error instanceof Error && error.name === 'AbortError';
-      if (isAbort) {
+      if (isAbortError(error) && timeoutController?.didTimeout()) {
         throw new Error(`Debugger API request timed out after ${timeoutMs}ms: ${method} ${endpoint}`);
       }
 
       throw error;
     } finally {
-      clearTimeout(timeoutId);
+      timeoutController?.clear();
     }
 
     // 204 No Content is success for some operations
@@ -628,13 +628,15 @@ export class ScriptDebuggerClient {
    * after successfully hitting the breakpoint. In that case we should NOT retry.
    */
   private async triggerStorefrontUrl(url: string): Promise<boolean> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TRIGGER_TIMEOUT_MS);
+    const timeoutController = createTimeoutAbortController({
+      timeoutMs: TRIGGER_TIMEOUT_MS,
+      timeoutMessage: `Storefront trigger timed out after ${TRIGGER_TIMEOUT_MS}ms`,
+    });
 
     try {
       const response = await fetch(url, {
         method: 'GET',
-        signal: controller.signal,
+        signal: timeoutController?.signal,
         headers: {
           Accept: 'text/html,application/xhtml+xml',
         },
@@ -650,7 +652,7 @@ export class ScriptDebuggerClient {
     } catch (error) {
       // This is expected - the request may hang while we're debugging
       const errorMessage = error instanceof Error ? error.message : String(error);
-      const isAbort = (error instanceof Error && error.name === 'AbortError') || errorMessage.toLowerCase().includes('abort');
+      const isAbort = isAbortError(error) || errorMessage.toLowerCase().includes('abort');
 
       if (isAbort) {
         // Treat as success: likely hit the breakpoint and is now halted
@@ -660,7 +662,7 @@ export class ScriptDebuggerClient {
       this.logger.debug('Storefront trigger error', { url, error: errorMessage });
       return true;
     } finally {
-      clearTimeout(timeoutId);
+      timeoutController?.clear();
     }
   }
 

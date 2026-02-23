@@ -114,6 +114,7 @@ This server is built around a **capability-gated, modular handler architecture**
 
 ### Core Layers
 - **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions, agent instructions, script debugger). Re-exported via `tool-definitions.ts`.
+- **Server Orchestration Modules** (`src/core/server-tool-catalog.ts`, `src/core/server-tool-call-lifecycle.ts`, `src/core/server-workspace-discovery.ts`): Keeps `server.ts` focused by extracting capability-aware tool catalog logic, `tools/call` lifecycle (progress/cancellation/preflight), and workspace roots reconfiguration flow.
 - **Tool Argument Validator** (`src/core/tool-argument-validator.ts`): Enforces runtime argument shape at the MCP boundary for all tools (required fields, primitive/object/array types, enum checks, integer/numeric ranges, string patterns/length, and strict unknown-key checks for object schemas at top-level and nested levels) before tool dispatch.
 - **OCAPI Query Coverage** (`src/core/tool-schemas/shared-schemas.ts`): Shared search schemas include `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query` so MCP boundary validation aligns with supported OCAPI query patterns.
 - **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization, with config-driven wiring via `ConfiguredClientHandler` to reduce repetitive boilerplate (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
@@ -126,6 +127,7 @@ This server is built around a **capability-gated, modular handler architecture**
 - **Runtime WebDAV Verification** (`src/core/server.ts`): For OAuth-only configurations (`client-id`/`client-secret` without `username`/`password`), log/job-log/script-debugger tool exposure is gated by a one-time WebDAV capability probe to avoid false-positive tool availability.
 - **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
 - **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
+- **Shared Abort Utility** (`src/utils/abort-utils.ts`): Centralized timeout and abort-signal composition used by HTTP and debugger clients for consistent cancellation semantics and timer cleanup.
 
 ### Why This Matters
 - **Extensibility**: Adding a new tool usually means adding a schema + minimal handler logic (or a new handler if a new domain).
@@ -215,6 +217,9 @@ You can run the same validation locally:
 ```bash
 # Ensure docs-site tool catalog stays in sync with runtime tool definitions
 npm run validate:tools-sync
+
+# Ensure docs-site skills catalog stays in sync with bundled skills
+npm run validate:skills-sync
 
 # In a separate terminal, start the mock server first for full-mode MCP tests
 npm run test:mock-server:start

@@ -6,6 +6,7 @@
  */
 
 import { Logger } from '../../utils/logger.js';
+import { createTimeoutAbortController, isAbortError, type TimeoutAbortController } from '../../utils/abort-utils.js';
 
 /**
  * HTTP request options interface
@@ -62,7 +63,7 @@ export abstract class BaseHttpClient {
     const authHeaders = await this.getAuthHeaders();
 
     try {
-      let requestOptions = this.buildRequestOptions(
+      let { requestOptions, timeoutController } = this.buildRequestOptions(
         baseRequestOptions,
         authHeaders,
         customHeaders,
@@ -70,7 +71,13 @@ export abstract class BaseHttpClient {
         deadline,
         endpoint,
       );
-      const response = await this.fetchWithTimeout(url, requestOptions, endpoint, timeoutMs);
+      const response = await this.fetchWithTimeout(
+        url,
+        requestOptions,
+        endpoint,
+        timeoutMs,
+        timeoutController,
+      );
 
       if (!response.ok) {
         // Handle authentication errors
@@ -80,16 +87,22 @@ export abstract class BaseHttpClient {
 
           // Retry with fresh authentication
           const newAuthHeaders = await this.getAuthHeaders();
-          requestOptions = this.buildRequestOptions(
+          ({ requestOptions, timeoutController } = this.buildRequestOptions(
             baseRequestOptions,
             newAuthHeaders,
             customHeaders,
             timeoutMs,
             deadline,
             endpoint,
-          );
+          ));
 
-          const retryResponse = await this.fetchWithTimeout(url, requestOptions, endpoint, timeoutMs);
+          const retryResponse = await this.fetchWithTimeout(
+            url,
+            requestOptions,
+            endpoint,
+            timeoutMs,
+            timeoutController,
+          );
           if (!retryResponse.ok) {
             const errorText = await retryResponse.text();
             throw new Error(
@@ -120,22 +133,31 @@ export abstract class BaseHttpClient {
     timeoutMs: number,
     deadline: number | undefined,
     endpoint: string,
-  ): RequestInit {
-    const requestSignal = this.createRequestSignal(
-      baseRequestOptions.signal,
-      timeoutMs,
-      deadline,
-      endpoint,
-    );
+  ): {
+    requestOptions: RequestInit;
+    timeoutController: TimeoutAbortController | null;
+  } {
+    const remainingMs = this.getRemainingTimeoutMs(timeoutMs, deadline, endpoint);
+    const timeoutController = createTimeoutAbortController({
+      timeoutMs: remainingMs,
+      timeoutMessage: `Request timed out after ${timeoutMs}ms`,
+      externalSignal: baseRequestOptions.signal,
+      abortMessage: 'Request aborted',
+    });
 
-    return {
+    const requestOptions: RequestInit = {
       ...baseRequestOptions,
-      signal: requestSignal,
+      signal: timeoutController?.signal ?? (baseRequestOptions.signal ?? undefined),
       headers: {
         'Content-Type': 'application/json',
         ...authHeaders,
         ...customHeaders,
       },
+    };
+
+    return {
+      requestOptions,
+      timeoutController,
     };
   }
 
@@ -147,42 +169,6 @@ export abstract class BaseHttpClient {
     delete (requestOptions as HttpRequestOptions).headers;
 
     return requestOptions as Omit<HttpRequestOptions, 'timeoutMs' | 'headers'>;
-  }
-
-  private createRequestSignal(
-    externalSignal: AbortSignal | null | undefined,
-    timeoutMs: number,
-    deadline: number | undefined,
-    endpoint: string,
-  ): AbortSignal | undefined {
-    const remainingMs = this.getRemainingTimeoutMs(timeoutMs, deadline, endpoint);
-    if (remainingMs === undefined || remainingMs <= 0) {
-      return externalSignal ?? undefined;
-    }
-
-    const timeoutController = new AbortController();
-    const timeoutId = setTimeout(() => timeoutController.abort(`Request timed out after ${timeoutMs}ms`), remainingMs);
-
-    timeoutController.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
-
-    if (!externalSignal) {
-      return timeoutController.signal;
-    }
-
-    if (externalSignal.aborted) {
-      timeoutController.abort(externalSignal.reason ?? 'Request aborted');
-      return timeoutController.signal;
-    }
-
-    const forwardAbort = () => timeoutController.abort(externalSignal.reason ?? 'Request aborted');
-    externalSignal.addEventListener('abort', forwardAbort, { once: true });
-    timeoutController.signal.addEventListener(
-      'abort',
-      () => externalSignal.removeEventListener('abort', forwardAbort),
-      { once: true },
-    );
-
-    return timeoutController.signal;
   }
 
   private getRemainingTimeoutMs(
@@ -207,26 +193,22 @@ export abstract class BaseHttpClient {
     requestOptions: RequestInit,
     endpoint: string,
     timeoutMs: number,
+    timeoutController: TimeoutAbortController | null,
   ): Promise<Response> {
     try {
       return await fetch(url, requestOptions);
     } catch (error) {
-      if (this.isAbortError(error)) {
-        const signalReason = requestOptions.signal?.reason;
-        const reason = typeof signalReason === 'string' ? signalReason : '';
-
-        if (reason.includes('timed out')) {
+      if (isAbortError(error)) {
+        if (timeoutController?.didTimeout()) {
           throw new Error(`Request timed out after ${timeoutMs}ms: ${endpoint}`);
         }
 
         throw new Error(`Request aborted: ${endpoint}`);
       }
       throw error;
+    } finally {
+      timeoutController?.clear();
     }
-  }
-
-  private isAbortError(error: unknown): boolean {
-    return error instanceof Error && error.name === 'AbortError';
   }
 
   private async parseResponse<T>(response: Response): Promise<T> {

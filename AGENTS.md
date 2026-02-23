@@ -96,6 +96,9 @@ sfcc-dev-mcp/
 │   │   ├── server.ts             # Main MCP server implementation
 │   │   ├── tool-definitions.ts   # Re-exports tool schemas from modular files
 │   │   ├── tool-argument-validator.ts # Runtime tool argument validation at MCP boundary
+│   │   ├── server-tool-catalog.ts # Capability-aware tool catalog and availability helpers
+│   │   ├── server-tool-call-lifecycle.ts # tools/call lifecycle orchestration (progress/cancellation/preflight)
+│   │   ├── server-workspace-discovery.ts # Workspace roots discovery and reconfigure flow helpers
 │   │   ├── tool-schemas/         # Modular tool schema definitions
 │   │   │   ├── index.ts          # Aggregates and re-exports all tool schemas
 │   │   │   ├── shared-schemas.ts # Reusable schema components (query, pagination, etc.)
@@ -181,6 +184,7 @@ sfcc-dev-mcp/
 │   │   ├── agent-instructions-tool-config.ts # Agent instruction tool configuration
 │   │   └── script-debugger-tool-config.ts # Script debugger tool configuration
 │   ├── utils/                    # Utility functions and helpers
+│   │   ├── abort-utils.ts        # Shared timeout/abort signal composition helpers
 │   │   ├── cache.ts              # Caching layer for API responses
 │   │   ├── logger.ts             # Structured logging system
 │   │   ├── utils.ts              # Common utility functions
@@ -335,6 +339,7 @@ sfcc-dev-mcp/
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
 - Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool
+- Delegates tool availability catalogs, `tools/call` lifecycle, and workspace discovery/reconfigure flows to focused helper modules (`server-tool-catalog.ts`, `server-tool-call-lifecycle.ts`, `server-workspace-discovery.ts`) to keep the main server class maintainable
 
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
@@ -406,6 +411,7 @@ sfcc-dev-mcp/
 - **Mock Services**: Test implementations providing controlled behavior for unit testing without real file system access
 
 #### **Utilities** (`utils/`)
+- **Abort Utilities** (`abort-utils.ts`): Shared timeout and abort signal composition helpers used across HTTP and debugger clients for consistent cancellation behavior and timer cleanup
 - **Caching System** (`cache.ts`): Efficient caching for API responses and documentation
 - **Logging** (`logger.ts`): Structured logging with debug capabilities
 - **Path Resolution** (`path-resolver.ts`): Secure file path handling
@@ -517,6 +523,9 @@ npx tsx -e "import {SFCC_DOCUMENTATION_TOOLS,SFRA_DOCUMENTATION_TOOLS,ISML_DOCUM
 
 # Enforce docs-site tool catalog parity with runtime schemas
 npm run validate:tools-sync
+
+# Enforce docs-site skills catalog parity with bundled skills
+npm run validate:skills-sync
 
 # Individual category counts (from modular schema files)
 echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
@@ -636,6 +645,7 @@ npm run test:mcp:yaml:full   # YAML tests (full mode)
 npm run test:mcp:node        # Programmatic tests
 npm run test:mcp:published-npx  # MCP tests against latest published npm package via npx
 npm run validate:tools-sync   # Validate docs tool catalog is in sync with runtime schemas
+npm run validate:skills-sync  # Validate docs skills catalog is in sync with bundled skills
 npm test                     # Full suite (Jest + MCP)
 ```
 

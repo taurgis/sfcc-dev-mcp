@@ -38,14 +38,19 @@ npm test
 npm run test:mcp:yaml
 npm run test:mcp:node
 npm run lint
+npm run validate:tools-sync
+npm run validate:skills-sync
 ```
 
 ## Architecture overview
 
 - `src/core`: server and tool registration
+- `src/core/server-tool-catalog.ts`: capability-aware tool catalog and availability checks
+- `src/core/server-tool-call-lifecycle.ts`: `tools/call` orchestration for validation, progress, cancellation, and preflight notices
+- `src/core/server-workspace-discovery.ts`: workspace roots discovery and runtime reconfiguration flow
 - `src/clients`: domain clients for docs, logs, OCAPI, and scaffolding
 - `src/services`: file system and path services
-- `src/utils`: caching, validation, logging
+- `src/utils`: caching, validation, logging, and shared abort/timeout helpers
 
 ## Project architecture
 
@@ -57,6 +62,9 @@ sfcc-dev-mcp/
 │   ├── core/                      # Core MCP server & tool definitions
 │   │   ├── server.ts              # MCP server (registers handlers, capability gating)
 │   │   ├── tool-definitions.ts    # All tool schemas grouped by category
+│   │   ├── server-tool-catalog.ts # Capability-aware tool catalog and availability checks
+│   │   ├── server-tool-call-lifecycle.ts # tools/call lifecycle orchestration
+│   │   ├── server-workspace-discovery.ts # Workspace roots discovery and reconfigure flow
 │   │   └── handlers/              # Modular tool handlers
 │   │       ├── base-handler.ts
 │   │       ├── docs-handler.ts
@@ -85,7 +93,7 @@ sfcc-dev-mcp/
 │   ├── services/                 # Dependency injection service layer
 │   ├── tool-configs/             # Tool grouping & category configs
 │   ├── config/                   # Configuration + dw.json loading
-│   ├── utils/                    # Caching, validation, logging
+│   ├── utils/                    # Caching, validation, logging, abort helpers
 │   └── types/
 ├── tests/                        # Jest + MCP YAML + programmatic tests
 ├── docs/                         # SFCC documentation sources

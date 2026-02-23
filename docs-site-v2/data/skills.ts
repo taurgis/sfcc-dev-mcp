@@ -31,6 +31,12 @@ export const skills: SkillMeta[] = [
     githubUrl: 'https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-fraud-prevention/SKILL.md'
   },
   {
+    name: 'sfcc-hooks-registration',
+    description: 'Register SFCC hooks via cartridge package.json and hooks.json. Use when adding hooks or troubleshooting hook registration.',
+    dirName: 'sfcc-hooks-registration',
+    githubUrl: 'https://github.com/taurgis/sfcc-dev-mcp/blob/main/ai-instructions/skills/sfcc-hooks-registration/SKILL.md'
+  },
+  {
     name: 'sfcc-isml-development',
     description: 'SFRA-first guide for developing ISML templates in Salesforce B2C Commerce (Bootstrap 4 conventions). Use this when creating, modifying, or troubleshooting SFRA templates, decorators, components, forms, includes, and caching.',
     dirName: 'sfcc-isml-development',

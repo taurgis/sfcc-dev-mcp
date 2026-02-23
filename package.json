@@ -50,6 +50,7 @@
     "test:mock-server": "jest --testPathPatterns=sfcc-mock-server",
     "validate:server-json": "node scripts/validate-server-json.js",
     "validate:tools-sync": "node scripts/validate-tools-sync.js",
+    "validate:skills-sync": "node scripts/validate-skills-sync.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint . --max-warnings 0",

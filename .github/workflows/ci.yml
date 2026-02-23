@@ -31,6 +31,9 @@ jobs:
     - name: Validate tool catalog sync
       run: npm run validate:tools-sync
 
+    - name: Validate skills catalog sync
+      run: npm run validate:skills-sync
+
   security:
     runs-on: ubuntu-latest
     permissions:
