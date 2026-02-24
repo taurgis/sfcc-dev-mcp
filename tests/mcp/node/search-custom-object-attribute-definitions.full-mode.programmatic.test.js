@@ -72,8 +72,21 @@ describe('search_custom_object_attribute_definitions - Full Mode Programmatic Te
     assertValidMCPResponse(result, true);
     
     const errorText = result.content[0].text;
+    const structuredErrorMessage = result.structuredContent?.error?.message;
+
     if (errorType) {
-      assert.ok(errorText.includes(errorType), `Error should contain ${errorType}`);
+      const candidateMessages = [errorText, structuredErrorMessage].filter(msg => typeof msg === 'string');
+      const hasExpectedErrorType = candidateMessages.some(msg => msg.includes(errorType));
+
+      // Some runtimes sanitize OCAPI fault JSON and keep only the HTTP status line.
+      const isSanitizedNotFound =
+        errorType === 'ObjectTypeNotFoundException'
+        && candidateMessages.some(msg => /404\s+Not\s+Found/i.test(msg));
+
+      assert.ok(
+        hasExpectedErrorType || isSanitizedNotFound,
+        `Error should contain ${errorType} (or an equivalent sanitized 404 Not Found message)`,
+      );
     }
     
     // Check if it's a structured SFCC error (JSON format)

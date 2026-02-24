@@ -403,7 +403,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:CustomPreferenceGroupNotFoundException"
+              text: "match:regex:Error[\\s\\S]*404[\\s\\S]*(CustomPreferenceGroupNotFoundException|Not Found)[\\s\\S]*"
           isError: true
           structuredContent: "match:type:object"
       performance:
