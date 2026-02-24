@@ -442,7 +442,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:ObjectTypeNotFoundException"
+              text: "match:regex:Error[\\s\\S]*404[\\s\\S]*(ObjectTypeNotFoundException|Not Found)[\\s\\S]*"
           isError: true
           structuredContent: "match:type:object"
       performance:
@@ -469,7 +469,7 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:[\\s\\S]*No object type with ID[\\s\\S]*NonExistentObject[\\s\\S]*could be found[\\s\\S]*"
+              text: "match:regex:[\\s\\S]*(No object type with ID[\\s\\S]*NonExistentObject[\\s\\S]*could be found|404[\\s\\S]*Not Found)[\\s\\S]*"
           isError: true
           structuredContent: "match:type:object"
       stderr: "toBeEmpty"

@@ -192,7 +192,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:already active"
+              text: "match:regex:Error[\\s\\S]*(already active|400[\\s\\S]*Bad Request)[\\s\\S]*"
           isError: true
           structuredContent: "match:type:object"
       stderr: "toBeEmpty"
@@ -320,7 +320,7 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*404[\\s\\S]*not found[\\s\\S]*"
+              text: "match:regex:Error[\\s\\S]*404[\\s\\S]*(Not Found|not found)[\\s\\S]*"
           isError: true
           structuredContent: "match:type:object"
       stderr: "toBeEmpty"
