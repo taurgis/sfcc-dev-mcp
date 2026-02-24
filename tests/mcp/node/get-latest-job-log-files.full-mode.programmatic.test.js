@@ -151,17 +151,15 @@ describe('get_latest_job_log_files - Full Mode Programmatic Tests (Optimized)', 
       assert.ok(jobs.length <= 10, 'Should use default limit when no arguments provided');
     });
 
-    test('should ignore extraneous parameters', async () => {
+      test('should reject extraneous parameters', async () => {
       const result = await client.callTool('get_latest_job_log_files', {
         limit: 2,
         invalidParam: 'should be ignored',
         anotherParam: 123
       });
       
-      assertSuccessResponse(result);
-      
-      const jobs = extractJobLogInfo(result.content[0].text);
-      assert.ok(jobs.length <= 2, 'Should respect limit and ignore extraneous parameters');
+        assert.equal(result.isError, true, 'Unknown parameters should be rejected');
+        assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
     });
   });
 
@@ -398,16 +396,15 @@ describe('get_latest_job_log_files - Full Mode Programmatic Tests (Optimized)', 
     });
 
     test('should handle rapid sequential requests without interference', async () => {
-      const promises = [];
       const requestCount = 5;
-      
-      // Fire multiple requests simultaneously
+
+      // Fire multiple requests sequentially to respect MCP single-buffer transport.
+      const results = [];
       for (let i = 0; i < requestCount; i++) {
-        promises.push(client.callTool('get_latest_job_log_files', { limit: 2 }));
+        const result = await client.callTool('get_latest_job_log_files', { limit: 2 });
+        results.push(result);
       }
-      
-      const results = await Promise.all(promises);
-      
+
       // All requests should succeed
       for (let i = 0; i < requestCount; i++) {
         assertSuccessResponse(results[i]);

@@ -28,6 +28,7 @@ import { fileURLToPath } from 'url';
 import { Logger } from '../utils/logger.js';
 import { DwJsonConfig } from '../types/types.js';
 import { loadSecureDwJson } from './dw-json-loader.js';
+import { isAllowedResolvedPath, isBlockedResolvedPath } from './path-security-policy.js';
 
 /**
  * MCP client root from roots/list response
@@ -76,54 +77,6 @@ interface ValidationResult {
   resolvedPath?: string;
 }
 
-/**
- * Dangerous system paths that should never be accessed
- * These are blocked to prevent accidental or malicious access to sensitive areas
- */
-const BLOCKED_SYSTEM_PATHS: readonly string[] = [
-  '/etc',
-  '/proc',
-  '/sys',
-  '/dev',
-  '/root',
-  '/var/log',
-  '/var/run',
-  '/boot',
-  '/sbin',
-  '/bin',
-  // Windows system paths
-  'C:\\Windows',
-  'C:\\Program Files',
-  'C:\\ProgramData',
-  // Common sensitive directories
-  '.ssh',
-  '.gnupg',
-  '.aws',
-  '.config/gcloud',
-] as const;
-
-/**
- * Allowed path prefixes for workspace roots
- * These are the typical locations where development projects reside
- */
-const ALLOWED_PATH_PATTERNS: readonly RegExp[] = [
-  // User home directories
-  /^\/Users\/[^/]+\//i, // macOS
-  /^\/home\/[^/]+\//i, // Linux (allow all users, not just runner)
-  /^C:\\Users\\[^\\]+\\/i, // Windows
-  // Common project directories
-  /^\/opt\//i,
-  /^\/var\/www\//i,
-  /^\/srv\//i,
-  // Temp directories (for testing)
-  /^\/tmp\//i,
-  /^\/private\/tmp\//i, // macOS real temp path
-  /^\/var\/folders\//i, // macOS temp
-  /^\/private\/var\/folders\//i, // macOS real temp path (symlink resolved)
-  /^C:\\Temp\\/i, // Windows temp
-  // CI workspace paths
-  /^\/home\/runner\/work\//i, // GitHub Actions
-] as const;
 
 /**
  * Validates that a file URI is safe and converts it to an absolute path
@@ -184,18 +137,13 @@ function validatePath(inputPath: string): ValidationResult {
     return { isValid: false, error: 'Path must be absolute' };
   }
 
-  // Check against blocked system paths
-  const lowerPath = resolvedPath.toLowerCase();
-  for (const blocked of BLOCKED_SYSTEM_PATHS) {
-    const blockedLower = blocked.toLowerCase();
-    if (lowerPath === blockedLower || lowerPath.startsWith(`${blockedLower  }/`) || lowerPath.startsWith(`${blockedLower  }\\`)) {
-      return { isValid: false, error: 'Access to system directories is not allowed' };
-    }
+  // Check against blocked system paths and sensitive directory segments
+  if (isBlockedResolvedPath(resolvedPath)) {
+    return { isValid: false, error: 'Access to system directories is not allowed' };
   }
 
   // Check that path matches allowed patterns
-  const matchesAllowed = ALLOWED_PATH_PATTERNS.some(pattern => pattern.test(resolvedPath));
-  if (!matchesAllowed) {
+  if (!isAllowedResolvedPath(resolvedPath)) {
     return {
       isValid: false,
       error: 'Path is outside of allowed workspace directories',
@@ -249,6 +197,11 @@ export class WorkspaceRootsService {
 
   constructor(logger?: Logger) {
     this.logger = logger ?? Logger.getInstance();
+  }
+
+  private sanitizeRootNameForLog(root: MCPClientRoot): string {
+    const trimmedName = root.name?.trim();
+    return trimmedName && trimmedName.length > 0 ? trimmedName : '(unnamed root)';
   }
 
   /**
@@ -427,32 +380,32 @@ export class WorkspaceRootsService {
    * @returns Discovery result with config if found
    */
   discoverDwJson(clientRoots: MCPClientRoot[] | undefined): WorkspaceDiscoveryResult {
-    this.logger.log('[WorkspaceRoots] Starting dw.json discovery from client roots');
+    this.logger.debug('[WorkspaceRoots] Starting dw.json discovery from client roots');
 
     // Log what we received from the client
     if (!clientRoots) {
-      this.logger.log('[WorkspaceRoots] No roots array received from client (undefined)');
+      this.logger.debug('[WorkspaceRoots] No roots array received from client (undefined)');
       return { success: false, reason: 'No roots array received from client' };
     }
 
-    this.logger.log(`[WorkspaceRoots] Received ${clientRoots.length} root(s) from client`);
+    this.logger.debug(`[WorkspaceRoots] Received ${clientRoots.length} root(s) from client`);
 
     if (clientRoots.length === 0) {
-      this.logger.log('[WorkspaceRoots] Client returned empty roots array');
+      this.logger.debug('[WorkspaceRoots] Client returned empty roots array');
       return { success: false, reason: 'Client returned empty roots array', rootsReceived: 0 };
     }
 
-    // Log each root we received
+    // Log root names at debug level only (avoid leaking full URIs routinely).
     clientRoots.forEach((root, index) => {
-      this.logger.log(`[WorkspaceRoots] Root ${index + 1}: uri="${root.uri}", name="${root.name ?? '(none)'}"`);
+      this.logger.debug(`[WorkspaceRoots] Root ${index + 1}: ${this.sanitizeRootNameForLog(root)}`);
     });
 
     // Validate and store the workspace roots
     const validRoots = this.updateRoots(clientRoots);
-    this.logger.log(`[WorkspaceRoots] After validation: ${validRoots.length} valid root(s)`);
+    this.logger.debug(`[WorkspaceRoots] After validation: ${validRoots.length} valid root(s)`);
 
     if (validRoots.length === 0) {
-      this.logger.log('[WorkspaceRoots] No valid roots after security validation');
+      this.logger.debug('[WorkspaceRoots] No valid roots after security validation');
       return {
         success: false,
         reason: 'No valid workspace roots after security validation',
@@ -461,17 +414,12 @@ export class WorkspaceRootsService {
       };
     }
 
-    // Log validated roots
-    validRoots.forEach((root, index) => {
-      this.logger.log(`[WorkspaceRoots] Valid root ${index + 1}: path="${root.path}"`);
-    });
-
     // Search for dw.json in workspace roots
-    this.logger.log('[WorkspaceRoots] Searching for dw.json in workspace roots...');
+    this.logger.debug('[WorkspaceRoots] Searching for dw.json in workspace roots...');
     const dwJsonPath = this.findFile('dw.json');
 
     if (!dwJsonPath) {
-      this.logger.log('[WorkspaceRoots] No dw.json found in any workspace root');
+      this.logger.debug('[WorkspaceRoots] No dw.json found in any workspace root');
       return {
         success: false,
         reason: 'No dw.json found in workspace roots',
@@ -480,17 +428,17 @@ export class WorkspaceRootsService {
       };
     }
 
-    this.logger.log(`[WorkspaceRoots] Found dw.json at: ${dwJsonPath}`);
+    this.logger.debug('[WorkspaceRoots] Found dw.json in workspace roots');
 
     // Load and validate the dw.json
     try {
       const config = loadSecureDwJson(dwJsonPath);
-      this.logger.log('[WorkspaceRoots] Successfully loaded dw.json');
-      this.logger.log(`[WorkspaceRoots]   hostname: ${config.hostname}`);
-      this.logger.log(`[WorkspaceRoots]   username: ${config.username ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   password: ${config.password ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   client-id: ${config['client-id'] ? '(set)' : '(not set)'}`);
-      this.logger.log(`[WorkspaceRoots]   client-secret: ${config['client-secret'] ? '(set)' : '(not set)'}`);
+      this.logger.log('[WorkspaceRoots] Discovered valid dw.json from workspace roots');
+      this.logger.debug(`[WorkspaceRoots]   hostname: ${config.hostname}`);
+      this.logger.debug(`[WorkspaceRoots]   username: ${config.username ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   password: ${config.password ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   client-id: ${config['client-id'] ? '(set)' : '(not set)'}`);
+      this.logger.debug(`[WorkspaceRoots]   client-secret: ${config['client-secret'] ? '(set)' : '(not set)'}`);
 
       return {
         success: true,

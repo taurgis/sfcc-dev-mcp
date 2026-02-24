@@ -23,6 +23,7 @@ export const QUERY_SCHEMA = {
         },
         search_phrase: {
           type: 'string',
+          minLength: 1,
           description: 'Text to search for',
         },
       },
@@ -39,6 +40,7 @@ export const QUERY_SCHEMA = {
         },
         operator: {
           type: 'string',
+          minLength: 1,
           description: 'Query operator (e.g., "is", "one_of")',
         },
         values: {
@@ -69,6 +71,23 @@ export const QUERY_SCHEMA = {
           description: 'Queries that should match (OR)',
         },
       },
+    },
+    filtered_query: {
+      type: 'object',
+      description: 'Apply a filter expression to a nested query',
+      properties: {
+        filter: {
+          type: 'object',
+          description: 'Filter object used to constrain matching records',
+          additionalProperties: true,
+        },
+        query: {
+          type: 'object',
+          description: 'Nested query definition evaluated after filter application',
+          additionalProperties: true,
+        },
+      },
+      required: ['filter', 'query'],
     },
     match_all_query: {
       type: 'object',
@@ -106,17 +125,21 @@ export const SORTS_SCHEMA = {
  */
 export const PAGINATION_SCHEMA = {
   start: {
-    type: 'number',
+    type: 'integer',
     description: 'Start index for pagination (default: 0)',
     default: 0,
+    minimum: 0,
   },
   count: {
-    type: 'number',
+    type: 'integer',
     description: 'Number of results to return (default: 200)',
     default: 200,
+    minimum: 1,
+    maximum: 1000,
   },
   select: {
     type: 'string',
+    minLength: 1,
     description: "Property selector (e.g., '(**)' for all properties)",
   },
 } as const;
@@ -144,6 +167,7 @@ export function createSearchRequestSchema(queryDescription?: string) {
 export const DATE_PARAM_SCHEMA = {
   type: 'string',
   description: 'Date in YYYYMMDD format (default: today)',
+  pattern: '^\\d{8}$',
 } as const;
 
 /**
@@ -151,8 +175,10 @@ export const DATE_PARAM_SCHEMA = {
  */
 export function createLimitSchema(defaultValue: number, description?: string) {
   return {
-    type: 'number',
+    type: 'integer',
     description: description ?? `Number of entries to return (default: ${defaultValue})`,
     default: defaultValue,
+    minimum: 1,
+    maximum: 1000,
   };
 }

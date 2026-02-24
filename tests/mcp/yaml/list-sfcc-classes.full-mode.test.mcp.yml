@@ -388,7 +388,7 @@ tests:
           isError: false
       stderr: "toBeEmpty"
 
-  - it: "should ignore additional parameters gracefully"
+  - it: "should reject additional parameters with validation error"
     request:
       jsonrpc: "2.0"
       id: "extra-params"
@@ -405,8 +405,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:type:string"
-          isError: false
+              text: "match:contains:is not allowed"
+          isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================

@@ -10,6 +10,10 @@ import { existsSync } from 'fs';
 import { resolve } from 'path';
 import { SFCCConfig, DwJsonConfig } from '../types/types.js';
 import { loadSecureDwJson } from './dw-json-loader.js';
+import {
+  assertCredentialConsistency,
+  assertValidHostnameFormat,
+} from './credential-validation.js';
 
 export class ConfigurationFactory {
   /**
@@ -118,14 +122,26 @@ export class ConfigurationFactory {
    * @throws Error if configuration is invalid for any supported mode
    */
   private static validate(config: SFCCConfig): void {
-    const hasBasicAuth = config.username && config.password;
-    const hasOAuth = config.clientId && config.clientSecret;
+    const { hasBasicAuth, hasOAuth } = assertCredentialConsistency({
+      username: config.username,
+      password: config.password,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+    });
+
     const hasHostname = config.hostname && config.hostname.trim() !== '';
 
     // Allow local mode if no credentials or hostname are provided
     if (!hasBasicAuth && !hasOAuth && !hasHostname) {
       // Local mode - only class documentation available
       return;
+    }
+
+    // Credentials without hostname is an invalid partial configuration.
+    if (!hasHostname && (hasBasicAuth || hasOAuth)) {
+      throw new Error(
+        'When credentials are provided, hostname must also be provided',
+      );
     }
 
     // If hostname is provided, require credentials
@@ -137,10 +153,7 @@ export class ConfigurationFactory {
 
     // Additional hostname validation if provided
     if (hasHostname) {
-      const trimmedHostname = config.hostname!.trim();
-      if (!trimmedHostname.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
-        throw new Error('Invalid hostname format in configuration');
-      }
+      assertValidHostnameFormat(config.hostname!, 'Invalid hostname format in configuration');
     }
   }
 

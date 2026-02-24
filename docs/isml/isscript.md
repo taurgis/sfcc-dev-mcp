@@ -852,7 +852,7 @@ Encode output to prevent XSS:
 ## See Also
 
 - [B2C Commerce Script API Documentation](../dw_system/)
-- [ISML Expressions](./expressions.md)
+- [ISML Expressions](#integration-with-inline-expressions)
 - [isset Element](./isset.md)
 - [SFRA Client-side JS Skill](../../ai-instructions/skills/sfcc-sfra-client-side-js/SKILL.md)
 - [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)

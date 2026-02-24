@@ -22,41 +22,24 @@
 
 import { SFCCDevServer } from './core/server.js';
 import { ConfigurationFactory } from './config/configuration-factory.js';
+import { parseCommandLineArgs, hasEnvironmentCredentials } from './config/cli-options.js';
 import { Logger } from './utils/logger.js';
 
-/**
- * Parse command line arguments to extract configuration options
- */
-function parseCommandLineArgs(): { dwJsonPath?: string; debug?: boolean } {
-  const args = process.argv.slice(2);
-  const options: { dwJsonPath?: string; debug?: boolean } = {};
+function redactCliArgs(args: string[]): string[] {
+  const sensitiveTokens = ['password', 'secret', 'token', 'client-secret', 'client_secret'];
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-
-    if (arg === '--dw-json' && i + 1 < args.length) {
-      options.dwJsonPath = args[i + 1];
-      i++; // Skip the next argument since we consumed it
-    } else if (arg === '--debug' && i + 1 < args.length) {
-      const debugValue = args[i + 1].toLowerCase();
-      options.debug = debugValue === 'true' || debugValue === '1' || debugValue === 'yes';
-      i++; // Skip the next argument since we consumed it
-    } else if (arg === '--debug') {
-      // Allow --debug without a value to default to true
-      options.debug = true;
+  return args.map(arg => {
+    const lowerArg = arg.toLowerCase();
+    if (sensitiveTokens.some(token => lowerArg.includes(token))) {
+      if (arg.includes('=')) {
+        const [key] = arg.split('=', 1);
+        return `${key}=[REDACTED]`;
+      }
+      return '[REDACTED]';
     }
-  }
 
-  return options;
-}
-
-/**
- * Check if environment variables provide SFCC credentials
- */
-function hasEnvironmentCredentials(): boolean {
-  const hasBasicAuth = !!(process.env.SFCC_USERNAME && process.env.SFCC_PASSWORD);
-  const hasOAuth = !!(process.env.SFCC_CLIENT_ID && process.env.SFCC_CLIENT_SECRET);
-  return !!(process.env.SFCC_HOSTNAME && (hasBasicAuth || hasOAuth));
+    return arg;
+  });
 }
 
 /**
@@ -81,7 +64,8 @@ async function main(): Promise<void> {
 
     logger.log('Starting SFCC Development MCP Server...');
     logger.log(`[main] Current working directory: ${process.cwd()}`);
-    logger.log(`[main] Command line args: ${JSON.stringify(process.argv.slice(2))}`);
+    logger.log(`[main] Command line args count: ${process.argv.slice(2).length}`);
+    logger.debug(`[main] Command line args (redacted): ${JSON.stringify(redactCliArgs(process.argv.slice(2)))}`);
     if (debug) {
       logger.log('[main] Debug mode enabled');
     }
@@ -149,7 +133,8 @@ async function main(): Promise<void> {
       }
     }
 
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
 }
 
@@ -157,5 +142,5 @@ async function main(): Promise<void> {
 main().catch((error) => {
   const logger = Logger.getInstance();
   logger.error('Unhandled error:', error);
-  process.exit(1);
+  process.exitCode = 1;
 });

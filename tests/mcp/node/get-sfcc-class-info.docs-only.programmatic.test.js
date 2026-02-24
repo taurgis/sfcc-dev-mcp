@@ -296,11 +296,11 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       'dw.customer.Customer'
     ];
     
-    const promises = classNames.map(className => 
-      client.callTool('get_sfcc_class_info', { className })
-    );
-    
-    const results = await Promise.all(promises);
+    const results = [];
+    for (const className of classNames) {
+      const result = await client.callTool('get_sfcc_class_info', { className });
+      results.push(result);
+    }
     
     results.forEach((result, index) => {
       assertValidMCPResponse(result);
@@ -415,11 +415,11 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
     const calls = 10;
     const className = 'dw.catalog.Category';
     
-    const promises = Array(calls).fill().map(() => 
-      client.callTool('get_sfcc_class_info', { className })
-    );
-    
-    const results = await Promise.all(promises);
+    const results = [];
+    for (let i = 0; i < calls; i++) {
+      const result = await client.callTool('get_sfcc_class_info', { className });
+      results.push(result);
+    }
     
     results.forEach(result => {
       assertValidMCPResponse(result);
@@ -436,9 +436,11 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       { className: 'Product', expand: true }
     ];
     
-    const results = await Promise.all(
-      testCases.map(params => client.callTool('get_sfcc_class_info', params))
-    );
+    const results = [];
+    for (const params of testCases) {
+      const result = await client.callTool('get_sfcc_class_info', params);
+      results.push(result);
+    }
     
     results.forEach(result => {
       assertValidMCPResponse(result);
@@ -777,13 +779,8 @@ describe('SFCC MCP Server - get_sfcc_class_info Tool (Documentation-Only Mode)',
       });
       
       assertValidMCPResponse(result);
-      const classInfo = JSON.parse(result.content[0].text);
-      
-      // Empty search should return all results (no filtering)
-      assert.strictEqual(classInfo.className, 'Product');
-      assert(classInfo.description, 'Should include description with empty search');
-      assert(Array.isArray(classInfo.properties), 'Should include all properties with empty search');
-      assert(Array.isArray(classInfo.methods), 'Should include all methods with empty search');
+        assert.equal(result.isError, true, 'Empty search should fail validation');
+        assert.ok(result.content[0].text.includes('search'));
     });
   });
 

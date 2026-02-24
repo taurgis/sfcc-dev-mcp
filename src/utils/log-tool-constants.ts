@@ -22,9 +22,9 @@ export const LogLevelValues = {
 
 // Default limits for different tool types
 export const DEFAULT_LIMITS = {
-  latest: 10,
+  latest: 20,
   search: 20,
-  jobEntries: 50,
+  jobEntries: 10,
   jobSearch: 20,
   jobFiles: 10,
 } as const;
@@ -78,18 +78,4 @@ export function getLimit(providedLimit: number | undefined, toolType: keyof type
 
 export function isValidLogLevel(level: string): level is LogLevelWithAll {
   return Object.values(LogLevelValues).includes(level as LogLevelWithAll);
-}
-
-export function deriveLogLevel(toolName: string, argsLevel?: string): LogLevelWithAll {
-  if (argsLevel && isValidLogLevel(argsLevel)) {
-    return argsLevel as LogLevelWithAll;
-  }
-
-  // Extract level from tool name for get_latest_* tools
-  const match = toolName.match(/get_latest_(\w+)/);
-  if (match && isValidLogLevel(match[1])) {
-    return match[1] as LogLevelWithAll;
-  }
-
-  return LogLevelValues.ALL;
 }

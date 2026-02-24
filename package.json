@@ -1,6 +1,6 @@
 {
   "name": "sfcc-dev-mcp",
-  "version": "1.0.19",
+  "version": "1.0.21",
   "description": "MCP server for Salesforce B2C Commerce Cloud development assistance including logs, debugging, and development tools",
   "mcpName": "io.github.taurgis/sfcc-dev-mcp",
   "main": "dist/index.js",
@@ -35,18 +35,22 @@
     "docs:build": "npm --prefix docs-site-v2 run build",
     "docs:preview": "npm --prefix docs-site-v2 run preview",
     "test": "npm run test:all",
+    "test:unit": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:mcp:yaml": "aegis 'tests/mcp/yaml/*.docs-only.test.mcp.yml' --config './aegis.config.docs-only.json'",
     "test:mcp:yaml:full": "aegis 'tests/mcp/yaml/*.full-mode.test.mcp.yml' --config './aegis.config.with-dw.json'",
     "test:mcp:node": "node --test tests/mcp/node/*.programmatic.test.js",
-    "test:mcp:all": "npm run test:mcp:yaml && npm run test:mcp:yaml:full && npm run test:mcp:node",
+    "test:mcp:all": "npm run test:mcp:yaml & p1=$!; npm run test:mcp:yaml:full & p2=$!; wait $p1; s1=$?; wait $p2; s2=$?; [ $s1 -eq 0 ] && [ $s2 -eq 0 ] && npm run test:mcp:node",
     "test:mcp:ci": "npm run test:mcp:yaml -- --json && npm run test:mcp:yaml:full -- --json && npm run test:mcp:node",
-    "test:all": "jest && npm run test:mock-server:setup && npm run test:mcp:all",
+    "test:mcp:published-npx": "bash ./scripts/test-published-npx.sh",
+    "test:all": "npm run test:unit & p1=$!; npm run test:mock-server:setup & p2=$!; wait $p1; s1=$?; wait $p2; s2=$?; [ $s1 -eq 0 ] && [ $s2 -eq 0 ] && npm run test:mcp:all",
     "test:mock-server:setup": "cd tests/servers/sfcc-mock-server && npm install && npm run setup",
     "test:mock-server:start": "cd tests/servers/sfcc-mock-server && npm start",
     "test:mock-server": "jest --testPathPatterns=sfcc-mock-server",
     "validate:server-json": "node scripts/validate-server-json.js",
+    "validate:tools-sync": "node scripts/validate-tools-sync.js",
+    "validate:skills-sync": "node scripts/validate-skills-sync.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint . --max-warnings 0",
@@ -74,20 +78,23 @@
     "@modelcontextprotocol/sdk": "1.26.0",
     "webdav": "5.9.0"
   },
+  "overrides": {
+    "minimatch": "10.2.2"
+  },
   "devDependencies": {
-    "@eslint/js": "9.39.2",
+    "@eslint/js": "10.0.1",
     "@types/eslint": "9.6.1",
     "@types/jest": "30.0.0",
-    "@types/node": "25.0.3",
+    "@types/node": "25.3.0",
     "ajv": "8.18.0",
     "ajv-formats": "3.0.1",
-    "eslint": "9.39.2",
+    "eslint": "10.0.1",
     "husky": "9.1.7",
     "jest": "30.2.0",
     "mcp-aegis": "1.0.18",
     "ts-jest": "29.4.6",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.52.0"
+    "typescript-eslint": "8.56.0"
   }
 }

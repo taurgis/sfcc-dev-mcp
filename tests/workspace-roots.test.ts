@@ -70,6 +70,18 @@ describe('WorkspaceRootsService', () => {
       expect(roots).toHaveLength(0);
     });
 
+    it('should reject sensitive hidden directories under allowed roots', () => {
+      const service = new WorkspaceRootsService();
+      const sensitiveDir = join(testDir, '.ssh');
+      mkdirSync(sensitiveDir, { recursive: true });
+
+      const roots = service.updateRoots([
+        { uri: pathToFileURL(sensitiveDir).href },
+      ]);
+
+      expect(roots).toHaveLength(0);
+    });
+
     it('should handle multiple roots correctly', () => {
       const service = new WorkspaceRootsService();
       const subDir = join(testDir, 'subproject');
@@ -221,6 +233,15 @@ describe('validateDwJsonPath', () => {
 
   it('should reject system directory paths', () => {
     const result = validateDwJsonPath('/etc/dw.json');
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it('should reject dw.json paths inside sensitive hidden directories', () => {
+    const sensitiveDir = join(testDir, '.aws');
+    mkdirSync(sensitiveDir, { recursive: true });
+
+    const result = validateDwJsonPath(join(sensitiveDir, 'dw.json'));
     expect(result.isValid).toBe(false);
     expect(result.error).toBeDefined();
   });

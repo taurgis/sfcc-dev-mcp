@@ -3,18 +3,20 @@
 [![npm version](https://badge.fury.io/js/sfcc-dev-mcp.svg)](https://badge.fury.io/js/sfcc-dev-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and best practices.
+An AI-powered Model Context Protocol (MCP) server that provides comprehensive access to Salesforce B2C Commerce Cloud development tools, documentation, and runtime diagnostics.
 
 ## ✨ Key Features
 
 - **🔍 Complete SFCC Documentation Access** - Search and explore all SFCC API classes and methods
-- **📚 Best Practices Guides** - Curated development guidelines for cartridges, hooks, controllers, client-side JavaScript, and more  
 - **🏗️ SFRA Documentation** - Enhanced access to Storefront Reference Architecture documentation
-- **� ISML Template Reference** - Complete ISML element documentation with examples and best practices
-- **�📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
+- **🧱 ISML Template Reference** - Complete ISML element documentation with examples and usage guidance
+- **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
-- **🚀 Cartridge Generation** - Automated cartridge structure creation
+- **🧪 Script Debugger** - Execute and inspect script-debugger endpoints in credentialed mode
+- **🚀 Cartridge Generation** - Automated cartridge structure creation with workspace-bound path safety (writes stay inside workspace roots, or current working directory fallback when roots are unavailable; home-directory fallback is blocked)
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
+- **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, enum constraints, integer/numeric bounds, and strict unknown-key checks for object schemas (top-level and nested) before handler execution
+- **⏱️ MCP Progress + Cancellation** - Tool calls honor request cancellation signals and emit out-of-band `notifications/progress` updates when clients provide a `progressToken`
 
 ## 🚀 Quick Start
 
@@ -42,7 +44,9 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 }
 ```
 
-Create a `dw.json` file with your SFCC credentials:
+Create a `dw.json` file with your SFCC credentials. You can use either auth mode (or both):
+- Basic auth: `username` + `password`
+- OAuth: `client-id` + `client-secret`
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
@@ -52,6 +56,9 @@ Create a `dw.json` file with your SFCC credentials:
   "client-secret": "your-client-secret"
 }
 ```
+
+At least one complete credential pair is required when `hostname` is set.
+If credentials are provided, `hostname` is also required.
 
 ### Option 3: Auto-Discovery (Recommended for VS Code users)
 Simply open a VS Code workspace that contains a `dw.json` file - the server will automatically discover and use it:
@@ -74,7 +81,7 @@ The server discovers SFCC credentials in this order (highest priority first):
 |----------|--------|-------------|
 | **1** | `--dw-json` CLI parameter | Explicit path to dw.json file |
 | **2** | Environment variables | `SFCC_HOSTNAME`, `SFCC_USERNAME`, `SFCC_PASSWORD`, `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET` |
-| **3** | MCP workspace roots | Automatically discovers dw.json in your VS Code workspace folder(s) |
+| **3** | MCP workspace roots | Automatically discovers dw.json in your VS Code workspace folder(s), and refreshes when the client sends `notifications/roots/list_changed` |
 
 > **Note**: The server no longer searches the current working directory by default, as MCP servers often start with `cwd` set to the user's home directory. The MCP workspace roots mechanism provides reliable project context.
 
@@ -82,36 +89,47 @@ The server discovers SFCC credentials in this order (highest priority first):
 
 | Mode | Tools Available | SFCC Credentials Required |
 |------|----------------|---------------------------|
-| **Documentation-Only** | 21 tools | ❌ No |
-| **Full Mode** | 38 tools | ✅ Yes |
+| **Documentation-Only** | 18 tools | ❌ No |
+| **Full Mode** | 40 tools | ✅ Yes |
 
 ### Documentation-Only Mode
-Perfect for learning and development - no SFCC instance required:
+Perfect for learning and development, no SFCC instance required:
 - Complete SFCC API documentation (5 tools)
-- Best practices guides (4 tools) – cartridges, client-side JavaScript, controllers, hooks, security/performance 
 - SFRA documentation (5 tools)
 - ISML template documentation (5 tools)
-- Cartridge generation (1 tool)
-- Agent instruction bootstrap (1 tool) to copy/merge AGENTS.md and skills
+- Cartridge generation (1 tool, writes constrained to workspace roots/cwd)
+- Agent instruction bootstrap (2 tools) to copy/merge AGENTS.md and skills, or disable future prompts
 
 ### Full Mode  
 Complete development experience with live SFCC instance access:
-- All documentation-only features (21 tools)
-- Real-time log analysis (13 tools)
+- All documentation-only features (18 tools)
+- Real-time log analysis and job logs (13 tools)
 - System object definitions (6 tools)
 - Code version management (2 tools)
+- Script debugger operations (1 tool)
 
 ## 🏗️ Architecture Overview
 
 This server is built around a **capability-gated, modular handler architecture** that cleanly separates tool routing from domain logic:
 
 ### Core Layers
-- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, best practices, SFRA, ISML, logs, job logs, system objects, cartridge, code versions). Re-exported via `tool-definitions.ts`.
-- **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
-- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, best practices, modular log analysis, cartridge generation). Handlers delegate to these so orchestration and computation remain separate.
+- **Tool Schemas** (`src/core/tool-schemas/`): Modular, category-based tool definitions (documentation, SFRA, ISML, logs, job logs, system objects, cartridge, code versions, agent instructions, script debugger). Re-exported via `tool-definitions.ts`.
+- **Server Orchestration Modules** (`src/core/server-tool-catalog.ts`, `src/core/server-tool-call-lifecycle.ts`, `src/core/server-workspace-discovery.ts`): Keeps `server.ts` focused by extracting capability-aware tool catalog logic, `tools/call` lifecycle (progress/cancellation/preflight), and workspace roots reconfiguration flow.
+- **Tool Argument Validator** (`src/core/tool-argument-validator.ts`): Enforces runtime argument shape at the MCP boundary for all tools (required fields, primitive/object/array types, enum checks, integer/numeric ranges, string patterns/length, and strict unknown-key checks for object schemas at top-level and nested levels) before tool dispatch.
+- **OCAPI Query Coverage** (`src/core/tool-schemas/shared-schemas.ts`): Shared search schemas include `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query` so MCP boundary validation aligns with supported OCAPI query patterns.
+- **Handlers** (`src/core/handlers/`): Each category has a handler extending a common base for timing, structured logging, and error normalization, with config-driven wiring via `ConfiguredClientHandler` to reduce repetitive boilerplate (e.g. `log-handler`, `docs-handler`, `isml-handler`, `system-object-handler`).
+- **Clients** (`src/clients/`): Encapsulate domain operations (OCAPI, SFRA docs, ISML docs, modular log analysis, script debugger, cartridge generation, agent-instruction sync). Handlers delegate to these so orchestration and computation remain separate.
 - **Services** (`src/services/`): Dependency-injected abstractions for filesystem and path operations — improves testability and isolates side effects.
 - **Modular Log System** (`src/clients/logs/`): Reader (range/tail optimization), discovery, processor (line → structured entry), analyzer (patterns & health), formatter (human output) for maintainable evolution.
 - **Configuration Factory** (`src/config/configuration-factory.ts`): Determines capabilities (`canAccessLogs`, `canAccessOCAPI`) based on provided credentials and filters exposed tools accordingly (principle of least privilege).
+- **Shared Credential Validation** (`src/config/credential-validation.ts`): Centralizes auth-pair completeness and hostname-format validation for both `dw.json` loading and runtime configuration creation.
+- **Call-time Capability Guarding** (`src/core/server.ts`): Rejects execution of tools that are unavailable in the current mode, so hidden tools are not callable via direct `tools/call` requests.
+- **Call Lifecycle Signals** (`src/core/server.ts`): `tools/call` handling supports cancellation via request abort signals and emits best-effort progress notifications when the caller provides `_meta.progressToken`.
+- **Tool Error Sanitization** (`src/core/tool-error-response.ts`): Sanitizes upstream execution errors before returning MCP tool responses, reducing accidental leakage of backend payload details.
+- **Runtime WebDAV Verification** (`src/core/server.ts`): For OAuth-only configurations (`client-id`/`client-secret` without `username`/`password`), log/job-log/script-debugger tool exposure is gated by a one-time WebDAV capability probe to avoid false-positive tool availability.
+- **CLI Option Helpers** (`src/config/cli-options.ts`): Centralizes command-line parsing and environment credential detection for predictable startup behavior.
+- **Shared Path Security Policy** (`src/config/path-security-policy.ts`): Reuses allow/block path rules across workspace-root discovery and secure `dw.json` loading.
+- **Shared Abort Utility** (`src/utils/abort-utils.ts`): Centralized timeout and abort-signal composition used by HTTP and debugger clients for consistent cancellation semantics and timer cleanup.
 
 ### Why This Matters
 - **Extensibility**: Adding a new tool usually means adding a schema + minimal handler logic (or a new handler if a new domain).
@@ -137,9 +155,9 @@ Choose your preferred AI assistant:
 
 | Interface | Best For | Setup Guide |
 |-----------|----------|-------------|
-| **Claude Desktop** | Multi-turn conversations, debugging | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#claude-desktop) |
-| **GitHub Copilot** | VS Code integration, inline suggestions | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#github-copilot) |
-| **Cursor** | Modern AI-powered editor | [📖 Setup Guide](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces#cursor) |
+| **Claude Desktop** | Multi-turn conversations, debugging | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
+| **GitHub Copilot** | VS Code integration, inline suggestions | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
+| **Cursor** | Modern AI-powered editor | [📖 Setup Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/) |
 
 ## 📦 Installation
 
@@ -170,6 +188,8 @@ npx -y sfcc-dev-mcp --debug
 npx -y sfcc-dev-mcp --dw-json /path/to/your/dw.json --debug
 ```
 
+`--debug` accepts `true/false`, `1/0`, or `yes/no`. Invalid values fail fast with a clear error message.
+
 ### Log File Locations
 
 The server writes logs to your system's temporary directory:
@@ -188,20 +208,49 @@ The server writes logs to your system's temporary directory:
 ```javascript
 // The exact path varies by system - to find yours:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
+```
+
+## 🧪 Release Validation (Maintainers)
+
+The publish workflow runs MCP tests against the just-published npm artifact (`npx sfcc-dev-mcp@<version>`) before publishing to the MCP Registry.
+
+You can run the same validation locally:
+
+```bash
+# Ensure docs-site tool catalog stays in sync with runtime tool definitions
+npm run validate:tools-sync
+
+# Ensure docs-site skills catalog stays in sync with bundled skills
+npm run validate:skills-sync
+
+# Ensure MCP registry metadata stays in sync with package.json
+npm run validate:server-json
+
+# In a separate terminal, start the mock server first for full-mode MCP tests
+npm run test:mock-server:start
+
+# Uses latest published version by default
+npm run test:mcp:published-npx
+
+# Or pin a specific published version
+bash ./scripts/test-published-npx.sh 1.0.21
+```
+
+In GitHub Actions, the publish workflow manages the mock server lifecycle automatically.
 
 ## 📖 Documentation
 
-**📚 [Complete Documentation](https://taurgis.github.io/sfcc-dev-mcp/)** - Comprehensive guides and references
+**📚 [Complete Documentation](https://sfcc-mcp-dev.rhino-inquisitor.com/)** - Comprehensive guides and references
 
 Documentation source lives in `docs-site-v2/` (VitePress). The legacy React site remains in `docs-site/`.
 
 Quick Links:
-- **[Installation Guide](https://taurgis.github.io/sfcc-dev-mcp/installation)** - Detailed installation options
-- **[AI Interface Setup](https://taurgis.github.io/sfcc-dev-mcp/ai-interfaces)** - Configure Claude Desktop, GitHub Copilot, or Cursor
-- **[Configuration Guide](https://taurgis.github.io/sfcc-dev-mcp/configuration)** - SFCC credentials and Data API setup
-- **[Available Tools](https://taurgis.github.io/sfcc-dev-mcp/tools)** - Complete tool reference
-- **[Examples](https://taurgis.github.io/sfcc-dev-mcp/examples)** - Real-world usage patterns
-- **[Troubleshooting](https://taurgis.github.io/sfcc-dev-mcp/troubleshooting)** - Common issues and solutions
+- **[Getting Started](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/)** - Installation and first-run setup
+- **[AI Interface Setup](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/ai-interfaces/)** - Configure Claude Desktop, GitHub Copilot, or Cursor
+- **[Configuration Guide](https://sfcc-mcp-dev.rhino-inquisitor.com/guide/configuration/)** - SFCC credentials and Data API setup
+- **[Available Tools](https://sfcc-mcp-dev.rhino-inquisitor.com/tools/)** - Complete tool reference
+- **[Examples](https://sfcc-mcp-dev.rhino-inquisitor.com/examples/)** - Real-world usage patterns
+- **[Troubleshooting](https://sfcc-mcp-dev.rhino-inquisitor.com/troubleshooting/)** - Common issues and solutions
 
 ## 🛠️ Example AI Interactions
 
@@ -213,7 +262,7 @@ Quick Links:
 🤖 Analyzes recent error logs, identifies issues, and suggests fixes
 
 🧑‍💻 "Show me how to implement OCAPI hooks for order validation"
-🤖 Provides best practices guide with complete hook implementation examples
+🤖 Retrieves related SFCC classes and methods, then proposes a concrete hook implementation pattern
 ```
 
 ## 🔒 Security Notes
@@ -257,4 +306,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🚀 Ready to supercharge your SFCC development with AI?**
 
-**[📖 Get Started with the Full Documentation](https://taurgis.github.io/sfcc-dev-mcp/)**
+**[📖 Get Started with the Full Documentation](https://sfcc-mcp-dev.rhino-inquisitor.com/)**

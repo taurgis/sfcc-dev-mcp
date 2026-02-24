@@ -149,13 +149,13 @@ describe('get_latest_debug - Full Mode Programmatic Tests (Optimized)', () => {
         { params: { limit: 1, date: getCurrentDateString() }, expectSuccess: true, description: 'valid combination' },
         
         // Invalid scenarios requiring dynamic validation
-        { params: { limit: '5' }, expectSuccess: false, expectedError: 'Invalid limit \'5\'', description: 'string limit' },
-        { params: { limit: 0 }, expectSuccess: false, expectedError: 'Invalid limit \'0\'', description: 'zero limit' },
-        { params: { limit: -1 }, expectSuccess: false, expectedError: 'Invalid limit', description: 'negative limit' },
-        { params: { limit: 9999 }, expectSuccess: false, expectedError: 'Invalid limit', description: 'excessive limit' },
+          { params: { limit: '5' }, expectSuccess: false, expectedError: 'limit must be a number', description: 'string limit' },
+          { params: { limit: 0 }, expectSuccess: false, expectedError: 'limit must be >= 1', description: 'zero limit' },
+          { params: { limit: -1 }, expectSuccess: false, expectedError: 'limit must be >= 1', description: 'negative limit' },
+          { params: { limit: 9999 }, expectSuccess: false, expectedError: 'limit must be <= 1000', description: 'excessive limit' },
         
         // Complex type scenarios
-        { params: { limit: null }, expectSuccess: true, description: 'null limit (uses default)' },
+          { params: { limit: null }, expectSuccess: false, expectedError: 'limit must be a number', description: 'null limit' },
         { params: { limit: [] }, expectSuccess: false, description: 'array limit' },
         { params: { limit: {} }, expectSuccess: false, description: 'object limit' },
       ];
@@ -181,10 +181,11 @@ describe('get_latest_debug - Full Mode Programmatic Tests (Optimized)', () => {
 
     test('should handle date parameter edge cases with business logic', async () => {
       const dateScenarios = [
-        { date: 'invalid-date', expectMessage: 'No debug log files found' },
+          { date: 'invalid-date', expectError: true, expectedText: 'date must match pattern' },
         { date: '20261231', expectSuccess: true }, // Future date
         { date: '20240101', expectSuccess: true }, // Past date
-        { date: 123, expectSuccess: true }, // Number converted to string
+          { date: 123, expectError: true, expectedText: 'date' },
+          { date: '2024-01-01', expectError: true, expectedText: 'date must match pattern' },
       ];
 
       for (const scenario of dateScenarios) {
@@ -195,13 +196,17 @@ describe('get_latest_debug - Full Mode Programmatic Tests (Optimized)', () => {
         
         assertValidMCPResponse(result);
         
-        if (scenario.expectSuccess) {
+          if (scenario.expectSuccess) {
           assert.equal(result.isError, false, 
             `Date ${scenario.date} should be handled gracefully`);
         }
+
+          if (scenario.expectError) {
+            assert.equal(result.isError, true, `Date ${scenario.date} should fail validation`);
+          }
         
-        if (scenario.expectMessage) {
-          assert.ok(result.content[0].text.includes(scenario.expectMessage),
+          if (scenario.expectedText) {
+            assert.ok(result.content[0].text.includes(scenario.expectedText),
             `Should contain expected message for date ${scenario.date}`);
         }
       }

@@ -1,8 +1,8 @@
 ---
 name: 'Official Docs Researcher'
 description: 'Researches official documentation online and returns detailed, source-cited findings'
-model: 'GPT-5.2'
-tools: ['vscode/openSimpleBrowser', 'vscode/askQuestions', 'execute', 'read', 'agent', 'edit', 'search', 'web']
+model: 'GPT-5.3-Codex'
+tools: ['execute', 'read', 'agent', 'edit', 'search', 'web']
 argument-hint: 'What topic should I research in official docs?'
 ---
 

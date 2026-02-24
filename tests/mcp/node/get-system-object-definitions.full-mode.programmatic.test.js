@@ -217,36 +217,25 @@ describe('get_system_object_definitions Tool - Full Mode Programmatic Tests', ()
       }
     });
 
-    test('should handle edge cases with type coercion', async () => {
+      test('should handle edge cases with strict type validation', async () => {
       const edgeCases = [
-        { params: { start: '5', count: '3' }, description: 'string parameters' },
+          { params: { start: '5', count: '3' }, description: 'string parameters', expectError: true },
         { params: { start: 0, count: 1 }, description: 'minimum values' },
         { params: { start: 100 }, description: 'large start value' },
-        { params: { count: 0 }, description: 'zero count', expectError: true }
+          { params: { count: 0 }, description: 'zero count', expectError: false }
       ];
       
       for (const { params, description, expectError } of edgeCases) {
         const result = await client.callTool('get_system_object_definitions', params);
         
-        if (expectError) {
-          // Zero count might be an error or return empty data
-          if (!result.isError) {
-            const data = JSON.parse(result.content[0].text);
-            assert.equal(data.count, 0, `Zero count should be handled: ${description}`);
-            assert.equal(data.data.length, 0, `Zero count should return empty data: ${description}`);
-          }
+          if (expectError) {
+            assert.equal(result.isError, true, `Edge case should fail validation: ${description}`);
         } else {
           assert.equal(result.isError, false, 
             `Edge case should succeed: ${description}`);
           
           const data = JSON.parse(result.content[0].text);
-          
-          // Validate type coercion worked
-          if (params.start !== undefined) {
-            assert.equal(typeof data.start, 'number', 
-              `Start should be coerced to number: ${description}`);
-          }
-          
+
           if (params.count !== undefined && params.count > 0) {
             assert.ok(data.data.length <= params.count, 
               `Should respect count limit: ${description}`);

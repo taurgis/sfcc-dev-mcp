@@ -19,6 +19,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
       properties: {
         elementName: {
           type: 'string',
+          minLength: 1,
           description: 'The ISML element name (e.g., \'isif\', \'isloop\', \'isprint\', \'isinclude\', \'iscomponent\'). The \'is\' prefix is optional.',
         },
         includeContent: {
@@ -48,6 +49,7 @@ export const ISML_DOCUMENTATION_TOOLS = [
       properties: {
         query: {
           type: 'string',
+          minLength: 1,
           description: 'Search term or concept (e.g., \'loop\', \'conditional\', \'format\', \'cache\', \'redirect\')',
         },
         category: {
@@ -56,7 +58,8 @@ export const ISML_DOCUMENTATION_TOOLS = [
           enum: ['control-flow', 'output', 'includes', 'scripting', 'cache', 'decorators', 'special', 'payment', 'analytics'],
         },
         limit: {
-          type: 'number',
+          type: 'integer',
+          minimum: 1,
           description: 'Maximum number of results to return',
         },
       },

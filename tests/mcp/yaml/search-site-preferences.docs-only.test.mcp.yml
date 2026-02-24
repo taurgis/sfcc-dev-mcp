@@ -35,9 +35,9 @@ tests:
       stderr: "toBeEmpty"
 
   # ==================================================================================
-  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # TOOL AVAILABILITY ERROR TESTS (Tool Can Be Called But Is Unavailable)
   # ==================================================================================
-  - it: "should return authentication error when calling search_site_preferences in docs-only mode"
+  - it: "should return tool-not-available error when calling search_site_preferences in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-storefront"
@@ -57,13 +57,14 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for text query search requests"
+  - it: "should return tool-not-available error for text query search requests"
     request:
       jsonrpc: "2.0"
       id: "auth-error-text-query"
@@ -85,13 +86,14 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for term query requests"
+  - it: "should return tool-not-available error for term query requests"
     request:
       jsonrpc: "2.0"
       id: "auth-error-term-query"
@@ -114,13 +116,14 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error for boolean query requests"
+  - it: "should return tool-not-available error for boolean query requests"
     request:
       jsonrpc: "2.0"
       id: "auth-error-bool-query"
@@ -144,13 +147,14 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:ensure credentials are provided"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error regardless of instance type"
+  - it: "should return tool-not-available error regardless of instance type"
     request:
       jsonrpc: "2.0"
       id: "auth-error-sandbox"
@@ -171,13 +175,14 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
 
-  - it: "should return authentication error with options parameter"
+  - it: "should return tool-not-available error with options parameter"
     request:
       jsonrpc: "2.0"
       id: "auth-error-with-options"
@@ -200,8 +205,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -209,7 +215,7 @@ tests:
   # ==================================================================================
   # PARAMETER VALIDATION IN DOCS-ONLY MODE
   # ==================================================================================
-  - it: "should return authentication error even with missing required parameters"
+  - it: "should return tool-not-available error even with missing required parameters"
     request:
       jsonrpc: "2.0"
       id: "auth-error-missing-params"
@@ -226,8 +232,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:(OCAPI client not configured|required)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"
       stderr: "toBeEmpty"
@@ -235,7 +242,7 @@ tests:
   # ==================================================================================
   # CONSISTENT ERROR MESSAGING
   # ==================================================================================
-  - it: "should provide consistent error message across different preference groups"
+  - it: "should provide consistent tool-not-available message across different preference groups"
     request:
       jsonrpc: "2.0"
       id: "consistent-error-message"
@@ -257,8 +264,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:regex:(OCAPI client not configured|ensure credentials are provided)"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "1000ms"
       stderr: "toBeEmpty"
@@ -266,7 +274,7 @@ tests:
   # ==================================================================================
   # FAST ERROR RESPONSE VALIDATION
   # ==================================================================================
-  - it: "should return authentication errors quickly without OCAPI calls"
+  - it: "should return tool-not-available errors quickly without OCAPI calls"
     request:
       jsonrpc: "2.0"
       id: "fast-auth-error"
@@ -288,8 +296,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "300ms"  # Should be very fast since no actual API call
       stderr: "toBeEmpty"

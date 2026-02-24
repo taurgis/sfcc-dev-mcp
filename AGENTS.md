@@ -95,32 +95,39 @@ sfcc-dev-mcp/
 │   ├── core/                     # Core MCP server functionality
 │   │   ├── server.ts             # Main MCP server implementation
 │   │   ├── tool-definitions.ts   # Re-exports tool schemas from modular files
+│   │   ├── tool-argument-validator.ts # Runtime tool argument validation at MCP boundary
+│   │   ├── server-tool-catalog.ts # Capability-aware tool catalog and availability helpers
+│   │   ├── server-tool-call-lifecycle.ts # tools/call lifecycle orchestration (progress/cancellation/preflight)
+│   │   ├── server-workspace-discovery.ts # Workspace roots discovery and reconfigure flow helpers
 │   │   ├── tool-schemas/         # Modular tool schema definitions
 │   │   │   ├── index.ts          # Aggregates and re-exports all tool schemas
 │   │   │   ├── shared-schemas.ts # Reusable schema components (query, pagination, etc.)
 │   │   │   ├── documentation-tools.ts # SFCC documentation tools (5 tools)
-│   │   │   ├── best-practices-tools.ts # Best practices tools (4 tools)
 │   │   │   ├── sfra-tools.ts     # SFRA documentation tools (5 tools)
 │   │   │   ├── isml-tools.ts     # ISML documentation tools (5 tools)
 │   │   │   ├── log-tools.ts      # Log + Job log tools (8 + 5 tools)
 │   │   │   ├── system-object-tools.ts # System object tools (6 tools)
 │   │   │   ├── cartridge-tools.ts # Cartridge generation tools (1 tool)
-│   │   │   └── code-version-tools.ts # Code version tools (2 tools)
+│   │   │   ├── code-version-tools.ts # Code version tools (2 tools)
+│   │   │   ├── agent-instruction-tools.ts # Agent instruction tools (2 tools)
+│   │   │   └── script-debugger-tools.ts # Script debugger tools (1 tool)
 │   │   └── handlers/             # Modular tool handlers
 │   │       ├── base-handler.ts   # Abstract base handler with common functionality
 │   │       ├── abstract-client-handler.ts # Abstract handler for client-based tools
 │   │       ├── simple-client-handler.ts # Simple handler for single-client tools
+│   │       ├── lifecycle-utils.ts # Shared client lifecycle teardown utility
 │   │       ├── client-factory.ts # Centralized client creation with dependency injection
 │   │       ├── validation-helpers.ts # Common validation utilities for handlers
 │   │       ├── docs-handler.ts   # SFCC documentation tool handler
-│   │       ├── best-practices-handler.ts # Best practices tool handler
 │   │       ├── sfra-handler.ts   # SFRA documentation tool handler
 │   │       ├── isml-handler.ts   # ISML documentation tool handler
 │   │       ├── log-handler.ts    # Log analysis tool handler
 │   │       ├── job-log-handler.ts # Job log analysis tool handler
 │   │       ├── system-object-handler.ts # System object tool handler
 │   │       ├── code-version-handler.ts # Code version tool handler
-│   │       └── cartridge-handler.ts # Cartridge generation tool handler
+│   │       ├── cartridge-handler.ts # Cartridge generation tool handler
+│   │       ├── agent-instructions-handler.ts # Agent instruction tool handler
+│   │       └── script-debugger-handler.ts # Script debugger tool handler
 │   ├── clients/                  # API clients for different services
 │   │   ├── base/                 # Base client classes and shared functionality
 │   │   │   ├── http-client.ts    # Base HTTP client with authentication
@@ -145,7 +152,6 @@ sfcc-dev-mcp/
 │   │   │   ├── class-content-parser.ts # Markdown parsing and content extraction
 │   │   │   ├── class-name-resolver.ts # Class name normalization and resolution
 │   │   │   ├── referenced-types-extractor.ts # Type extraction from documentation content
-│   │   │   └── index.ts          # Module exports
 │   │   ├── cartridge/            # Cartridge generation system
 │   │   │   ├── cartridge-generation-client.ts # Main cartridge structure generator
 │   │   │   ├── cartridge-structure.ts # Directory structure definitions
@@ -156,27 +162,30 @@ sfcc-dev-mcp/
 │   │   ├── sfra-client.ts        # SFRA documentation client
 │   │   ├── isml-client.ts        # ISML element documentation client
 │   │   ├── ocapi-client.ts       # Main OCAPI client coordinator
-│   │   └── best-practices-client.ts # Best practices guide client
+│   │   ├── script-debugger/       # Script debugger client module
+│   │   └── agent-instructions-client.ts # Agent instructions install/sync client
 │   ├── services/                 # Service layer with clean abstractions
 │   │   ├── index.ts              # Service exports and type definitions
 │   │   ├── file-system-service.ts # File system operations service
 │   │   └── path-service.ts       # Path manipulation service
 │   ├── config/                   # Configuration management
+│   │   ├── cli-options.ts        # CLI argument and env credential detection helpers
 │   │   ├── configuration-factory.ts # Config factory for different modes
-│   │   └── dw-json-loader.ts     # dw.json configuration loader
-│   ├── constants/                # Application constants
-│   │   ├── index.ts              # Constants exports
-│   │   └── best-practices-guides.ts # Best practices guide definitions
+│   │   ├── credential-validation.ts # Shared auth-pair and hostname validation helpers
+│   │   ├── dw-json-loader.ts     # dw.json configuration loader
+│   │   └── path-security-policy.ts # Shared path allow/block policy for config and workspace roots
 │   ├── tool-configs/             # Tool configuration definitions
-│   │   ├── best-practices-tool-config.ts # Best practices tools configuration
 │   │   ├── cartridge-tool-config.ts # Cartridge generation tools configuration
 │   │   ├── code-version-tool-config.ts # Code version tools configuration
 │   │   ├── docs-tool-config.ts   # Documentation tools configuration
 │   │   ├── job-log-tool-config.ts # Job log tools configuration
 │   │   ├── log-tool-config.ts    # Log analysis tools configuration
 │   │   ├── sfra-tool-config.ts   # SFRA documentation tools configuration
-│   │   └── system-object-tool-config.ts # System object tools configuration
+│   │   ├── system-object-tool-config.ts # System object tools configuration
+│   │   ├── agent-instructions-tool-config.ts # Agent instruction tool configuration
+│   │   └── script-debugger-tool-config.ts # Script debugger tool configuration
 │   ├── utils/                    # Utility functions and helpers
+│   │   ├── abort-utils.ts        # Shared timeout/abort signal composition helpers
 │   │   ├── cache.ts              # Caching layer for API responses
 │   │   ├── logger.ts             # Structured logging system
 │   │   ├── utils.ts              # Common utility functions
@@ -309,7 +318,10 @@ sfcc-dev-mcp/
 │   │   └── webdav/              # WebDAV server mocks
 │   ├── *.test.ts                # Individual test files for components
 │   └── [various test files]     # Unit and integration tests
-├── scripts/                     # Build and documentation scripts
+├── scripts/                     # Build, validation, and documentation scripts
+│   ├── convert-docs.js
+│   ├── test-published-npx.sh    # Post-publish validation against npm package via npx
+│   └── validate-server-json.js
 └── package.json                 # Node.js package configuration
 ```
 
@@ -319,18 +331,25 @@ sfcc-dev-mcp/
 - Implements the Model Context Protocol specification
 - Handles tool registration and request routing
 - Manages configuration modes (documentation-only vs. full)
+- Applies runtime tool argument validation (required fields, type checks, enum checks, integer/numeric ranges, and string patterns/length) before dispatch
+- Enforces strict unknown-argument rejection for object schemas that declare properties (at top-level and nested object levels) unless explicitly allowed by schema
+- Shared OCAPI query schema supports `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query`
+- Enforces call-time capability gating so unavailable tools are rejected during `tools/call`, not just hidden from `tools/list`
+- Emits best-effort `notifications/progress` updates when `_meta.progressToken` is provided on `tools/call`, and returns structured cancellation errors for aborted calls
+- Performs runtime WebDAV capability verification for OAuth-only configurations before exposing log/job-log/script-debugger tools, reducing false-positive tool availability
 - Provides error handling and response formatting
 - Orchestrates modular tool handlers for different functionality areas
 - Issues a one-time advisory when AGENTS.md/skills are missing, pointing clients to the installer tool
+- Delegates tool availability catalogs, `tools/call` lifecycle, and workspace discovery/reconfigure flows to focused helper modules (`server-tool-catalog.ts`, `server-tool-call-lifecycle.ts`, `server-workspace-discovery.ts`) to keep the main server class maintainable
 
 #### **Tool Handler Architecture** (`core/handlers/`)
 - **BaseToolHandler** (`base-handler.ts`): Abstract base class providing common handler functionality, standardized response formatting, execution timing, and error handling patterns
 - **AbstractClientHandler** (`abstract-client-handler.ts`): Abstract handler for tools that require client instantiation
+- **ConfiguredClientHandler** (`abstract-client-handler.ts`): Config-driven client handler that removes repetitive createClient/context/tool wiring in concrete handlers
 - **SimpleClientHandler** (`simple-client-handler.ts`): Simplified handler for single-client tools with less boilerplate
 - **ClientFactory** (`client-factory.ts`): Centralized client creation with dependency injection support for testing and clean architecture
 - **ValidationHelpers** (`validation-helpers.ts`): Common validation utilities shared across all handlers
 - **DocsToolHandler** (`docs-handler.ts`): Handles SFCC documentation tools including class information, method search, and API discovery
-- **BestPracticesToolHandler** (`best-practices-handler.ts`): Manages best practice guides, security recommendations, and hook reference tables
 - **SFRAToolHandler** (`sfra-handler.ts`): Processes SFRA documentation requests with dynamic discovery and smart categorization
 - **ISMLToolHandler** (`isml-handler.ts`): Handles ISML element documentation, search, and category browsing
 - **LogToolHandler** (`log-handler.ts`): Handles real-time log analysis, error monitoring, and system health summarization
@@ -374,7 +393,6 @@ sfcc-dev-mcp/
 - **SFRAClient** (`sfra-client.ts`): Provides comprehensive SFRA (Storefront Reference Architecture) documentation access including Server, Request, Response, QueryString, and render module documentation with method and property details
 - **ISMLClient** (`isml-client.ts`): Provides ISML element documentation, category-based browsing, and search functionality for template development
 - **OCAPIClient** (`ocapi-client.ts`): Main OCAPI coordinator that orchestrates specialized clients and provides unified interface
-- **BestPracticesClient** (`best-practices-client.ts`): Serves curated development guides including cartridge creation, ISML templates with security and performance guidelines, job framework development, LocalServiceRegistry service integrations with OAuth patterns and reusable module design, OCAPI/SCAPI hooks, SFRA controllers, SFRA models with JSON object layer design and architecture patterns, SFRA client-side JavaScript architecture (AJAX flows, validation, accessibility), custom endpoints, security recommendations, and performance optimization strategies with hook reference tables
 - **AgentInstructionsClient** (`agent-instructions-client.ts`): Plans and installs bundled AI assets (AGENTS.md + skills) into workspaces, user home, or temp directories with merge strategies and missing-only copy support
 
 ##### **Cartridge Generation** (`clients/cartridge/`)
@@ -384,7 +402,9 @@ sfcc-dev-mcp/
 
 #### **Configuration Management** (`config/`)
 - **Configuration Factory** (`configuration-factory.ts`): Creates configurations for different modes
+- **Credential Validation** (`credential-validation.ts`): Shared helpers for auth-pair completeness and hostname format validation across config loading paths
 - **Config Loader** (`dw-json-loader.ts`): Handles dw.json and environment variable loading
+- **CLI Option Helpers** (`cli-options.ts`): Parses `--dw-json` and strict `--debug` values (`true/false`, `1/0`, `yes/no`) with fail-fast errors for invalid boolean tokens
 
 #### **Service Layer** (`services/`)
 - **Service Interfaces** (`index.ts`): Exports clean abstractions for system operations (IFileSystemService, IPathService)
@@ -393,6 +413,7 @@ sfcc-dev-mcp/
 - **Mock Services**: Test implementations providing controlled behavior for unit testing without real file system access
 
 #### **Utilities** (`utils/`)
+- **Abort Utilities** (`abort-utils.ts`): Shared timeout and abort signal composition helpers used across HTTP and debugger clients for consistent cancellation behavior and timer cleanup
 - **Caching System** (`cache.ts`): Efficient caching for API responses and documentation
 - **Logging** (`logger.ts`): Structured logging with debug capabilities
 - **Path Resolution** (`path-resolver.ts`): Secure file path handling
@@ -405,54 +426,53 @@ sfcc-dev-mcp/
    - API search and discovery
    - Complete SFCC namespace coverage
 
-2. **Best Practices Guides** (4 tools)
-   - Curated development guidelines
-   - Security and performance recommendations
-   - SFRA client-side JavaScript architecture (AJAX, validation, accessibility)
-   - Hook reference tables and examples
-
-3. **Enhanced SFRA Documentation Tools** (5 tools)
+2. **Enhanced SFRA Documentation Tools** (5 tools)
    - **Dynamic Discovery**: Automatically finds all 26+ SFRA documents including core classes, extensive model documentation
    - **Smart Categorization**: Organizes documents into 7 logical categories (core, product, order, customer, pricing, store, other)
    - **Advanced Search**: Relevance-scored search across all documents with context highlighting
    - **Category Filtering**: Explore documents by functional areas for efficient discovery
    - **Complete Coverage**: Core SFRA classes (Server, Request, Response, QueryString, render) plus comprehensive model documentation (account, cart, products, pricing, billing, shipping, store, customer management, totals, categories, content, locale, addresses, and more)
 
-4. **ISML Documentation Tools** (5 tools)
+3. **ISML Documentation Tools** (5 tools)
    - Complete ISML element reference and documentation
    - Control flow elements (isif, isloop, isnext, etc.)
    - Output formatting (isprint) and includes (isinclude, iscomponent, isslot)
    - Scripting elements (isscript, isset) and caching (iscache)
    - Category-based browsing and advanced search capabilities
 
-5. **Cartridge Generation Tools** (1 tool)
+4. **Cartridge Generation Tools** (1 tool)
    - Automated cartridge structure creation with direct file generation
+   - `targetPath` writes are constrained to discovered workspace roots (or `cwd` fallback when roots are unavailable), and fallback is blocked when `cwd` resolves to the user home directory to limit filesystem blast radius
    - Complete project setup with all necessary configuration files
    - Proper directory organization and file structure
 
-6. **Log Analysis Tools** (8 tools)
+5. **Log Analysis Tools** (8 tools)
    - Real-time error monitoring
    - Log search and pattern matching
    - System health summarization
 
-7. **Job Log Tools** (5 tools)
+6. **Job Log Tools** (5 tools)
    - Job log analysis and debugging
    - Job execution summaries
    - Custom job step monitoring
 
-8. **System Object Tools** (6 tools)
+7. **System Object Tools** (6 tools)
    - Custom attribute discovery
    - Site preference management
    - System object schema exploration
    - Custom object attribute definitions search
 
-9. **Code Version Tools** (2 tools)
+8. **Code Version Tools** (2 tools)
    - Code version listing and management
    - Code version activation for deployment fixes
 
-10. **Agent Instruction Tools** (1 tool)
+9. **Agent Instruction Tools** (2 tools)
    - Copy or merge AGENTS.md and bundled skills into the current workspace, user home, or a temp directory
    - Supports dry-run planning, append/replace/skip strategies, and missing-only installs
+
+10. **Script Debugger Tools** (1 tool)
+   - Invoke script debugger flows for runtime troubleshooting
+   - Supports credentialed debugging workflows in full mode
 
 ### 🚀 Operating Modes
 
@@ -461,13 +481,22 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 
 1. **CLI parameter** (`--dw-json /path/to/dw.json`) - Explicit, highest priority
 2. **Environment variables** (`SFCC_HOSTNAME`, `SFCC_USERNAME`, `SFCC_PASSWORD`, `SFCC_CLIENT_ID`, `SFCC_CLIENT_SECRET`)
-3. **MCP workspace roots discovery** - Automatically finds `dw.json` in VS Code workspace folders after client connection
+3. **MCP workspace roots discovery** - Automatically finds `dw.json` in VS Code workspace folders after client connection, and refreshes discovery when the client emits `notifications/roots/list_changed`
+
+`dw.json` authentication supports multiple credential combinations:
+- Basic auth (`username` + `password`)
+- OAuth (`client-id` + `client-secret`)
+- Both pairs together
+
+When `hostname` is present, at least one complete credential pair must be provided.
+When credentials are provided, `hostname` is required.
 
 > **Note**: CWD-based auto-discovery is intentionally disabled because MCP servers often start with `cwd` set to the user's home directory, not the project directory. The MCP workspace roots mechanism provides reliable project context.
 
 #### **Documentation-Only Mode**
 - No SFCC credentials required
-- Access to all documentation and best practices
+- Access to all documentation, cartridge scaffolding, and agent-instruction tools
+- Credentialed tools are rejected at `tools/call` with a structured `TOOL_NOT_AVAILABLE` error
 - Perfect for learning and reference
 
 #### **Full Mode**
@@ -491,18 +520,28 @@ See Unified Engineering Principles section above for the authoritative guideline
 Before updating any documentation with tool counts or quantitative information, **ALWAYS** verify the actual numbers using command line tools:
 
 ```bash
-# Total tool count verification (38 tools across all categories)
-grep -c "name: '" src/core/tool-schemas/*.ts | grep -v ":0" | awk -F: '{sum+=$2} END {print "Total tools:", sum}'
+# Runtime tool count verification (40 tools across all categories)
+npx tsx -e "import {SFCC_DOCUMENTATION_TOOLS,SFRA_DOCUMENTATION_TOOLS,ISML_DOCUMENTATION_TOOLS,LOG_TOOLS,JOB_LOG_TOOLS,SYSTEM_OBJECT_TOOLS,CARTRIDGE_GENERATION_TOOLS,CODE_VERSION_TOOLS,AGENT_INSTRUCTION_TOOLS,SCRIPT_DEBUGGER_TOOLS} from './src/core/tool-definitions.ts'; const total=SFCC_DOCUMENTATION_TOOLS.length+SFRA_DOCUMENTATION_TOOLS.length+ISML_DOCUMENTATION_TOOLS.length+LOG_TOOLS.length+JOB_LOG_TOOLS.length+SYSTEM_OBJECT_TOOLS.length+CARTRIDGE_GENERATION_TOOLS.length+CODE_VERSION_TOOLS.length+AGENT_INSTRUCTION_TOOLS.length+SCRIPT_DEBUGGER_TOOLS.length; console.log('Total tools:', total);"
+
+# Enforce docs-site tool catalog parity with runtime schemas
+npm run validate:tools-sync
+
+# Enforce docs-site skills catalog parity with bundled skills
+npm run validate:skills-sync
+
+# Enforce MCP registry metadata parity with package.json
+npm run validate:server-json
 
 # Individual category counts (from modular schema files)
 echo "Documentation tools:" && grep -c "name: '" src/core/tool-schemas/documentation-tools.ts
-echo "Best practices tools:" && grep -c "name: '" src/core/tool-schemas/best-practices-tools.ts
 echo "SFRA tools:" && grep -c "name: '" src/core/tool-schemas/sfra-tools.ts
 echo "ISML tools:" && grep -c "name: '" src/core/tool-schemas/isml-tools.ts
 echo "Log + Job log tools:" && grep -c "name: '" src/core/tool-schemas/log-tools.ts
 echo "System object tools:" && grep -c "name: '" src/core/tool-schemas/system-object-tools.ts
 echo "Cartridge tools:" && grep -c "name: '" src/core/tool-schemas/cartridge-tools.ts
 echo "Code version tools:" && grep -c "name: '" src/core/tool-schemas/code-version-tools.ts
+echo "Agent instruction tools:" && grep -c "name: '" src/core/tool-schemas/agent-instruction-tools.ts
+echo "Script debugger tools:" && grep -c "name: '" src/core/tool-schemas/script-debugger-tools.ts
 
 # Verify file structure changes
 find src -name "*.ts" -type f | wc -l  # Count TypeScript files
@@ -574,10 +613,12 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **YAML Tests**: Use `mcp-yaml-testing` skill for declarative test creation
 - **Programmatic Tests**: Use `mcp-programmatic-testing` skill for complex workflows
 - **Unit Tests**: Jest for `tests/` directory; MCP tests use `node --test`
+- **Published NPX Validation**: Use `bash ./scripts/test-published-npx.sh [version]` to run MCP tests against the released npm artifact
 
 **SFCC-Specific Tasks** (see `.github/skills/` for detailed guides):
 - **Cartridge Generation**: Use `sfcc-cartridge-generation` skill for scaffolding
 - **Log Debugging**: Use `sfcc-log-debugging` skill for error investigation
+- **Published NPX Validation**: Start `npm run test:mock-server:start` locally before `bash ./scripts/test-published-npx.sh [version]` (publish workflow starts/stops the mock server automatically)
 
 **Modular Development:**
 - **Log Modules**: Modify `clients/logs/` files for log functionality changes
@@ -607,6 +648,10 @@ npx aegis query [tool_name] '[params]' --config ./aegis.config.docs-only.json
 npm run test:mcp:yaml        # YAML tests (docs-only)
 npm run test:mcp:yaml:full   # YAML tests (full mode)
 npm run test:mcp:node        # Programmatic tests
+npm run test:mcp:published-npx  # MCP tests against latest published npm package via npx
+npm run validate:tools-sync   # Validate docs tool catalog is in sync with runtime schemas
+npm run validate:skills-sync  # Validate docs skills catalog is in sync with bundled skills
+npm run validate:server-json  # Validate server.json schema and version parity with package.json
 npm test                     # Full suite (Jest + MCP)
 ```
 

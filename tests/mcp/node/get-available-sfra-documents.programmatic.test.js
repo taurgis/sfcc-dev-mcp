@@ -89,10 +89,10 @@ describe('get_available_sfra_documents (programmatic)', () => {
     }
   });
 
-  test('extraneous argument is ignored', async () => {
-    const { raw } = await invoke({ unused: 'value' });
-    const docs = safeParseDocuments(raw);
-    assert.ok(docs.length >= 15, 'At least 15 docs expected with extraneous argument');
+    test('extraneous argument is rejected', async () => {
+      const result = await client.callTool(TOOL_NAME, { unused: 'value' });
+      assert.equal(result.isError, true, 'Tool invocation should be error for unknown arguments');
+      assert.ok(result.content?.[0]?.text?.includes('is not allowed'), 'Error should mention unknown arguments');
   });
 
   test('multiple product-* occurrences and filename pattern sanity', async () => {

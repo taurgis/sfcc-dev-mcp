@@ -1,4 +1,4 @@
-import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, HandlerContext, HandlerError } from './base-handler.js';
 
 /**
  * Configuration for creating a simple client handler
@@ -6,7 +6,7 @@ import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, ToolArguments, 
  */
 export interface SimpleClientConfig<TToolName extends string, TClient> {
   /** Tool configuration mapping tool names to specs */
-  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, any>>;
+  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
   /** Set of tool names for O(1) lookup */
   toolNameSet: Set<TToolName>;
   /** Key name for the client in the execution context */
@@ -51,7 +51,10 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
   }
 
   protected async onDispose(): Promise<void> {
+    const client = this.client;
     this.client = null;
+    await this.teardownClient(client);
+
     this.logger.debug(`${this.config.clientDisplayName} client disposed`);
   }
 
@@ -59,13 +62,18 @@ export class SimpleClientHandler<TToolName extends string, TClient> extends Base
     return this.config.toolNameSet;
   }
 
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
+  protected getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>> {
     return this.config.toolConfig;
   }
 
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+  protected async createExecutionContext(toolName: string): Promise<ToolExecutionContext> {
     if (!this.client) {
-      throw new Error(`${this.config.clientDisplayName} client not initialized`);
+      throw new HandlerError(
+        `${this.config.clientDisplayName} client not initialized`,
+        toolName,
+        'CLIENT_NOT_INITIALIZED',
+        { clientDisplayName: this.config.clientDisplayName },
+      );
     }
 
     return {

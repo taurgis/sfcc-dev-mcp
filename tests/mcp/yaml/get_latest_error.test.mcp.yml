@@ -262,6 +262,7 @@ tests:
               match:partial:
                 text: "match:contains:Invalid limit '0' for get_latest_error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Date format validation
@@ -413,6 +414,7 @@ tests:
               match:partial:
                 text: "match:contains:Invalid limit"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle extremely large limit parameter gracefully"
@@ -434,6 +436,7 @@ tests:
               match:partial:
                 text: "match:contains:Invalid limit"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle invalid date format gracefully"

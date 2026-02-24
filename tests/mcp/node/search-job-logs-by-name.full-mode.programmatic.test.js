@@ -161,13 +161,13 @@ describe('search_job_logs_by_name - Optimized Programmatic Tests', () => {
         jobName: '' 
       });
       
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName must be at least 1 characters');
     });
 
     test('should reject missing jobName parameter', async () => {
       const result = await client.callTool('search_job_logs_by_name', {});
       
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName must be at least 1 characters');
     });
 
     test('should handle invalid limit parameter', async () => {

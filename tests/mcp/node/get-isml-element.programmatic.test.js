@@ -252,11 +252,10 @@ describe('get_isml_element (programmatic)', () => {
     assert.equal(element.name, 'isif', 'Should normalize to lowercase');
   });
 
-  test('extraneous parameters are ignored', async () => {
-    const { result, raw } = await invoke('isif', { unused: 'value', extra: 123 });
-    assert.equal(result.isError, false, 'Should ignore extraneous params');
-    const element = safeParseElement(raw);
-    assert.equal(element.name, 'isif', 'Should still retrieve element');
+    test('extraneous parameters are rejected', async () => {
+      const { result } = await invoke('isif', { unused: 'value', extra: 123 });
+      assert.equal(result.isError, true, 'Should reject extraneous params');
+      assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
   });
 
   test('content contains expected markdown structure', async () => {

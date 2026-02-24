@@ -3,7 +3,7 @@ description: "Tests for search_custom_object_attribute_definitions tool in docs-
 
 tests:
   # Docs-Only Mode Tests (tool not configured)
-  - it: "should return configuration error in docs-only mode"
+  - it: "should return tool-not-available error in docs-only mode"
     request:
       jsonrpc: "2.0"
       method: "tools/call"
@@ -24,13 +24,14 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "500ms"
 
-  - it: "should handle error gracefully with minimal parameters in docs-only mode"
+  - it: "should return consistent tool-not-available error with minimal parameters in docs-only mode"
     request:
       jsonrpc: "2.0"
       method: "tools/call"
@@ -48,13 +49,14 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "500ms"
 
-  - it: "should return OCAPI client not configured error even with invalid parameters"
+  - it: "should return tool-not-available error for invalid parameters"
     request:
       jsonrpc: "2.0"
       method: "tools/call"
@@ -75,8 +77,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
       performance:
         maxResponseTime: "500ms"

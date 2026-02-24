@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { OCAPICodeVersionsClient } from '../clients/ocapi/code-versions-client.js';
 
 export const CODE_VERSION_TOOL_NAMES = [
@@ -15,7 +14,7 @@ export const CODE_VERSION_TOOL_NAMES_SET = new Set<CodeVersionToolName>(CODE_VER
  * Configuration for code version tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSpec<ToolArguments, any>> = {
+export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_code_versions: {
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.codeVersionsClient as OCAPICodeVersionsClient;
@@ -25,9 +24,6 @@ export const CODE_VERSION_TOOL_CONFIG: Record<CodeVersionToolName, GenericToolSp
   },
 
   activate_code_version: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('codeVersionId'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.codeVersionsClient as OCAPICodeVersionsClient;
       return client.activateCodeVersion(args.codeVersionId as string);

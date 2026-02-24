@@ -20,16 +20,28 @@
  * the debug logs which show the directory path during initialization.
  */
 
-import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import { appendFileSync, existsSync, mkdirSync, promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { inspect } from 'util';
 
 export class Logger {
   private context: string;
   private enableTimestamp: boolean;
   private debugEnabled: boolean;
   private logDir: string;
+  private writeQueue: Promise<void> = Promise.resolve();
+  private pendingWriteCount = 0;
+  private droppedLogCount = 0;
+  private readonly useSyncWrites: boolean;
   private static instance: Logger | null = null;
+  private static readonly MAX_PENDING_WRITES = 5000;
+  private static readonly DROP_NOTICE_INTERVAL = 100;
+
+  private static shouldUseSyncWrites(customLogDir: string | undefined): boolean {
+    // Synchronous writes are only needed for deterministic unit tests.
+    return customLogDir !== undefined && process.env.NODE_ENV === 'test';
+  }
 
   /**
    * Create a new Logger instance
@@ -45,6 +57,8 @@ export class Logger {
 
     // Set up log directory - use custom directory for testing or default for production
     this.logDir = customLogDir ?? join(tmpdir(), 'sfcc-mcp-logs');
+    // Only tests should force sync writes; runtime must stay non-blocking.
+    this.useSyncWrites = Logger.shouldUseSyncWrites(customLogDir);
     if (!existsSync(this.logDir)) {
       mkdirSync(this.logDir, { recursive: true });
     }
@@ -124,11 +138,25 @@ export class Logger {
   /**
    * Write log message to appropriate log file
    */
-  private writeLog(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: any[]): void {
+  private writeLog(level: 'info' | 'warn' | 'error' | 'debug', message: string, ...args: unknown[]): void {
+    if (!this.useSyncWrites && this.pendingWriteCount >= Logger.MAX_PENDING_WRITES) {
+      this.droppedLogCount++;
+
+      // Avoid stderr spam while still surfacing sustained backpressure.
+      if (this.droppedLogCount % Logger.DROP_NOTICE_INTERVAL === 0) {
+        process.stderr.write(
+          `[LOGGER WARN] Dropped ${this.droppedLogCount} log entries due to write backpressure\n`,
+        );
+      }
+
+      return;
+    }
+
     const formattedMessage = this.formatMessage(message);
-    const rawFullMessage = args.length > 0 ? `${formattedMessage} ${args.map(arg =>
-      typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg),
-    ).join(' ')}` : formattedMessage;
+    const serializedArgs = args.map(arg => this.serializeArg(arg)).join(' ');
+    const rawFullMessage = serializedArgs.length > 0
+      ? `${formattedMessage} ${serializedArgs}`
+      : formattedMessage;
 
     // Apply sensitive data masking before writing to log
     const fullMessage = this.maskSensitiveData(rawFullMessage);
@@ -137,14 +165,49 @@ export class Logger {
     const logFile = join(this.logDir, `sfcc-mcp-${level}.log`);
     const logEntry = `${fullMessage}\n`;
 
-    try {
-      appendFileSync(logFile, logEntry, 'utf8');
-    } catch (error) {
-      // Fallback: if file logging fails, try stderr for critical errors only
-      if (level === 'error') {
-        process.stderr.write(`[LOGGER ERROR] Could not write to log file: ${error}\n`);
-        process.stderr.write(`${logEntry}`);
+    if (this.useSyncWrites) {
+      try {
+        appendFileSync(logFile, logEntry, 'utf8');
+      } catch (error) {
+        this.handleWriteFailure(level, logEntry, error);
       }
+      return;
+    }
+
+    this.pendingWriteCount++;
+    this.writeQueue = this.writeQueue
+      .then(async () => {
+        await fs.appendFile(logFile, logEntry, 'utf8');
+      })
+      .catch((error: unknown) => {
+        this.handleWriteFailure(level, logEntry, error);
+      })
+      .finally(() => {
+        this.pendingWriteCount = Math.max(0, this.pendingWriteCount - 1);
+      });
+  }
+
+  private serializeArg(value: unknown, pretty: boolean = true): string {
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof value !== 'object' || value === null) {
+      return String(value);
+    }
+
+    try {
+      return pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value);
+    } catch {
+      return inspect(value, { depth: 4, breakLength: 120 });
+    }
+  }
+
+  private handleWriteFailure(level: 'info' | 'warn' | 'error' | 'debug', logEntry: string, error: unknown): void {
+    // Fallback: if file logging fails, try stderr for critical errors only
+    if (level === 'error') {
+      process.stderr.write(`[LOGGER ERROR] Could not write to log file: ${String(error)}\n`);
+      process.stderr.write(logEntry);
     }
   }
 
@@ -153,7 +216,7 @@ export class Logger {
    * @param message The message to log
    * @param args Optional arguments to include
    */
-  public log(message: string, ...args: any[]): void {
+  public log(message: string, ...args: unknown[]): void {
     this.writeLog('info', message, ...args);
   }
 
@@ -162,7 +225,7 @@ export class Logger {
    * @param message The message to log
    * @param args Optional arguments to include
    */
-  public info(message: string, ...args: any[]): void {
+  public info(message: string, ...args: unknown[]): void {
     this.writeLog('info', message, ...args);
   }
 
@@ -171,7 +234,7 @@ export class Logger {
    * @param message The warning message to log
    * @param args Optional arguments to include
    */
-  public warn(message: string, ...args: any[]): void {
+  public warn(message: string, ...args: unknown[]): void {
     this.writeLog('warn', message, ...args);
   }
 
@@ -180,7 +243,7 @@ export class Logger {
    * @param message The error message to log
    * @param args Optional arguments to include
    */
-  public error(message: string, ...args: any[]): void {
+  public error(message: string, ...args: unknown[]): void {
     this.writeLog('error', message, ...args);
   }
 
@@ -189,7 +252,7 @@ export class Logger {
    * @param message The debug message to log
    * @param args Optional arguments to include
    */
-  public debug(message: string, ...args: any[]): void {
+  public debug(message: string, ...args: unknown[]): void {
     if (this.debugEnabled) {
       this.writeLog('debug', `[DEBUG] ${message}`, ...args);
     }
@@ -200,9 +263,9 @@ export class Logger {
    * @param methodName The name of the method being entered
    * @param params Optional parameters being passed to the method
    */
-  public methodEntry(methodName: string, params?: any): void {
+  public methodEntry(methodName: string, params?: unknown): void {
     if (this.debugEnabled) {
-      const paramStr = params ? ` with params: ${JSON.stringify(params)}` : '';
+      const paramStr = params ? ` with params: ${this.serializeArg(params, false)}` : '';
       this.debug(`Entering method: ${methodName}${paramStr}`);
     }
   }
@@ -212,9 +275,9 @@ export class Logger {
    * @param methodName The name of the method being exited
    * @param result Optional result being returned from the method
    */
-  public methodExit(methodName: string, result?: any): void {
+  public methodExit(methodName: string, result?: unknown): void {
     if (this.debugEnabled) {
-      const resultStr = result !== undefined ? ` with result: ${typeof result === 'object' ? JSON.stringify(result) : result}` : '';
+      const resultStr = result !== undefined ? ` with result: ${this.serializeArg(result, false)}` : '';
       this.debug(`Exiting method: ${methodName}${resultStr}`);
     }
   }
@@ -246,6 +309,13 @@ export class Logger {
    */
   public setDebugEnabled(enabled: boolean): void {
     this.debugEnabled = enabled;
+  }
+
+  /**
+   * Wait for pending asynchronous log writes to complete.
+   */
+  public async flush(): Promise<void> {
+    await this.writeQueue;
   }
 
   /**

@@ -7,6 +7,16 @@ import { Logger } from '../../utils/logger.js';
 import { LOG_CONSTANTS } from './log-constants.js';
 import type { FileReadOptions } from './log-types.js';
 
+interface WebDAVStatLike {
+  size?: number;
+  lastmod?: string;
+}
+
+interface WebDAVErrorLike {
+  code?: string;
+  status?: number;
+}
+
 export class LogFileReader {
   private logger: Logger;
   private webdavClient: WebDAVClient;
@@ -14,6 +24,30 @@ export class LogFileReader {
   constructor(webdavClient: WebDAVClient, logger: Logger) {
     this.webdavClient = webdavClient;
     this.logger = logger;
+  }
+
+  private toStatLike(stat: unknown): WebDAVStatLike {
+    if (typeof stat !== 'object' || stat === null) {
+      return {};
+    }
+
+    const record = stat as Record<string, unknown>;
+    return {
+      size: typeof record.size === 'number' ? record.size : undefined,
+      lastmod: typeof record.lastmod === 'string' ? record.lastmod : undefined,
+    };
+  }
+
+  private toErrorLike(error: unknown): WebDAVErrorLike {
+    if (typeof error !== 'object' || error === null) {
+      return {};
+    }
+
+    const record = error as Record<string, unknown>;
+    return {
+      code: typeof record.code === 'string' ? record.code : undefined,
+      status: typeof record.status === 'number' ? record.status : undefined,
+    };
   }
 
   /**
@@ -36,7 +70,7 @@ export class LogFileReader {
       this.logger.debug(`Attempting stat for file: ${filename}`);
       const stat = await this.webdavClient.stat(filename);
       this.logger.debug(`Stat successful for ${filename}:`, stat);
-      const fileSize = (stat as any).size;
+      const fileSize = this.toStatLike(stat).size;
 
       if (!fileSize || fileSize <= maxBytes) {
         // File is small enough or size unknown, just get the whole file
@@ -51,11 +85,12 @@ export class LogFileReader {
 
     } catch (statError) {
       const error = statError as Error;
+      const details = this.toErrorLike(statError);
       this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file. Error:`, {
         message: error.message,
         name: error.name,
-        code: (error as any).code,
-        status: (error as any).status,
+        code: details.code,
+        status: details.status,
       });
       return await this.getFullFileContents(filename);
     }
@@ -92,7 +127,7 @@ export class LogFileReader {
       this.logger.debug(`Attempting stat for file: ${filename}`);
       const stat = await this.webdavClient.stat(filename);
       this.logger.debug(`Stat successful for ${filename}:`, stat);
-      const fileSize = (stat as any).size;
+      const fileSize = this.toStatLike(stat).size;
 
       if (!fileSize || fileSize <= maxBytes) {
         // File is small enough or size unknown, just get the whole file
@@ -106,11 +141,12 @@ export class LogFileReader {
 
     } catch (statError) {
       const error = statError as Error;
+      const details = this.toErrorLike(statError);
       this.logger.warn(`Failed to get file stats for ${filename}, falling back to full file with truncation. Error:`, {
         message: error.message,
         name: error.name,
-        code: (error as any).code,
-        status: (error as any).status,
+        code: details.code,
+        status: details.status,
       });
       // Fallback to reading full file and truncating
       const content = await this.getFullFileContents(filename);
@@ -153,7 +189,7 @@ export class LogFileReader {
           resolve(content);
         });
 
-        stream.on('error', (error: any) => {
+        stream.on('error', (error: unknown) => {
           this.logger.warn(`Failed to read range ${start}-${end} for ${filename}, falling back to full file:`, error);
           // Fallback to getting the full file
           this.getFullFileContents(filename)
@@ -168,7 +204,7 @@ export class LogFileReader {
                 resolve(content);
               }
             })
-            .catch((fallbackError: any) => reject(fallbackError));
+            .catch((fallbackError: unknown) => reject(fallbackError));
         });
       } catch (error) {
         // If createReadStream fails, fall back to full file
@@ -182,7 +218,7 @@ export class LogFileReader {
               resolve(content);
             }
           })
-          .catch((fallbackError: any) => reject(fallbackError));
+          .catch((fallbackError: unknown) => reject(fallbackError));
       }
     });
   }
@@ -232,10 +268,11 @@ export class LogFileReader {
   async getFileInfo(filename: string): Promise<{ exists: boolean; size?: number; lastmod?: string }> {
     try {
       const stat = await this.webdavClient.stat(filename);
+      const statInfo = this.toStatLike(stat);
       return {
         exists: true,
-        size: (stat as any).size,
-        lastmod: (stat as any).lastmod,
+        size: statInfo.size,
+        lastmod: statInfo.lastmod,
       };
     } catch {
       return { exists: false };

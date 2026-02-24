@@ -136,8 +136,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Failed to get_log_file_contents"
-          isError: false
+                text: "match:contains:Error: Failed to get_log_file_contents"
+          isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1500ms"
@@ -158,8 +159,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:filename must be a non-empty string"
+                text: "match:regex:filename (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
@@ -181,8 +183,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:filename must be a non-empty string"
+                text: "match:regex:filename (must be at least 1 characters|must be a non-empty string|is required)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"
@@ -205,8 +208,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid maxBytes"
+                  text: "match:contains:maxBytes must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"

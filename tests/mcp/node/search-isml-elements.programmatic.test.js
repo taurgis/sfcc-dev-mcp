@@ -282,11 +282,10 @@ describe('search_isml_elements (programmatic)', () => {
     assert.ok(duration < 1500, `Response should be under 1500ms, got ${duration}ms`);
   });
 
-  test('extraneous parameters are ignored', async () => {
-    const { result, raw } = await invoke('loop', { unused: 'value', extra: 123 });
-    assert.equal(result.isError, false, 'Should ignore extraneous params');
-    const results = safeParseResults(raw);
-    assert.ok(results.length > 0, 'Should still return results');
+    test('extraneous parameters are rejected', async () => {
+      const { result } = await invoke('loop', { unused: 'value', extra: 123 });
+      assert.equal(result.isError, true, 'Should reject extraneous params');
+      assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
   });
 
   test('default limit behavior (should have reasonable max)', async () => {

@@ -7,8 +7,8 @@ description: Learn how to run the SFCC Dev MCP server locally, choose docs or fu
 
 The SFCC Development MCP Server runs locally and exposes a set of tools that let your AI assistant query SFCC documentation, analyze logs, explore metadata, and scaffold cartridges.
 
-<Callout title="AI instructions required" variant="warn">
-Install the instruction files from `ai-instructions/` so your assistant can use the MCP tools correctly.
+<Callout title="AI instructions recommended" variant="warn">
+The server works without instruction files, but adding `ai-instructions/` improves tool use consistency and response quality.
 </Callout>
 
 ## What it does
@@ -29,7 +29,7 @@ Install the instruction files from `ai-instructions/` so your assistant can use 
 ### Full mode
 
 - Requires a valid dw.json
-- Adds log and job log tooling, system and custom object introspection, site preferences, and code version tools
+- Adds log and job log tooling, system and custom object introspection, site preferences, code version tools, and script debugger access
 
 <Callout title="Auto-detection" variant="info">
 If your MCP client supports workspace roots, the server can auto-detect `dw.json` from your open workspace after initialization. This only runs when CLI and environment credentials are not provided.

@@ -8,6 +8,9 @@
 /**
  * Query parameter builder for SFCC APIs
  */
+type QueryParamPrimitive = string | number | boolean;
+type QueryParamValue = QueryParamPrimitive | readonly (string | number)[] | undefined | null;
+
 export class QueryBuilder {
   private params: URLSearchParams;
 
@@ -47,12 +50,12 @@ export class QueryBuilder {
   /**
    * Add multiple parameters from an object
    */
-  addFromObject(params: Record<string, any>): QueryBuilder {
-    Object.entries(params).forEach(([key, value]) => {
+  addFromObject<T extends object>(params: T): QueryBuilder {
+    Object.entries(params as Record<string, QueryParamValue>).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
           this.addArray(key, value);
-        } else {
+        } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
           this.add(key, value);
         }
       }
@@ -78,7 +81,7 @@ export class QueryBuilder {
   /**
    * Static method to build query string from object
    */
-  static fromObject(params: Record<string, any>): string {
+  static fromObject<T extends object>(params: T): string {
     return new QueryBuilder().addFromObject(params).build();
   }
 }

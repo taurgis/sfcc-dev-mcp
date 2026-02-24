@@ -9,12 +9,14 @@ import { OCAPIConfig, OAuthTokenResponse } from '../../types/types.js';
 import { TokenManager } from './oauth-token.js';
 import { BaseHttpClient } from './http-client.js';
 import { buildOCAPIAuthUrl } from '../../utils/ocapi-url-builder.js';
+import { createTimeoutAbortController, isAbortError } from '../../utils/abort-utils.js';
 
 // OCAPI authentication constants
 const OCAPI_AUTH_CONSTANTS = {
   DEFAULT_AUTH_URL: 'https://account.demandware.com/dwsso/oauth2/access_token',
   GRANT_TYPE: 'client_credentials',
   FORM_CONTENT_TYPE: 'application/x-www-form-urlencoded',
+  REQUEST_TIMEOUT_MS: 15000,
 } as const;
 
 /**
@@ -85,6 +87,10 @@ export class OCAPIAuthClient extends BaseHttpClient {
     // Get the appropriate auth URL (localhost for mock, production for real SFCC)
     const authUrl = this.getAuthUrl();
     this.logger.debug(`Requesting token from: ${authUrl}`);
+    const timeoutController = createTimeoutAbortController({
+      timeoutMs: OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS,
+      timeoutMessage: `OAuth request timed out after ${OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS}ms`,
+    });
 
     try {
       const response = await fetch(authUrl, {
@@ -94,6 +100,7 @@ export class OCAPIAuthClient extends BaseHttpClient {
           'Content-Type': OCAPI_AUTH_CONSTANTS.FORM_CONTENT_TYPE,
         },
         body: `grant_type=${OCAPI_AUTH_CONSTANTS.GRANT_TYPE}`,
+        signal: timeoutController?.signal,
       });
 
       if (!response.ok) {
@@ -109,8 +116,22 @@ export class OCAPIAuthClient extends BaseHttpClient {
 
       return tokenResponse.access_token;
     } catch (error) {
-      this.logger.error(`Failed to get access token: ${error}`);
-      throw new Error(`Failed to get access token: ${error}`);
+      const isAbort = isAbortError(error);
+      if (isAbort) {
+        const timeoutError = `OAuth request timed out after ${OCAPI_AUTH_CONSTANTS.REQUEST_TIMEOUT_MS}ms`;
+        if (timeoutController?.didTimeout()) {
+          this.logger.error(timeoutError);
+          throw new Error(timeoutError, { cause: error });
+        }
+
+        throw new Error('OAuth request aborted', { cause: error });
+      }
+
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get access token: ${message}`);
+      throw new Error(`Failed to get access token: ${message}`, { cause: error });
+    } finally {
+      timeoutController?.clear();
     }
   }
 

@@ -6,7 +6,7 @@ This document describes the MCP (Model Context Protocol) tests for the SFCC Deve
 
 The project includes comprehensive MCP tests using both **YAML** and **Node.js** approaches with the [mcp-aegis](https://aegis.rhino-inquisitor.com/) testing library. The tests verify both **documentation-only mode** and **full mode with credentials**.
 
-> Note: The server is capability-gated. In real usage there is also an intermediate “WebDAV-only” surface (30 tools) when `hostname` + `username/password` are present (logs + job logs), but `client-id/client-secret` are not (so OCAPI Data API tools are not exposed). The test configs in this folder currently cover docs-only (17) and full (38).
+> Note: The server is capability-gated. In real usage there is also an intermediate "WebDAV-only" surface (32 tools) when `hostname` + `username/password` are present (logs + job logs + script debugger), but `client-id/client-secret` are not (so OCAPI Data API tools are not exposed). The test configs in this folder currently cover docs-only (18) and full (40).
 
 ## Test Structure
 
@@ -30,12 +30,12 @@ tests/mcp/
 ### Documentation-Only Mode
 - **File**: `aegis.config.docs-only.json`
 - **Command**: `node dist/index.js` (no credentials)
-- **Tools**: 17 tools (documentation, SFRA, ISML, cartridge generation, agent instruction bootstrap)
+- **Tools**: 18 tools (documentation, SFRA, ISML, cartridge generation, agent instruction bootstrap)
 
 ### Full Mode with Credentials  
 - **File**: `aegis.config.with-dw.json`
 - **Command**: `node dist/index.js --dw-json ./tests/mcp/test-fixtures/dw.json`
-- **Tools**: 38 tools (includes log + job log analysis, system objects, code versions)
+- **Tools**: 40 tools (includes log + job log analysis, script debugger, system objects, code versions)
 
 ## Available Test Commands
 
@@ -165,7 +165,7 @@ To test full functionality:
 
 ## Test Coverage
 
-### Tools Tested in Documentation-Only Mode (17 tools)
+### Tools Tested in Documentation-Only Mode (18 tools)
 1. `get_sfcc_class_info` - SFCC class information
 2. `search_sfcc_classes` - SFCC class search
 3. `search_sfcc_methods` - SFCC method search  
@@ -182,9 +182,10 @@ To test full functionality:
 14. `search_isml_elements` - ISML element search
 15. `get_isml_elements_by_category` - ISML elements by category
 16. `get_isml_categories` - ISML categories
-17. `generate_cartridge_structure` - Cartridge generation
+17. `disable_agent_sync` - Disable future AGENTS/skills suggestions via `mcp-dev.json`
+18. `generate_cartridge_structure` - Cartridge generation
 
-### Additional Tools in Full Mode (+21 tools = 38 total)
+### Additional Tools in Full Mode (+22 tools = 40 total)
 
 **Log Analysis Tools (8)**:
 - `get_latest_error`, `get_latest_warn`, `get_latest_info`, `get_latest_debug`
@@ -193,6 +194,9 @@ To test full functionality:
 **Job Log Tools (5)**:
 - `get_latest_job_log_files`, `search_job_logs_by_name`, `get_job_log_entries`
 - `search_job_logs`, `get_job_execution_summary`
+
+**Script Debugger Tools (1)**:
+- `debug_script`
 
 **System Object Tools (6)**:  
 - `get_system_object_definitions`, `get_system_object_definition`

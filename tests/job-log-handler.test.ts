@@ -131,11 +131,12 @@ describe('JobLogToolHandler', () => {
       expect(result.content[0].text).toContain(mockResult);
     });
 
-    it('should validate limit parameter', async () => {
+    it('should not validate limit in handler (validated at MCP boundary)', async () => {
+      mockLogClient.getLatestJobLogFiles.mockResolvedValue('Latest job log files result');
       const result = await handler.handle('get_latest_job_log_files', { limit: -1 }, Date.now());
 
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Invalid limit');
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.getLatestJobLogFiles).toHaveBeenCalledWith(-1);
     });
   });
 
@@ -157,11 +158,12 @@ describe('JobLogToolHandler', () => {
       expect(result.content[0].text).toContain(mockResult);
     });
 
-    it('should validate required jobName parameter', async () => {
+    it('should not validate missing jobName in handler (validated at MCP boundary)', async () => {
+      mockLogClient.searchJobLogsByName.mockResolvedValue('Search job logs by name result');
       const result = await handler.handle('search_job_logs_by_name', {}, Date.now());
 
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('jobName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchJobLogsByName).toHaveBeenCalledWith(undefined, 10);
     });
   });
 
@@ -176,15 +178,16 @@ describe('JobLogToolHandler', () => {
 
       const result = await handler.handle('get_job_log_entries', {}, Date.now());
 
-      expect(mockLogClient.getJobLogEntries).toHaveBeenCalledWith('all', 50, undefined); // default limit is 50 for job entries
+      expect(mockLogClient.getJobLogEntries).toHaveBeenCalledWith('all', 10, undefined); // default limit is 10 for job entries
       expect(result.content[0].text).toContain(mockResult);
     });
 
-    it('should validate log level parameter', async () => {
+    it('should not validate log level in handler (validated at MCP boundary)', async () => {
+      mockLogClient.getJobLogEntries.mockResolvedValue('Job log entries result');
       const result = await handler.handle('get_job_log_entries', { level: 'invalid' }, Date.now());
 
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("Invalid log level 'invalid' for");
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.getJobLogEntries).toHaveBeenCalledWith('invalid', 10, undefined);
     });
   });
 
@@ -205,11 +208,12 @@ describe('JobLogToolHandler', () => {
       expect(result.content[0].text).toContain(mockResult);
     });
 
-    it('should validate required pattern parameter', async () => {
+    it('should not validate missing pattern in handler (validated at MCP boundary)', async () => {
+      mockLogClient.searchJobLogs.mockResolvedValue('Search job logs result');
       const result = await handler.handle('search_job_logs', {}, Date.now());
 
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('pattern must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchJobLogs).toHaveBeenCalledWith(undefined, 'all', 20, undefined);
     });
   });
 
@@ -230,11 +234,12 @@ describe('JobLogToolHandler', () => {
       expect(result.content[0].text).toContain(mockResult);
     });
 
-    it('should validate required jobName parameter', async () => {
+    it('should not validate missing jobName in handler (validated at MCP boundary)', async () => {
+      mockLogClient.getJobExecutionSummary.mockResolvedValue('Job execution summary result');
       const result = await handler.handle('get_job_execution_summary', {}, Date.now());
 
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('jobName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.getJobExecutionSummary).toHaveBeenCalledWith(undefined);
     });
   });
 

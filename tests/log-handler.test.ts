@@ -147,8 +147,8 @@ describe('LogToolHandler', () => {
     it('should handle get_latest_warn with default parameters', async () => {
       await handler.handle('get_latest_warn', {}, Date.now());
 
-      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('warn', 10, undefined);
-      expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest warn logs limit=10 date=today');
+      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('warn', 20, undefined);
+      expect(mockLogger.debug).toHaveBeenCalledWith('Fetching latest warn logs limit=20 date=today');
     });
 
     it('should handle get_latest_info', async () => {
@@ -160,7 +160,7 @@ describe('LogToolHandler', () => {
     it('should handle get_latest_debug', async () => {
       await handler.handle('get_latest_debug', { date: '20230101' }, Date.now());
 
-      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('debug', 10, '20230101');
+      expect(mockLogClient.getLatestLogs).toHaveBeenCalledWith('debug', 20, '20230101');
     });
   });
 
@@ -224,16 +224,24 @@ describe('LogToolHandler', () => {
       expect(mockLogger.debug).toHaveBeenCalledWith('Searching logs level=all limit=20 pattern="test"');
     });
 
-    it('should throw error when pattern is missing', async () => {
+    it('should not enforce required pattern in handler (validated at MCP boundary)', async () => {
+      const mockResults = JSON.stringify({ results: [], total: 0 });
+      mockLogClient.searchLogs.mockResolvedValue(mockResults);
+
       const result = await handler.handle('search_logs', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('pattern must be a non-empty string');
+
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchLogs).toHaveBeenCalledWith(undefined, undefined, 20, undefined);
     });
 
-    it('should throw error when pattern is empty', async () => {
+    it('should allow empty pattern in handler (validated at MCP boundary)', async () => {
+      const mockResults = JSON.stringify({ results: [], total: 0 });
+      mockLogClient.searchLogs.mockResolvedValue(mockResults);
+
       const result = await handler.handle('search_logs', { pattern: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('pattern must be a non-empty string');
+
+      expect(result.isError).toBe(false);
+      expect(mockLogClient.searchLogs).toHaveBeenCalledWith('', undefined, 20, undefined);
     });
   });
 
@@ -287,14 +295,23 @@ describe('LogToolHandler', () => {
       const result = await handler.handle('get_log_file_contents', {}, Date.now());
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('filename must be a non-empty string');
+      expect(result.content[0].text).toContain('Filename is required for get_log_file_contents');
     });
 
     it('should handle empty filename', async () => {
       const result = await handler.handle('get_log_file_contents', { filename: '' }, Date.now());
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('filename must be a non-empty string');
+      expect(result.content[0].text).toContain('Filename is required for get_log_file_contents');
+    });
+
+    it('should return isError when log client throws during file read', async () => {
+      mockLogClient.getLogFileContents.mockRejectedValue(new Error('Read failed'));
+
+      const result = await handler.handle('get_log_file_contents', { filename: 'broken.log' }, Date.now());
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Read failed');
     });
   });
 

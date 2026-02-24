@@ -283,6 +283,7 @@ tests:
             - type: "text"
               text: "match:contains:category"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================

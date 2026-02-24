@@ -15,55 +15,11 @@
 import { readFileSync, existsSync, statSync, realpathSync } from 'fs';
 import { resolve, basename, extname, normalize, isAbsolute } from 'path';
 import { DwJsonConfig } from '../types/types.js';
-
-/**
- * Dangerous system paths that should never be accessed
- * These are blocked to prevent accidental or malicious access to sensitive areas
- */
-const BLOCKED_SYSTEM_PATHS: readonly string[] = [
-  '/etc',
-  '/proc',
-  '/sys',
-  '/dev',
-  '/root',
-  '/var/log',
-  '/var/run',
-  '/boot',
-  '/sbin',
-  '/bin',
-  // Windows system paths
-  'C:\\Windows',
-  'C:\\Program Files',
-  'C:\\ProgramData',
-  // Common sensitive directories
-  '.ssh',
-  '.gnupg',
-  '.aws',
-  '.config/gcloud',
-] as const;
-
-/**
- * Allowed path prefixes for configuration file access
- * These are the typical locations where development projects and configs reside
- */
-const ALLOWED_PATH_PATTERNS: readonly RegExp[] = [
-  // User home directories
-  /^\/Users\/[^/]+\//i, // macOS
-  /^\/home\/[^/]+\//i, // Linux (allow all users for development)
-  /^C:\\Users\\[^\\]+\\/i, // Windows
-  // Common project directories
-  /^\/opt\//i,
-  /^\/var\/www\//i,
-  /^\/srv\//i,
-  // Temp directories (for testing)
-  /^\/tmp\//i,
-  /^\/private\/tmp\//i, // macOS real temp path
-  /^\/var\/folders\//i, // macOS temp
-  /^\/private\/var\/folders\//i, // macOS real temp path (symlink resolved)
-  /^C:\\Temp\\/i, // Windows temp
-  // CI workspace paths
-  /^\/home\/runner\/work\//i, // GitHub Actions
-] as const;
+import { isAllowedResolvedPath, isBlockedResolvedPath } from './path-security-policy.js';
+import {
+  assertCredentialConsistency,
+  assertValidHostnameFormat,
+} from './credential-validation.js';
 
 /**
  * Validates that a file path is safe to access and prevents path traversal attacks
@@ -103,24 +59,12 @@ function validateSecurePath(filePath: string): string {
     throw new Error('Invalid file path after normalization');
   }
 
-  // Check against blocked system paths
-  const lowerPath = resolvedPath.toLowerCase();
-  for (const blocked of BLOCKED_SYSTEM_PATHS) {
-    const blockedLower = blocked.toLowerCase();
-    if (
-      lowerPath === blockedLower ||
-      lowerPath.startsWith(`${blockedLower  }/`) ||
-      lowerPath.startsWith(`${blockedLower  }\\`) ||
-      lowerPath.includes(`/${  blockedLower  }/`) ||
-      lowerPath.includes(`\\${  blockedLower  }\\`)
-    ) {
-      throw new Error('Access to system directories not allowed');
-    }
+  if (isBlockedResolvedPath(resolvedPath)) {
+    throw new Error('Access to system directories not allowed');
   }
 
   // Check that path matches allowed patterns
-  const matchesAllowed = ALLOWED_PATH_PATTERNS.some(pattern => pattern.test(resolvedPath));
-  if (!matchesAllowed) {
+  if (!isAllowedResolvedPath(resolvedPath)) {
     throw new Error('Path is outside of allowed configuration directories');
   }
 
@@ -171,16 +115,27 @@ function validateFileSize(filePath: string): void {
  * @throws Error if required fields are missing or invalid
  */
 function validateDwJsonContent(dwConfig: DwJsonConfig): void {
-  // Validate required fields
-  if (!dwConfig.hostname || !dwConfig.username || !dwConfig.password) {
-    throw new Error('Configuration file must contain hostname, username, and password fields');
+  // Validate required hostname
+  if (!dwConfig.hostname) {
+    throw new Error('Configuration file must contain a hostname field');
   }
 
+  assertCredentialConsistency(
+    {
+      username: dwConfig.username,
+      password: dwConfig.password,
+      clientId: dwConfig['client-id'],
+      clientSecret: dwConfig['client-secret'],
+    },
+    {
+      oauthPairMessage: 'OAuth credentials must include both client-id and client-secret',
+      requireAnyCredentialsMessage:
+      'Configuration file must include either username/password or client-id/client-secret credentials',
+    },
+  );
+
   // Additional validation for hostname format (trim whitespace first)
-  const trimmedHostname = dwConfig.hostname.trim();
-  if (!trimmedHostname?.match(/^[a-zA-Z0-9.-]+(?::[0-9]+)?$/)) {
-    throw new Error('Invalid hostname format in configuration');
-  }
+  assertValidHostnameFormat(dwConfig.hostname, 'Invalid hostname format in configuration');
 }
 
 /**

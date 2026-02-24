@@ -35,6 +35,8 @@ export interface ClassDetailsFilterOptions {
   search?: string;
 }
 
+type ExpandedClassDetails = SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] };
+
 export class SFCCDocumentationClient {
   private docsPath: string;
   private classCache: Map<string, SFCCClassInfo> = new Map();
@@ -126,7 +128,7 @@ export class SFCCDocumentationClient {
 
     // Check cache first
     const cacheKey = `search:classes:${query.toLowerCase()}`;
-    const cachedResult = this.cacheManager.getSearchResults(cacheKey);
+    const cachedResult = this.cacheManager.getSearchResults<string[]>(cacheKey);
     if (cachedResult) {
       return cachedResult;
     }
@@ -172,7 +174,7 @@ export class SFCCDocumentationClient {
   async getClassDetails(className: string): Promise<SFCCClassDetails | null> {
     // Check cache first
     const cacheKey = `details:${className}`;
-    const cachedDetails = this.cacheManager.getClassDetails(cacheKey);
+    const cachedDetails = this.cacheManager.getClassDetails<SFCCClassDetails | null>(cacheKey);
     if (cachedDetails !== undefined) {
       return cachedDetails;
     }
@@ -199,7 +201,7 @@ export class SFCCDocumentationClient {
     className: string,
     expand: boolean = false,
     filterOptions?: ClassDetailsFilterOptions,
-  ): Promise<SFCCClassDetails & { referencedTypes?: SFCCClassDetails[] } | null> {
+  ): Promise<ExpandedClassDetails | null> {
     // Set default filter options
     const filters = {
       includeDescription: filterOptions?.includeDescription ?? true,
@@ -212,7 +214,7 @@ export class SFCCDocumentationClient {
 
     // Check cache first for expanded details with filter options
     const cacheKey = `details-expanded:${className}:${expand}:${JSON.stringify(filters)}`;
-    const cachedResult = this.cacheManager.getClassDetails(cacheKey);
+    const cachedResult = this.cacheManager.getClassDetails<ExpandedClassDetails | null>(cacheKey);
     if (cachedResult !== undefined) {
       return cachedResult;
     }
@@ -349,7 +351,7 @@ export class SFCCDocumentationClient {
 
     // Check cache first
     const cacheKey = `search:methods:${methodName.toLowerCase()}`;
-    const cachedResult = this.cacheManager.getMethodSearch(cacheKey);
+    const cachedResult = this.cacheManager.getMethodSearch<Array<{ className: string; method: SFCCMethod }>>(cacheKey);
     if (cachedResult) {
       return cachedResult;
     }

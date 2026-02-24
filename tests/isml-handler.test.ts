@@ -21,6 +21,15 @@ describe('ISMLToolHandler', () => {
   let context: HandlerContext;
   let handler: ISMLToolHandler;
 
+  const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
+    const text = result.content[0]?.text;
+    if (typeof text === 'string') {
+      return text;
+    }
+
+    return JSON.stringify(result.structuredContent ?? {});
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: jest.fn(),
@@ -107,16 +116,16 @@ describe('ISMLToolHandler', () => {
       const result = await handler.handle('list_isml_elements', {}, Date.now());
 
       expect(mockClient.getAvailableElements).toHaveBeenCalled();
-      expect(result.content[0].text).toContain('isif');
-      expect(result.content[0].text).toContain('isloop');
-      expect(result.content[0].text).toContain('isprint');
+      expect(getResultText(result)).toContain('isif');
+      expect(getResultText(result)).toContain('isloop');
+      expect(getResultText(result)).toContain('isprint');
     });
 
     it('should return properly formatted JSON', async () => {
       const result = await handler.handle('list_isml_elements', {}, Date.now());
 
       expect(result.isError).toBe(false);
-      const data = JSON.parse(result.content[0].text);
+      const data = JSON.parse(getResultText(result));
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBe(3);
       expect(data[0]).toHaveProperty('name');
@@ -150,8 +159,8 @@ describe('ISMLToolHandler', () => {
         includeSections: true,
         includeAttributes: true,
       });
-      expect(result.content[0].text).toContain('isif');
-      expect(result.content[0].text).toContain('condition');
+      expect(getResultText(result)).toContain('isif');
+      expect(getResultText(result)).toContain('condition');
     });
 
     it('should handle get_isml_element with options', async () => {
@@ -182,23 +191,43 @@ describe('ISMLToolHandler', () => {
       });
     });
 
-    it('should throw error when elementName is missing', async () => {
+    it('should not enforce missing elementName in handler (validated at MCP boundary)', async () => {
+      mockClient.getISMLElement.mockResolvedValue({
+        name: 'fallback',
+        title: 'fallback',
+        description: 'fallback element',
+        syntax: '<isfallback/>',
+      });
       const result = await handler.handle('get_isml_element', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('elementName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getISMLElement).toHaveBeenCalledWith(undefined, {
+        includeContent: true,
+        includeSections: true,
+        includeAttributes: true,
+      });
     });
 
-    it('should throw error when elementName is empty', async () => {
+    it('should not enforce empty elementName in handler (validated at MCP boundary)', async () => {
+      mockClient.getISMLElement.mockResolvedValue({
+        name: 'fallback',
+        title: 'fallback',
+        description: 'fallback element',
+        syntax: '<isfallback/>',
+      });
       const result = await handler.handle('get_isml_element', { elementName: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('elementName must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getISMLElement).toHaveBeenCalledWith('', {
+        includeContent: true,
+        includeSections: true,
+        includeAttributes: true,
+      });
     });
 
     it('should throw error when element is not found', async () => {
       mockClient.getISMLElement.mockResolvedValue(null);
       const result = await handler.handle('get_isml_element', { elementName: 'unknown' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('not found');
+      expect(getResultText(result)).toContain('not found');
     });
   });
 
@@ -229,8 +258,8 @@ describe('ISMLToolHandler', () => {
         category: undefined,
         limit: undefined,
       });
-      expect(result.content[0].text).toContain('isif');
-      expect(result.content[0].text).toContain('relevance');
+      expect(getResultText(result)).toContain('isif');
+      expect(getResultText(result)).toContain('relevance');
     });
 
     it('should handle search_isml_elements with category filter', async () => {
@@ -255,16 +284,22 @@ describe('ISMLToolHandler', () => {
       expect(result.isError).toBe(false);
     });
 
-    it('should throw error when query is missing', async () => {
+    it('should not enforce missing query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_isml_elements', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.searchISMLElements).toHaveBeenCalledWith(undefined, {
+        category: undefined,
+        limit: undefined,
+      });
     });
 
-    it('should throw error when query is empty', async () => {
+    it('should not enforce empty query in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('search_isml_elements', { query: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('query must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.searchISMLElements).toHaveBeenCalledWith('', {
+        category: undefined,
+        limit: undefined,
+      });
     });
   });
 
@@ -282,20 +317,20 @@ describe('ISMLToolHandler', () => {
       const result = await handler.handle('get_isml_elements_by_category', args, Date.now());
 
       expect(mockClient.getElementsByCategory).toHaveBeenCalledWith('control-flow');
-      expect(result.content[0].text).toContain('isif');
-      expect(result.content[0].text).toContain('isloop');
+      expect(getResultText(result)).toContain('isif');
+      expect(getResultText(result)).toContain('isloop');
     });
 
-    it('should throw error when category is missing', async () => {
+    it('should not enforce missing category in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('get_isml_elements_by_category', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('category must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getElementsByCategory).toHaveBeenCalledWith(undefined);
     });
 
-    it('should throw error when category is empty', async () => {
+    it('should not enforce empty category in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('get_isml_elements_by_category', { category: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('category must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.getElementsByCategory).toHaveBeenCalledWith('');
     });
   });
 
@@ -313,16 +348,16 @@ describe('ISMLToolHandler', () => {
       const result = await handler.handle('get_isml_categories', {}, Date.now());
 
       expect(mockClient.getAvailableCategories).toHaveBeenCalled();
-      expect(result.content[0].text).toContain('control-flow');
-      expect(result.content[0].text).toContain('Control Flow');
-      expect(result.content[0].text).toContain('elementCount');
+      expect(getResultText(result)).toContain('control-flow');
+      expect(getResultText(result)).toContain('Control Flow');
+      expect(getResultText(result)).toContain('elementCount');
     });
 
     it('should return properly formatted JSON', async () => {
       const result = await handler.handle('get_isml_categories', {}, Date.now());
 
       expect(result.isError).toBe(false);
-      const data = JSON.parse(result.content[0].text);
+      const data = JSON.parse(getResultText(result));
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBe(3);
       expect(data[0]).toHaveProperty('name');
@@ -341,7 +376,7 @@ describe('ISMLToolHandler', () => {
 
       const result = await handler.handle('get_isml_element', { elementName: 'unknown' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Element file not found');
+      expect(getResultText(result)).toContain('Element file not found');
     });
 
     it('should throw error for unsupported tools', async () => {

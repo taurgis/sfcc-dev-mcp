@@ -55,6 +55,12 @@ export class SFCCLogClient {
     this.analyzer = new LogAnalyzer(this.logger);
   }
 
+  private throwFormattedError(toolName: string, error: unknown): never {
+    const errorMessage = LogFormatter.formatError(toolName, error);
+    this.logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   /**
    * Get the latest log entries for a specific log level
    */
@@ -215,10 +221,9 @@ export class SFCCLogClient {
       this.logger.methodExit('listLogFiles', { fileCount: files.length });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('list_log_files', error);
-      this.logger.error(errorMessage);
+      const reason = error instanceof Error ? error.message : String(error);
       this.logger.methodExit('listLogFiles', { error: true });
-      throw new Error(`Failed to list log files: ${(error as Error).message}`);
+      throw new Error(`Failed to list log files: ${reason}`);
     } finally {
       const duration = Date.now() - startTime;
       this.logger.debug(`listLogFiles completed in ${duration}ms`);
@@ -249,10 +254,8 @@ export class SFCCLogClient {
         return result;
       }
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('get_log_file_contents', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('getLogFileContents', { error: true });
-      return errorMessage;
+      this.throwFormattedError('get_log_file_contents', error);
     } finally {
       const duration = Date.now() - startTime;
       this.logger.debug(`getLogFileContents completed in ${duration}ms`);
@@ -359,10 +362,8 @@ ${content}`;
       this.logger.methodExit('getLatestJobLogFiles', { count: jobLogs.length });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('get_latest_job_log_files', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('getLatestJobLogFiles', { error: true });
-      return errorMessage;
+      this.throwFormattedError('get_latest_job_log_files', error);
     }
   }
 
@@ -378,10 +379,8 @@ ${content}`;
       this.logger.methodExit('searchJobLogsByName', { count: jobLogs.length });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('search_job_logs_by_name', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('searchJobLogsByName', { error: true });
-      return errorMessage;
+      this.throwFormattedError('search_job_logs_by_name', error);
     }
   }
 
@@ -431,10 +430,8 @@ ${content}`;
 
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('get_job_log_entries', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('getJobLogEntries', { error: true });
-      return errorMessage;
+      this.throwFormattedError('get_job_log_entries', error);
     }
   }
 
@@ -498,10 +495,8 @@ ${content}`;
       this.logger.methodExit('searchJobLogs', { matchesFound: matches.length });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('search_job_logs', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('searchJobLogs', { error: true });
-      return errorMessage;
+      this.throwFormattedError('search_job_logs', error);
     }
   }
 
@@ -531,10 +526,8 @@ ${content}`;
       this.logger.methodExit('getJobExecutionSummary', { jobLog: latestJobLog.logFile });
       return result;
     } catch (error) {
-      const errorMessage = LogFormatter.formatError('get_job_execution_summary', error);
-      this.logger.error(errorMessage);
       this.logger.methodExit('getJobExecutionSummary', { error: true });
-      return errorMessage;
+      this.throwFormattedError('get_job_execution_summary', error);
     }
   }
 }

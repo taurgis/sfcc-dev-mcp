@@ -1,5 +1,5 @@
-import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { AbstractClientHandler } from './abstract-client-handler.js';
+import { HandlerContext } from './base-handler.js';
+import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { ClientFactory } from './client-factory.js';
 import { SFCCLogClient } from '../../clients/logs/index.js';
 import { JOB_LOG_TOOL_CONFIG } from '../../tool-configs/job-log-tool-config.js';
@@ -8,32 +8,15 @@ import { JOB_LOG_TOOL_NAMES_SET, JobLogToolName } from '../../utils/log-tool-con
 /**
  * Handler for job-specific log tools using config-driven dispatch
  */
-export class JobLogToolHandler extends AbstractClientHandler<JobLogToolName, SFCCLogClient> {
+export class JobLogToolHandler extends ConfiguredClientHandler<JobLogToolName, SFCCLogClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
-    super(context, subLoggerName);
-  }
-
-  protected createClient(): SFCCLogClient | null {
-    return this.clientFactory.createLogClient();
-  }
-
-  protected getClientContextKey(): string {
-    return 'logClient';
-  }
-
-  protected getClientDisplayName(): string {
-    return 'Log';
-  }
-
-  protected getClientRequiredError(): string {
-    return ClientFactory.getClientRequiredError('Log');
-  }
-
-  protected getToolNameSet(): Set<JobLogToolName> {
-    return JOB_LOG_TOOL_NAMES_SET;
-  }
-
-  protected getToolConfig(): Record<string, GenericToolSpec<ToolArguments, any>> {
-    return JOB_LOG_TOOL_CONFIG;
+    super(context, subLoggerName, {
+      createClient: (clientFactory) => clientFactory.createLogClient(),
+      clientContextKey: 'logClient',
+      clientDisplayName: 'Log',
+      clientRequiredError: ClientFactory.getClientRequiredError('Log'),
+      toolNameSet: JOB_LOG_TOOL_NAMES_SET,
+      toolConfig: JOB_LOG_TOOL_CONFIG,
+    });
   }
 }

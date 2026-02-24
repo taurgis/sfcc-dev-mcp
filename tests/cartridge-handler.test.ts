@@ -1,6 +1,7 @@
 import { CartridgeToolHandler } from '../src/core/handlers/cartridge-handler.js';
 import { HandlerContext } from '../src/core/handlers/base-handler.js';
 import { Logger } from '../src/utils/logger.js';
+import { join, parse, resolve } from 'path';
 
 // Mock cartridge client
 const mockCartridgeClient = {
@@ -19,6 +20,17 @@ describe('CartridgeToolHandler', () => {
   let mockClient: typeof mockCartridgeClient;
   let context: HandlerContext;
   let handler: CartridgeToolHandler;
+  const workspaceScopedPath = join(process.cwd(), 'tmp', 'handler-tests');
+  const outsideWorkspacePath = join(parse(process.cwd()).root, 'tmp', 'outside-workspace');
+
+  const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
+    const text = result.content[0]?.text;
+    if (typeof text === 'string') {
+      return text;
+    }
+
+    return JSON.stringify(result.structuredContent ?? {});
+  };
 
   beforeEach(() => {
     mockLogger = {
@@ -113,7 +125,7 @@ describe('CartridgeToolHandler', () => {
         targetPath: undefined,
         fullProjectSetup: true,
       });
-      expect(result.content[0].text).toContain('plugin_example');
+      expect(getResultText(result)).toContain('plugin_example');
     });
 
     it('should handle generate_cartridge_structure with all options', async () => {
@@ -128,17 +140,17 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'custom_cartridge',
-        targetPath: '/custom/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: false,
       };
       const result = await handler.handle('generate_cartridge_structure', args, Date.now());
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'custom_cartridge',
-        targetPath: '/custom/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: false,
       });
-      expect(result.content[0].text).toContain('custom_cartridge');
+      expect(getResultText(result)).toContain('custom_cartridge');
     });
 
     it('should use default fullProjectSetup when not provided', async () => {
@@ -150,33 +162,60 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'test_cartridge',
-        targetPath: '/test/path',
+        targetPath: workspaceScopedPath,
       };
       await handler.handle('generate_cartridge_structure', args, Date.now());
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'test_cartridge',
-        targetPath: '/test/path',
+        targetPath: workspaceScopedPath,
         fullProjectSetup: true,
       });
     });
 
-    it('should throw error when cartridgeName is missing', async () => {
+    it('should not enforce missing cartridgeName in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: undefined,
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
 
-    it('should throw error when cartridgeName is empty', async () => {
+    it('should not enforce empty cartridgeName in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: '',
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
 
-    it('should throw error when cartridgeName is not a string', async () => {
+    it('should not enforce cartridgeName type in handler (validated at MCP boundary)', async () => {
+      mockClient.generateCartridgeStructure.mockResolvedValue({
+        success: true,
+        cartridgeName: 'fallback',
+        filesCreated: [],
+      });
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: 123 }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('cartridgeName must be a valid identifier');
+      expect(result.isError).toBe(false);
+      expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
+        cartridgeName: 123,
+        targetPath: undefined,
+        fullProjectSetup: true,
+      });
     });
   });
 
@@ -190,12 +229,27 @@ describe('CartridgeToolHandler', () => {
 
       const result = await handler.handle('generate_cartridge_structure', { cartridgeName: 'existing_cartridge' }, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Directory already exists');
+      expect(getResultText(result)).toContain('Directory already exists');
     });
 
     it('should throw error for unsupported tools', async () => {
       await expect(handler.handle('unsupported_tool', {}, Date.now()))
         .rejects.toThrow('Unsupported tool');
+    });
+
+    it('should reject targetPath outside workspace boundaries', async () => {
+      const result = await handler.handle(
+        'generate_cartridge_structure',
+        {
+          cartridgeName: 'outside_workspace',
+          targetPath: outsideWorkspacePath,
+        },
+        Date.now(),
+      );
+
+      expect(result.isError).toBe(true);
+      expect(getResultText(result)).toContain('Path must be within workspace roots or current working directory');
+      expect(mockClient.generateCartridgeStructure).not.toHaveBeenCalled();
     });
   });
 
@@ -274,7 +328,7 @@ describe('CartridgeToolHandler', () => {
 
       const args = {
         cartridgeName: 'full_cartridge',
-        targetPath: '/workspace/my-project',
+        targetPath: resolve(workspaceScopedPath, 'full-cartridge'),
         fullProjectSetup: false,
       };
 
@@ -282,7 +336,7 @@ describe('CartridgeToolHandler', () => {
 
       expect(mockClient.generateCartridgeStructure).toHaveBeenCalledWith({
         cartridgeName: 'full_cartridge',
-        targetPath: '/workspace/my-project',
+        targetPath: resolve(workspaceScopedPath, 'full-cartridge'),
         fullProjectSetup: false,
       });
     });

@@ -35,6 +35,7 @@ tests:
             - type: "text"
               text: "match:contains:Class Server"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -57,6 +58,7 @@ tests:
             - type: "text"
               text: "match:contains:Class Request"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -79,6 +81,7 @@ tests:
             - type: "text"
               text: "match:contains:Class Response"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -101,6 +104,7 @@ tests:
             - type: "text"
               text: "match:contains:QueryString"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -123,6 +127,7 @@ tests:
             - type: "text"
               text: "match:contains:render"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -146,6 +151,7 @@ tests:
             - type: "text"
               text: "match:contains:product"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -168,6 +174,7 @@ tests:
             - type: "text"
               text: "match:contains:cart"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -191,6 +198,7 @@ tests:
             - type: "text"
               text: "match:contains:account"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -214,6 +222,7 @@ tests:
             - type: "text"
               text: "match:regex:\\{[\\s\\S]*title[\\s\\S]*sections[\\s\\S]*content[\\s\\S]*\\}"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include document metadata"
@@ -234,6 +243,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*type[\\s\\S]*category[\\s\\S]*filename[\\s\\S]*lastModified[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include sections array"
@@ -254,6 +264,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*sections[\\s\\S]*\\[[\\s\\S]*\\][\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should include comprehensive content"
@@ -274,6 +285,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*Description[\\s\\S]*Method Summary[\\s\\S]*Method Detail[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Error handling tests
@@ -295,6 +307,7 @@ tests:
             - type: "text"
               text: "match:contains:not found"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle empty document name"
@@ -315,6 +328,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found|invalid)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle invalid document name characters"
@@ -335,6 +349,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found|invalid)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing documentName parameter"
@@ -354,6 +369,7 @@ tests:
             - type: "text"
               text: "match:regex:(Error|required|missing|documentName|non-empty string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Case sensitivity tests - it appears the tool is case-insensitive
@@ -375,6 +391,7 @@ tests:
             - type: "text"
               text: "match:contains:Class Server"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle mixed case document names"
@@ -395,6 +412,7 @@ tests:
             - type: "text"
               text: "match:contains:Class Server"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Content quality tests
@@ -416,6 +434,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*middleware[\\s\\S]*routing[\\s\\S]*HTTP[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should provide meaningful content for request document"
@@ -436,6 +455,7 @@ tests:
             - type: "text"
               text: "match:regex:[\\s\\S]*HTTP[\\s\\S]*session[\\s\\S]*customer[\\s\\S]*"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   # Additional model document tests
@@ -457,6 +477,7 @@ tests:
             - type: "text"
               text: "match:contains:billing"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -479,6 +500,7 @@ tests:
             - type: "text"
               text: "match:contains:shipping"
           isError: false
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "2000ms"
       stderr: "toBeEmpty"
@@ -502,6 +524,7 @@ tests:
             - type: "text"
               text: "match:type:string"
           isError: false
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle very long nonexistent document names"
@@ -522,4 +545,5 @@ tests:
             - type: "text"
               text: "match:regex:(Error|not found)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"

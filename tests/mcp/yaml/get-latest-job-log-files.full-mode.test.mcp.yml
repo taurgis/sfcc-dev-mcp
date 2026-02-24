@@ -110,8 +110,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit '0' for tool"
+              text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -134,8 +135,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit '-1' for tool"
+              text: "match:contains:limit must be >= 1"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -158,8 +160,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:Invalid limit 'invalid' for tool. Must be a valid number"
+              text: "match:contains:limit must be a number"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"

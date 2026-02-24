@@ -389,6 +389,127 @@ describe('ScriptDebuggerClient', () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain('Timeout waiting for script to hit breakpoint');
     });
+
+    it('should timeout hanging debugger poll requests instead of hanging indefinitely', async () => {
+      const abortError = new Error('Request aborted');
+      abortError.name = 'AbortError';
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        const method = options?.method ?? 'GET';
+
+        if ((urlStr.includes('/on/demandware.store/') || urlStr.includes('/s/')) && !urlStr.includes('/dw/debugger')) {
+          return { ok: true, status: 200, text: async () => '<html></html>' } as Response;
+        }
+
+        if (urlStr.includes('/client') && method === 'POST') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/client') && method === 'DELETE') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/breakpoints') && method === 'POST') {
+          return {
+            ok: true,
+            status: 200,
+            text: async () => JSON.stringify({ breakpoints: [{ id: 1 }] }),
+          } as Response;
+        }
+
+        if (urlStr.includes('/breakpoints') && method === 'DELETE') {
+          return { ok: true, status: 204 } as Response;
+        }
+
+        if (urlStr.includes('/threads') && method === 'GET') {
+          return await new Promise<Response>((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => reject(abortError), { once: true });
+          });
+        }
+
+        return { ok: true, status: 204 } as Response;
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('test', {
+        breakpointFile: '/my_cartridge/cartridge/controllers/Test.js',
+        timeout: 120,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Timeout waiting for script to hit breakpoint');
+    });
+
+    it('should clear storefront timeout even when trigger requests fail', async () => {
+      mockExists.mockResolvedValue(true);
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'trigger-timeout-cleaned' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes('/on/demandware.store/') && !urlStr.includes('/dw/debugger')) {
+          throw new Error('Storefront trigger failed');
+        }
+        return defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('1 + 1', { timeout: 5000 });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('trigger-timeout-cleaned');
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+
+      clearTimeoutSpy.mockRestore();
+    });
+
+    it('should reuse a single debugger session for concurrent evaluations', async () => {
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'shared-session' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const options = {
+        breakpointFile: '/my_cartridge/cartridge/controllers/Test.js',
+        breakpointLine: 15,
+        timeout: 5000,
+      };
+
+      const [resultA, resultB] = await Promise.all([
+        client.evaluateScript('1 + 1', options),
+        client.evaluateScript('2 + 2', options),
+      ]);
+
+      expect(resultA.success).toBe(true);
+      expect(resultB.success).toBe(true);
+
+      const fetchMock = global.fetch as unknown as jest.Mock;
+      const createSessionCalls = fetchMock.mock.calls.filter(([url, requestOptions]) => {
+        const method = (requestOptions as RequestInit | undefined)?.method ?? 'GET';
+        return method === 'POST' && url.toString().includes('/client');
+      });
+
+      const deleteSessionCalls = fetchMock.mock.calls.filter(([url, requestOptions]) => {
+        const method = (requestOptions as RequestInit | undefined)?.method ?? 'GET';
+        return method === 'DELETE' && url.toString().includes('/client');
+      });
+
+      expect(createSessionCalls).toHaveLength(1);
+      expect(deleteSessionCalls).toHaveLength(1);
+    });
   });
 
   describe('authentication', () => {

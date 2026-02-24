@@ -14,6 +14,9 @@ export interface McpDevConfig {
 export class InstructionAdvisor {
   private readonly client: AgentInstructionsClient;
   private readonly logger: Logger;
+  private noticeEvaluated = false;
+  private noticeToShow?: string;
+  private hasShownNotice = false;
 
   constructor(client: AgentInstructionsClient, logger: Logger) {
     this.client = client;
@@ -68,6 +71,18 @@ export class InstructionAdvisor {
   }
 
   async getNotice(): Promise<string | undefined> {
+    if (this.hasShownNotice) {
+      return undefined;
+    }
+
+    if (this.noticeEvaluated) {
+      if (this.noticeToShow) {
+        this.hasShownNotice = true;
+        return this.noticeToShow;
+      }
+      return undefined;
+    }
+
     try {
       const status = await this.client.getStatus();
 
@@ -81,16 +96,25 @@ export class InstructionAdvisor {
       });
 
       // If we cannot determine a workspace root, skip the notice (can't reliably detect presence)
-      if (!status.workspaceRoot) { return undefined; }
+      if (!status.workspaceRoot) {
+        // Not definitive yet: workspace roots may be discovered later.
+        return undefined;
+      }
 
       // Check if agent sync is disabled via mcp-dev.json
       const syncDisabled = await this.isAgentSyncDisabled(status.workspaceRoot);
       if (syncDisabled) {
         this.logger.debug('[InstructionAdvisor] Agent sync disabled via mcp-dev.json');
+        this.noticeEvaluated = true;
+        this.noticeToShow = undefined;
         return undefined;
       }
 
-      if (status.hasAgents && status.hasSkills) { return undefined; }
+      if (status.hasAgents && status.hasSkills) {
+        this.noticeEvaluated = true;
+        this.noticeToShow = undefined;
+        return undefined;
+      }
 
       const missingParts = [];
       if (!status.hasAgents) { missingParts.push('AGENTS.md'); }
@@ -100,7 +124,7 @@ export class InstructionAdvisor {
         : 'All skills will be installed.';
 
       this.logger.debug('[InstructionAdvisor] Issuing workspace-root notice');
-      return [
+      this.noticeToShow = [
         '📋 Agent instructions available for this SFCC project.',
         `Missing: ${missingParts.join(' + ')}`,
         missingSkills,
@@ -110,6 +134,10 @@ export class InstructionAdvisor {
         'If YES: Run sync_agent_instructions with dryRun=false',
         'If NO: Create mcp-dev.json with {"disableAgentSync": true} to permanently disable this suggestion.',
       ].join('\n');
+
+      this.noticeEvaluated = true;
+      this.hasShownNotice = true;
+      return this.noticeToShow;
     } catch (error) {
       this.logger.debug('InstructionAdvisor failed to evaluate status', error);
       return undefined;
@@ -117,6 +145,8 @@ export class InstructionAdvisor {
   }
 
   reset(): void {
-    // no-op for now; retained for potential future stateful notice throttling
+    this.noticeEvaluated = false;
+    this.noticeToShow = undefined;
+    this.hasShownNotice = false;
   }
 }

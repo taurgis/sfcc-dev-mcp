@@ -641,6 +641,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle missing query parameter"
@@ -660,6 +661,7 @@ tests:
             - type: "text"
               text: "match:contains:query"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should handle non-existent terms gracefully"
@@ -1022,6 +1024,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "150ms"  # Error handling should be very fast
       stderr: "toBeEmpty"

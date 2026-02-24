@@ -23,7 +23,7 @@ Docs mode tools are available without credentials. Full mode tools require `dw.j
 
 <div class="vp-card" style="margin-top: 24px;">
 	<strong>Mode recommendation</strong>
-	<p>Explore freely in Documentation Mode first. Add <code>--dw-json</code> later to unlock log analysis, system and custom objects, job log insights, and code version management.</p>
+	<p>Explore freely in Documentation Mode first. Add <code>--dw-json</code> later to unlock log analysis, system and custom objects, job log insights, code version management, and script debugger workflows.</p>
 </div>
 
 <div class="vp-card" style="margin-top: 24px;">

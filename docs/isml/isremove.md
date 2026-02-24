@@ -719,7 +719,7 @@ Don't over-optimize by removing every variable immediately:
 ## See Also
 
 - [isset Element](./isset.md)
-- [ISML Variables and Scope](./variables.md)
+- [ISML Variables and Scope](./isset.md)
 - [Session Management](../dw_system/Session.md)
 - [Security Skill](../../ai-instructions/skills/sfcc-security/SKILL.md)
 - [Performance Skill](../../ai-instructions/skills/sfcc-performance/SKILL.md)

@@ -1,7 +1,7 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { CartridgeGenerationClient } from '../clients/cartridge/index.js';
+import { validateTargetPathWithinWorkspace } from '../core/handlers/validation-helpers.js';
 
 export const CARTRIDGE_TOOL_NAMES = [
   'generate_cartridge_structure',
@@ -14,25 +14,23 @@ export const CARTRIDGE_TOOL_NAMES_SET = new Set<CartridgeToolName>(CARTRIDGE_TOO
  * Configuration for cartridge generation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<ToolArguments, any>> = {
+export const CARTRIDGE_TOOL_CONFIG: Record<CartridgeToolName, GenericToolSpec<ToolArguments, unknown>> = {
   generate_cartridge_structure: {
     defaults: (args: ToolArguments) => ({
       ...args,
       fullProjectSetup: args.fullProjectSetup ?? true,
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredField(
-        'cartridgeName',
-        'string',
-        (value: string) => /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value),
-        'cartridgeName must be a valid identifier (letters, numbers, underscore, hyphen)',
-      ), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.cartridgeClient as CartridgeGenerationClient;
+      const validatedTargetPath = validateTargetPathWithinWorkspace(
+        args.targetPath,
+        context,
+        'generate_cartridge_structure',
+      );
+
       return client.generateCartridgeStructure({
         cartridgeName: args.cartridgeName as string,
-        targetPath: args.targetPath as string | undefined,
+        targetPath: validatedTargetPath,
         fullProjectSetup: args.fullProjectSetup as boolean,
       });
     },

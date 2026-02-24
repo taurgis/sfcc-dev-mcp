@@ -1,7 +1,7 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { OCAPIClient } from '../clients/ocapi-client.js';
+import { OCAPISearchRequest, SitePreferencesSearchOptions } from '../types/ocapi-search.js';
 
 export const SYSTEM_OBJECT_TOOL_NAMES = [
   'get_system_object_definitions',
@@ -15,19 +15,41 @@ export const SYSTEM_OBJECT_TOOL_NAMES = [
 export type SystemObjectToolName = typeof SYSTEM_OBJECT_TOOL_NAMES[number];
 export const SYSTEM_OBJECT_TOOL_NAMES_SET = new Set<SystemObjectToolName>(SYSTEM_OBJECT_TOOL_NAMES);
 
+interface ObjectTypeArgs extends ToolArguments {
+  objectType: string;
+}
+
+interface SystemObjectDefinitionsArgs extends ToolArguments {
+  start?: number;
+  count?: number;
+  select?: string;
+}
+
+interface ObjectSearchArgs extends ObjectTypeArgs {
+  searchRequest: OCAPISearchRequest;
+}
+
+interface SitePreferenceSearchArgs extends ToolArguments {
+  groupId: string;
+  instanceType: string;
+  searchRequest: OCAPISearchRequest;
+  options?: SitePreferencesSearchOptions;
+}
+
 /**
  * Configuration for system object tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, any>> = {
+export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_system_object_definitions: {
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
+      const typedArgs = args as SystemObjectDefinitionsArgs;
       // Pass pagination parameters to the client
       const params = {
-        start: args.start as number,
-        count: args.count as number,
-        select: args.select as string,
+        start: typedArgs.start,
+        count: typedArgs.count,
+        select: typedArgs.select,
       };
       // Remove undefined values to avoid sending them
       Object.keys(params).forEach(key => {
@@ -41,12 +63,10 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
   },
 
   get_system_object_definition: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
-      return client.systemObjects.getSystemObjectDefinition(args.objectType as string);
+      const { objectType } = args as ObjectTypeArgs;
+      return client.systemObjects.getSystemObjectDefinition(objectType);
     },
     logMessage: (args: ToolArguments) => `Get system object definition for ${args?.objectType}`,
   },
@@ -60,14 +80,12 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
+      const { objectType, searchRequest } = args as ObjectSearchArgs;
       return client.systemObjects.searchSystemObjectAttributeDefinitions(
-        args.objectType as string,
-        args.searchRequest as any,
+        objectType,
+        searchRequest,
       );
     },
     logMessage: (args: ToolArguments) => `Search system object attributes for ${args?.objectType}`,
@@ -81,14 +99,12 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
+      const { objectType, searchRequest } = args as ObjectSearchArgs;
       return client.systemObjects.searchCustomObjectAttributeDefinitions(
-        args.objectType as string,
-        args.searchRequest as any,
+        objectType,
+        searchRequest,
       );
     },
     logMessage: (args: ToolArguments) => `Search custom object attributes for ${args?.objectType}`,
@@ -104,16 +120,14 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
       },
       options: args.options ?? { expand: 'value' },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('groupId'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
+      const { groupId, instanceType, searchRequest, options } = args as SitePreferenceSearchArgs;
       return client.sitePreferences.searchSitePreferences(
-        args.groupId as string,
-        args.instanceType as string,
-        args.searchRequest as any,
-        args.options as any,
+        groupId,
+        instanceType,
+        searchRequest,
+        options,
       );
     },
     logMessage: (args: ToolArguments) => `Search site preferences group ${args?.groupId}`,
@@ -127,14 +141,12 @@ export const SYSTEM_OBJECT_TOOL_CONFIG: Record<SystemObjectToolName, GenericTool
         count: 200,
       },
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('objectType'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.ocapiClient as OCAPIClient;
+      const { objectType, searchRequest } = args as ObjectSearchArgs;
       return client.systemObjects.searchSystemObjectAttributeGroups(
-        args.objectType as string,
-        args.searchRequest as any,
+        objectType,
+        searchRequest,
       );
     },
     logMessage: (args: ToolArguments) => `Search attribute groups for ${args?.objectType}`,

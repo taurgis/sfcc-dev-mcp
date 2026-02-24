@@ -118,7 +118,7 @@ export abstract class AbstractDocumentationClient<
 
     // Check cache validity
     if (this.documentsCache && (now - this.lastScanTime) < AbstractDocumentationClient.SCAN_CACHE_TTL) {
-      const cached = this.cache.getSearchResults(cacheKey);
+      const cached = this.cache.getSearchResults<TSummary[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -149,7 +149,7 @@ export abstract class AbstractDocumentationClient<
     this.logger.debug(`Getting document: ${normalizedName}`);
 
     const cacheKey = `${this.config.cachePrefix}:document:${normalizedName}`;
-    const cached = this.cache.getSearchResults(cacheKey);
+    const cached = this.cache.getSearchResults<TDocument>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -227,14 +227,14 @@ export abstract class AbstractDocumentationClient<
     this.logger.debug('Getting available categories');
 
     const cacheKey = `${this.config.cachePrefix}:categories`;
-    const cached = this.cache.getSearchResults(cacheKey);
+    const cached = this.cache.getSearchResults<CategoryWithCount[]>(cacheKey);
     if (cached) {
       return cached;
     }
 
     const documents = await this.loadAllDocuments();
     // Cast documents to the expected type - we know category will be TCategory since
-    // documents are created with that constraint via createDocument and getCategoryForItem
+    // documents are created with that constraint via createDocument.
     const categoryList = buildCategoryList(
       documents as unknown as Array<{ category: TCategory }>,
       this.config.categoryDescriptions,
@@ -256,6 +256,15 @@ export abstract class AbstractDocumentationClient<
    */
   clearCache(): void {
     this.cache.clearAll();
+    this.documentsCache = null;
+    this.lastScanTime = 0;
+  }
+
+  /**
+   * Destroy all cache resources and reset in-memory state.
+   */
+  destroy(): void {
+    this.cache.destroy();
     this.documentsCache = null;
     this.lastScanTime = 0;
   }

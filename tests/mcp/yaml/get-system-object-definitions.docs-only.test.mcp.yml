@@ -76,10 +76,10 @@ tests:
       stderr: "toBeEmpty"
 
 # ==================================================================================
-# TOOL CALL BEHAVIOR - AVAILABLE BUT RETURNS ERROR  
+# TOOL CALL BEHAVIOR - CALLABLE BUT UNAVAILABLE IN DOCS-ONLY MODE
 # ==================================================================================
 
-  - it: "should return configuration error when calling unlisted tool"
+  - it: "should return tool-not-available error when calling unlisted tool"
     request:
       jsonrpc: "2.0"
       id: "config-error"
@@ -96,8 +96,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"  # Error should be fast
 
@@ -116,7 +117,7 @@ tests:
         result:
           content: "match:type:array"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should fail fast when calling unlisted tool with parameters"
     request:
       jsonrpc: "2.0"
@@ -136,8 +137,9 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"  # Should fail quickly
 
@@ -236,7 +238,7 @@ tests:
           match:extractField: "tools.*.name"
           value: "match:not:arrayContains:get_system_object_definitions"
 
-  - it: "should consistently return configuration error across multiple attempts"
+  - it: "should consistently return tool-not-available error across multiple attempts"
     request:
       jsonrpc: "2.0"
       id: "consistent-config-error"
@@ -253,5 +255,6 @@ tests:
             match:arrayElements:
               match:partial:
                 type: "text"
-                text: "match:contains:OCAPI client not configured"
+                text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"

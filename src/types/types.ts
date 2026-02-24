@@ -33,10 +33,10 @@ export interface SFCCConfig {
 export interface DwJsonConfig {
   /** SFCC hostname */
   hostname: string;
-  /** Username for WebDAV access */
-  username: string;
-  /** Password for WebDAV access */
-  password: string;
+  /** Username for WebDAV access (optional when OAuth-only credentials are used) */
+  username?: string;
+  /** Password for WebDAV access (optional when OAuth-only credentials are used) */
+  password?: string;
   /** Optional code version */
   'code-version'?: string;
   /** Optional client ID for OAuth */

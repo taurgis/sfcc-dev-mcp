@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { SFRAClient } from '../clients/sfra-client.js';
 
 export const SFRA_TOOL_NAMES = [
@@ -18,7 +17,7 @@ export const SFRA_TOOL_NAMES_SET = new Set<SFRAToolName>(SFRA_TOOL_NAMES);
  * Configuration for SFRA documentation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArguments, any>> = {
+export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_available_sfra_documents: {
     exec: async (_args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
@@ -28,9 +27,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   get_sfra_document: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('documentName'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
       const result = await client.getSFRADocument(args.documentName as string);
@@ -43,9 +39,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   search_sfra_documentation: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
       return client.searchSFRADocumentation(args.query as string);
@@ -54,9 +47,6 @@ export const SFRA_TOOL_CONFIG: Record<SFRAToolName, GenericToolSpec<ToolArgument
   },
 
   get_sfra_documents_by_category: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('category'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.sfraClient as SFRAClient;
       return client.getDocumentsByCategory(args.category as string);

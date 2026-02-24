@@ -35,7 +35,7 @@ Key behaviors (from the server logic):
 If your client does not support `roots/list`, auto-discovery will be skipped and you must pass `--dw-json` or environment variables.
 
 <Callout title="Quick start" variant="info">
-Start in docs mode, then add `dw.json` only when you need logs, job logs, system objects, or code versions.
+Start in docs mode, then add `dw.json` only when you need logs, job logs, system objects, code versions, or script debugger access.
 </Callout>
 
 ## dw.json builder
@@ -43,6 +43,8 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 <DwJsonBuilder />
 
 ## Minimal dw.json (logs and job logs)
+
+Use this when you want WebDAV-backed tooling with username/password credentials.
 
 ```json
 {
@@ -71,8 +73,8 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 | Field | Required for | Notes |
 | --- | --- | --- |
 | `hostname` | All authenticated tools | Sandbox domain (no protocol) |
-| `username` / `password` | Logs + job logs | WebDAV credentials |
-| `client-id` / `client-secret` | System & custom objects, site prefs, code versions | OCAPI Data API |
+| `username` / `password` | WebDAV-backed tools | Enables logs, job logs, and script debugger access |
+| `client-id` / `client-secret` | OCAPI Data API + WebDAV-backed tools | Enables system/custom objects, site prefs, code versions, and can also authenticate WebDAV tools |
 | `code-version` | Code version operations | Optional default |
 | `site-id` | Site-specific actions | Optional |
 
@@ -89,10 +91,11 @@ Start in docs mode, then add `dw.json` only when you need logs, job logs, system
 | SFRA docs | ✔ | ✔ |
 | ISML docs | ✔ | ✔ |
 | Cartridge generation | ✔ | ✔ |
-| Log analysis (runtime) | — | ✔ (requires WebDAV creds) |
-| Job logs | — | ✔ (requires WebDAV creds) |
+| Log analysis (runtime) | — | ✔ (requires WebDAV-capable credentials) |
+| Job logs | — | ✔ (requires WebDAV-capable credentials) |
 | System & custom objects / site prefs | — | ✔ (requires client-id/client-secret) |
 | Code versions | — | ✔ (requires client-id/client-secret) |
+| Script debugger | — | ✔ (requires WebDAV-capable credentials) |
 
 </div>
 
@@ -162,35 +165,15 @@ Add these resources in Business Manager: Administration -> Site Development -> O
 
 ## Notes
 
-- Logs and job logs use WebDAV with username and password.
+- Logs and job logs use WebDAV with either `username`/`password` or `client-id`/`client-secret`.
+- For OAuth-only setups (`client-id`/`client-secret` without `username`/`password`), the server performs a one-time WebDAV capability probe before exposing log, job-log, and script-debugger tools.
 - System objects and site preferences use OCAPI Data API (`client-id` and `client-secret`).
 - Code version activation requires Data API access plus `patch` permission.
+- For long-running tool calls, clients may request out-of-band progress updates via `_meta.progressToken`; cancelled requests return `REQUEST_CANCELLED`.
 
 <Callout title="Debug mode" variant="info">
-Use `--debug true` temporarily when diagnosing tool behavior.
+Use `--debug` (or `--debug true/false`, `1/0`, `yes/no`) temporarily when diagnosing tool behavior.
 </Callout>
-
-## Tool availability by mode
-
-| Category | Docs mode | Full mode |
-| --- | --- | --- |
-| Documentation, SFRA, ISML | Yes | Yes |
-| Cartridge generation | Yes | Yes |
-| Agent instructions | Yes | Yes |
-| Logs and job logs | No | Yes |
-| System objects and site preferences | No | Yes |
-| Code versions | No | Yes |
-| Script debugger | No | Yes |
-
-## Supported dw.json fields
-
-| Field | Required for | Notes |
-| --- | --- | --- |
-| `hostname` | All authenticated tools | Sandbox hostname |
-| `username` / `password` | Logs and job logs | WebDAV access |
-| `client-id` / `client-secret` | System objects, site preferences, code versions | OCAPI Data API |
-| `code-version` | Code version operations | Optional |
-| `site-id` | Site-specific operations | Optional |
 
 ## Security basics
 

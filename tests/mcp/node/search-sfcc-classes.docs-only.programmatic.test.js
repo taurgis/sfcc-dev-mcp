@@ -96,7 +96,11 @@ describe('search_sfcc_classes Programmatic Tests', () => {
       assertValidMCPResponse(result);
       assert.equal(result.isError, true, 'Should be an error response');
       assert.ok(result.content[0].text.includes('Error:'), 'Should contain error message');
-      assert.ok(result.content[0].text.includes('non-empty string'), 'Should specify validation requirement');
+      assert.ok(
+        result.content[0].text.includes('non-empty string') ||
+        result.content[0].text.includes('at least 1 characters'),
+        'Should specify validation requirement',
+      );
     });
   });
 
@@ -186,8 +190,16 @@ describe('search_sfcc_classes Programmatic Tests', () => {
         
         const errorMessage = result.content[0].text.toLowerCase();
         assert.ok(errorMessage.includes('error'), 'Should contain error indicator');
-        assert.ok(errorMessage.includes(expectedError.toLowerCase()), 
-          `Error message should mention "${expectedError}"`);
+        if (expectedError === 'non-empty string') {
+          assert.ok(
+            errorMessage.includes('non-empty string') ||
+            errorMessage.includes('at least 1 characters'),
+            `Error message should mention "${expectedError}" or minLength wording`,
+          );
+        } else {
+          assert.ok(errorMessage.includes(expectedError.toLowerCase()),
+            `Error message should mention "${expectedError}"`);
+        }
         
         // Error categorization
         const errorType = categorizeError(result.content[0].text);

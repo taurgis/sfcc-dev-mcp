@@ -19,6 +19,7 @@ export const SFRA_DOCUMENTATION_TOOLS = [
       properties: {
         documentName: {
           type: 'string',
+          minLength: 1,
           description: 'Document name, e.g., "server", "request", "cart", "product-full", "account". Use get_available_sfra_documents for full list.',
         },
       },
@@ -33,6 +34,8 @@ export const SFRA_DOCUMENTATION_TOOLS = [
       properties: {
         query: {
           type: 'string',
+          minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Search term, e.g., "middleware", "routing", "cache", "cart", "pricing".',
         },
       },

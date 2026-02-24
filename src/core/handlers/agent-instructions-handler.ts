@@ -38,8 +38,8 @@ export class AgentInstructionsToolHandler extends SimpleClientHandler<
   /**
    * Override to add instructionAdvisor to execution context
    */
-  protected override async createExecutionContext(): Promise<ToolExecutionContext> {
-    const baseContext = await super.createExecutionContext();
+  protected override async createExecutionContext(toolName: string): Promise<ToolExecutionContext> {
+    const baseContext = await super.createExecutionContext(toolName);
     return {
       ...baseContext,
       instructionAdvisor: this.instructionAdvisor,

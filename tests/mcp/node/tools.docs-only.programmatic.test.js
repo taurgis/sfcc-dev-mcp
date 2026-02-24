@@ -132,7 +132,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   test('should execute generate_cartridge_structure successfully', async () => {
     const result = await client.callTool('generate_cartridge_structure', { 
       cartridgeName: 'test_cartridge',
-      targetPath: '/tmp/test-cartridge-output',
+      targetPath: `${process.cwd()}/tmp/test-cartridge-output`,
       fullProjectSetup: false
     });
     
@@ -216,7 +216,7 @@ describe('SFCC Development MCP Server - Documentation-Only Mode', () => {
   test('should validate cartridge generation response structure', async () => {
     const result = await client.callTool('generate_cartridge_structure', { 
       cartridgeName: 'advanced_test_cartridge',
-      targetPath: '/tmp/advanced-test-output',
+      targetPath: `${process.cwd()}/tmp/advanced-test-output`,
       fullProjectSetup: false // Use false for more reliable testing
     });
     

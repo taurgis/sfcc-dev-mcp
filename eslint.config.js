@@ -8,6 +8,14 @@ export default tseslint.config(
 
   // Global settings
   {
+    rules: {
+      // Preserve pre-v10 lint behavior; enable deliberately in a dedicated cleanup.
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
+    },
+  },
+
+  {
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -89,6 +97,15 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+  },
+
+  // Runtime source files (stdio safety)
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    rules: {
+      // Prevent accidental stdout writes in MCP stdio server paths.
+      'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
 

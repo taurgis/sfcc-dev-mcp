@@ -35,9 +35,9 @@ tests:
       stderr: "toBeEmpty"
 
   # ==================================================================================
-  # AUTHENTICATION ERROR TESTS (Tool Can Be Called But Returns Error)
+  # TOOL AVAILABILITY ERROR TESTS (Tool is callable but unavailable in docs-only mode)
   # ==================================================================================
-  - it: "should return authentication error when calling get_code_versions in docs-only mode"
+  - it: "should return tool-not-available error when calling get_code_versions in docs-only mode"
     request:
       jsonrpc: "2.0"
       id: "auth-error-default"
@@ -53,13 +53,14 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
 
-  - it: "should return consistent error message for authentication failure"
+  - it: "should return consistent tool-not-available error message"
     request:
       jsonrpc: "2.0"
       id: "auth-error-consistent"
@@ -75,8 +76,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:regex:Error[\\s\\S]*OCAPI[\\s\\S]*not configured[\\s\\S]*"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -103,9 +105,10 @@ tests:
                 type: "text"
                 text: "match:type:string"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
-  - it: "should handle parameters gracefully even when returning error"
+  - it: "should reject unknown parameters with validation error"
     request:
       jsonrpc: "2.0"
       id: "error-with-params"
@@ -122,8 +125,9 @@ tests:
           content:
             match:arrayElements:
               type: "text"
-              text: "match:contains:OCAPI client not configured"
+              text: "match:contains:Tool not available in current mode"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "1000ms"
@@ -149,6 +153,7 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "500ms"
@@ -171,6 +176,7 @@ tests:
               match:partial:
                 type: "text"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
     performance:
       maxResponseTime: "800ms"

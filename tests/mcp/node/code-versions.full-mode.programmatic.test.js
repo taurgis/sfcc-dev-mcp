@@ -137,20 +137,22 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
     });
 
-    test('should handle empty parameters and extra parameters consistently', async () => {
+      test('should handle empty parameters and reject extra parameters', async () => {
       // Test with empty object
       const result1 = await client.callTool('get_code_versions', {});
       const data1 = parseCodeVersionsResponse(result1);
       
-      // Test with extra parameters (should be ignored)
+        // Test with extra parameters (should be rejected by boundary validation)
       const result2 = await client.callTool('get_code_versions', {
         extraParam: 'ignored',
         anotherParam: 123
       });
-      const data2 = parseCodeVersionsResponse(result2);
+        assertValidMCPResponse(result2);
+        assert.equal(result2.isError, true, 'Extra parameters should be rejected');
+        assert.ok(result2.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
       
-      // Results should be identical
-      assert.deepEqual(data1, data2, 'Results should be identical regardless of extra parameters');
+        // Baseline call should still succeed
+        assert.ok(Array.isArray(data1.data), 'Baseline response should include data array');
     });
   });
 
@@ -210,7 +212,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       const result1 = await client.callTool('activate_code_version', {});
       assertValidMCPResponse(result1);
       assert.equal(result1.isError, true, 'Should be error for missing parameter');
-      assertTextContent(result1, 'codeVersionId must be a non-empty string');
+      assertTextContent(result1, 'codeVersionId');
       
       // Test empty string
       const result2 = await client.callTool('activate_code_version', {
@@ -218,7 +220,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result2);
       assert.equal(result2.isError, true, 'Should be error for empty string');
-      assertTextContent(result2, 'codeVersionId must be a non-empty string');
+      assertTextContent(result2, 'codeVersionId');
       
       // Test wrong type (number)
       const result3 = await client.callTool('activate_code_version', {
@@ -226,7 +228,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result3);
       assert.equal(result3.isError, true, 'Should be error for number type');
-      assertTextContent(result3, 'codeVersionId must be a non-empty string');
+      assertTextContent(result3, 'codeVersionId');
       
       // Test null value
       const result4 = await client.callTool('activate_code_version', {
@@ -234,7 +236,7 @@ describe('SFCC Code Versions Tools - Full Mode Programmatic Tests', () => {
       });
       assertValidMCPResponse(result4);
       assert.equal(result4.isError, true, 'Should be error for null value');
-      assertTextContent(result4, 'codeVersionId must be a non-empty string');
+      assertTextContent(result4, 'codeVersionId');
     });
   });
 

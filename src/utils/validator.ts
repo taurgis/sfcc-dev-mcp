@@ -9,7 +9,11 @@
  * Custom validation error class
  */
 export class ValidationError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    public readonly code: string = 'VALIDATION_ERROR',
+    public readonly details?: unknown,
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -28,7 +32,7 @@ export class Validator {
   /**
    * Validate that required fields are present and not empty
    */
-  static validateRequired(params: Record<string, any>, requiredFields: string[]): void {
+  static validateRequired(params: Record<string, unknown>, requiredFields: string[]): void {
     const missingFields: string[] = [];
 
     for (const field of requiredFields) {
@@ -90,14 +94,16 @@ export class Validator {
   /**
    * Validate search request structure
    */
-  static validateSearchRequest(searchRequest: any): void {
+  static validateSearchRequest(searchRequest: unknown): void {
     if (!searchRequest || typeof searchRequest !== 'object') {
       throw new ValidationError('Search request must be a valid object');
     }
 
+    const request = searchRequest as Record<string, unknown>;
+
     // Validate query structure if present
-    if (searchRequest.query) {
-      const query = searchRequest.query;
+    if (request.query && typeof request.query === 'object') {
+      const query = request.query as Record<string, unknown>;
 
       // Check that at least one query type is specified
       const queryTypes = ['text_query', 'term_query', 'filtered_query', 'bool_query', 'match_all_query'];
@@ -110,8 +116,8 @@ export class Validator {
       }
 
       // Validate text_query structure
-      if (query.text_query) {
-        const textQuery = query.text_query;
+      if (query.text_query && typeof query.text_query === 'object') {
+        const textQuery = query.text_query as Record<string, unknown>;
         if (!textQuery.fields || !Array.isArray(textQuery.fields) || textQuery.fields.length === 0) {
           throw new ValidationError('text_query.fields must be a non-empty array');
         }
@@ -121,8 +127,8 @@ export class Validator {
       }
 
       // Validate term_query structure
-      if (query.term_query) {
-        const termQuery = query.term_query;
+      if (query.term_query && typeof query.term_query === 'object') {
+        const termQuery = query.term_query as Record<string, unknown>;
         if (!termQuery.fields || !Array.isArray(termQuery.fields) || termQuery.fields.length === 0) {
           throw new ValidationError('term_query.fields must be a non-empty array');
         }
@@ -136,27 +142,28 @@ export class Validator {
     }
 
     // Validate sorts structure if present
-    if (searchRequest.sorts) {
-      if (!Array.isArray(searchRequest.sorts)) {
+    if (request.sorts !== undefined) {
+      if (!Array.isArray(request.sorts)) {
         throw new ValidationError('sorts must be an array');
       }
 
-      searchRequest.sorts.forEach((sort: any, index: number) => {
-        if (!sort.field || typeof sort.field !== 'string') {
+      request.sorts.forEach((sort: unknown, index: number) => {
+        const sortObject = sort as Record<string, unknown>;
+        if (!sortObject.field || typeof sortObject.field !== 'string') {
           throw new ValidationError(`sorts[${index}].field must be a non-empty string`);
         }
-        if (sort.sort_order && !['asc', 'desc'].includes(sort.sort_order)) {
+        if (sortObject.sort_order && (sortObject.sort_order !== 'asc' && sortObject.sort_order !== 'desc')) {
           throw new ValidationError(`sorts[${index}].sort_order must be either 'asc' or 'desc'`);
         }
       });
     }
 
     // Validate pagination parameters
-    if (searchRequest.start !== undefined) {
-      Validator.validatePositiveNumber(searchRequest.start, 'start');
+    if (typeof request.start === 'number') {
+      Validator.validatePositiveNumber(request.start, 'start');
     }
-    if (searchRequest.count !== undefined) {
-      Validator.validatePositiveNumber(searchRequest.count, 'count');
+    if (typeof request.count === 'number') {
+      Validator.validatePositiveNumber(request.count, 'count');
     }
   }
 }

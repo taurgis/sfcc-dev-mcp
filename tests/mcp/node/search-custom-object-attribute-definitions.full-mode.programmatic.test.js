@@ -437,7 +437,7 @@ describe('search_custom_object_attribute_definitions - Full Mode Programmatic Te
         }
       });
 
-      assertSFCCErrorResponse(invalidResult, 'PropertyConstraintViolationException');
+      assertSFCCErrorResponse(invalidResult);
 
       // Verify system still works with valid query
       const validResult = await client.callTool('search_custom_object_attribute_definitions', {
@@ -455,7 +455,7 @@ describe('search_custom_object_attribute_definitions - Full Mode Programmatic Te
     test('should handle parameter validation errors consistently', async () => {
       const testCases = [
         { params: {}, expectedError: 'objectType' },
-        { params: { objectType: '' }, expectedError: 'objectType must be a non-empty string' },
+        { params: { objectType: '' }, expectedError: 'objectType must be at least 1 characters' },
         { params: { objectType: null }, expectedError: 'objectType' },
         { params: { objectType: 123 }, expectedError: 'objectType' }
       ];

@@ -139,10 +139,10 @@ describe('get_isml_categories (programmatic)', () => {
     assert.ok(controlFlow.count >= 5, `control-flow should have at least 5 elements, got ${controlFlow.count}`);
   });
 
-  test('extraneous argument is ignored', async () => {
-    const { raw } = await invoke({ unused: 'value', extra: 123 });
-    const categories = safeParseCategories(raw);
-    assert.equal(categories.length, EXPECTED_CATEGORIES.length, 'Should return same number of categories with extraneous args');
+    test('extraneous argument is rejected', async () => {
+      const result = await client.callTool(TOOL_NAME, { unused: 'value', extra: 123 });
+      assert.equal(result.isError, true, 'Tool invocation should be error for unknown arguments');
+      assert.ok(result.content?.[0]?.text?.includes('is not allowed'), 'Error should mention unknown arguments');
   });
 
   test('deterministic ordering (two calls produce identical category order)', async () => {

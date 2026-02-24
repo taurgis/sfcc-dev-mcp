@@ -186,8 +186,8 @@ describe('get_log_file_contents - Optimized Programmatic Tests', () => {
       const errorCases = [
         { args: {}, expectedError: 'filename' },
         { args: { filename: '' }, expectedError: 'filename' },
-        { args: { filename: testFile, maxBytes: 0 }, expectedError: 'Invalid maxBytes' },
-        { args: { filename: testFile, maxBytes: -1 }, expectedError: 'Invalid maxBytes' }
+          { args: { filename: testFile, maxBytes: 0 }, expectedError: 'maxBytes must be >= 1' },
+          { args: { filename: testFile, maxBytes: -1 }, expectedError: 'maxBytes must be >= 1' }
       ];
 
       for (const errorCase of errorCases) {

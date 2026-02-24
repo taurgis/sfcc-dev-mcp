@@ -127,14 +127,15 @@ describe('OCAPIAuthClient', () => {
       });
       expect(mockFetch).toHaveBeenCalledWith(
         'https://account.demandware.com/dwsso/oauth2/access_token',
-        {
+        expect.objectContaining({
           method: 'POST',
           headers: {
             'Authorization': `Basic ${Buffer.from(`${mockConfig.clientId}:${mockConfig.clientSecret}`).toString('base64')}`,
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: 'grant_type=client_credentials',
-        },
+          signal: expect.any(Object),
+        }),
       );
       expect(mockTokenManager.storeToken).toHaveBeenCalledWith(
         mockConfig.hostname,
@@ -153,7 +154,7 @@ describe('OCAPIAuthClient', () => {
       } as Response);
 
       await expect((client as any).getAuthHeaders()).rejects.toThrow(
-        'Failed to get access token: Error: OAuth authentication failed: 401 Unauthorized - Invalid credentials',
+        'Failed to get access token: OAuth authentication failed: 401 Unauthorized - Invalid credentials',
       );
     });
 
@@ -162,8 +163,30 @@ describe('OCAPIAuthClient', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       await expect((client as any).getAuthHeaders()).rejects.toThrow(
-        'Failed to get access token: Error: Network error',
+        'Failed to get access token: Network error',
       );
+    });
+
+    it('should timeout when OAuth token request hangs', async () => {
+      jest.useFakeTimers();
+      try {
+        const abortError = new Error('Request aborted');
+        abortError.name = 'AbortError';
+
+        mockTokenManager.getValidToken.mockReturnValue(null);
+        mockFetch.mockImplementation((_url, options) => {
+          return new Promise<Response>((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => reject(abortError), { once: true });
+          });
+        });
+
+        const requestPromise = (client as any).getAuthHeaders();
+        jest.advanceTimersByTime(15001);
+
+        await expect(requestPromise).rejects.toThrow('OAuth request timed out after 15000ms');
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
 

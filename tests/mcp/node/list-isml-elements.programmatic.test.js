@@ -107,10 +107,10 @@ describe('list_isml_elements (programmatic)', () => {
     }
   });
 
-  test('extraneous argument is ignored', async () => {
-    const { raw } = await invoke({ unused: 'value', extra: 123 });
-    const elements = safeParseElements(raw);
-    assert.ok(elements.length >= 20, 'At least 20 elements expected with extraneous arguments');
+    test('extraneous argument is rejected', async () => {
+      const result = await client.callTool(TOOL_NAME, { unused: 'value', extra: 123 });
+      assert.equal(result.isError, true, 'Should reject extraneous arguments');
+      assert.ok(result.content?.[0]?.text?.includes('is not allowed'), 'Error should mention unknown arguments');
   });
 
   test('element name uniqueness', async () => {

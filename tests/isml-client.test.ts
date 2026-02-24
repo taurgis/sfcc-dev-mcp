@@ -123,6 +123,10 @@ The isprint element outputs formatted data to the template.
     client = new ISMLClient();
   });
 
+  afterEach(() => {
+    client.destroy();
+  });
+
   describe('getAvailableElements', () => {
     it('should return list of ISML elements', async () => {
       const elements = await client.getAvailableElements();
@@ -458,6 +462,17 @@ The isprint element outputs formatted data to the template.
       // Second call should use cache
       await client.getAvailableElements();
       expect(fs.readdir).not.toHaveBeenCalled();
+    });
+
+    it('should destroy cache resources and reset document state', async () => {
+      await client.getAvailableElements();
+      const cacheDestroySpy = jest.spyOn((client as any).cache, 'destroy');
+
+      client.destroy();
+
+      expect(cacheDestroySpy).toHaveBeenCalledTimes(1);
+      expect((client as any).documentsCache).toBeNull();
+      expect((client as any).lastScanTime).toBe(0);
     });
   });
 });

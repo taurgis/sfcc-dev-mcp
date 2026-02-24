@@ -1,6 +1,9 @@
 import { Logger } from '../../utils/logger.js';
 import { SFCCConfig } from '../../types/types.js';
 import { WorkspaceRootsService } from '../../config/workspace-roots.js';
+import { ValidationError } from '../../utils/validator.js';
+import { teardownLifecycleClient } from './lifecycle-utils.js';
+import { createToolErrorResponse } from '../tool-error-response.js';
 
 export interface HandlerContext {
   logger: Logger;
@@ -14,17 +17,22 @@ export interface HandlerContext {
 
 export interface ToolExecutionResult {
   content: Array<{ type: 'text'; text: string }>;
+  structuredContent?: Record<string, unknown>;
   isError?: boolean;
 }
 
+function isStructuredContentRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export interface ToolArguments {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
  * Generic tool specification interface for declarative tool configuration
  */
-export interface GenericToolSpec<TArgs = ToolArguments, TResult = any> {
+export interface GenericToolSpec<TArgs = ToolArguments, TResult = unknown> {
   validate?: (args: TArgs, toolName: string) => void;
   defaults?: (args: TArgs) => Partial<TArgs>;
   exec: (args: TArgs, context: ToolExecutionContext) => Promise<TResult>;
@@ -36,18 +44,18 @@ export interface GenericToolSpec<TArgs = ToolArguments, TResult = any> {
  */
 export interface ToolExecutionContext {
   handlerContext: HandlerContext;
-  logger: any;
-  [key: string]: any;
+  logger: Logger;
+  [key: string]: unknown;
 }
 
-export class HandlerError extends Error {
+export class HandlerError extends ValidationError {
   constructor(
     message: string,
     public readonly toolName: string,
     public readonly code: string = 'HANDLER_ERROR',
-    public readonly details?: any,
+    public readonly details?: unknown,
   ) {
-    super(message);
+    super(message, code, details);
     this.name = 'HandlerError';
   }
 }
@@ -64,7 +72,7 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   protected abstract getToolConfig(): Record<TToolName, GenericToolSpec>;
   protected abstract getToolNameSet(): Set<string>;
-  protected abstract createExecutionContext(): Promise<ToolExecutionContext>;
+  protected abstract createExecutionContext(toolName: string): Promise<ToolExecutionContext>;
 
   canHandle(toolName: string): boolean {
     return this.getToolNameSet().has(toolName);
@@ -72,28 +80,33 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
 
   async handle(toolName: string, args: ToolArguments, startTime: number): Promise<ToolExecutionResult> {
     if (!this.canHandle(toolName)) {
-      throw new Error(`Unsupported tool: ${toolName}`);
+      throw new ValidationError(`Unsupported tool: ${toolName}`, 'UNKNOWN_TOOL', { toolName });
     }
 
     const spec = this.getToolConfig()[toolName as TToolName];
     if (!spec) {
-      throw new Error(`No configuration found for tool: ${toolName}`);
+      throw new ValidationError(`No configuration found for tool: ${toolName}`, 'TOOL_CONFIG_NOT_FOUND', { toolName });
     }
+
+    const processedArgs = this.applyDefaults(spec, args);
 
     return this.executeWithLogging(
       toolName,
       startTime,
-      () => this.dispatchTool(spec, args),
-      spec.logMessage(this.applyDefaults(spec, args)),
+      () => this.dispatchTool(toolName, spec, processedArgs),
+      spec.logMessage(processedArgs),
     );
   }
 
-  private async dispatchTool(spec: GenericToolSpec, args: ToolArguments): Promise<any> {
-    const context = await this.createExecutionContext();
-    const processedArgs = this.applyDefaults(spec, args);
+  private async dispatchTool(
+    toolName: string,
+    spec: GenericToolSpec,
+    processedArgs: ToolArguments,
+  ): Promise<unknown> {
+    const context = await this.createExecutionContext(toolName);
 
     if (spec.validate) {
-      spec.validate(processedArgs, 'tool');
+      spec.validate(processedArgs, toolName);
     }
 
     return spec.exec(processedArgs, context);
@@ -112,44 +125,47 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
   protected async onInitialize(): Promise<void> { /* no-op */ }
 
   async dispose(): Promise<void> {
-    await this.onDispose();
-    this._isInitialized = false;
+    try {
+      await this.onDispose();
+    } finally {
+      // Always reset lifecycle state, even when disposal fails.
+      this._isInitialized = false;
+    }
   }
 
   protected async onDispose(): Promise<void> { /* no-op */ }
 
-  protected validateArgs(args: ToolArguments, required: string[], toolName: string): void {
-    for (const field of required) {
-      if (!args?.[field]) {
-        throw new HandlerError(
-          `${field} is required`,
-          toolName,
-          'MISSING_ARGUMENT',
-          { required, provided: Object.keys(args || {}) },
-        );
-      }
+  protected async teardownClient(client: unknown): Promise<void> {
+    if (!client) {
+      return;
     }
+
+    await teardownLifecycleClient(client);
   }
 
-  protected createResponse(data: any, stringify: boolean = true): ToolExecutionResult {
+  protected createResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
+    const structuredContent = isStructuredContentRecord(data) ? data : undefined;
+    const payload = structuredContent ?? data;
+    const text = stringify
+      ? (JSON.stringify(payload, null, 2) ?? 'null')
+      : (typeof payload === 'string' ? payload : (JSON.stringify(payload) ?? String(payload)));
+
     return {
-      content: [{ type: 'text', text: stringify ? JSON.stringify(data, null, 2) : data }],
+      content: [{ type: 'text', text }],
+      structuredContent,
       isError: false,
     };
   }
 
   protected createErrorResponse(error: Error, toolName: string): ToolExecutionResult {
     this.logger.error(`Error in ${toolName}:`, error);
-    return {
-      content: [{ type: 'text', text: `Error: ${error.message}` }],
-      isError: true,
-    };
+    return createToolErrorResponse(toolName, error);
   }
 
   protected async executeWithLogging(
     toolName: string,
     startTime: number,
-    operation: () => Promise<any>,
+    operation: () => Promise<unknown>,
     logMessage?: string,
   ): Promise<ToolExecutionResult> {
     try {
@@ -166,7 +182,11 @@ export abstract class BaseToolHandler<TToolName extends string = string> {
       return this.createResponse(result);
     } catch (error) {
       this.logger.timing(`${toolName}_error`, startTime);
-      return this.createErrorResponse(error as Error, toolName);
+      return this.createErrorResponse(this.toError(error), toolName);
     }
+  }
+
+  private toError(error: unknown): Error {
+    return error instanceof Error ? error : new Error(String(error));
   }
 }

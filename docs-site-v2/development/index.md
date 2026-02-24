@@ -29,6 +29,8 @@ npm run dev -- --debug
 npm run dev -- --dw-json /path/to/dw.json --debug false
 ```
 
+`--debug` accepts `true/false`, `1/0`, or `yes/no`. Invalid values fail fast.
+
 ## Tests and lint
 
 ```bash
@@ -36,14 +38,20 @@ npm test
 npm run test:mcp:yaml
 npm run test:mcp:node
 npm run lint
+npm run validate:server-json
+npm run validate:tools-sync
+npm run validate:skills-sync
 ```
 
 ## Architecture overview
 
 - `src/core`: server and tool registration
+- `src/core/server-tool-catalog.ts`: capability-aware tool catalog and availability checks
+- `src/core/server-tool-call-lifecycle.ts`: `tools/call` orchestration for validation, progress, cancellation, and preflight notices
+- `src/core/server-workspace-discovery.ts`: workspace roots discovery and runtime reconfiguration flow
 - `src/clients`: domain clients for docs, logs, OCAPI, and scaffolding
 - `src/services`: file system and path services
-- `src/utils`: caching, validation, logging
+- `src/utils`: caching, validation, logging, and shared abort/timeout helpers
 
 ## Project architecture
 
@@ -55,6 +63,9 @@ sfcc-dev-mcp/
 │   ├── core/                      # Core MCP server & tool definitions
 │   │   ├── server.ts              # MCP server (registers handlers, capability gating)
 │   │   ├── tool-definitions.ts    # All tool schemas grouped by category
+│   │   ├── server-tool-catalog.ts # Capability-aware tool catalog and availability checks
+│   │   ├── server-tool-call-lifecycle.ts # tools/call lifecycle orchestration
+│   │   ├── server-workspace-discovery.ts # Workspace roots discovery and reconfigure flow
 │   │   └── handlers/              # Modular tool handlers
 │   │       ├── base-handler.ts
 │   │       ├── docs-handler.ts
@@ -65,7 +76,8 @@ sfcc-dev-mcp/
 │   │       ├── system-object-handler.ts
 │   │       ├── code-version-handler.ts
 │   │       ├── cartridge-handler.ts
-│   │       └── agent-instructions-handler.ts
+│   │       ├── agent-instructions-handler.ts
+│   │       └── script-debugger-handler.ts
 │   ├── clients/                   # API & domain clients (logic, not routing)
 │   │   ├── base/                  # Shared HTTP + auth
 │   │   ├── logs/                  # Modular log system
@@ -78,10 +90,11 @@ sfcc-dev-mcp/
 │   │   ├── ocapi/
 │   │   ├── ocapi-client.ts
 │   │   ├── log-client.ts
+│   │   ├── script-debugger/
 │   ├── services/                 # Dependency injection service layer
 │   ├── tool-configs/             # Tool grouping & category configs
 │   ├── config/                   # Configuration + dw.json loading
-│   ├── utils/                    # Caching, validation, logging
+│   ├── utils/                    # Caching, validation, logging, abort helpers
 │   └── types/
 ├── tests/                        # Jest + MCP YAML + programmatic tests
 ├── docs/                         # SFCC documentation sources
@@ -93,13 +106,28 @@ sfcc-dev-mcp/
 
 ## Configuration and capability gating
 
-- `configuration-factory.ts`: derives capabilities (`canAccessLogs`, `canAccessJobLogs`, `canAccessOCAPI`, `canAccessSitePrefs`).
+- `configuration-factory.ts`: derives capabilities (`canAccessLogs`, `canAccessOCAPI`, `canAccessWebDAV`, `isLocalMode`).
 - `dw-json-loader.ts`: secure credential ingestion and validation.
+- `credential-validation.ts`: shared auth-pair and hostname validation used by both config paths.
 - Capability gating rules:
-	- No credentials: docs-only tools (docs, SFRA, ISML, cartridge generation, agent instructions).
-	- WebDAV credentials: runtime logs + job logs.
-	- Data API credentials: system & custom objects, site preferences, code versions.
-- Tools requiring unavailable capabilities are not registered.
+  - No credentials: docs-only tools (docs, SFRA, ISML, cartridge generation, agent instructions).
+  - WebDAV credentials + hostname: runtime logs, job logs, and script debugger.
+  - Data API credentials + hostname: system & custom objects, site preferences, code versions.
+- Tools requiring unavailable capabilities are hidden from `tools/list` and rejected at `tools/call`.
+
+## Runtime validation boundary
+
+- `src/core/tool-argument-validator.ts` validates tool arguments at call time before handler execution.
+- Validation includes required fields, scalar/object/array types, enum values, integer/number ranges, string constraints, and regex patterns.
+- Shared OCAPI query schemas support `text_query`, `term_query`, `bool_query`, `filtered_query`, and `match_all_query`.
+- Object schemas with declared properties reject unknown keys by default (top-level and nested), unless `additionalProperties: true` is explicitly set.
+- Validation errors are returned as structured tool errors (`INVALID_TOOL_ARGUMENTS`) so clients can recover predictably.
+- Non-validation execution errors are sanitized before returning tool responses (for example, upstream HTTP response bodies are stripped) to reduce accidental data leakage.
+
+## Progress and cancellation
+
+- `tools/call` handlers receive an abort signal from the MCP SDK and return `REQUEST_CANCELLED` when the request is aborted.
+- When clients provide `_meta.progressToken`, the server emits best-effort `notifications/progress` updates through request-scoped notification APIs.
 
 ## Adding a new tool
 
@@ -112,7 +140,8 @@ sfcc-dev-mcp/
 
 ## Testing strategy
 
-- Unit tests: `npm test`
+- Unit tests: `npm run test:unit`
+- Full suite (unit + MCP): `npm test`
 - YAML MCP tests: `npm run test:mcp:yaml`
 - Programmatic MCP tests: `npm run test:mcp:node`
 - Lint: `npm run lint`
@@ -131,6 +160,8 @@ git push origin main --tags
 Checklist:
 
 - Update README.md and AGENTS.md if tool counts or categories change
+- Keep `server.json` version fields aligned with `package.json` (`version` and `packages[0].version`)
+- Run `npm run validate:server-json` after version bumps and before tagging
 - Run `npm test` and `npm run lint:check`
 - Verify docs build in `docs-site-v2`
 

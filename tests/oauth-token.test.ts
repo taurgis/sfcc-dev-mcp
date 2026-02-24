@@ -678,6 +678,25 @@ describe('TokenManager', () => {
 
       expect(tokenManager.getValidToken(testHostname, testClientId)).toBe('default-type-token');
     });
+
+    it('should proactively clean near-expiry tokens on subsequent store operations', () => {
+      tokenManager.storeToken(testHostname, testClientId, {
+        access_token: 'near-expiry-token',
+        token_type: 'bearer',
+        expires_in: 30,
+      });
+      expect(tokenManager.getTokenCount()).toBe(1);
+
+      tokenManager.storeToken(testHostname2, testClientId2, {
+        access_token: 'fresh-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+      });
+
+      expect(tokenManager.getValidToken(testHostname, testClientId)).toBeNull();
+      expect(tokenManager.getValidToken(testHostname2, testClientId2)).toBe('fresh-token');
+      expect(tokenManager.getTokenCount()).toBe(1);
+    });
   });
 
   describe('Concurrency and state consistency', () => {

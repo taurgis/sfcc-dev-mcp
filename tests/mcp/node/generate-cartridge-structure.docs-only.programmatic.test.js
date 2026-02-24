@@ -14,8 +14,7 @@ import { test, describe, before, after, beforeEach, afterEach } from 'node:test'
 import { strict as assert } from 'node:assert';
 import { connect } from 'mcp-aegis';
 import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 
 describe('generate_cartridge_structure Programmatic Tests', () => {
@@ -56,7 +55,7 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
    */
   function createTempTestDir() {
     const uniqueId = randomBytes(8).toString('hex');
-    const testDir = join(tmpdir(), `mcp-cartridge-test-${uniqueId}`);
+    const testDir = join(process.cwd(), 'tmp', `mcp-cartridge-test-${uniqueId}`);
     testDirectories.push(testDir);
     return testDir;
   }
@@ -349,7 +348,12 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
 
       assert.equal(result.isError, true, 'Should return error for empty cartridge name');
       assert.ok(result.content[0].text.includes('Error'), 'Error message should be present');
-      assert.ok(result.content[0].text.includes('valid identifier'), 'Should mention valid identifier requirement');
+      assert.ok(
+        result.content[0].text.includes('Invalid arguments for tool') ||
+        result.content[0].text.includes('cartridgeName must be at least') ||
+        result.content[0].text.includes('valid identifier'),
+        'Should mention invalid arguments or cartridgeName requirement',
+      );
     });
 
     test('should reject missing cartridge name', async () => {
@@ -491,8 +495,24 @@ describe('generate_cartridge_structure Programmatic Tests', () => {
   });
 
   describe('Edge Cases and Error Handling', () => {
+    test('should reject targetPath outside workspace boundaries', async () => {
+      const outsideWorkspacePath = resolve(process.cwd(), '..', 'outside-workspace-path');
+
+      const result = await client.callTool('generate_cartridge_structure', {
+        cartridgeName: 'outside_workspace',
+        targetPath: outsideWorkspacePath,
+        fullProjectSetup: false
+      });
+
+      assert.equal(result.isError, true, 'Should reject paths outside workspace boundaries');
+      assert.ok(
+        result.content[0].text.includes('Path must be within workspace roots or current working directory'),
+        'Should provide clear workspace boundary error message',
+      );
+    });
+
     test('should handle special characters in target path', async () => {
-      const specialDir = join(tmpdir(), 'mcp-test-special chars & symbols');
+      const specialDir = join(process.cwd(), 'tmp', 'mcp-test-special chars & symbols');
       testDirectories.push(specialDir);
       const cartridgeName = 'test_special_path';
 

@@ -324,6 +324,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return specific error message for empty method name"
@@ -342,8 +343,9 @@ tests:
         result:
           content:
             - type: "text"
-              text: "match:contains:non-empty string"
+              text: "match:regex:methodName (must be at least 1 characters|must be a non-empty string)"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return error for missing methodName parameter"
@@ -363,6 +365,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return error for whitespace-only method name"
@@ -383,6 +386,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return error for null method name"
@@ -403,6 +407,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return error for non-string method name (number)"
@@ -423,6 +428,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
   - it: "should return error for non-string method name (boolean)"
@@ -443,6 +449,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       stderr: "toBeEmpty"
 
 # ==================================================================================
@@ -511,6 +518,7 @@ tests:
             - type: "text"
               text: "match:contains:Error"
           isError: true
+          structuredContent: "match:type:object"
       performance:
         maxResponseTime: "500ms"  # Error validation should be very fast
       stderr: "toBeEmpty"

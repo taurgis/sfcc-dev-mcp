@@ -1,6 +1,5 @@
 import { GenericToolSpec, ToolExecutionContext } from '../core/handlers/base-handler.js';
 import { ToolArguments } from '../core/handlers/base-handler.js';
-import { ValidationHelpers, CommonValidations } from '../core/handlers/validation-helpers.js';
 import { SFCCDocumentationClient } from '../clients/docs-client.js';
 
 export const DOC_TOOL_NAMES = [
@@ -18,7 +17,7 @@ export const DOC_TOOL_NAMES_SET = new Set<DocToolName>(DOC_TOOL_NAMES);
  * Configuration for SFCC documentation tools
  * Maps each tool to its validation, execution, and messaging logic
  */
-export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments, any>> = {
+export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments, unknown>> = {
   get_sfcc_class_info: {
     defaults: (args: ToolArguments) => ({
       ...args,
@@ -30,9 +29,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
       includeInheritance: args.includeInheritance ?? true,
       search: args.search ?? undefined,
     }),
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('className'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
       const result = await client.getClassDetailsExpanded(
@@ -57,9 +53,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   search_sfcc_classes: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('query'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
       return client.searchClasses(args.query as string);
@@ -68,9 +61,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   search_sfcc_methods: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('methodName'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
       return client.searchMethods(args.methodName as string);
@@ -87,9 +77,6 @@ export const DOCS_TOOL_CONFIG: Record<DocToolName, GenericToolSpec<ToolArguments
   },
 
   get_sfcc_class_documentation: {
-    validate: (args: ToolArguments, toolName: string) => {
-      ValidationHelpers.validateArguments(args, CommonValidations.requiredString('className'), toolName);
-    },
     exec: async (args: ToolArguments, context: ToolExecutionContext) => {
       const client = context.docsClient as SFCCDocumentationClient;
       const result = await client.getClassDocumentation(args.className as string);

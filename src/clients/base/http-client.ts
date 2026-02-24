@@ -6,18 +6,21 @@
  */
 
 import { Logger } from '../../utils/logger.js';
+import { createTimeoutAbortController, isAbortError, type TimeoutAbortController } from '../../utils/abort-utils.js';
 
 /**
  * HTTP request options interface
  */
 export interface HttpRequestOptions extends RequestInit {
   headers?: Record<string, string>;
+  timeoutMs?: number;
 }
 
 /**
  * Base HTTP client for SFCC API communication
  */
 export abstract class BaseHttpClient {
+  private static readonly DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
   protected baseUrl: string;
   protected logger: Logger;
 
@@ -48,23 +51,33 @@ export abstract class BaseHttpClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const method = options.method ?? 'GET';
+    const timeoutMs = options.timeoutMs ?? BaseHttpClient.DEFAULT_REQUEST_TIMEOUT_MS;
+    const deadline = timeoutMs > 0 ? Date.now() + timeoutMs : undefined;
 
     this.logger.debug(`Making ${method} request to: ${endpoint}`);
+
+    const customHeaders = options.headers ?? {};
+    const baseRequestOptions = this.getBaseRequestOptions(options);
 
     // Get authentication headers
     const authHeaders = await this.getAuthHeaders();
 
-    const requestOptions: RequestInit = {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-        ...options.headers,
-      },
-    };
-
     try {
-      const response = await fetch(url, requestOptions);
+      let { requestOptions, timeoutController } = this.buildRequestOptions(
+        baseRequestOptions,
+        authHeaders,
+        customHeaders,
+        timeoutMs,
+        deadline,
+        endpoint,
+      );
+      const response = await this.fetchWithTimeout(
+        url,
+        requestOptions,
+        endpoint,
+        timeoutMs,
+        timeoutController,
+      );
 
       if (!response.ok) {
         // Handle authentication errors
@@ -74,12 +87,22 @@ export abstract class BaseHttpClient {
 
           // Retry with fresh authentication
           const newAuthHeaders = await this.getAuthHeaders();
-          requestOptions.headers = {
-            ...requestOptions.headers,
-            ...newAuthHeaders,
-          };
+          ({ requestOptions, timeoutController } = this.buildRequestOptions(
+            baseRequestOptions,
+            newAuthHeaders,
+            customHeaders,
+            timeoutMs,
+            deadline,
+            endpoint,
+          ));
 
-          const retryResponse = await fetch(url, requestOptions);
+          const retryResponse = await this.fetchWithTimeout(
+            url,
+            requestOptions,
+            endpoint,
+            timeoutMs,
+            timeoutController,
+          );
           if (!retryResponse.ok) {
             const errorText = await retryResponse.text();
             throw new Error(
@@ -88,7 +111,7 @@ export abstract class BaseHttpClient {
           }
 
           this.logger.debug('Retry request successful');
-          return retryResponse.json();
+          return this.parseResponse<T>(retryResponse);
         }
 
         const errorText = await response.text();
@@ -96,10 +119,125 @@ export abstract class BaseHttpClient {
       }
 
       this.logger.debug(`Request to ${endpoint} completed successfully`);
-      return response.json();
+      return this.parseResponse<T>(response);
     } catch (error) {
       this.logger.error(`Network error during request to ${endpoint}: ${error}`);
       throw error;
+    }
+  }
+
+  private buildRequestOptions(
+    baseRequestOptions: Omit<HttpRequestOptions, 'timeoutMs' | 'headers'>,
+    authHeaders: Record<string, string>,
+    customHeaders: Record<string, string>,
+    timeoutMs: number,
+    deadline: number | undefined,
+    endpoint: string,
+  ): {
+    requestOptions: RequestInit;
+    timeoutController: TimeoutAbortController | null;
+  } {
+    const remainingMs = this.getRemainingTimeoutMs(timeoutMs, deadline, endpoint);
+    const timeoutController = createTimeoutAbortController({
+      timeoutMs: remainingMs,
+      timeoutMessage: `Request timed out after ${timeoutMs}ms`,
+      externalSignal: baseRequestOptions.signal,
+      abortMessage: 'Request aborted',
+    });
+
+    const requestOptions: RequestInit = {
+      ...baseRequestOptions,
+      signal: timeoutController?.signal ?? (baseRequestOptions.signal ?? undefined),
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+        ...customHeaders,
+      },
+    };
+
+    return {
+      requestOptions,
+      timeoutController,
+    };
+  }
+
+  private getBaseRequestOptions(
+    options: HttpRequestOptions,
+  ): Omit<HttpRequestOptions, 'timeoutMs' | 'headers'> {
+    const requestOptions: RequestInit = { ...options };
+    delete (requestOptions as HttpRequestOptions).timeoutMs;
+    delete (requestOptions as HttpRequestOptions).headers;
+
+    return requestOptions as Omit<HttpRequestOptions, 'timeoutMs' | 'headers'>;
+  }
+
+  private getRemainingTimeoutMs(
+    timeoutMs: number,
+    deadline: number | undefined,
+    endpoint: string,
+  ): number | undefined {
+    if (timeoutMs <= 0 || deadline === undefined) {
+      return undefined;
+    }
+
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) {
+      throw new Error(`Request timed out after ${timeoutMs}ms: ${endpoint}`);
+    }
+
+    return remainingMs;
+  }
+
+  private async fetchWithTimeout(
+    url: string,
+    requestOptions: RequestInit,
+    endpoint: string,
+    timeoutMs: number,
+    timeoutController: TimeoutAbortController | null,
+  ): Promise<Response> {
+    try {
+      return await fetch(url, requestOptions);
+    } catch (error) {
+      if (isAbortError(error)) {
+        if (timeoutController?.didTimeout()) {
+          throw new Error(`Request timed out after ${timeoutMs}ms: ${endpoint}`);
+        }
+
+        throw new Error(`Request aborted: ${endpoint}`);
+      }
+      throw error;
+    } finally {
+      timeoutController?.clear();
+    }
+  }
+
+  private async parseResponse<T>(response: Response): Promise<T> {
+    if (response.status === 204 || response.status === 205) {
+      return undefined as T;
+    }
+
+    const contentType = response.headers?.get?.('content-type')?.toLowerCase() ?? '';
+    if (contentType.includes('application/json')) {
+      return await response.json() as T;
+    }
+
+    if (typeof response.json === 'function' && contentType.length === 0) {
+      try {
+        return await response.json() as T;
+      } catch {
+        // Fall through to text parsing.
+      }
+    }
+
+    const text = typeof response.text === 'function' ? await response.text() : '';
+    if (text.length === 0) {
+      return undefined as T;
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text as T;
     }
   }
 
@@ -113,7 +251,7 @@ export abstract class BaseHttpClient {
   /**
    * POST request
    */
-  protected async post<T>(endpoint: string, data?: any): Promise<T> {
+  protected async post<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'POST' };
     if (data) {
       options.body = JSON.stringify(data);
@@ -124,7 +262,7 @@ export abstract class BaseHttpClient {
   /**
    * PUT request
    */
-  protected async put<T>(endpoint: string, data?: any): Promise<T> {
+  protected async put<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'PUT' };
     if (data) {
       options.body = JSON.stringify(data);
@@ -135,7 +273,7 @@ export abstract class BaseHttpClient {
   /**
    * PATCH request
    */
-  protected async patch<T>(endpoint: string, data?: any): Promise<T> {
+  protected async patch<T, TBody = unknown>(endpoint: string, data?: TBody): Promise<T> {
     const options: HttpRequestOptions = { method: 'PATCH' };
     if (data) {
       options.body = JSON.stringify(data);

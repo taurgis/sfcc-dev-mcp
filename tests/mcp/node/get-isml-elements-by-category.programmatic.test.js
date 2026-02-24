@@ -210,16 +210,10 @@ describe('get_isml_elements_by_category (programmatic)', () => {
     assert.match(result.content[0].text, /category/i, 'Error should mention category');
   });
 
-  test('error for invalid category', async () => {
-    const { result } = await invoke('invalid-category');
-    // Tool may return empty array or error - both are acceptable
-    if (result.isError) {
-      assert.ok(result.content[0].text.includes('not found') || result.content[0].text.includes('invalid'), 'Error should mention invalid category');
-    } else {
-      // If no error, should return empty array
-      const elements = safeParseElements(result.content[0].text);
-      assert.equal(elements.length, 0, 'Should return empty array for invalid category');
-    }
+    test('error for invalid category', async () => {
+      const { result } = await invoke('invalid-category');
+      assert.equal(result.isError, true, 'Invalid category should be rejected');
+      assert.ok(result.content[0].text.includes('category must be one of'), 'Error should mention allowed categories');
   });
 
   test('element count consistency with get_isml_categories', async () => {
@@ -316,11 +310,10 @@ describe('get_isml_elements_by_category (programmatic)', () => {
     assert.ok(duration < 1000, `Response should be under 1000ms, got ${duration}ms`);
   });
 
-  test('extraneous parameters are ignored', async () => {
-    const { result, raw } = await invoke('control-flow', { unused: 'value', extra: 123 });
-    assert.equal(result.isError, false, 'Should ignore extraneous params');
-    const elements = safeParseElements(raw);
-    assert.ok(elements.length > 0, 'Should still return elements');
+    test('extraneous parameters are rejected', async () => {
+      const { result } = await invoke('control-flow', { unused: 'value', extra: 123 });
+      assert.equal(result.isError, true, 'Should reject extraneous params');
+      assert.ok(result.content[0].text.includes('is not allowed'), 'Error should mention unknown parameters');
   });
 
   test('alphabetical sorting within category', async () => {

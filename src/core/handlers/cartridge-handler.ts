@@ -1,5 +1,5 @@
-import { GenericToolSpec, ToolArguments, HandlerContext } from './base-handler.js';
-import { AbstractClientHandler } from './abstract-client-handler.js';
+import { HandlerContext } from './base-handler.js';
+import { ConfiguredClientHandler } from './abstract-client-handler.js';
 import { CartridgeGenerationClient } from '../../clients/cartridge/index.js';
 import {
   CARTRIDGE_TOOL_CONFIG,
@@ -11,28 +11,15 @@ import {
  * Handler for cartridge generation tools using config-driven dispatch.
  * Provides automated cartridge structure creation with complete project setup.
  */
-export class CartridgeToolHandler extends AbstractClientHandler<CartridgeToolName, CartridgeGenerationClient> {
+export class CartridgeToolHandler extends ConfiguredClientHandler<CartridgeToolName, CartridgeGenerationClient> {
   constructor(context: HandlerContext, subLoggerName: string) {
-    super(context, subLoggerName);
-  }
-
-  protected createClient(): CartridgeGenerationClient {
-    return this.clientFactory.createCartridgeClient();
-  }
-
-  protected getClientContextKey(): string {
-    return 'cartridgeClient';
-  }
-
-  protected getClientDisplayName(): string {
-    return 'Cartridge Generation';
-  }
-
-  protected getToolNameSet(): Set<CartridgeToolName> {
-    return CARTRIDGE_TOOL_NAMES_SET;
-  }
-
-  protected getToolConfig(): Record<CartridgeToolName, GenericToolSpec<ToolArguments, any>> {
-    return CARTRIDGE_TOOL_CONFIG;
+    super(context, subLoggerName, {
+      createClient: (clientFactory) => clientFactory.createCartridgeClient(),
+      clientContextKey: 'cartridgeClient',
+      clientDisplayName: 'Cartridge Generation',
+      clientRequiredError: 'Cartridge Generation client not initialized',
+      toolNameSet: CARTRIDGE_TOOL_NAMES_SET,
+      toolConfig: CARTRIDGE_TOOL_CONFIG,
+    });
   }
 }

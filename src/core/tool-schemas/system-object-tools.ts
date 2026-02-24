@@ -12,17 +12,18 @@ export const SYSTEM_OBJECT_TOOLS = [
       type: 'object',
       properties: {
         start: {
-          type: 'number',
+          type: 'integer',
           description: 'Start index for pagination (default: 0)',
           default: 0,
         },
         count: {
-          type: 'number',
+          type: 'integer',
           description: 'Number of items to return (default: 200)',
           default: 200,
         },
         select: {
           type: 'string',
+          minLength: 1,
           description: 'OCAPI field selector. Examples: "(**)" for all, "(data.(object_type, display_name))" for specific fields.',
           default: '(**)',
         },
@@ -37,6 +38,7 @@ export const SYSTEM_OBJECT_TOOLS = [
       properties: {
         objectType: {
           type: 'string',
+          minLength: 1,
           description: 'System object type, e.g., "Product", "Customer", "Order", "Category".',
         },
       },
@@ -51,11 +53,12 @@ export const SYSTEM_OBJECT_TOOLS = [
       properties: {
         objectType: {
           type: 'string',
+          minLength: 1,
           description: 'System object type, e.g., "Product", "Customer", "Order".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
   {
@@ -66,6 +69,7 @@ export const SYSTEM_OBJECT_TOOLS = [
       properties: {
         groupId: {
           type: 'string',
+          minLength: 1,
           description: 'The ID of the preference group to search within',
         },
         instanceType: {
@@ -86,12 +90,13 @@ export const SYSTEM_OBJECT_TOOLS = [
             },
             expand: {
               type: 'string',
+              minLength: 1,
               description: 'Expand options (use "value" to retrieve value definitions)',
             },
           },
         },
       },
-      required: ['groupId', 'instanceType', 'searchRequest'],
+      required: ['groupId'],
     },
   },
   {
@@ -102,11 +107,12 @@ export const SYSTEM_OBJECT_TOOLS = [
       properties: {
         objectType: {
           type: 'string',
+          minLength: 1,
           description: 'System object type, e.g., "Product", "Customer", "SitePreferences".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute groups'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
   {
@@ -117,11 +123,12 @@ export const SYSTEM_OBJECT_TOOLS = [
       properties: {
         objectType: {
           type: 'string',
+          minLength: 1,
           description: 'Custom object type, e.g., "Global_String", "MyCustomObject".',
         },
         searchRequest: createSearchRequestSchema('Query to filter attribute definitions'),
       },
-      required: ['objectType', 'searchRequest'],
+      required: ['objectType'],
     },
   },
 ];

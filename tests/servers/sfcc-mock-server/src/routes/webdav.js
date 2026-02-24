@@ -38,12 +38,12 @@ class WebDAVRouteHandler {
         });
 
         // WebDAV base path routes
-        this.router.get(`${this.webdavConfig.basePath}/Logs/*`, (req, res) => {
+        this.router.get(`${this.webdavConfig.basePath}/Logs/*path`, (req, res) => {
             this.handleGet(req, res);
         });
 
         // Direct logs path routes (for backward compatibility)
-        this.router.get('/Logs/*', (req, res) => {
+        this.router.get('/Logs/*path', (req, res) => {
             this.handleGet(req, res);
         });
 

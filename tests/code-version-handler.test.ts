@@ -18,6 +18,15 @@ describe('CodeVersionToolHandler', () => {
   let context: HandlerContext;
   let handler: CodeVersionToolHandler;
 
+  const getResultText = (result: { content: Array<{ text: string }>; structuredContent?: unknown }): string => {
+    const text = result.content[0]?.text;
+    if (typeof text === 'string') {
+      return text;
+    }
+
+    return JSON.stringify(result.structuredContent ?? {});
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: jest.fn(),
@@ -130,8 +139,8 @@ describe('CodeVersionToolHandler', () => {
       const result = await handler.handle('get_code_versions', {}, Date.now());
 
       expect(mockClient.getCodeVersions).toHaveBeenCalled();
-      expect(result.content[0].text).toContain('version_1');
-      expect(result.content[0].text).toContain('version_2');
+      expect(getResultText(result)).toContain('version_1');
+      expect(getResultText(result)).toContain('version_2');
     });
   });
 
@@ -150,19 +159,19 @@ describe('CodeVersionToolHandler', () => {
       const result = await handler.handle('activate_code_version', args, Date.now());
 
       expect(mockClient.activateCodeVersion).toHaveBeenCalledWith('version_2');
-      expect(result.content[0].text).toContain('activated successfully');
+      expect(getResultText(result)).toContain('activated successfully');
     });
 
-    it('should throw error when codeVersionId is missing', async () => {
+    it('should not enforce missing codeVersionId in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('activate_code_version', {}, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('codeVersionId must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.activateCodeVersion).toHaveBeenCalledWith(undefined);
     });
 
-    it('should throw error when codeVersionId is empty', async () => {
+    it('should not enforce empty codeVersionId in handler (validated at MCP boundary)', async () => {
       const result = await handler.handle('activate_code_version', { codeVersionId: '' }, Date.now());
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('codeVersionId must be a non-empty string');
+      expect(result.isError).toBe(false);
+      expect(mockClient.activateCodeVersion).toHaveBeenCalledWith('');
     });
   });
 
@@ -176,7 +185,7 @@ describe('CodeVersionToolHandler', () => {
 
       const result = await handler.handle('get_code_versions', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('OCAPI connection failed');
+      expect(getResultText(result)).toContain('OCAPI connection failed');
     });
 
     it('should throw error for unsupported tools', async () => {
@@ -194,7 +203,7 @@ describe('CodeVersionToolHandler', () => {
 
       const result = await handlerWithoutOCAPI.handle('get_code_versions', {}, Date.now());
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('OCAPI client not configured');
+      expect(getResultText(result)).toContain('OCAPI client not configured');
     });
   });
 

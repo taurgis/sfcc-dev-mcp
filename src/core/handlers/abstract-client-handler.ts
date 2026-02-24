@@ -1,4 +1,4 @@
-import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments } from './base-handler.js';
+import { BaseToolHandler, ToolExecutionContext, GenericToolSpec, HandlerContext, ToolArguments, HandlerError } from './base-handler.js';
 import { ClientFactory } from './client-factory.js';
 
 /**
@@ -55,13 +55,21 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
   }
 
   protected async onDispose(): Promise<void> {
+    const client = this.client;
     this.client = null;
+    await this.teardownClient(client);
+
     this.logger.debug(`${this.getClientDisplayName()} client disposed`);
   }
 
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+  protected async createExecutionContext(toolName: string): Promise<ToolExecutionContext> {
     if (!this.client) {
-      throw new Error(this.getClientRequiredError());
+      throw new HandlerError(
+        this.getClientRequiredError(),
+        toolName,
+        'CLIENT_NOT_INITIALIZED',
+        { clientDisplayName: this.getClientDisplayName() },
+      );
     }
 
     return {
@@ -75,11 +83,61 @@ export abstract class AbstractClientHandler<TToolName extends string, TClient> e
    * Abstract method to get tool configuration.
    * Each concrete handler implements this with their specific config.
    */
-  protected abstract getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, any>>;
+  protected abstract getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
 
   /**
    * Abstract method to get tool name set for O(1) lookup.
    * Each concrete handler implements this with their specific tool set.
    */
   protected abstract getToolNameSet(): Set<TToolName>;
+}
+
+export interface ConfiguredClientHandlerOptions<TToolName extends string, TClient> {
+  createClient: (clientFactory: ClientFactory) => TClient | null;
+  clientContextKey: string;
+  clientDisplayName: string;
+  clientRequiredError: string;
+  toolNameSet: Set<TToolName>;
+  toolConfig: Record<TToolName, GenericToolSpec<ToolArguments, unknown>>;
+}
+
+/**
+ * Config-driven client handler that removes repetitive overrides in concrete handlers.
+ */
+export class ConfiguredClientHandler<TToolName extends string, TClient>
+  extends AbstractClientHandler<TToolName, TClient> {
+  private readonly options: ConfiguredClientHandlerOptions<TToolName, TClient>;
+
+  constructor(
+    context: HandlerContext,
+    subLoggerName: string,
+    options: ConfiguredClientHandlerOptions<TToolName, TClient>,
+  ) {
+    super(context, subLoggerName);
+    this.options = options;
+  }
+
+  protected createClient(): TClient | null {
+    return this.options.createClient(this.clientFactory);
+  }
+
+  protected getClientContextKey(): string {
+    return this.options.clientContextKey;
+  }
+
+  protected getClientDisplayName(): string {
+    return this.options.clientDisplayName;
+  }
+
+  protected getClientRequiredError(): string {
+    return this.options.clientRequiredError;
+  }
+
+  protected getToolConfig(): Record<TToolName, GenericToolSpec<ToolArguments, unknown>> {
+    return this.options.toolConfig;
+  }
+
+  protected getToolNameSet(): Set<TToolName> {
+    return this.options.toolNameSet;
+  }
 }

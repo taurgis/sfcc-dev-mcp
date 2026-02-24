@@ -464,12 +464,12 @@ describe('search_job_logs - Optimized Programmatic Tests', () => {
         { 
           name: 'type_error', 
           params: { pattern: 'INFO', limit: 'invalid' }, 
-          expectedKeywords: ['Invalid limit', 'number'] 
+            expectedKeywords: ['limit', 'number'] 
         },
         { 
           name: 'constraint_error', 
           params: { pattern: 'INFO', limit: -1 }, 
-          expectedKeywords: ['Invalid limit', 'Must be between'] 
+            expectedKeywords: ['limit', '>= 1'] 
         }
       ];
       

@@ -101,6 +101,35 @@ describe('ConfigurationFactory', () => {
       }).toThrow('When hostname is provided, either username/password or OAuth credentials (clientId/clientSecret) must be provided');
     });
 
+    it('should validate configuration and throw error for credentials without hostname', () => {
+      expect(() => {
+        ConfigurationFactory.create({
+          username: 'testuser',
+          password: 'testpass',
+        });
+      }).toThrow('When credentials are provided, hostname must also be provided');
+    });
+
+    it('should reject partial basic auth credentials', () => {
+      expect(() => {
+        ConfigurationFactory.create({ username: 'testuser' });
+      }).toThrow('Basic auth credentials must include both username and password');
+
+      expect(() => {
+        ConfigurationFactory.create({ password: 'testpass' });
+      }).toThrow('Basic auth credentials must include both username and password');
+    });
+
+    it('should reject partial OAuth credentials', () => {
+      expect(() => {
+        ConfigurationFactory.create({ clientId: 'test-client-id' });
+      }).toThrow('OAuth credentials must include both clientId and clientSecret');
+
+      expect(() => {
+        ConfigurationFactory.create({ clientSecret: 'test-client-secret' });
+      }).toThrow('OAuth credentials must include both clientId and clientSecret');
+    });
+
     it('should validate configuration and throw error for invalid hostname format', () => {
       expect(() => {
         ConfigurationFactory.create({

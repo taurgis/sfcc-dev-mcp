@@ -55,10 +55,10 @@ export class ClassNameResolver {
    * Find class matches by simple class name
    * Useful when multiple packages contain classes with the same name
    */
-  static findClassMatches(
+  static findClassMatches<T extends ClassCacheEntry>(
     targetClassName: string,
-    classCache: Map<string, any>,
-  ): Array<{ key: string; info: any }> {
+    classCache: Map<string, T>,
+  ): Array<{ key: string; info: T }> {
     const normalizedTarget = this.normalizeClassName(targetClassName);
     const simpleTarget = this.extractSimpleClassName(normalizedTarget);
 
@@ -71,10 +71,10 @@ export class ClassNameResolver {
    * Resolve class name with fallback logic
    * First tries exact match, then falls back to simple name matching
    */
-  static resolveClassName(
+  static resolveClassName<T extends ClassCacheEntry>(
     className: string,
-    classCache: Map<string, any>,
-  ): { key: string; info: any } | null {
+    classCache: Map<string, T>,
+  ): { key: string; info: T } | null {
     // Normalize class name to support both formats
     const normalizedClassName = this.normalizeClassName(className);
 
@@ -96,4 +96,8 @@ export class ClassNameResolver {
 
     return null;
   }
+}
+
+export interface ClassCacheEntry {
+  className: string;
 }

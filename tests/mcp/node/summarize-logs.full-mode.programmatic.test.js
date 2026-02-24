@@ -188,12 +188,12 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
   describe('Dynamic Date Validation and Consistency', () => {
     test('should maintain consistent response format across multiple date scenarios', async () => {
       const testScenarios = [
-        { date: getCurrentDateString(), description: 'current date' },
-        { date: '20220101', description: 'old date' },
-        { date: '20301231', description: 'future date' },
-        { date: 'invalid-format', description: 'invalid format' },
-        { date: '2024-01-01', description: 'wrong format' },
-        { date: '', description: 'empty string' }
+          { date: getCurrentDateString(), description: 'current date', expectError: false },
+          { date: '20220101', description: 'old date', expectError: false },
+          { date: '20301231', description: 'future date', expectError: false },
+          { date: 'invalid-format', description: 'invalid format', expectError: true },
+          { date: '2024-01-01', description: 'wrong format', expectError: true },
+          { date: '', description: 'empty string', expectError: true }
       ];
       
       const results = [];
@@ -214,14 +214,24 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
       }
       
       // Cross-scenario validation
-      results.forEach(({ date, description, result, text, isError, hasLogSummary, isNoLogsMessage }) => {
+        results.forEach(({ date, description, result, text, isError, hasLogSummary, isNoLogsMessage, expectError }) => {
         // All should follow same response structure
         assert.equal(result.content.length, 1, 
           `${description} should have exactly one content element`);
         assert.equal(result.content[0].type, 'text',
           `${description} content type should be text`);
-        assert.equal(isError, false,
-          `${description} should not be marked as error`);
+
+          if (expectError) {
+            assert.equal(isError, true, `${description} should be marked as error`);
+            assert.ok(
+              text.includes('date must match pattern') || text.includes('date'),
+              `${description} should include validation error text`,
+            );
+            return;
+          }
+
+          assert.equal(isError, false,
+            `${description} should not be marked as error`);
         
         // Should either have log summary or no logs message
         assert.ok(hasLogSummary || isNoLogsMessage,
@@ -229,45 +239,44 @@ describe('summarize_logs - Full Mode Programmatic Tests', () => {
         
         // Date format validation in response
         if (hasLogSummary) {
-          if (date === '') {
-            // Empty string date results in "Log Summary for :" format
-            assert.ok(text.includes('Log Summary for :'),
-              `${description} with empty date should include "Log Summary for :"`);
-          } else {
             assert.ok(/Log Summary for \d{8}/.test(text),
               `${description} summary should include YYYYMMDD date`);
-          }
         } else if (isNoLogsMessage) {
           assert.ok(text.includes(`No log files found for date ${date}`),
             `${description} should include the exact date parameter in no-logs message`);
         }
       });
       
-      // Validate consistent behavior for invalid dates
-      const invalidDateResults = results.filter(r => 
-        ['invalid-format', 'wrong format'].includes(r.description)); // Removed 'empty string' since it acts like default
+        // Validate consistent behavior for invalid dates
+        const invalidDateResults = results.filter(r =>
+          ['invalid format', 'wrong format', 'empty string'].includes(r.description));
       
-      invalidDateResults.forEach(({ description, isNoLogsMessage }) => {
-        assert.ok(isNoLogsMessage, 
-          `${description} should result in no logs message`);
+        invalidDateResults.forEach(({ description, isError }) => {
+          assert.equal(isError, true,
+            `${description} should result in validation error`);
       });
     });
 
     test('should handle parameter variations and edge cases dynamically', async () => {
       const parameterVariations = [
-        { args: {}, description: 'empty object' },
-        { args: undefined, description: 'undefined args' },
-        { args: { date: null }, description: 'null date' },
-        { args: { date: getCurrentDateString(), extra: 'ignored' }, description: 'extra parameters' }
+          { args: {}, description: 'empty object', expectError: false },
+          { args: undefined, description: 'undefined args', expectError: false },
+          { args: { date: null }, description: 'null date', expectError: true },
+          { args: { date: getCurrentDateString(), extra: 'ignored' }, description: 'extra parameters', expectError: true }
       ];
       
-      for (const { args, description } of parameterVariations) {
+        for (const { args, description, expectError } of parameterVariations) {
         const result = await client.callTool('summarize_logs', args);
         assertValidMCPResponse(result);
-        
-        // Should handle gracefully without errors
-        assert.equal(result.isError, false, 
-          `${description} should not cause error response`);
+
+          if (expectError) {
+            assert.equal(result.isError, true,
+              `${description} should cause validation error response`);
+            continue;
+          }
+
+          assert.equal(result.isError, false,
+            `${description} should not cause error response`);
         
         const text = result.content[0].text;
         const hasValidResponse = text.includes('📊 Counts:') || 

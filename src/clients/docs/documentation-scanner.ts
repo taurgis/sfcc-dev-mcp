@@ -55,6 +55,20 @@ export class DocumentationScanner {
     return false;
   }
 
+  private isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const rel = path.relative(rootPath, candidatePath);
+    return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+  }
+
+  private async resolveCanonicalPath(inputPath: string): Promise<string | null> {
+    try {
+      return await fs.realpath(path.resolve(inputPath));
+    } catch (error) {
+      this.logger.warn(`Warning: Could not resolve canonical path for ${inputPath}: ${String(error)}`);
+      return null;
+    }
+  }
+
   /**
    * Validate file name for security concerns
    */
@@ -89,25 +103,33 @@ export class DocumentationScanner {
   /**
    * Validate file path for security concerns
    */
-  private validateFilePath(filePath: string, packagePath: string, docsPath: string): boolean {
-    // Additional security validation - ensure the resolved path is within the package directory
+  private async validateFilePath(
+    filePath: string,
+    canonicalPackagePath: string,
+    canonicalDocsPath: string,
+  ): Promise<string | null> {
     const resolvedPath = path.resolve(filePath);
-    const resolvedPackagePath = path.resolve(packagePath);
-    const resolvedDocsPath = path.resolve(docsPath);
 
-    // Ensure the file is within the package directory and docs directory
-    if (!resolvedPath.startsWith(resolvedPackagePath) || !resolvedPath.startsWith(resolvedDocsPath)) {
-      this.logger.warn(`Warning: File path outside allowed directory: ${filePath}`);
-      return false;
-    }
-
-    // Ensure the file still ends with .md after path resolution
+    // Ensure the file still ends with .md before touching the filesystem.
     if (!resolvedPath.toLowerCase().endsWith('.md')) {
       this.logger.warn(`Warning: File does not reference a markdown file: ${filePath}`);
-      return false;
+      return null;
     }
 
-    return true;
+    const canonicalFilePath = await this.resolveCanonicalPath(filePath);
+    if (!canonicalFilePath) {
+      return null;
+    }
+
+    // Ensure the canonical path stays inside both package and docs roots.
+    const withinPackageRoot = this.isPathWithinRoot(canonicalPackagePath, canonicalFilePath);
+    const withinDocsRoot = this.isPathWithinRoot(canonicalDocsPath, canonicalFilePath);
+    if (!withinPackageRoot || !withinDocsRoot) {
+      this.logger.warn(`Warning: File path outside allowed directory: ${filePath}`);
+      return null;
+    }
+
+    return canonicalFilePath;
   }
 
   /**
@@ -136,7 +158,8 @@ export class DocumentationScanner {
     fileName: string,
     packagePath: string,
     packageName: string,
-    docsPath: string,
+    canonicalPackagePath: string,
+    canonicalDocsPath: string,
   ): Promise<SFCCClassInfo | null> {
     if (!this.validateFileName(fileName)) {
       return null;
@@ -145,13 +168,17 @@ export class DocumentationScanner {
     const className = fileName.replace('.md', '');
     const filePath = path.join(packagePath, fileName);
 
-    if (!this.validateFilePath(filePath, packagePath, docsPath)) {
+    const canonicalFilePath = await this.validateFilePath(
+      filePath,
+      canonicalPackagePath,
+      canonicalDocsPath,
+    );
+    if (!canonicalFilePath) {
       return null;
     }
 
     try {
-      const resolvedPath = path.resolve(filePath);
-      const content = await fs.readFile(resolvedPath, 'utf-8');
+      const content = await fs.readFile(canonicalFilePath, 'utf-8');
 
       if (!this.validateFileContent(content, fileName)) {
         return null;
@@ -182,6 +209,13 @@ export class DocumentationScanner {
     docsPath: string,
   ): Promise<SFCCClassInfo[]> {
     try {
+      const canonicalPackagePath = await this.resolveCanonicalPath(packagePath);
+      const canonicalDocsPath = await this.resolveCanonicalPath(docsPath);
+      if (!canonicalPackagePath || !canonicalDocsPath) {
+        this.logger.warn(`Warning: Could not resolve canonical roots for package ${packageName}`);
+        return [];
+      }
+
       const files = await fs.readdir(packagePath);
 
       // Filter to only markdown files with valid names
@@ -198,7 +232,13 @@ export class DocumentationScanner {
       for (let i = 0; i < mdFiles.length; i += DocumentationScanner.PARALLEL_BATCH_SIZE) {
         const batch = mdFiles.slice(i, i + DocumentationScanner.PARALLEL_BATCH_SIZE);
         const results = await Promise.all(
-          batch.map(file => this.readDocumentationFile(file, packagePath, packageName, docsPath)),
+          batch.map(file => this.readDocumentationFile(
+            file,
+            packagePath,
+            packageName,
+            canonicalPackagePath,
+            canonicalDocsPath,
+          )),
         );
         // Filter out null results and add to classInfos
         for (const result of results) {

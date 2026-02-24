@@ -5,6 +5,8 @@
  * Additional log-specific types are defined here.
  */
 
+import type { LogFileInfo as BaseLogFileInfo } from '../../types/types.js';
+
 // Re-export common types from main types module
 export type { LogLevel, LogFileInfo, LogSummary } from '../../types/types.js';
 
@@ -67,3 +69,5 @@ export interface WebDAVClientConfig {
 export interface FileReadOptions {
   maxBytes?: number;
 }
+
+export type LogFileInfoList = BaseLogFileInfo[] & { totalCount?: number };

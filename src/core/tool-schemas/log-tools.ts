@@ -3,6 +3,7 @@
  */
 
 import { DATE_PARAM_SCHEMA, createLimitSchema } from './shared-schemas.js';
+import { DEFAULT_LIMITS } from '../../utils/log-tool-constants.js';
 
 // Shared log level enum for consistency
 const LOG_LEVEL_ENUM = ['error', 'warn', 'info', 'debug'] as const;
@@ -20,7 +21,7 @@ function createLatestLogToolSchema(level: string, description: string) {
       type: 'object',
       properties: {
         date: DATE_PARAM_SCHEMA,
-        limit: createLimitSchema(20, `Max ${level} entries to return (default: 20)`),
+        limit: createLimitSchema(DEFAULT_LIMITS.latest, `Max ${level} entries to return (default: ${DEFAULT_LIMITS.latest})`),
       },
     },
   };
@@ -61,6 +62,7 @@ export const LOG_TOOLS = [
       properties: {
         pattern: {
           type: 'string',
+          minLength: 1,
           description: 'Search pattern or keyword to find in logs',
         },
         logLevel: {
@@ -69,7 +71,7 @@ export const LOG_TOOLS = [
           description: 'Restrict search to specific log level for more focused results',
         },
         date: DATE_PARAM_SCHEMA,
-        limit: createLimitSchema(20, 'Number of matching entries to return (default: 20)'),
+        limit: createLimitSchema(DEFAULT_LIMITS.search, `Number of matching entries to return (default: ${DEFAULT_LIMITS.search})`),
       },
       required: ['pattern'],
     },
@@ -90,12 +92,15 @@ export const LOG_TOOLS = [
       properties: {
         filename: {
           type: 'string',
+          minLength: 1,
           description: 'Log filename or path. For standard logs: "error-blade-20240820-000000.log". For job logs: "jobs/JobName/Job-JobName-12345.log".',
         },
         maxBytes: {
-          type: 'number',
+          type: 'integer',
           description: 'Maximum number of bytes to read from the file (default: 1MB). Use this to limit the amount of data returned for very large files.',
           default: 1048576,
+          minimum: 1,
+          maximum: 10000000,
         },
         tailOnly: {
           type: 'boolean',
@@ -115,7 +120,7 @@ export const JOB_LOG_TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        limit: createLimitSchema(10, 'Number of job log files to return (default: 10)'),
+        limit: createLimitSchema(DEFAULT_LIMITS.jobFiles, `Number of job log files to return (default: ${DEFAULT_LIMITS.jobFiles})`),
       },
     },
   },
@@ -127,9 +132,11 @@ export const JOB_LOG_TOOLS = [
       properties: {
         jobName: {
           type: 'string',
+          minLength: 1,
+          pattern: '.*\\S.*',
           description: 'The job name to search for (partial matches supported)',
         },
-        limit: createLimitSchema(10, 'Number of job log files to return (default: 10)'),
+        limit: createLimitSchema(DEFAULT_LIMITS.jobFiles, `Number of job log files to return (default: ${DEFAULT_LIMITS.jobFiles})`),
       },
       required: ['jobName'],
     },
@@ -146,9 +153,11 @@ export const JOB_LOG_TOOLS = [
           description: 'Log level to retrieve (default: all). Use "all" to see all log levels from job executions.',
           default: 'all',
         },
-        limit: createLimitSchema(10, 'Number of job log entries to return (default: 10)'),
+        limit: createLimitSchema(DEFAULT_LIMITS.jobEntries, `Number of job log entries to return (default: ${DEFAULT_LIMITS.jobEntries})`),
         jobName: {
           type: 'string',
+          minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Optional job name to filter results to a specific job',
         },
       },
@@ -162,6 +171,7 @@ export const JOB_LOG_TOOLS = [
       properties: {
         pattern: {
           type: 'string',
+          minLength: 1,
           description: 'Search pattern or keyword to find in job logs',
         },
         level: {
@@ -170,9 +180,11 @@ export const JOB_LOG_TOOLS = [
           description: 'Restrict search to specific log level (default: all)',
           default: 'all',
         },
-        limit: createLimitSchema(20, 'Number of matching entries to return (default: 20)'),
+        limit: createLimitSchema(DEFAULT_LIMITS.jobSearch, `Number of matching entries to return (default: ${DEFAULT_LIMITS.jobSearch})`),
         jobName: {
           type: 'string',
+          minLength: 1,
+          pattern: '.*\\S.*',
           description: 'Optional job name to restrict search to a specific job',
         },
       },
@@ -187,6 +199,8 @@ export const JOB_LOG_TOOLS = [
       properties: {
         jobName: {
           type: 'string',
+          minLength: 1,
+          pattern: '.*\\S.*',
           description: 'The job name to get execution summary for',
         },
       },

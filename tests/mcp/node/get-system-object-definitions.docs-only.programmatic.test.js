@@ -91,10 +91,11 @@ describe('get_system_object_definitions Tool - Docs-Only Mode Programmatic Tests
       assert.equal(result.content[0].type, 'text', 'Content should be text type');
       
       const errorText = result.content[0].text;
-      assert.ok(errorText.includes('OCAPI client not configured') || 
-                errorText.includes('not configured') ||
-                errorText.includes('credentials'), 
-        'Error should mention configuration/credentials issue');
+        assert.ok(
+          errorText.includes('Tool not available in current mode') ||
+          errorText.includes('not available'),
+          'Error should mention tool availability issue',
+        );
     });
 
     test('should return proper error result structure for unlisted tool', async () => {
@@ -121,10 +122,11 @@ describe('get_system_object_definitions Tool - Docs-Only Mode Programmatic Tests
       assert.ok(duration < 1000, 'Should fail quickly (under 1 second)');
       
       const errorText = result.content[0].text;
-      assert.ok(errorText.includes('OCAPI client not configured') || 
-                errorText.includes('not configured') ||
-                errorText.includes('credentials'), 
-        'Error should mention configuration issue');
+        assert.ok(
+          errorText.includes('Tool not available in current mode') ||
+          errorText.includes('not available'),
+          'Error should mention tool availability issue',
+        );
     });
 
     test('should handle invalid parameters gracefully even in error mode', async () => {
@@ -136,11 +138,12 @@ describe('get_system_object_definitions Tool - Docs-Only Mode Programmatic Tests
       assert.equal(result.isError, true, 'Should return error');
       
       const errorText = result.content[0].text;
-      // Should mention configuration, not parameter validation
-      assert.ok(errorText.includes('OCAPI client not configured') || 
-                errorText.includes('not configured') ||
-                errorText.includes('credentials'), 
-        'Should prioritize configuration error over parameter validation');
+        // In docs-only mode, credentialed tools are unavailable before argument validation.
+        assert.ok(
+          errorText.includes('Tool not available in current mode') ||
+          errorText.includes('not available'),
+          'Should report tool unavailability in docs-only mode',
+        );
     });
   });
 
@@ -238,12 +241,16 @@ describe('get_system_object_definitions Tool - Docs-Only Mode Programmatic Tests
       const error1 = result1.content[0].text;
       const error2 = result2.content[0].text;
       
-      assert.ok(error1.includes('OCAPI client not configured') || 
-                error1.includes('not configured'), 
-        'First error should mention configuration');
-      assert.ok(error2.includes('OCAPI client not configured') || 
-                error2.includes('not configured'), 
-        'Second error should mention configuration');
+        assert.ok(
+          error1.includes('Tool not available in current mode') ||
+          error1.includes('not available'),
+          'First error should mention tool availability',
+        );
+        assert.ok(
+          error2.includes('Tool not available in current mode') ||
+          error2.includes('not available'),
+          'Second error should mention tool availability',
+        );
     });
 
     test('should have consistent tool count in docs-only mode', async () => {

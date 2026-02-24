@@ -106,9 +106,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid limit '0'"
+                text: "match:contains:limit must be >= 1"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should return error for negative limit"
     request:
       jsonrpc: "2.0"
@@ -126,9 +126,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid limit '-5'"
+                text: "match:contains:limit must be >= 1"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should handle invalid limit type gracefully"
     request:
       jsonrpc: "2.0"
@@ -146,9 +146,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:Invalid limit 'invalid'"
+                text: "match:contains:limit must be a number"
           isError: true
-
+          structuredContent: "match:type:object"
   - it: "should handle invalid date gracefully"
     request:
       jsonrpc: "2.0"
@@ -167,9 +167,9 @@ tests:
           content:
             match:arrayElements:
               match:partial:
-                text: "match:contains:No info log files found"
-          isError: false
-
+                text: "match:contains:date must match pattern"
+          isError: true
+          structuredContent: "match:type:object"
   # ========================================
   # EDGE CASES
   # ========================================

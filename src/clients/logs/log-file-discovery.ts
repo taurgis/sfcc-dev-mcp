@@ -6,7 +6,20 @@ import type { WebDAVClient } from 'webdav';
 import { Logger } from '../../utils/logger.js';
 import { getCurrentDate, normalizeFilePath } from '../../utils/utils.js';
 import { LOG_CONSTANTS, LOG_FILE_PATTERNS, JOB_LOG_CONSTANTS } from './log-constants.js';
-import type { LogFileMetadata, LogFileInfo, LogLevel, LogFileFilter, JobLogInfo, JobLogFilter } from './log-types.js';
+import type { LogFileMetadata, LogFileInfo, LogFileInfoList, LogLevel, LogFileFilter, JobLogInfo, JobLogFilter } from './log-types.js';
+
+interface WebDavDirectoryEntry {
+  type: string;
+  filename: string;
+  lastmod?: string;
+  size?: number;
+}
+
+function isWebDavDirectoryEntry(value: unknown): value is WebDavDirectoryEntry {
+  return typeof value === 'object' && value !== null &&
+    'type' in value && typeof (value as Record<string, unknown>).type === 'string' &&
+    'filename' in value && typeof (value as Record<string, unknown>).filename === 'string';
+}
 
 export class LogFileDiscovery {
   private logger: Logger;
@@ -15,6 +28,14 @@ export class LogFileDiscovery {
   constructor(webdavClient: WebDAVClient, logger: Logger) {
     this.webdavClient = webdavClient;
     this.logger = logger;
+  }
+
+  private normalizeDirectoryContents(contents: unknown): WebDavDirectoryEntry[] {
+    if (Array.isArray(contents)) {
+      return contents.filter(isWebDavDirectoryEntry);
+    }
+
+    return isWebDavDirectoryEntry(contents) ? [contents] : [];
   }
 
   /**
@@ -28,13 +49,15 @@ export class LogFileDiscovery {
     const contents = await this.webdavClient.getDirectoryContents('/');
     this.logger.timing('webdav_getDirectoryContents', startTime);
 
-    const logFiles = (contents as any[])
-      .filter((item: any) =>
+    const entries = this.normalizeDirectoryContents(contents);
+
+    const logFiles = entries
+      .filter((item) =>
         item.type === 'file' &&
         item.filename.includes(targetDate) &&
         item.filename.endsWith('.log'),
       )
-      .map((item: any) => ({
+      .map((item) => ({
         filename: item.filename,
         lastmod: item.lastmod ?? new Date().toISOString(), // Fallback to current time if no lastmod
       }));
@@ -103,26 +126,26 @@ export class LogFileDiscovery {
   async getAllLogFiles(): Promise<LogFileInfo[]> {
     try {
       const contents = await this.webdavClient.getDirectoryContents('/');
-      const allLogFiles = (contents as any[])
-        .filter((item: any) => item.type === 'file' && item.filename.endsWith('.log'));
+      const allLogFiles = this.normalizeDirectoryContents(contents)
+        .filter((item) => item.type === 'file' && item.filename.endsWith('.log'));
 
-      const logFiles: LogFileInfo[] = allLogFiles
-        .map((item: any) => ({
+      const logFiles = allLogFiles
+        .map((item) => ({
           name: item.filename,
-          size: item.size,
-          lastModified: item.lastmod,
+          size: item.size ?? 0,
+          lastModified: item.lastmod ?? new Date().toISOString(),
         }))
         // Sort by lastModified date in descending order (newest first)
-        .sort((a: LogFileInfo, b: LogFileInfo) => {
+        .sort((a, b) => {
           const dateA = new Date(a.lastModified).getTime();
           const dateB = new Date(b.lastModified).getTime();
           return dateB - dateA;
         })
         // Limit to 50 most recent files
-        .slice(0, LOG_CONSTANTS.MAX_LOG_FILES_DISPLAY);
+        .slice(0, LOG_CONSTANTS.MAX_LOG_FILES_DISPLAY) as LogFileInfoList;
 
       // Store total count for formatting
-      (logFiles as any).totalCount = allLogFiles.length;
+      logFiles.totalCount = allLogFiles.length;
 
       return logFiles;
     } catch (error) {
@@ -203,10 +226,11 @@ export class LogFileDiscovery {
     try {
       // List all directories in the jobs folder
       const jobsContents = await this.webdavClient.getDirectoryContents(JOB_LOG_CONSTANTS.JOBS_FOLDER);
+      const jobEntries = this.normalizeDirectoryContents(jobsContents);
 
-      const jobDirs = (jobsContents as any[])
-        .filter((item: any) => item.type === 'directory')
-        .map((item: any) => ({
+      const jobDirs = jobEntries
+        .filter((item) => item.type === 'directory')
+        .map((item) => ({
           name: item.filename.replace(JOB_LOG_CONSTANTS.JOBS_FOLDER, ''),
           path: item.filename,
           lastModified: item.lastmod ?? new Date().toISOString(),
@@ -223,8 +247,8 @@ export class LogFileDiscovery {
           batch.map(async jobDir => {
             try {
               const jobContents = await this.webdavClient.getDirectoryContents(jobDir.path);
-              const logFiles = (jobContents as any[])
-                .filter((item: any) =>
+              const logFiles = this.normalizeDirectoryContents(jobContents)
+                .filter((item) =>
                   item.type === 'file' &&
                   JOB_LOG_CONSTANTS.JOB_LOG_PATTERN.test(item.filename.split('/').pop() ?? ''),
                 );

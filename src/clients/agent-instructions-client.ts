@@ -5,6 +5,21 @@ import { Logger } from '../utils/logger.js';
 import { PathResolver } from '../utils/path-resolver.js';
 import { WorkspaceRootsService } from '../config/workspace-roots.js';
 
+const WORKSPACE_SKILLS_DIRS = [
+  '.github/skills',
+  '.agents/skills',
+  '.claude/skills',
+  '.agent/skills',
+  // Kept for backward compatibility with existing Cursor setups.
+  '.cursor/skills',
+] as const;
+
+const USER_HOME_SKILLS_DIRS = [
+  '.copilot/skills',
+  '.agents/skills',
+  '.claude/skills',
+] as const;
+
 export type DestinationType = 'project' | 'user' | 'temp';
 export type MergeStrategy = 'append' | 'replace' | 'skip';
 
@@ -82,11 +97,7 @@ export class AgentInstructionsClient {
     const agentsTarget = path.join(rootPath, 'AGENTS.md');
     const hasAgents = await this.exists(agentsTarget);
 
-    const candidateSkillsDirs = [
-      '.github/skills',
-      '.cursor/skills',
-      '.claude/skills',
-    ].map(dir => path.join(rootPath, dir));
+    const candidateSkillsDirs = this.getStatusSkillsCandidates(rootPath);
 
     const detectedSkillsDir = await this.findFirstExistingDir(candidateSkillsDirs);
     const missingSkills = await this.findMissingSkills(detectedSkillsDir, sourceSkills);
@@ -215,11 +226,9 @@ export class AgentInstructionsClient {
   }
 
   private async resolveSkillsTarget(basePath: string, preferredDir: string): Promise<string> {
-    const safeDir = preferredDir && !preferredDir.includes('..') && !path.isAbsolute(preferredDir)
-      ? preferredDir
-      : '';
+    const safeDir = this.sanitizePreferredSkillsDir(preferredDir);
 
-    const candidates = [safeDir, '.github/skills', '.cursor/skills', '.claude/skills'].filter(Boolean);
+    const candidates = [safeDir, ...this.getDefaultSkillsCandidates(basePath)].filter(Boolean);
 
     for (const candidate of candidates) {
       const resolved = path.resolve(basePath, candidate);
@@ -231,7 +240,40 @@ export class AgentInstructionsClient {
       }
     }
 
-    return path.resolve(basePath, candidates[0] || '.github/skills');
+    const defaultCandidates = this.getDefaultSkillsCandidates(basePath);
+    return path.resolve(basePath, candidates[0] || defaultCandidates[0] || '.github/skills');
+  }
+
+  private getStatusSkillsCandidates(rootPath: string): string[] {
+    const workspaceCandidates = WORKSPACE_SKILLS_DIRS.map(dir => path.join(rootPath, dir));
+
+    // Also check user-level skill locations used by VS Code chat settings.
+    const homePath = path.resolve(os.homedir());
+    const homeCandidates = USER_HOME_SKILLS_DIRS.map(dir => path.join(homePath, dir));
+
+    return [...new Set([...workspaceCandidates, ...homeCandidates])];
+  }
+
+  private getDefaultSkillsCandidates(basePath: string): string[] {
+    const isUserHomeBasePath = path.resolve(basePath) === path.resolve(os.homedir());
+    const defaultDirs = isUserHomeBasePath
+      ? [...USER_HOME_SKILLS_DIRS, ...WORKSPACE_SKILLS_DIRS]
+      : [...WORKSPACE_SKILLS_DIRS];
+
+    return [...new Set(defaultDirs)];
+  }
+
+  private sanitizePreferredSkillsDir(preferredDir: string): string {
+    const normalizedPreferredDir = preferredDir.trim();
+    if (!normalizedPreferredDir) {
+      return '';
+    }
+
+    const safeDir = !normalizedPreferredDir.includes('..') && !path.isAbsolute(normalizedPreferredDir)
+      ? normalizedPreferredDir
+      : '';
+
+    return safeDir;
   }
 
   private async planAgentMerge(targetPath: string, strategy: MergeStrategy): Promise<'create' | 'append' | 'replace' | 'skip'> {

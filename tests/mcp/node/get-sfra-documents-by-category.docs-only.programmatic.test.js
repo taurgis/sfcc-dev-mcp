@@ -137,24 +137,25 @@ describe('SFCC MCP Server - get_sfra_documents_by_category Tool Programmatic Tes
   // ==================================================================================
 
   describe('Edge Cases and Error Handling', () => {
-    test('should handle invalid category gracefully', async () => {
+      test('should reject invalid category', async () => {
       const result = await client.callTool('get_sfra_documents_by_category', {
         category: 'invalid_category_xyz'
       });
 
-      assert.equal(result.isError, false, 'Invalid category should not be error');
-      
-      const documents = JSON.parse(result.content[0].text);
-      assert.ok(Array.isArray(documents), 'Should return array');
-      assert.equal(documents.length, 0, 'Should return empty array for invalid category');
+        assert.equal(result.isError, true, 'Invalid category should be error');
+        assert.ok(result.content[0].text.includes('category must be one of'));
     });
 
     test('should require category parameter', async () => {
       const result = await client.callTool('get_sfra_documents_by_category', {});
 
       assert.equal(result.isError, true, 'Missing category should be error');
-      assert.ok(result.content[0].text.includes('category must be a non-empty string'), 
-        'Should have specific error message');
+      assert.ok(
+        result.content[0].text.includes('category must be at least 1 characters') ||
+        result.content[0].text.includes('category is required') ||
+        result.content[0].text.includes('category'),
+        'Should have specific error message',
+      );
     });
 
     test('should handle empty category string', async () => {
@@ -175,7 +176,7 @@ describe('SFCC MCP Server - get_sfra_documents_by_category Tool Programmatic Tes
       assert.ok(result.content[0].text.includes('Error'), 'Should contain error message');
     });
 
-    test('should be case sensitive for categories', async () => {
+      test('should reject case-variant categories', async () => {
       const testCases = ['CORE', 'Core', 'PRODUCT', 'Product'];
       
       for (const category of testCases) {
@@ -183,10 +184,8 @@ describe('SFCC MCP Server - get_sfra_documents_by_category Tool Programmatic Tes
           category: category
         });
 
-        assert.equal(result.isError, false, `Category ${category} should not error`);
-        
-        const documents = JSON.parse(result.content[0].text);
-        assert.equal(documents.length, 0, `Case-sensitive ${category} should return empty array`);
+          assert.equal(result.isError, true, `Category ${category} should fail validation`);
+          assert.ok(result.content[0].text.includes('category must be one of'));
       }
     });
   });

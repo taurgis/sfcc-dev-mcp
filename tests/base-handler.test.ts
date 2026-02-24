@@ -1,4 +1,4 @@
-import { BaseToolHandler, HandlerContext, ToolArguments, ToolExecutionResult, HandlerError, GenericToolSpec, ToolExecutionContext } from '../src/core/handlers/base-handler.js';
+import { BaseToolHandler, HandlerContext, ToolExecutionResult, HandlerError, GenericToolSpec, ToolExecutionContext } from '../src/core/handlers/base-handler.js';
 import { Logger } from '../src/utils/logger.js';
 
 // Mock implementation for testing
@@ -20,7 +20,15 @@ class TestHandler extends BaseToolHandler {
     },
     'validate_tool': {
       validate: (args, toolName) => {
-        this.validateArgs(args, ['required_field'], toolName);
+        const value = args.required_field;
+        if (typeof value !== 'string' || value.trim().length === 0) {
+          throw new HandlerError(
+            'required_field is required',
+            toolName,
+            'MISSING_ARGUMENT',
+            { required: ['required_field'], provided: Object.keys(args || {}) },
+          );
+        }
       },
       exec: async (args) => `validate_tool executed successfully with ${JSON.stringify(args)}`,
       logMessage: () => 'Testing validation tool',
@@ -45,15 +53,27 @@ class TestHandler extends BaseToolHandler {
     },
     'complex_validation_tool': {
       validate: (args, toolName) => {
-        if (!args.email?.includes('@')) {
+        const email = typeof args.email === 'string' ? args.email : '';
+        const age = typeof args.age === 'number' ? args.age : 0;
+
+        if (!email.includes('@')) {
           throw new HandlerError('Invalid email format', toolName, 'VALIDATION_ERROR');
         }
-        if (!args.age || args.age < 18) {
+        if (age < 18) {
           throw new HandlerError('Age must be 18 or older', toolName, 'AGE_VALIDATION_ERROR');
         }
       },
       exec: async (args) => ({ validated: true, args }),
       logMessage: () => 'Testing complex validation',
+    },
+    'tool_name_validation_tool': {
+      validate: (_args, toolName) => {
+        if (toolName !== 'tool_name_validation_tool') {
+          throw new Error(`Unexpected tool name: ${toolName}`);
+        }
+      },
+      exec: async () => ({ validated: true }),
+      logMessage: () => 'Testing tool name propagation',
     },
   };
 
@@ -66,10 +86,18 @@ class TestHandler extends BaseToolHandler {
   }
 
   protected getToolNameSet(): Set<string> {
-    return new Set(['test_tool', 'failing_tool', 'validate_tool', 'defaults_tool', 'context_tool', 'complex_validation_tool']);
+    return new Set([
+      'test_tool',
+      'failing_tool',
+      'validate_tool',
+      'defaults_tool',
+      'context_tool',
+      'complex_validation_tool',
+      'tool_name_validation_tool',
+    ]);
   }
 
-  protected async createExecutionContext(): Promise<ToolExecutionContext> {
+  protected async createExecutionContext(_toolName: string): Promise<ToolExecutionContext> {
     return {
       handlerContext: this.context,
       logger: this.logger,
@@ -90,12 +118,7 @@ class TestHandler extends BaseToolHandler {
     }
   }
 
-  // Expose protected methods for testing
-  public testValidateArgs(args: ToolArguments, required: string[], toolName: string): void {
-    this.validateArgs(args, required, toolName);
-  }
-
-  public testCreateResponse(data: any, stringify: boolean = true): ToolExecutionResult {
+  public testCreateResponse(data: unknown, stringify: boolean = true): ToolExecutionResult {
     return this.createResponse(data, stringify);
   }
 
@@ -112,6 +135,19 @@ describe('BaseToolHandler', () => {
   let mockLogger: jest.Mocked<Logger>;
   let context: HandlerContext;
   let handler: TestHandler;
+
+  const getObjectResult = <T = Record<string, unknown>>(result: ToolExecutionResult): T => {
+    if (result.structuredContent) {
+      return result.structuredContent as T;
+    }
+
+    const first = result.content[0];
+    if (!first) {
+      throw new Error('Expected content or structuredContent to be present');
+    }
+
+    return JSON.parse(first.text) as T;
+  };
 
   beforeEach(() => {
     mockLogger = {
@@ -196,6 +232,9 @@ describe('BaseToolHandler', () => {
     });
 
     it('should handle disposal errors', async () => {
+      await handler.handle('test_tool', {}, Date.now());
+      expect(handler.getIsInitialized()).toBe(true);
+
       handler.disposeError = new Error('Disposal failed');
 
       await expect(handler.dispose()).rejects.toThrow('Disposal failed');
@@ -253,65 +292,13 @@ describe('BaseToolHandler', () => {
     });
   });
 
-  describe('validateArgs', () => {
-    it('should pass when all required fields are present', () => {
-      const args = { field1: 'value1', field2: 'value2' };
-
-      expect(() => {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      }).not.toThrow();
-    });
-
-    it('should throw HandlerError when required field is missing', () => {
-      const args = { field1: 'value1' };
-
-      expect(() => {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      }).toThrow(HandlerError);
-
-      try {
-        handler.testValidateArgs(args, ['field1', 'field2'], 'test_tool');
-      } catch (error) {
-        expect(error).toBeInstanceOf(HandlerError);
-        expect((error as HandlerError).message).toBe('field2 is required');
-        expect((error as HandlerError).toolName).toBe('test_tool');
-        expect((error as HandlerError).code).toBe('MISSING_ARGUMENT');
-        expect((error as HandlerError).details).toEqual({
-          required: ['field1', 'field2'],
-          provided: ['field1'],
-        });
-      }
-    });
-
-    it('should throw when required field is null or undefined', () => {
-      expect(() => {
-        handler.testValidateArgs({ field1: null }, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-
-      expect(() => {
-        handler.testValidateArgs({ field1: undefined }, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-    });
-
-    it('should handle empty args object', () => {
-      expect(() => {
-        handler.testValidateArgs({}, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-    });
-
-    it('should handle null args', () => {
-      expect(() => {
-        handler.testValidateArgs(null as any, ['field1'], 'test_tool');
-      }).toThrow('field1 is required');
-    });
-  });
-
   describe('createResponse', () => {
     it('should create stringified response by default', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data);
 
       expect(response.content[0].text).toBe(JSON.stringify(data, null, 2));
+      expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
 
@@ -319,7 +306,8 @@ describe('BaseToolHandler', () => {
       const data = { key: 'value', number: 42 };
       const response = handler.testCreateResponse(data, false);
 
-      expect(response.content[0].text).toBe(data);
+      expect(response.content[0].text).toBe(JSON.stringify(data));
+      expect(response.structuredContent).toEqual(data);
       expect(response.isError).toBe(false);
     });
 
@@ -327,13 +315,21 @@ describe('BaseToolHandler', () => {
       const response = handler.testCreateResponse(null);
 
       expect(response.content[0].text).toBe('null');
+      expect(response.structuredContent).toBeUndefined();
       expect(response.isError).toBe(false);
     });
 
     it('should handle primitive values', () => {
-      expect(handler.testCreateResponse('string').content[0].text).toBe('"string"');
-      expect(handler.testCreateResponse(42).content[0].text).toBe('42');
-      expect(handler.testCreateResponse(true).content[0].text).toBe('true');
+      const stringResponse = handler.testCreateResponse('string');
+      const numberResponse = handler.testCreateResponse(42);
+      const boolResponse = handler.testCreateResponse(true);
+
+      expect(stringResponse.content[0].text).toBe('"string"');
+      expect(numberResponse.content[0].text).toBe('42');
+      expect(boolResponse.content[0].text).toBe('true');
+      expect(stringResponse.structuredContent).toBeUndefined();
+      expect(numberResponse.structuredContent).toBeUndefined();
+      expect(boolResponse.structuredContent).toBeUndefined();
     });
   });
 
@@ -410,7 +406,7 @@ describe('BaseToolHandler', () => {
     describe('default values', () => {
       it('should apply default values when not provided', async () => {
         const result = await handler.handle('defaults_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42);
@@ -419,7 +415,7 @@ describe('BaseToolHandler', () => {
       it('should not override provided values with defaults', async () => {
         const args = { defaultValue: 'custom_value', numericDefault: 100 };
         const result = await handler.handle('defaults_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
         expect(parsedResult.receivedArgs.numericDefault).toBe(100);
@@ -428,7 +424,7 @@ describe('BaseToolHandler', () => {
       it('should mix provided and default values', async () => {
         const args = { defaultValue: 'custom_value', otherParam: 'other' };
         const result = await handler.handle('defaults_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('custom_value');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42); // default applied
@@ -439,7 +435,12 @@ describe('BaseToolHandler', () => {
     describe('execution context', () => {
       it('should provide ToolExecutionContext to tool functions', async () => {
         const result = await handler.handle('context_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{
+          hasContext: boolean;
+          hasHandlerContext: boolean;
+          hasLogger: boolean;
+          contextKeys: string[];
+        }>(result);
 
         expect(parsedResult.hasContext).toBe(true);
         expect(parsedResult.hasHandlerContext).toBe(true);
@@ -453,7 +454,7 @@ describe('BaseToolHandler', () => {
       it('should pass complex validation with valid args', async () => {
         const args = { email: 'test@example.com', age: 25 };
         const result = await handler.handle('complex_validation_tool', args, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ validated: boolean; args: Record<string, unknown> }>(result);
 
         expect(parsedResult.validated).toBe(true);
         expect(parsedResult.args).toEqual(args);
@@ -517,10 +518,17 @@ describe('BaseToolHandler', () => {
 
       it('should handle empty arguments with defaults', async () => {
         const result = await handler.handle('defaults_tool', {}, Date.now());
-        const parsedResult = JSON.parse(result.content[0].text);
+        const parsedResult = getObjectResult<{ receivedArgs: Record<string, unknown> }>(result);
 
         expect(parsedResult.receivedArgs.defaultValue).toBe('default_applied');
         expect(parsedResult.receivedArgs.numericDefault).toBe(42);
+      });
+
+      it('should pass the actual tool name to validate()', async () => {
+        const result = await handler.handle('tool_name_validation_tool', {}, Date.now());
+        const parsedResult = getObjectResult<{ validated: boolean }>(result);
+
+        expect(parsedResult.validated).toBe(true);
       });
     });
   });

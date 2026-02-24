@@ -7,6 +7,11 @@ import type { WebDAVClient } from 'webdav';
 import { Logger } from '../../utils/logger.js';
 import type { WebDAVClientConfig } from './log-types.js';
 
+interface WebDAVAuthConfig {
+  username: string;
+  password: string;
+}
+
 export class WebDAVClientManager {
   private logger: Logger;
   private client: WebDAVClient | null = null;
@@ -56,7 +61,7 @@ export class WebDAVClientManager {
   /**
    * Build authentication configuration for WebDAV client
    */
-  private buildAuthConfig(config: WebDAVClientConfig): any {
+  private buildAuthConfig(config: WebDAVClientConfig): WebDAVAuthConfig {
     if (config.username && config.password) {
       this.logger.debug('Using basic authentication');
       return {

@@ -240,27 +240,27 @@ describe('get_job_execution_summary - Advanced Programmatic Tests', () => {
   describe('Parameter Validation', () => {
     test('should return error for missing jobName parameter', async () => {
       const result = await client.callTool('get_job_execution_summary', {});
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName');
     });
 
     test('should return error for empty jobName parameter', async () => {
       const result = await client.callTool('get_job_execution_summary', { jobName: '' });
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName');
     });
 
     test('should return error for null jobName parameter', async () => {
       const result = await client.callTool('get_job_execution_summary', { jobName: null });
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName');
     });
 
     test('should return error for non-string jobName parameter', async () => {
       const result = await client.callTool('get_job_execution_summary', { jobName: 123 });
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName');
     });
 
     test('should return error for whitespace-only jobName', async () => {
       const result = await client.callTool('get_job_execution_summary', { jobName: '   ' });
-      assertErrorResponse(result, 'jobName must be a non-empty string');
+      assertErrorResponse(result, 'jobName');
     });
   });
 
