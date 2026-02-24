@@ -47,11 +47,14 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 Create a `dw.json` file with your SFCC credentials. You can use either auth mode (or both):
 - Basic auth: `username` + `password`
 - OAuth: `client-id` + `client-secret`
+- Optional storefront auth (for script debugger trigger on Basic-Auth storefronts): `storefrontUsername` + `storefrontPassword`
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
   "username": "your-username",
-  "password": "your-password", 
+  "password": "your-password",
+  "storefrontUsername": "your-storefront-basic-user",
+  "storefrontPassword": "your-storefront-basic-password",
   "client-id": "your-client-id",
   "client-secret": "your-client-secret"
 }

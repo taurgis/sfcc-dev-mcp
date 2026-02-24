@@ -51,6 +51,24 @@ describe('ConfigurationFactory', () => {
       expect(config.clientSecret).toBe('test-client-secret');
     });
 
+    it('should map optional storefront credentials from dw.json', () => {
+      const dwJsonContent = {
+        hostname: 'test-instance.demandware.net',
+        username: 'testuser',
+        password: 'testpass',
+        storefrontUsername: 'storefront-user',
+        storefrontPassword: 'storefront-pass',
+      };
+
+      const testFile = join(testDir, 'valid-dw.json');
+      writeFileSync(testFile, JSON.stringify(dwJsonContent, null, 2));
+
+      const config = ConfigurationFactory.create({ dwJsonPath: testFile });
+
+      expect(config.storefrontUsername).toBe('storefront-user');
+      expect(config.storefrontPassword).toBe('storefront-pass');
+    });
+
     it('should throw an error if dw.json file is invalid', () => {
       const testFile = join(testDir, 'invalid-dw.json');
       writeFileSync(testFile, '{ invalid json }');
@@ -128,6 +146,17 @@ describe('ConfigurationFactory', () => {
       expect(() => {
         ConfigurationFactory.create({ clientSecret: 'test-client-secret' });
       }).toThrow('OAuth credentials must include both clientId and clientSecret');
+    });
+
+    it('should reject partial storefront credentials', () => {
+      expect(() => {
+        ConfigurationFactory.create({
+          hostname: 'test-instance.demandware.net',
+          username: 'testuser',
+          password: 'testpass',
+          storefrontUsername: 'storefront-user',
+        });
+      }).toThrow('Storefront credentials must include both storefrontUsername and storefrontPassword');
     });
 
     it('should validate configuration and throw error for invalid hostname format', () => {

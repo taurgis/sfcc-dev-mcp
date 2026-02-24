@@ -16,6 +16,10 @@ export interface SFCCConfig {
   username?: string;
   /** Password for basic authentication (optional if using OAuth) */
   password?: string;
+  /** Optional storefront Basic Auth username used for storefront trigger requests */
+  storefrontUsername?: string;
+  /** Optional storefront Basic Auth password used for storefront trigger requests */
+  storefrontPassword?: string;
   /** Client ID for OAuth authentication (optional if using basic auth) */
   clientId?: string;
   /** Client secret for OAuth authentication (optional if using basic auth) */
@@ -37,6 +41,10 @@ export interface DwJsonConfig {
   username?: string;
   /** Password for WebDAV access (optional when OAuth-only credentials are used) */
   password?: string;
+  /** Optional storefront Basic Auth username for debugger storefront trigger requests */
+  storefrontUsername?: string;
+  /** Optional storefront Basic Auth password for debugger storefront trigger requests */
+  storefrontPassword?: string;
   /** Optional code version */
   'code-version'?: string;
   /** Optional client ID for OAuth */

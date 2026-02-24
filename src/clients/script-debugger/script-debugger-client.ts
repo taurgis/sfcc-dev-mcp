@@ -369,6 +369,33 @@ export class ScriptDebuggerClient {
   }
 
   /**
+   * Build auth header for storefront trigger requests.
+   *
+   * Preference order:
+   * 1) Dedicated storefront credentials from dw.json
+   * 2) Primary basic auth credentials (username/password)
+   *
+   * OAuth credentials are intentionally not sent to storefront routes.
+   */
+  private getStorefrontTriggerAuthHeader(): string | undefined {
+    const storefrontUsername = this.config.storefrontUsername?.trim();
+    const storefrontPassword = this.config.storefrontPassword?.trim();
+
+    if (storefrontUsername || storefrontPassword) {
+      if (!storefrontUsername || !storefrontPassword) {
+        throw new Error('Storefront credentials must include both storefrontUsername and storefrontPassword');
+      }
+      return `Basic ${Buffer.from(`${storefrontUsername}:${storefrontPassword}`).toString('base64')}`;
+    }
+
+    if (this.config.username && this.config.password) {
+      return `Basic ${Buffer.from(`${this.config.username}:${this.config.password}`).toString('base64')}`;
+    }
+
+    return undefined;
+  }
+
+  /**
    * Get WebDAV client credentials
    */
   private getWebDAVCredentials(): { username: string; password: string } {
@@ -633,13 +660,19 @@ export class ScriptDebuggerClient {
       timeoutMessage: `Storefront trigger timed out after ${TRIGGER_TIMEOUT_MS}ms`,
     });
 
+    const storefrontAuthHeader = this.getStorefrontTriggerAuthHeader();
+    const headers: Record<string, string> = {
+      Accept: 'text/html,application/xhtml+xml',
+    };
+    if (storefrontAuthHeader) {
+      headers.Authorization = storefrontAuthHeader;
+    }
+
     try {
       const response = await fetch(url, {
         method: 'GET',
         signal: timeoutController?.signal,
-        headers: {
-          Accept: 'text/html,application/xhtml+xml',
-        },
+        headers,
       });
 
       if (!response.ok) {

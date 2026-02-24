@@ -547,5 +547,110 @@ describe('ScriptDebuggerClient', () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain('No authentication credentials available');
     });
+
+    it('should use dedicated storefront credentials for storefront trigger auth', async () => {
+      const storefrontConfig: SFCCConfig = {
+        hostname: 'test.sandbox.dx.commercecloud.salesforce.com',
+        clientId: 'debug-client-id',
+        clientSecret: 'debug-client-secret',
+        storefrontUsername: 'storefront-user',
+        storefrontPassword: 'storefront-pass',
+        codeVersion: 'test_version',
+      };
+
+      const storefrontClient = new ScriptDebuggerClient(storefrontConfig);
+      mockExists.mockResolvedValue(true);
+
+      const capturedHeaders: Array<RequestInit['headers']> = [];
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'storefront-auth' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes('/on/demandware.store/') && !urlStr.includes('/dw/debugger')) {
+          capturedHeaders.push(options?.headers);
+        }
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await storefrontClient.evaluateScript('1 + 1', { timeout: 5000 });
+
+      expect(result.success).toBe(true);
+      expect(capturedHeaders.length).toBeGreaterThan(0);
+
+      const headers = capturedHeaders[0] as Record<string, string>;
+      expect(headers.Authorization).toBe(`Basic ${Buffer.from('storefront-user:storefront-pass').toString('base64')}`);
+    });
+
+    it('should fall back to primary basic auth credentials for storefront trigger auth', async () => {
+      mockExists.mockResolvedValue(true);
+
+      const capturedHeaders: Array<RequestInit['headers']> = [];
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'primary-auth' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes('/on/demandware.store/') && !urlStr.includes('/dw/debugger')) {
+          capturedHeaders.push(options?.headers);
+        }
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('1 + 1', { timeout: 5000 });
+
+      expect(result.success).toBe(true);
+      expect(capturedHeaders.length).toBeGreaterThan(0);
+
+      const headers = capturedHeaders[0] as Record<string, string>;
+      expect(headers.Authorization).toBe(`Basic ${Buffer.from('testuser:testpass').toString('base64')}`);
+    });
+
+    it('should not send storefront auth header when only OAuth credentials are configured', async () => {
+      const oauthOnlyConfig: SFCCConfig = {
+        hostname: 'test.sandbox.dx.commercecloud.salesforce.com',
+        clientId: 'debug-client-id',
+        clientSecret: 'debug-client-secret',
+        codeVersion: 'test_version',
+      };
+
+      const oauthOnlyClient = new ScriptDebuggerClient(oauthOnlyConfig);
+      mockExists.mockResolvedValue(true);
+
+      const capturedHeaders: Array<RequestInit['headers']> = [];
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'oauth-only' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes('/on/demandware.store/') && !urlStr.includes('/dw/debugger')) {
+          capturedHeaders.push(options?.headers);
+        }
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await oauthOnlyClient.evaluateScript('1 + 1', { timeout: 5000 });
+
+      expect(result.success).toBe(true);
+      expect(capturedHeaders.length).toBeGreaterThan(0);
+
+      const headers = capturedHeaders[0] as Record<string, string>;
+      expect(headers.Authorization).toBeUndefined();
+    });
   });
 });

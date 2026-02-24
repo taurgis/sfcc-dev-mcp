@@ -487,6 +487,7 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 - Basic auth (`username` + `password`)
 - OAuth (`client-id` + `client-secret`)
 - Both pairs together
+- Optional storefront Basic Auth override for script-debugger storefront triggers (`storefrontUsername` + `storefrontPassword`)
 
 When `hostname` is present, at least one complete credential pair must be provided.
 When credentials are provided, `hostname` is required.
