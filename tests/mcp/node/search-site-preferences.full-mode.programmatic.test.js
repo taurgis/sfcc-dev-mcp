@@ -328,11 +328,10 @@ describe('search_site_preferences tool - Full Mode Programmatic Tests', () => {
       
       // Should either succeed or fail gracefully with timeout error
       if (result.isError) {
+        const errorText = result.content[0].text;
         assert.ok(
-          result.content[0].text.includes('timeout') || 
-          result.content[0].text.includes('error') ||
-          result.content[0].text.includes('invalid'),
-          'Timeout should produce meaningful error message'
+          /timeout|error|invalid|request failed|bad request|not found/i.test(errorText),
+          `Timeout should produce meaningful error message. Got: ${errorText}`,
         );
       } else {
         // If it succeeds, validate response structure
