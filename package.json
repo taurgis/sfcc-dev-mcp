@@ -88,13 +88,13 @@
     "@types/node": "25.3.0",
     "ajv": "8.18.0",
     "ajv-formats": "3.0.1",
-    "eslint": "10.0.1",
+    "eslint": "10.0.2",
     "husky": "9.1.7",
     "jest": "30.2.0",
     "mcp-aegis": "1.0.18",
     "ts-jest": "29.4.6",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.56.0"
+    "typescript-eslint": "8.56.1"
   }
 }
