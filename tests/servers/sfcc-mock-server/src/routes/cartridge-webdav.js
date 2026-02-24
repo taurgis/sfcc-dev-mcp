@@ -38,7 +38,7 @@ class CartridgeWebDAVHandler {
         const cartridgePath = '/on/demandware.servlet/webdav/Sites/Cartridges';
 
         // Handle all methods for cartridge path - PROPFIND is used by webdav.exists()
-        this.router.all(`${cartridgePath}/*`, (req, res, next) => {
+        this.router.all(`${cartridgePath}/*path`, (req, res, next) => {
             if (req.method === 'HEAD') {
                 return this.handleExists(req, res);
             }
