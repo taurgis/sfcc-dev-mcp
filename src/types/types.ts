@@ -10,7 +10,7 @@
  * Supports both basic authentication (username/password) and OAuth (clientId/clientSecret)
  */
 export interface SFCCConfig {
-  /** SFCC hostname (e.g., zziu-006.dx.commercecloud.salesforce.com) */
+  /** SFCC hostname (e.g., your-instance.sandbox.us01.dx.commercecloud.salesforce.com) */
   hostname?: string;
   /** Username for basic authentication (optional if using OAuth) */
   username?: string;

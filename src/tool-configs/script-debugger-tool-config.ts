@@ -24,6 +24,7 @@ export const SCRIPT_DEBUGGER_TOOL_CONFIG: Record<
         locale: args.locale as string | undefined,
         breakpointFile: args.breakpointFile as string | undefined,
         breakpointLine: args.breakpointLine as number | undefined,
+        triggerUrl: args.triggerUrl as string | undefined,
       });
 
       return result;

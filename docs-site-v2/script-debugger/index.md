@@ -45,6 +45,12 @@ Only use the script debugger on sandbox or development instances.
 | `timeout` | No | 30000 | Execution timeout in ms |
 | `breakpointFile` | No | Auto | Custom controller file for breakpoint |
 | `breakpointLine` | No | Auto | Specific breakpoint line |
+| `triggerUrl` | No | Auto | Custom storefront URL or path to trigger (site-relative paths resolve to `/s/{siteId}/...`) |
+
+Examples for `triggerUrl`:
+
+- Full URL: `https://your-instance.sandbox.us01.dx.commercecloud.salesforce.com/s/RefArchGlobal/womens/?lang=en_US`
+- Site-relative path: `/womens/?lang=en_US` (resolved to `https://{hostname}/s/{siteId}/womens/?lang=en_US`)
 
 ## Script rules
 

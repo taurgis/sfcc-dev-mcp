@@ -259,6 +259,84 @@ describe('ScriptDebuggerClient', () => {
       expect(result.result).toBe('fallback');
     });
 
+    it('should use custom absolute triggerUrl when provided', async () => {
+      mockExists.mockResolvedValue(true);
+
+      const capturedStorefrontUrls: string[] = [];
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'custom-url' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if ((urlStr.includes('/s/') || urlStr.includes('/on/demandware.store/')) && !urlStr.includes('/dw/debugger')) {
+          capturedStorefrontUrls.push(urlStr);
+        }
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const triggerUrl = 'https://test.sandbox.dx.commercecloud.salesforce.com/s/RefArchGlobal/womens/?lang=en_US';
+      const result = await client.evaluateScript('1 + 1', {
+        triggerUrl,
+        siteId: 'RefArchGlobal',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('custom-url');
+      expect(capturedStorefrontUrls).toContain(triggerUrl);
+    });
+
+    it('should resolve site-relative triggerUrl path to /s/{siteId}/ path', async () => {
+      mockExists.mockResolvedValue(true);
+
+      const capturedStorefrontUrls: string[] = [];
+      const defaultFetch = createMockFetch({
+        'GET /eval': () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ result: 'custom-path' }),
+        }),
+      });
+
+      global.fetch = jest.fn(async (url: RequestInfo | URL, options?: RequestInit) => {
+        const urlStr = url.toString();
+        if ((urlStr.includes('/s/') || urlStr.includes('/on/demandware.store/')) && !urlStr.includes('/dw/debugger')) {
+          capturedStorefrontUrls.push(urlStr);
+        }
+        return await defaultFetch(url, options);
+      }) as typeof fetch;
+
+      const result = await client.evaluateScript('1 + 1', {
+        triggerUrl: '/womens/?lang=en_US',
+        siteId: 'RefArchGlobal',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('custom-path');
+      expect(capturedStorefrontUrls).toContain(
+        'https://test.sandbox.dx.commercecloud.salesforce.com/s/RefArchGlobal/womens/?lang=en_US',
+      );
+    });
+
+    it('should reject custom triggerUrl with mismatched hostname', async () => {
+      mockExists.mockResolvedValue(true);
+      global.fetch = createMockFetch({});
+
+      const result = await client.evaluateScript('1 + 1', {
+        triggerUrl: 'https://other-instance.dx.commercecloud.salesforce.com/s/RefArch/',
+        timeout: 5000,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('triggerUrl hostname must match configured hostname');
+    });
+
     it('should return error when no storefront cartridge found', async () => {
       mockExists.mockResolvedValue(false);
 

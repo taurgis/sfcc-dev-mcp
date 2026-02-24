@@ -472,6 +472,7 @@ sfcc-dev-mcp/
 
 10. **Script Debugger Tools** (1 tool)
    - Invoke script debugger flows for runtime troubleshooting
+   - Supports custom storefront trigger URL/path input (full URLs, `/s/...`, `/on/demandware.store/...`, or site-relative paths resolved to `/s/{siteId}/...`)
    - Supports credentialed debugging workflows in full mode
 
 ### 🚀 Operating Modes

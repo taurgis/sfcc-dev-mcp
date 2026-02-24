@@ -164,6 +164,7 @@ export class ScriptDebuggerClient {
       locale?: string;
       breakpointFile?: string;
       breakpointLine?: number;
+      triggerUrl?: string;
     } = {},
   ): Promise<ScriptEvaluationResult> {
     const startTime = Date.now();
@@ -171,6 +172,7 @@ export class ScriptDebuggerClient {
       const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
       const siteId = options.siteId ?? DEFAULT_SITE_ID;
       const locale = this.normalizeLocale(options.locale ?? DEFAULT_LOCALE);
+      const normalizedSiteId = this.normalizeSiteId(siteId);
       const warnings: string[] = [];
 
       this.logger.debug('Starting script evaluation', {
@@ -181,6 +183,10 @@ export class ScriptDebuggerClient {
       });
 
       try {
+        const resolvedTriggerUrl = options.triggerUrl
+          ? this.resolveTriggerUrl(options.triggerUrl, normalizedSiteId)
+          : undefined;
+
         // Resolve breakpoint target for this request.
         const cartridgeConfig = await this.resolveCartridgeConfig(options);
         if (!cartridgeConfig) {
@@ -205,7 +211,10 @@ export class ScriptDebuggerClient {
         await this.setBreakpoints(cartridgeConfig);
 
         // Trigger request execution in storefront.
-        const triggerPromise = this.triggerDefaultStart(siteId, locale);
+        const triggerPromise = this.triggerDefaultStart(normalizedSiteId, locale, resolvedTriggerUrl)
+          .catch(() => {
+            // Trigger request is best-effort while we poll debugger threads.
+          });
 
         // Poll for halted thread
         const thread = await this.waitForHaltedThread(timeout);
@@ -230,9 +239,7 @@ export class ScriptDebuggerClient {
         await this.resumeThread(thread.id);
 
         // Let trigger settle in background (timeout is expected in some cases).
-        triggerPromise.catch(() => {
-          // Expected - request may timeout after thread resumes.
-        });
+        void triggerPromise;
 
         return {
           success: true,
@@ -621,12 +628,69 @@ export class ScriptDebuggerClient {
   }
 
   /**
+   * Resolve a storefront trigger input into a fully-qualified URL for the configured instance.
+   *
+   * Supported forms:
+   * - Full URL (https://hostname/...)
+   * - Hostname-prefixed URL without scheme (hostname/...)
+   * - Absolute path (/on/demandware.store/... or /s/...)
+   * - Site-relative path (/womens/?lang=en_US -> /s/{siteId}/womens/?lang=en_US)
+   */
+  private resolveTriggerUrl(triggerUrl: string, normalizedSiteId: string): string {
+    const raw = triggerUrl.trim();
+
+    if (!raw) {
+      throw new Error('triggerUrl must not be empty');
+    }
+
+    const configuredHost = (this.config.hostname ?? '').toLowerCase();
+    const lowerRaw = raw.toLowerCase();
+
+    if (lowerRaw.startsWith('http://') || lowerRaw.startsWith('https://')) {
+      let parsed: URL;
+      try {
+        parsed = new URL(raw);
+      } catch {
+        throw new Error(`Invalid triggerUrl: ${raw}`);
+      }
+
+      if (parsed.hostname.toLowerCase() !== configuredHost) {
+        throw new Error(`triggerUrl hostname must match configured hostname (${this.config.hostname})`);
+      }
+
+      return parsed.toString();
+    }
+
+    if (lowerRaw.startsWith(configuredHost)) {
+      return `${this.protocol}://${raw}`;
+    }
+
+    const normalizedPath = raw.startsWith('/') ? raw : `/${raw}`;
+
+    if (normalizedPath.startsWith('/on/demandware.store/') || normalizedPath.startsWith('/s/')) {
+      return `${this.protocol}://${this.config.hostname}${normalizedPath}`;
+    }
+
+    const relativeSitePath = normalizedPath === '/' ? '/' : normalizedPath;
+    return `${this.protocol}://${this.config.hostname}/s/${normalizedSiteId}${relativeSitePath}`;
+  }
+
+  /**
    * Trigger the Default-Start endpoint via HTTP
    */
-  private async triggerDefaultStart(siteId: string, locale: string): Promise<void> {
-    // Normalize site ID in case it's passed as "Sites-{id}-Site"
+  private async triggerDefaultStart(siteId: string, locale: string, triggerUrl?: string): Promise<void> {
     const normalizedSiteId = this.normalizeSiteId(siteId);
     const normalizedLocale = this.normalizeLocale(locale);
+
+    if (triggerUrl) {
+      this.logger.debug('Triggering custom storefront URL', {
+        siteId: normalizedSiteId,
+        triggerUrl,
+      });
+
+      await this.triggerStorefrontUrl(triggerUrl);
+      return;
+    }
 
     // Some instances require the classic storefront URL format.
     // First try without locale (may redirect), then fall back to explicit locale.
