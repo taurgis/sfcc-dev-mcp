@@ -444,6 +444,10 @@ Sets the given locale for the request.
 
 **Description:** Adds the specified cookie to the outgoing response. This method can be called multiple times to set more than one cookie. If a cookie with the same cookie name, domain and path is set multiple times for the same response, only the last set cookie with this name is send to the client. This method can be used to set, update or delete cookies at the client. If the cookie doesn't exist at the client, it is set initially. If a cookie with the same name, domain and path already exists at the client, it is updated. A cookie can be deleted at the client by submitting a cookie with the maxAge attribute set to 0 (see Cookie.setMaxAge() for more information). Example, how a cookie can be deleted at the client: var cookie : Cookie = new Cookie("SomeName", "Simple Value"); cookie.setMaxAge(0); request.addHttpCookie(cookie);
 
+**API Versioned:**
+
+No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
+
 **Deprecated:**
 
 Use Response.addHttpCookie(Cookie) instead.
