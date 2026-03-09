@@ -75,7 +75,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.26.0",
+    "@modelcontextprotocol/sdk": "1.27.1",
     "webdav": "5.9.0"
   },
   "overrides": {
