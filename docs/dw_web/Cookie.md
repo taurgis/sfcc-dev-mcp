@@ -25,7 +25,9 @@ Default name for cookies with empty strings.
 
 **Type:** String
 
-The comment associated with the cookie.
+The comment that was previously set for this cookie, or null if no comment was set. Note that comments
+ are no longer supported in RFC 6265 and will not be sent to clients. This method is maintained for backward
+ compatibility only.
 
 ### domain
 
@@ -74,8 +76,9 @@ The cookie's value.
 
 **Type:** Number
 
-The version for the cookie. 0 means original Netscape cookie and
- 1 means RFC 2109 compliant cookie.
+The version that was previously set for this cookie. Note that the version is no longer used for
+ determining cookie compliance as the system now uses RFC 6265 by default. The returned value only reflects what
+ was previously set using setVersion(Number).
 
 ## Constructor Summary
 
@@ -87,7 +90,7 @@ Cookie(name : String, value : String) Constructs a new cookie using the specifie
 
 **Signature:** `getComment() : String`
 
-Returns the comment associated with the cookie.
+Returns the comment that was previously set for this cookie, or null if no comment was set.
 
 ### getDomain
 
@@ -129,7 +132,7 @@ Returns the cookie's value.
 
 **Signature:** `getVersion() : Number`
 
-Returns the version for the cookie.
+Returns the version that was previously set for this cookie.
 
 ### isHttpOnly
 
@@ -141,7 +144,7 @@ Identifies if the cookie is http-only.
 
 **Signature:** `setComment(comment : String) : void`
 
-Sets the comment associated with the cookie.
+Sets a comment associated with this cookie.
 
 ### setDomain
 
@@ -183,7 +186,7 @@ Sets the cookie's value.
 
 **Signature:** `setVersion(version : Number) : void`
 
-Sets the version for the cookie.
+Returns the version that was previously set for this cookie.
 
 ## Constructor Detail
 
@@ -195,11 +198,19 @@ Sets the version for the cookie.
 
 **Signature:** `getComment() : String`
 
-**Description:** Returns the comment associated with the cookie.
+**Description:** Returns the comment that was previously set for this cookie, or null if no comment was set. Note that comments are no longer supported in RFC 6265 and will not be sent to clients. This method is maintained for backward compatibility only.
+
+**API Versioned:**
+
+No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
+
+**Deprecated:**
+
+This method is maintained for backward compatibility only. Cookie comments were removed in RFC 6265 and are no longer sent to clients. The returned value only reflects what was previously set using setComment(String).
 
 **Returns:**
 
-the comment associated with the cookie.
+the comment that was previously set, or null if no comment was set
 
 ---
 
@@ -279,11 +290,19 @@ the cookie's value.
 
 **Signature:** `getVersion() : Number`
 
-**Description:** Returns the version for the cookie. 0 means original Netscape cookie and 1 means RFC 2109 compliant cookie.
+**Description:** Returns the version that was previously set for this cookie. Note that the version is no longer used for determining cookie compliance as the system now uses RFC 6265 by default. The returned value only reflects what was previously set using setVersion(Number).
+
+**API Versioned:**
+
+No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
+
+**Deprecated:**
+
+This method is maintained for backward compatibility only. The version property is no longer used as the system now uses RFC 6265 compliance by default. The returned value has no effect on cookie behavior.
 
 **Returns:**
 
-the version for the cookie.
+the version number that was set, or 0 if no version was explicitly set
 
 ---
 
@@ -303,11 +322,19 @@ true if the cookie is http-only, false otherwise.
 
 **Signature:** `setComment(comment : String) : void`
 
-**Description:** Sets the comment associated with the cookie. Setting a comment automatically changes the cookie to be a RFC 2109 (set-cookie2) compliant cookie, because comments are only supported with RFC cookies and not with Netscapes original cookie.
+**Description:** Sets a comment associated with this cookie. Note that comments are no longer sent to clients as they were removed in RFC 6265. This method is maintained for backward compatibility but has no effect on the cookie's behavior.
+
+**API Versioned:**
+
+No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
+
+**Deprecated:**
+
+This method is maintained for backward compatibility only. Cookie comments were removed in RFC 6265 and will not be sent to clients. The value will be stored but has no effect on cookie behavior.
 
 **Parameters:**
 
-- `comment`: the comment associated with the cookie.
+- `comment`: the comment to associate with the cookie (ignored)
 
 ---
 
@@ -387,10 +414,22 @@ true if the cookie is http-only, false otherwise.
 
 **Signature:** `setVersion(version : Number) : void`
 
-**Description:** Sets the version for the cookie. 0 means original Netscape cookie and 1 means RFC 2109 compliant cookie. The default is 0.
+**Description:** Returns the version that was previously set for this cookie. Note that the version is no longer used for determining cookie compliance as the system now uses RFC 6265 by default. The returned value only reflects what was previously set using setVersion(Number).
+
+**API Versioned:**
+
+No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
+
+**Deprecated:**
+
+This method is maintained for backward compatibility only. The version property is no longer used as the system now uses RFC 6265 compliance by default. The returned value has no effect on cookie behavior.
 
 **Parameters:**
 
-- `version`: the version for the cookie.
+- `version`: No Comment In JavaDoc
+
+**Returns:**
+
+the version number that was set, or 0 if no version was explicitly set
 
 ---
