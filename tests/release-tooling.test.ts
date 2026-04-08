@@ -36,7 +36,7 @@ describe('release tooling scripts', () => {
 
     writeFileSync(
       join(testDir, 'package.json'),
-      JSON.stringify({ name: 'sfcc-dev-mcp', version: '9.9.9' }, null, 2),
+      JSON.stringify({ name: 'sfcc-dev-mcp', version: '9.9.9', type: 'module' }, null, 2),
     );
     writeFileSync(
       join(testDir, 'server.json'),
@@ -79,6 +79,11 @@ describe('release tooling scripts', () => {
     copyFileSync(
       join(repoRoot, 'scripts', 'release-status.js'),
       join(testDir, 'scripts', 'release-status.js'),
+    );
+
+    writeFileSync(
+      join(testDir, 'package.json'),
+      JSON.stringify({ name: 'sfcc-dev-mcp-release-status-test', version: '1.0.0', type: 'module' }, null, 2),
     );
 
     writeFileSync(join(testDir, '.changeset', 'README.md'), '# test\n');
