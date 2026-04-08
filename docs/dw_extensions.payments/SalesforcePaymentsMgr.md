@@ -223,6 +223,12 @@ Refunds previously captured funds for the given order payment instrument.
 
 Refunds previously captured funds for the given payment intent.
 
+### refundPayPalOrderCapture
+
+**Signature:** `static refundPayPalOrderCapture(paypalOrder : SalesforcePayPalOrder) : Status`
+
+Refunds the capture for the given PayPal order.
+
 ### removeAdyenSavedPaymentMethod
 
 **Signature:** `static removeAdyenSavedPaymentMethod(savedPaymentMethod : SalesforceAdyenSavedPaymentMethod) : void`
@@ -264,6 +270,12 @@ Sets the details to the Salesforce Payments payment associated with the given pa
 **Signature:** `static updatePaymentIntent(paymentIntent : SalesforcePaymentIntent, shipment : Shipment, amount : Money, orderNo : String, paymentIntentProperties : Object) : Status`
 
 Updates the provided information in the given payment intent.
+
+### voidPayPalOrderAuthorization
+
+**Signature:** `static voidPayPalOrderAuthorization(paypalOrder : SalesforcePayPalOrder) : Status`
+
+Voids the authorization for the given PayPal order.
 
 ## Method Detail
 
@@ -806,6 +818,26 @@ Exception - if there was an error refunding the payment intent
 
 ---
 
+### refundPayPalOrderCapture
+
+**Signature:** `static refundPayPalOrderCapture(paypalOrder : SalesforcePayPalOrder) : Status`
+
+**Description:** Refunds the capture for the given PayPal order. The PayPal order must have a capture in a status that supports refund. See the PayPal documentation for more details.
+
+**Parameters:**
+
+- `paypalOrder`: PayPal order whose capture to refund
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'error' contains the PayPal error information, if it is available in the response.
+
+**Throws:**
+
+Exception - if there was an error refunding the capture for the PayPal order
+
+---
+
 ### removeAdyenSavedPaymentMethod
 
 **Signature:** `static removeAdyenSavedPaymentMethod(savedPaymentMethod : SalesforceAdyenSavedPaymentMethod) : void`
@@ -939,5 +971,25 @@ Status 'OK' or 'ERROR'. Status detail 'paymentintent' contains the payment inten
 **Throws:**
 
 Exception - if the parameter validation failed or there's an error updating the payment intent
+
+---
+
+### voidPayPalOrderAuthorization
+
+**Signature:** `static voidPayPalOrderAuthorization(paypalOrder : SalesforcePayPalOrder) : Status`
+
+**Description:** Voids the authorization for the given PayPal order. The PayPal order must have an authorization in a status that supports voiding. See the PayPal documentation for more details.
+
+**Parameters:**
+
+- `paypalOrder`: PayPal order whose authorization to void
+
+**Returns:**
+
+Status 'OK' or 'ERROR'. Status detail 'error' contains the PayPal error information, if it is available in the response.
+
+**Throws:**
+
+Exception - if there was an error voiding the authorization for the PayPal order
 
 ---
