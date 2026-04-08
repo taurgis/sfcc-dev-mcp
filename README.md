@@ -213,9 +213,27 @@ The server writes logs to your system's temporary directory:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 ```
 
-## 🧪 Release Validation (Maintainers)
+## 🧪 Release Flow (Maintainers)
 
-The publish workflow runs MCP tests against the just-published npm artifact (`npx sfcc-dev-mcp@<version>`) before publishing to the MCP Registry.
+This repository now uses Changesets for npm releases.
+
+When a change should ship in a new `sfcc-dev-mcp` version, add a changeset from the repository root:
+
+```bash
+npm run changeset
+```
+
+Check pending release state against `main` before merging:
+
+```bash
+npm run release:status
+```
+
+The release workflow on `main` creates or updates a release pull request from pending changesets. Merging that release pull request publishes the npm package through npm trusted publishing (GitHub Actions OIDC), waits for npm propagation, reruns MCP tests against the published NPX artifact, and then publishes the same version to the MCP Registry.
+
+`npm run version-packages` also syncs `server.json` with the package version so `validate:server-json` keeps passing in the release PR.
+
+Package publication now uses GitHub Actions OIDC trusted publishing, so no separate npm publish secret is required.
 
 You can run the same validation locally:
 

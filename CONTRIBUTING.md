@@ -143,6 +143,7 @@ git checkout -b fix/your-bug-fix
 
 - Follow the existing code style
 - Add tests for new functionality
+- Add a changeset with `npm run changeset` when the change should ship in a new npm release
 - Update documentation as needed
 
 ### 3. Test Your Changes
@@ -293,10 +294,13 @@ The project follows [Semantic Versioning](https://semver.org/):
 
 ### Release Steps
 
-1. Update version in `package.json`
-2. Update CHANGELOG.md
-3. Create a release tag
-4. Publish to npm registry
+This repository uses Changesets for package releases.
+
+1. Add a changeset with `npm run changeset` for every change that should ship in a new npm package version
+2. Check pending release state with `npm run release:status`
+3. Merge changeset-bearing pull requests into `main`
+4. Let the release workflow create or update the release pull request
+5. Merge the release pull request to publish to npm and then the MCP Registry
 
 ## Getting Help
 

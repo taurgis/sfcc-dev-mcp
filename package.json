@@ -26,6 +26,7 @@
     "start": "node dist/main.js",
     "dev": "tsx src/main.ts",
     "inspector": "npx @modelcontextprotocol/inspector node dist/main.js",
+    "changeset": "changeset",
     "convert-docs": "node scripts/convert-docs.js",
     "convert-docs:test": "node scripts/convert-docs.js --test",
     "convert-docs:limit": "node scripts/convert-docs.js --limit 5",
@@ -34,6 +35,9 @@
     "docs:dev": "npm --prefix docs-site-v2 run dev",
     "docs:build": "npm --prefix docs-site-v2 run build",
     "docs:preview": "npm --prefix docs-site-v2 run preview",
+    "release:status": "node scripts/release-status.js",
+    "version-packages": "changeset version && node scripts/sync-server-json-version.js && npm install --package-lock-only",
+    "ci:publish": "changeset publish",
     "test": "npm run test:all",
     "test:unit": "jest",
     "test:watch": "jest --watch",
@@ -82,6 +86,7 @@
     "minimatch": "10.2.2"
   },
   "devDependencies": {
+    "@changesets/cli": "2.30.0",
     "@eslint/js": "10.0.1",
     "@types/eslint": "9.6.1",
     "@types/jest": "30.0.0",
