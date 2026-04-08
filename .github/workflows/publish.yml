@@ -71,6 +71,7 @@ jobs:
           publish: npm run ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: '0'
 
       - name: Read published package version
         if: steps.changesets.outputs.published == 'true'
