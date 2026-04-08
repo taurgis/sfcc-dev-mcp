@@ -78,6 +78,7 @@ export class SFCCMockServerManager {
         this.stop();
         reject(new Error(`Server failed to start within ${this.config.timeout}ms`));
       }, this.config.timeout);
+      timeout.unref();
 
       this.serverProcess = spawn('node', ['server.js', ...args], {
         cwd: this.serverPath,
@@ -97,7 +98,7 @@ export class SFCCMockServerManager {
       });
 
       // Wait a bit for the server to start up
-      setTimeout(async () => {
+      const healthCheckDelay = setTimeout(async () => {
         try {
           // Test if server is responding using the health endpoint
           const response = await fetch(`${this.getServerUrl()}/health`);
@@ -113,6 +114,7 @@ export class SFCCMockServerManager {
           reject(new Error(`Server health check failed: ${error}`));
         }
       }, 2000); // Give server 2 seconds to start
+      healthCheckDelay.unref();
     });
   }
 
@@ -177,6 +179,7 @@ export class SFCCMockServerManager {
         process.kill('SIGKILL');
         resolve();
       }, 5000);
+      timeout.unref();
 
       process.on('exit', () => {
         clearTimeout(timeout);

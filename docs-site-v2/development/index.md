@@ -153,15 +153,19 @@ The VitePress site lives in `docs-site-v2/`. If you modify structure, update the
 ## Release process
 
 ```bash
-npm version patch
-git push origin main --tags
+npm run changeset
+npm run release:status
 ```
 
 Checklist:
 
+- Add a changeset for every change that should ship in a new npm package version
+- Merge changeset-bearing pull requests into `main`
+- Review and merge the release pull request created by the Changesets workflow
+- Package publication uses GitHub Actions OIDC trusted publishing
 - Update README.md and AGENTS.md if tool counts or categories change
 - Keep `server.json` version fields aligned with `package.json` (`version` and `packages[0].version`)
-- Run `npm run validate:server-json` after version bumps and before tagging
+- Run `npm run validate:server-json` after versioning changes
 - Run `npm test` and `npm run lint:check`
 - Verify docs build in `docs-site-v2`
 

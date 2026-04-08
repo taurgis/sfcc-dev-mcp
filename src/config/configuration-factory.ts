@@ -24,6 +24,8 @@ export class ConfigurationFactory {
     hostname?: string;
     username?: string;
     password?: string;
+    storefrontUsername?: string;
+    storefrontPassword?: string;
     clientId?: string;
     clientSecret?: string;
     siteId?: string;
@@ -40,6 +42,8 @@ export class ConfigurationFactory {
         hostname: options.hostname ?? '',
         username: options.username,
         password: options.password,
+        storefrontUsername: options.storefrontUsername,
+        storefrontPassword: options.storefrontPassword,
         clientId: options.clientId,
         clientSecret: options.clientSecret,
         siteId: options.siteId,
@@ -50,6 +54,8 @@ export class ConfigurationFactory {
     if (options.hostname) {config.hostname = options.hostname;}
     if (options.username) {config.username = options.username;}
     if (options.password) {config.password = options.password;}
+    if (options.storefrontUsername) {config.storefrontUsername = options.storefrontUsername;}
+    if (options.storefrontPassword) {config.storefrontPassword = options.storefrontPassword;}
     if (options.clientId) {config.clientId = options.clientId;}
     if (options.clientSecret) {config.clientSecret = options.clientSecret;}
     if (options.siteId) {config.siteId = options.siteId;}
@@ -91,6 +97,8 @@ export class ConfigurationFactory {
       hostname: dwConfig.hostname,
       username: dwConfig.username,
       password: dwConfig.password,
+      storefrontUsername: dwConfig.storefrontUsername,
+      storefrontPassword: dwConfig.storefrontPassword,
     };
 
     // Map OAuth credentials if present
@@ -128,6 +136,16 @@ export class ConfigurationFactory {
       clientId: config.clientId,
       clientSecret: config.clientSecret,
     });
+
+    assertCredentialConsistency(
+      {
+        username: config.storefrontUsername,
+        password: config.storefrontPassword,
+      },
+      {
+        basicPairMessage: 'Storefront credentials must include both storefrontUsername and storefrontPassword',
+      },
+    );
 
     const hasHostname = config.hostname && config.hostname.trim() !== '';
 
@@ -206,6 +224,8 @@ export class ConfigurationFactory {
       hostname: '',
       username: undefined,
       password: undefined,
+      storefrontUsername: undefined,
+      storefrontPassword: undefined,
       clientId: undefined,
       clientSecret: undefined,
       siteId: undefined,

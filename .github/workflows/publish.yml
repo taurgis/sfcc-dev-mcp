@@ -1,14 +1,40 @@
-name: Publish to NPM
+name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
-  publish:
+  release:
+    name: Release package
+    if: >-
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main'
+      ) ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       contents: write
+      pull-requests: write
       id-token: write
 
     steps:
@@ -17,11 +43,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
@@ -33,10 +60,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
-        run: npm run build
+      - name: Create release pull request or publish package
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          commit: 'chore: release package'
+          title: 'chore: release package'
+          createGithubReleases: true
+          version: npm run version-packages
+          publish: npm run ci:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read published package version
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "PACKAGE_VERSION=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')" >> "$GITHUB_ENV"
+
+      - name: Wait for npm propagation buffer
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "Waiting 120 seconds for npm registry/CDN propagation before post-publish tests..."
+          sleep 120
 
       - name: Setup SFCC mock server
+        if: steps.changesets.outputs.published == 'true'
         run: |
           cd tests/servers/sfcc-mock-server
           npm install
@@ -44,62 +92,18 @@ jobs:
           node server.js --port 3000 &
           sleep 5
 
-      - name: Run tests
-        run: npm test
-
-      - name: Run linting
-        run: npm run lint:check
-
-      - name: Final build for publishing
-        run: npm run build
-
-      - name: Extract version and create release branch
-        run: |
-          # Extract version from the release tag (remove 'v' prefix if present)
-          VERSION=${GITHUB_REF#refs/tags/}
-          VERSION=${VERSION#v}
-          echo "Setting package version to: $VERSION"
-          
-          # Create and switch to release branch
-          BRANCH_NAME="release/v$VERSION"
-          echo "Creating release branch: $BRANCH_NAME"
-          git checkout -b $BRANCH_NAME
-
-          # Update package version
-          npm version $VERSION --no-git-tag-version
-
-          # Commit the version update
-          git add package.json package-lock.json
-          git commit -m "chore: bump version to $VERSION for release"
-
-          # Push the release branch
-          git push origin $BRANCH_NAME
-
-      - name: Publish to NPM
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Wait for npm propagation buffer
-        run: |
-          echo "Waiting 120 seconds for npm registry/CDN propagation before post-publish tests..."
-          sleep 120
-
       - name: Run post-publish MCP tests against published NPX package
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          VERSION=${VERSION#v}
-          bash ./scripts/test-published-npx.sh "$VERSION"
+        if: steps.changesets.outputs.published == 'true'
+        run: bash ./scripts/test-published-npx.sh "$PACKAGE_VERSION"
 
       - name: Stop SFCC mock server
-        if: always()
+        if: always() && steps.changesets.outputs.published == 'true'
         run: |
-          # Stop the single mock server instance used by both pre- and post-publish MCP tests.
           pkill -f "node.*server.js" || true
-          # Fallback: kill any remaining server processes on port 3000
           lsof -ti :3000 | xargs kill -9 2>/dev/null || true
 
       - name: Install MCP Publisher
+        if: steps.changesets.outputs.published == 'true'
         run: |
           OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
           ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
@@ -110,21 +114,31 @@ jobs:
           chmod +x mcp-publisher
           rm -f mcp-publisher.tar.gz
 
-      - name: Update server.json version
-        run: |
-          # Extract version from the release tag (remove 'v' prefix if present)
-          VERSION=${GITHUB_REF#refs/tags/}
-          VERSION=${VERSION#v}
-          echo "Updating server.json version to: $VERSION"
-          
-          # Update server.json version to match the release
-          jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > tmp && mv tmp server.json
-
       - name: Validate server.json
+        if: steps.changesets.outputs.published == 'true'
         run: npm run validate:server-json
 
       - name: Login to MCP Registry
+        if: steps.changesets.outputs.published == 'true'
         run: ./mcp-publisher login github-oidc
 
       - name: Publish to MCP Registry
+        if: steps.changesets.outputs.published == 'true'
         run: ./mcp-publisher publish
+
+      - name: Summarize release result
+        env:
+          PUBLISHED: ${{ steps.changesets.outputs.published }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          {
+            echo '### Release result'
+            echo ''
+            echo "- Published packages: ${PUBLISHED:-false}"
+            if [[ "${PUBLISHED}" == 'true' && -n "${PUBLISHED_PACKAGES}" ]]; then
+              echo "- Published packages JSON: ${PUBLISHED_PACKAGES}"
+              echo "- MCP registry publish completed for version ${PACKAGE_VERSION}."
+            else
+              echo '- Release pull request created or updated when unreleased changesets were present.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

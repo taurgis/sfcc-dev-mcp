@@ -4,6 +4,12 @@ export interface TimeoutAbortController {
   didTimeout: () => boolean;
 }
 
+function unrefTimer(timer: ReturnType<typeof setTimeout>): void {
+  if (typeof timer === 'object' && timer !== null && 'unref' in timer && typeof timer.unref === 'function') {
+    timer.unref();
+  }
+}
+
 interface CreateTimeoutAbortControllerOptions {
   timeoutMs?: number;
   timeoutMessage: string;
@@ -42,6 +48,7 @@ export function createTimeoutAbortController(
       didTimeout = true;
       controller.abort(timeoutMessage);
     }, timeoutMs);
+    unrefTimer(timeoutId);
   }
 
   if (externalSignal) {

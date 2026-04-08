@@ -301,6 +301,7 @@ sfcc-dev-mcp/
 │   ├── troubleshooting/         # Troubleshooting guide
 │   ├── public/                  # Static assets
 │   └── package.json             # VitePress scripts and dependencies
+├── .changeset/                  # Changesets release metadata and pending release entries
 ├── ai-instructions/             # AI instruction files for different platforms
 │   ├── claude-desktop/          # Claude Desktop specific instructions
 │   │   └── claude_custom_instructions.md
@@ -320,6 +321,8 @@ sfcc-dev-mcp/
 │   └── [various test files]     # Unit and integration tests
 ├── scripts/                     # Build, validation, and documentation scripts
 │   ├── convert-docs.js
+│   ├── release-status.js        # Changesets release-status wrapper with local working-tree fallback
+│   ├── sync-server-json-version.js # Synchronizes server.json version fields during Changesets versioning
 │   ├── test-published-npx.sh    # Post-publish validation against npm package via npx
 │   └── validate-server-json.js
 └── package.json                 # Node.js package configuration
@@ -472,6 +475,7 @@ sfcc-dev-mcp/
 
 10. **Script Debugger Tools** (1 tool)
    - Invoke script debugger flows for runtime troubleshooting
+   - Supports custom storefront trigger URL/path input (full URLs, `/s/...`, `/on/demandware.store/...`, or site-relative paths resolved to `/s/{siteId}/...`)
    - Supports credentialed debugging workflows in full mode
 
 ### 🚀 Operating Modes
@@ -487,6 +491,7 @@ The server discovers SFCC credentials in this order (highest to lowest priority)
 - Basic auth (`username` + `password`)
 - OAuth (`client-id` + `client-secret`)
 - Both pairs together
+- Optional storefront Basic Auth override for script-debugger storefront triggers (`storefrontUsername` + `storefrontPassword`)
 
 When `hostname` is present, at least one complete credential pair must be provided.
 When credentials are provided, `hostname` is required.
@@ -608,6 +613,8 @@ find docs -name "*.md" -type f | wc -l  # Count documentation files
 - **Creating New Handlers**: Extend `BaseToolHandler`, implement `canHandle()` and `handle()`, register in `server.ts`
 - **Using ClientFactory**: Create clients with `ClientFactory` for centralized creation and DI support
 - **Implementing Services**: Create interfaces in `services/index.ts`, implement production + mock versions
+- **Release Management**: Use `npm run changeset` for releaseable changes, inspect pending releases with `npm run release:status`, and rely on `npm run version-packages` to sync `server.json` with `package.json` during release PR generation
+- **Trusted Publishing**: The root release workflow publishes to npm with GitHub Actions OIDC on Node 24; keep `.github/workflows/publish.yml` on OIDC-based package publication
 
 **Testing** (see `.github/skills/` for detailed guides):
 - **YAML Tests**: Use `mcp-yaml-testing` skill for declarative test creation

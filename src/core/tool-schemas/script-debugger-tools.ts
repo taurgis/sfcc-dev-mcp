@@ -83,6 +83,16 @@ Example: "/app_storefront_base/cartridge/controllers/Default.js"`,
           description: 'Optional: Specific line number for a single breakpoint. If omitted, breakpoints are set on strategic lines (1, 10, 20, 30, 40, 50) to catch executable code.',
           minimum: 1,
         },
+        triggerUrl: {
+          type: 'string',
+          minLength: 1,
+          description: `Optional: Custom storefront URL or path to trigger instead of the default storefront root.
+Supports:
+- Full URL: "https://{hostname}/s/RefArch/womens/?lang=en_US"
+- Hostname without scheme: "{hostname}/s/RefArch/womens/?lang=en_US"
+- Absolute path: "/s/RefArch/womens/?lang=en_US" or "/on/demandware.store/Sites-RefArch-Site/"
+- Site-relative path: "/womens/?lang=en_US" (resolved to "https://{hostname}/s/{siteId}/womens/?lang=en_US")`,
+        },
       },
       required: ['script'],
     },

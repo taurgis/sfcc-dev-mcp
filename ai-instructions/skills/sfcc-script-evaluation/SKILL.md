@@ -27,6 +27,7 @@ The `evaluate_script` tool allows you to execute arbitrary JavaScript code on an
 | `timeout` | No | `30000` | Maximum execution time in milliseconds |
 | `breakpointFile` | No | Auto-detected | Custom controller path for breakpoint |
 | `breakpointLine` | No | `1,10,20,30,40,50` | Specific line for a single breakpoint; if omitted, strategic lines (1,10,20,30,40,50) are used |
+| `triggerUrl` | No | Auto-detected | Custom storefront URL or path to trigger; site-relative paths are resolved to `https://{hostname}/s/{siteId}/...` |
 
 ## Script Syntax Rules
 

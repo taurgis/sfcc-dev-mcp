@@ -12,7 +12,7 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 - **🧱 ISML Template Reference** - Complete ISML element documentation with examples and usage guidance
 - **📊 Log Analysis Tools** - Real-time error monitoring, debugging, and job log analysis for SFCC instances
 - **⚙️ System Object Definitions** - Explore custom attributes and site preferences
-- **🧪 Script Debugger** - Execute and inspect script-debugger endpoints in credentialed mode
+- **🧪 Script Debugger** - Execute and inspect script-debugger endpoints in credentialed mode, including custom trigger URLs/paths for non-default storefront routes
 - **🚀 Cartridge Generation** - Automated cartridge structure creation with workspace-bound path safety (writes stay inside workspace roots, or current working directory fallback when roots are unavailable; home-directory fallback is blocked)
 - **🧩 Agent Skill Bootstrap** - Install or merge AGENTS.md and bundled skills into the current project or a temp directory for AI assistants
 - **✅ Tool Argument Validation** - Runtime schema validation enforces required fields, type checks, enum constraints, integer/numeric bounds, and strict unknown-key checks for object schemas (top-level and nested) before handler execution
@@ -47,11 +47,14 @@ An AI-powered Model Context Protocol (MCP) server that provides comprehensive ac
 Create a `dw.json` file with your SFCC credentials. You can use either auth mode (or both):
 - Basic auth: `username` + `password`
 - OAuth: `client-id` + `client-secret`
+- Optional storefront auth (for script debugger trigger on Basic-Auth storefronts): `storefrontUsername` + `storefrontPassword`
 ```json
 {
   "hostname": "your-instance.sandbox.us01.dx.commercecloud.salesforce.com",
   "username": "your-username",
-  "password": "your-password", 
+  "password": "your-password",
+  "storefrontUsername": "your-storefront-basic-user",
+  "storefrontPassword": "your-storefront-basic-password",
   "client-id": "your-client-id",
   "client-secret": "your-client-secret"
 }
@@ -210,9 +213,27 @@ The server writes logs to your system's temporary directory:
 node -e "console.log(require('os').tmpdir() + '/sfcc-mcp-logs')"
 ```
 
-## 🧪 Release Validation (Maintainers)
+## 🧪 Release Flow (Maintainers)
 
-The publish workflow runs MCP tests against the just-published npm artifact (`npx sfcc-dev-mcp@<version>`) before publishing to the MCP Registry.
+This repository now uses Changesets for npm releases.
+
+When a change should ship in a new `sfcc-dev-mcp` version, add a changeset from the repository root:
+
+```bash
+npm run changeset
+```
+
+Check pending release state against `main` before merging:
+
+```bash
+npm run release:status
+```
+
+The release workflow on `main` creates or updates a release pull request from pending changesets. Merging that release pull request publishes the npm package through npm trusted publishing (GitHub Actions OIDC), waits for npm propagation, reruns MCP tests against the published NPX artifact, and then publishes the same version to the MCP Registry.
+
+`npm run version-packages` also syncs `server.json` with the package version so `validate:server-json` keeps passing in the release PR.
+
+Package publication now uses GitHub Actions OIDC trusted publishing, so no separate npm publish secret is required.
 
 You can run the same validation locally:
 

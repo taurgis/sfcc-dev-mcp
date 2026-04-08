@@ -134,6 +134,16 @@ function validateDwJsonContent(dwConfig: DwJsonConfig): void {
     },
   );
 
+  assertCredentialConsistency(
+    {
+      username: dwConfig.storefrontUsername,
+      password: dwConfig.storefrontPassword,
+    },
+    {
+      basicPairMessage: 'Storefront credentials must include both storefrontUsername and storefrontPassword',
+    },
+  );
+
   // Additional validation for hostname format (trim whitespace first)
   assertValidHostnameFormat(dwConfig.hostname, 'Invalid hostname format in configuration');
 }

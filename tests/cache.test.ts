@@ -24,6 +24,22 @@ describe('InMemoryCache', () => {
       defaultCache.destroy();
     });
 
+    it('should unref the cleanup timer so it does not keep the event loop alive', () => {
+      const unref = jest.fn();
+      const setIntervalSpy = jest.spyOn(global, 'setInterval').mockReturnValue({
+        unref,
+      } as unknown as NodeJS.Timeout);
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval').mockImplementation(() => undefined);
+
+      const defaultCache = new InMemoryCache();
+
+      expect(unref).toHaveBeenCalledTimes(1);
+
+      defaultCache.destroy();
+      setIntervalSpy.mockRestore();
+      clearIntervalSpy.mockRestore();
+    });
+
     it('should accept custom options', () => {
       const customCache = new InMemoryCache({
         maxSize: 50,
