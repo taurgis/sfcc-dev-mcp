@@ -31,6 +31,7 @@ export class InMemoryCache<T> {
     // Setup automatic cleanup - less frequent for static data
     const cleanupInterval = options.cleanupIntervalMs ?? 10 * 60 * 1000; // 10 minutes
     this.cleanupTimer = setInterval(() => this.cleanup(), cleanupInterval);
+    this.cleanupTimer.unref();
   }
 
   /**

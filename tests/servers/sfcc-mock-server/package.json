@@ -14,11 +14,11 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "cors": "^2.8.6"
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0"
+    "@types/node": "25.5.2"
   },
   "keywords": [
     "sfcc",
