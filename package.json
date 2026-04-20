@@ -93,13 +93,13 @@
     "@types/node": "25.5.2",
     "ajv": "8.18.0",
     "ajv-formats": "3.0.1",
-    "eslint": "10.2.0",
+    "eslint": "10.2.1",
     "husky": "9.1.7",
     "jest": "30.3.0",
     "mcp-aegis": "1.0.18",
     "ts-jest": "29.4.9",
     "tsx": "4.21.0",
     "typescript": "6.0.2",
-    "typescript-eslint": "8.58.1"
+    "typescript-eslint": "8.58.2"
   }
 }
