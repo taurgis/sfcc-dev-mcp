@@ -26,6 +26,30 @@ Returns true if the capture method is set to automatic for credit card Payment I
 
 Returns true if Express Checkout is enabled for the site.
 
+### expressOnCartEnabled
+
+**Type:** boolean (Read Only)
+
+Returns true if Express Checkout is enabled on the Cart page.
+
+### expressOnCheckoutEnabled
+
+**Type:** boolean (Read Only)
+
+Returns true if Express Checkout is enabled on the Checkout page.
+
+### expressOnMiniCartEnabled
+
+**Type:** boolean (Read Only)
+
+Returns true if Express Checkout is enabled on the Mini-Cart.
+
+### expressOnPdpEnabled
+
+**Type:** boolean (Read Only)
+
+Returns true if Express Checkout is enabled on the Product Detail Page.
+
 ### futureUsageOffSession
 
 **Type:** boolean (Read Only)
@@ -55,6 +79,30 @@ Returns true if the capture method is set to automatic for credit card Payment I
 **Signature:** `isExpressCheckoutEnabled() : boolean`
 
 Returns true if Express Checkout is enabled for the site.
+
+### isExpressOnCartEnabled
+
+**Signature:** `isExpressOnCartEnabled() : boolean`
+
+Returns true if Express Checkout is enabled on the Cart page.
+
+### isExpressOnCheckoutEnabled
+
+**Signature:** `isExpressOnCheckoutEnabled() : boolean`
+
+Returns true if Express Checkout is enabled on the Checkout page.
+
+### isExpressOnMiniCartEnabled
+
+**Signature:** `isExpressOnMiniCartEnabled() : boolean`
+
+Returns true if Express Checkout is enabled on the Mini-Cart.
+
+### isExpressOnPdpEnabled
+
+**Signature:** `isExpressOnPdpEnabled() : boolean`
+
+Returns true if Express Checkout is enabled on the Product Detail Page.
 
 ### isFutureUsageOffSession
 
@@ -93,6 +141,54 @@ true if the credit card capture method is automatic, or false if it is manual
 **Returns:**
 
 true if Express Checkout is enabled for the site, or false if not
+
+---
+
+### isExpressOnCartEnabled
+
+**Signature:** `isExpressOnCartEnabled() : boolean`
+
+**Description:** Returns true if Express Checkout is enabled on the Cart page.
+
+**Returns:**
+
+true if Express Checkout is enabled on Cart, or false if not
+
+---
+
+### isExpressOnCheckoutEnabled
+
+**Signature:** `isExpressOnCheckoutEnabled() : boolean`
+
+**Description:** Returns true if Express Checkout is enabled on the Checkout page.
+
+**Returns:**
+
+true if Express Checkout is enabled on Checkout, or false if not
+
+---
+
+### isExpressOnMiniCartEnabled
+
+**Signature:** `isExpressOnMiniCartEnabled() : boolean`
+
+**Description:** Returns true if Express Checkout is enabled on the Mini-Cart.
+
+**Returns:**
+
+true if Express Checkout is enabled on Mini-Cart, or false if not
+
+---
+
+### isExpressOnPdpEnabled
+
+**Signature:** `isExpressOnPdpEnabled() : boolean`
+
+**Description:** Returns true if Express Checkout is enabled on the Product Detail Page.
+
+**Returns:**
+
+true if Express Checkout is enabled on PDP, or false if not
 
 ---
 

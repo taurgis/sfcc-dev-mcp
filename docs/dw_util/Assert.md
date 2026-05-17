@@ -27,6 +27,18 @@ Propagates an assertion if the specified objects are not equal.
 
 Propagates an assertion using the specified message if the specified objects are not equal.
 
+### areNotEqual
+
+**Signature:** `static areNotEqual(arg1 : Object, arg2 : Object) : void`
+
+Propagates an assertion if the specified objects are equal.
+
+### areNotEqual
+
+**Signature:** `static areNotEqual(arg1 : Object, arg2 : Object, msg : String) : void`
+
+Propagates an assertion using the specified message if the specified objects are equal.
+
 ### areSame
 
 **Signature:** `static areSame(arg1 : Object, arg2 : Object) : void`
@@ -157,6 +169,33 @@ Propagates an assertion using the specified message if the specified check does 
 **Signature:** `static areEqual(arg1 : Object, arg2 : Object, msg : String) : void`
 
 **Description:** Propagates an assertion using the specified message if the specified objects are not equal.
+
+**Parameters:**
+
+- `arg1`: the first object to check.
+- `arg2`: the second object to check.
+- `msg`: the assertion message.
+
+---
+
+### areNotEqual
+
+**Signature:** `static areNotEqual(arg1 : Object, arg2 : Object) : void`
+
+**Description:** Propagates an assertion if the specified objects are equal.
+
+**Parameters:**
+
+- `arg1`: the first object to check.
+- `arg2`: the second object to check.
+
+---
+
+### areNotEqual
+
+**Signature:** `static areNotEqual(arg1 : Object, arg2 : Object, msg : String) : void`
+
+**Description:** Propagates an assertion using the specified message if the specified objects are equal.
 
 **Parameters:**
 
