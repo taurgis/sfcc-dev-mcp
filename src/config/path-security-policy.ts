@@ -37,7 +37,7 @@ const BLOCKED_SENSITIVE_SEGMENT_PATTERNS: readonly RegExp[] = [
 const ALLOWED_PATH_PATTERNS: readonly RegExp[] = [
   /^\/Users\/[^/]+\//i,
   /^\/home\/[^/]+\//i,
-  /^C:\\Users\\[^\\]+\\/i,
+  /^[A-Z]:\\[^\\]+(?:\\|$)/i,
   /^\/opt\//i,
   /^\/var\/www\//i,
   /^\/srv\//i,
