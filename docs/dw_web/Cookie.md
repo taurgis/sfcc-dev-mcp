@@ -200,10 +200,6 @@ Returns the version that was previously set for this cookie.
 
 **Description:** Returns the comment that was previously set for this cookie, or null if no comment was set. Note that comments are no longer supported in RFC 6265 and will not be sent to clients. This method is maintained for backward compatibility only.
 
-**API Versioned:**
-
-No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
-
 **Deprecated:**
 
 This method is maintained for backward compatibility only. Cookie comments were removed in RFC 6265 and are no longer sent to clients. The returned value only reflects what was previously set using setComment(String).
@@ -292,10 +288,6 @@ the cookie's value.
 
 **Description:** Returns the version that was previously set for this cookie. Note that the version is no longer used for determining cookie compliance as the system now uses RFC 6265 by default. The returned value only reflects what was previously set using setVersion(Number).
 
-**API Versioned:**
-
-No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
-
 **Deprecated:**
 
 This method is maintained for backward compatibility only. The version property is no longer used as the system now uses RFC 6265 compliance by default. The returned value has no effect on cookie behavior.
@@ -323,10 +315,6 @@ true if the cookie is http-only, false otherwise.
 **Signature:** `setComment(comment : String) : void`
 
 **Description:** Sets a comment associated with this cookie. Note that comments are no longer sent to clients as they were removed in RFC 6265. This method is maintained for backward compatibility but has no effect on the cookie's behavior.
-
-**API Versioned:**
-
-No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
 
 **Deprecated:**
 
@@ -415,10 +403,6 @@ This method is maintained for backward compatibility only. Cookie comments were 
 **Signature:** `setVersion(version : Number) : void`
 
 **Description:** Returns the version that was previously set for this cookie. Note that the version is no longer used for determining cookie compliance as the system now uses RFC 6265 by default. The returned value only reflects what was previously set using setVersion(Number).
-
-**API Versioned:**
-
-No longer available as of version 99.2. This method is deprecated and will be removed in the next API version.
 
 **Deprecated:**
 
