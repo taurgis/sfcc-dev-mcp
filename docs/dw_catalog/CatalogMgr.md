@@ -23,7 +23,9 @@ The catalog of the current site or null if no catalog is assigned to the site.
 
 **Type:** List (Read Only)
 
-A list containing the sorting options configured for this site.
+A list containing the sorting options configured for this site. On a Cimulate-enabled site, restricts
+ the result to the Cimulate-managed rule IDs so the storefront "Sort by" dropdown matches what the buyer
+ actually gets back from Cimulate.
 
 ### sortingRules
 
@@ -145,7 +147,7 @@ a SortingOption or null.
 
 **Signature:** `static getSortingOptions() : List`
 
-**Description:** Returns a list containing the sorting options configured for this site.
+**Description:** Returns a list containing the sorting options configured for this site. On a Cimulate-enabled site, restricts the result to the Cimulate-managed rule IDs so the storefront "Sort by" dropdown matches what the buyer actually gets back from Cimulate.
 
 **Returns:**
 
