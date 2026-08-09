@@ -58,6 +58,27 @@ The customer's number, which is a number used to identify the Customer.
 
 The customer's email address.
 
+### emailVerified
+
+**Type:** boolean (Read Only)
+
+Returns whether the customer's email has been verified.
+ 
+ This is a read-only field. The field value cannot be set externally and will be set in platform based on
+ following rules:
+ 
+ 
+ If the Email Verification Site Preference under LoginPreferences is disabled: the value for this field will
+ always be NULL;
+ If the Email Verification Site Preference under LoginPreferences is enabled:
+ 
+ If the incoming email value is the same as existing email and email was previously verified, the value for
+ this field will remain unchanged as TRUE;
+ If the incoming email value is the same as existing email and email was not previously verified, the value
+ for this field will remain unchanged as FALSE;
+ If the incoming email value is not the same as existing email, the value for this field will be set to FALSE
+ no matter the previous state;
+
 ### fax
 
 **Type:** String
@@ -392,6 +413,12 @@ Returns the customer's title, such as "Mrs" or "Mr".
 **Signature:** `getWallet() : Wallet`
 
 Returns the wallet of this customer.
+
+### isEmailVerified
+
+**Signature:** `isEmailVerified() : boolean`
+
+Returns whether the customer's email has been verified.
 
 ### isFemale
 
@@ -868,6 +895,18 @@ the customer's title.
 **Returns:**
 
 the wallet of this customer.
+
+---
+
+### isEmailVerified
+
+**Signature:** `isEmailVerified() : boolean`
+
+**Description:** Returns whether the customer's email has been verified. This is a read-only field. The field value cannot be set externally and will be set in platform based on following rules: If the Email Verification Site Preference under LoginPreferences is disabled: the value for this field will always be NULL; If the Email Verification Site Preference under LoginPreferences is enabled: If the incoming email value is the same as existing email and email was previously verified, the value for this field will remain unchanged as TRUE; If the incoming email value is the same as existing email and email was not previously verified, the value for this field will remain unchanged as FALSE; If the incoming email value is not the same as existing email, the value for this field will be set to FALSE no matter the previous state;
+
+**Returns:**
+
+true if the email is verified, false if not verified, or null if the verification status has not been set.
 
 ---
 

@@ -9,7 +9,7 @@
 
 ## Description
 
-Page meta tags are used in HTML documents to provide structured data about a web page. They are usually part of the head section. Common tags are for example robots, description or social tags like open graph (e.g. 'og:title'). Page meta tags can be obtained within: home page context Site detail page context Product Content listing page context ProductSearchModel ContentSearchModel and can be set at PageMetaData container object, which is always available in the pipeline dictionary and is used as transfer object to fill the head area with meaningful page meta tag elements.
+Page meta tags are used in HTML documents to provide structured data about a web page. They are usually part of the head section. Common tags are for example robots, description or social tags like open graph (e.g. 'og:title'), or additionally adding json-ld (JSON for linked data) and provides structured data that is easily crawlable. Page meta tags can be obtained within: home page context Site detail page context Product Content listing page context ProductSearchModel ContentSearchModel and can be set at PageMetaData container object, which is always available in the pipeline dictionary and is used as transfer object to fill the head area with meaningful page meta tag elements.
 
 ## Properties
 
@@ -24,6 +24,13 @@ The page meta tag content.
 **Type:** String (Read Only)
 
 The page meta tag ID.
+
+### jsonLd
+
+**Type:** boolean (Read Only)
+
+Returns true if the page meta tag type is json-ld (JSON for linked data) and provides
+ structured data about the page for crawlers, false otherwise.
 
 ### name
 
@@ -58,6 +65,12 @@ Returns the page meta tag content.
 **Signature:** `getID() : String`
 
 Returns the page meta tag ID.
+
+### isJsonLd
+
+**Signature:** `isJsonLd() : boolean`
+
+Returns true if the page meta tag type is json-ld (JSON for linked data) and provides structured data about the page for crawlers, false otherwise.
 
 ### isName
 
@@ -102,6 +115,18 @@ page meta tag content
 **Returns:**
 
 page meta tag ID
+
+---
+
+### isJsonLd
+
+**Signature:** `isJsonLd() : boolean`
+
+**Description:** Returns true if the page meta tag type is json-ld (JSON for linked data) and provides structured data about the page for crawlers, false otherwise.
+
+**Returns:**
+
+true if the page meta tag type is json-ld, false otherwise
 
 ---
 
