@@ -116,9 +116,12 @@ All line items related to the shipment.
 
 ### default
 
-**Type:** boolean (Read Only)
+**Type:** OrderMgr.createOrder(Basket) (Read Only)
 
-Return true if this shipment is the default shipment (shipment ID "me").
+Returns true if this is the default shipment. The default is the shipment with ID "me". If no shipment with
+ ID "me" exists, the shipment with the lowest ID is used as the default. A "me" shipment can be absent if
+ OrderMgr.createOrder(Basket) removed it for being empty, in which case another
+ shipment becomes the default.
 
 ### gift
 
@@ -556,7 +559,7 @@ Returns the tracking number of this shipment.
 
 **Signature:** `isDefault() : boolean`
 
-Return true if this shipment is the default shipment (shipment ID "me").
+Returns true if this is the default shipment.
 
 ### isGift
 
@@ -1142,7 +1145,7 @@ the tracking number of this shipment.
 
 **Signature:** `isDefault() : boolean`
 
-**Description:** Return true if this shipment is the default shipment (shipment ID "me").
+**Description:** Returns true if this is the default shipment. The default is the shipment with ID "me". If no shipment with ID "me" exists, the shipment with the lowest ID is used as the default. A "me" shipment can be absent if OrderMgr.createOrder(Basket) removed it for being empty, in which case another shipment becomes the default.
 
 **Returns:**
 
