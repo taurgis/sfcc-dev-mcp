@@ -78,6 +78,12 @@ The ID of the tax class that represents tax exempt items. The tax manager will r
 
 Applies externally set tax rates to the given Basket.
 
+### applyTax
+
+**Signature:** `static applyTax(basket : Basket) : void`
+
+Applies tax to the given Basket using the platform's tax hook dispatch logic.
+
 ### getCustomRateTaxClassID
 
 **Signature:** `static getCustomRateTaxClassID() : String`
@@ -133,6 +139,18 @@ Returns the tax rate defined for the specified combination of tax class and tax 
 **Parameters:**
 
 - `basket`: apply external taxation to this basket
+
+---
+
+### applyTax
+
+**Signature:** `static applyTax(basket : Basket) : void`
+
+**Description:** Applies tax to the given Basket using the platform's tax hook dispatch logic. This method is intended for use in custom {@code dw.order.calculate} hook implementations (e.g., in SFRA or SiteGenesis) that override the default basket calculation. Calling this method instead of directly invoking {@code dw.order.calculateTax} ensures that Commerce App tax providers registered via {@code sfcc.app.tax.calculate} are invoked when available, with automatic fallback to the legacy {@code dw.order.calculateTax} hook or the platform default tax calculation. WARNING: Do NOT call this method from within a {@code dw.order.calculateTax} hook implementation, as this will cause infinite recursion. This method is designed to be called from {@code dw.order.calculate} hooks only. The dispatch precedence is: {@code sfcc.app.tax.calculate} — if a Commerce App tax provider is installed and the feature is enabled. {@code dw.order.calculateTax} — if registered by the storefront. Platform default tax calculation — using the site's tax tables. Typical usage in a custom {@code dw.order.calculate} hook: var TaxMgr = require('dw/order/TaxMgr'); exports.calculate = function (basket) { // ... product prices, promotions, shipping ... TaxMgr.applyTax(basket); basket.updateTotals(); };
+
+**Parameters:**
+
+- `basket`: the basket for which tax should be calculated.
 
 ---
 
