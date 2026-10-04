@@ -225,10 +225,14 @@ SeekableIterator.close()
 
 **Signature:** `static removeProductList(productList : ProductList) : void`
 
-**Description:** Removes the specified product list from the system.
+**Description:** Removes the specified product list from the system. By default, ownership verification is enforced - the current session customer must be the owner of the product list. This check can be disabled via the DisableCrossAccountProductListDeletionCheck emergency toggle.
 
 **Parameters:**
 
 - `productList`: The list to remove, must not be null.
+
+**Throws:**
+
+SecurityException - if ownership verification is enabled and the current session customer is not the owner of the product list.
 
 ---
