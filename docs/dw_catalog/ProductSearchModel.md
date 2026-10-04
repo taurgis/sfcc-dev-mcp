@@ -165,6 +165,14 @@ The method returns true, if this is a pure search for a category. The
 The deepest common category of all products in the search result.
  In case of an empty search result the method returns the root category.
 
+### effectiveSearchMode
+
+**Type:** String (Read Only)
+
+The effective search mode that was used for the last search execution. This reflects the actual matching
+ approach that ran, which may differ from the requested mode if a fallback occurred. Returns null before
+ search() has been called.
+
 ### effectiveSortingRule
 
 **Type:** SortingRule (Read Only)
@@ -324,6 +332,16 @@ The ProductSearchRefinements associated with this search and filtered by session
 
 This method returns the URL of the endpoint where the merchants should upload their image for visual search.
 
+### searchMode
+
+**Type:** String
+
+The search mode that was requested for the next search execution via setSearchMode(String), or
+ null if no mode was explicitly requested. This reflects the caller's requested preference, not the mode
+ that actually ran — the requested mode is non-authoritative and "semantic" may still be demoted to
+ "lexical" by the search router. Use getEffectiveSearchMode() to obtain the mode that was
+ actually used after search().
+
 ### searchPhraseSuggestions
 
 **Type:** SearchPhraseSuggestions (Read Only)
@@ -412,6 +430,12 @@ Returns the category id that was specified in the search query.
 **Signature:** `getDeepestCommonCategory() : Category`
 
 Returns the deepest common category of all products in the search result.
+
+### getEffectiveSearchMode
+
+**Signature:** `getEffectiveSearchMode() : String`
+
+Returns the effective search mode that was used for the last search execution.
 
 ### getEffectiveSortingRule
 
@@ -520,6 +544,12 @@ Returns the ProductSearchRefinements associated with this search and filtered by
 **Signature:** `getSearchableImageUploadURL() : String`
 
 This method returns the URL of the endpoint where the merchants should upload their image for visual search.
+
+### getSearchMode
+
+**Signature:** `getSearchMode() : String`
+
+Returns the search mode that was requested for the next search execution via setSearchMode(String), or null if no mode was explicitly requested.
 
 ### getSearchPhraseSuggestions
 
@@ -706,6 +736,12 @@ Sets an explicit category to be used when determining refinements.
 **Signature:** `setSearchableImageID(imageID : String) : void`
 
 An image ID can be retrieved by uploading an image with a multipart/form-data POST request to 'https://api.cquotient.com/v3/image/search/upload/{siteID}'.
+
+### setSearchMode
+
+**Signature:** `setSearchMode(mode : String) : void`
+
+Sets the search mode for the next search execution.
 
 ### setSortingCondition
 
@@ -926,6 +962,18 @@ the category id that was specified in the search query.
 **Returns:**
 
 the deepest common category of all products in the search result of this search model or root for an empty search result.
+
+---
+
+### getEffectiveSearchMode
+
+**Signature:** `getEffectiveSearchMode() : String`
+
+**Description:** Returns the effective search mode that was used for the last search execution. This reflects the actual matching approach that ran, which may differ from the requested mode if a fallback occurred. Returns null before search() has been called.
+
+**Returns:**
+
+"semantic" if the query ran against the external search provider, "lexical" if it ran against the native search, or null if no search has been executed yet
 
 ---
 
@@ -1170,6 +1218,18 @@ returns the URL where the merchants should upload their image.
 **Throws:**
 
 - RuntimeException
+
+---
+
+### getSearchMode
+
+**Signature:** `getSearchMode() : String`
+
+**Description:** Returns the search mode that was requested for the next search execution via setSearchMode(String), or null if no mode was explicitly requested. This reflects the caller's requested preference, not the mode that actually ran — the requested mode is non-authoritative and "semantic" may still be demoted to "lexical" by the search router. Use getEffectiveSearchMode() to obtain the mode that was actually used after search().
+
+**Returns:**
+
+"semantic" or "lexical" if a mode was requested, or null if no mode was requested
 
 ---
 
@@ -1583,6 +1643,22 @@ IllegalArgumentException - if the refinement category does not reside in the sto
 **Throws:**
 
 RuntimeException - if product IDs for the provided image could not be set.
+
+---
+
+### setSearchMode
+
+**Signature:** `setSearchMode(mode : String) : void`
+
+**Description:** Sets the search mode for the next search execution. The mode influences the routing decision made by the search router, but is non-authoritative — "semantic" still runs the full routing cascade and may be demoted to "lexical" based on availability and query characteristics.
+
+**Parameters:**
+
+- `mode`: the search mode to request, either "semantic" or "lexical"
+
+**Throws:**
+
+IllegalArgumentException - if the mode is not one of the allowed values
 
 ---
 

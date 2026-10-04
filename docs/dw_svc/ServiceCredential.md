@@ -101,9 +101,9 @@ Use Cipher to encrypt data as needed.
 - `algorithm`: The algorithm to be used for the encryption of this password. Currently only "RSA" is supported.
 - `publicKey`: A reference to a trusted certificate entry containing the public key in the keystore.
 
-**Returns:**
+**Throws:**
 
-the base64-encoded representation of the password.
+UnsupportedOperationException - always thrown. Credential encryption via this method is disabled; this API no longer returns a value.
 
 ---
 
