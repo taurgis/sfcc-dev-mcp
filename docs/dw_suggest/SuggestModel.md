@@ -54,6 +54,14 @@ A CustomSuggestions container for the current search phrase.
  custom phrases (if any) and the terms suggested
  by the system with respect to the merchant provided custom phrases.
 
+### effectiveSearchMode
+
+**Type:** String (Read Only)
+
+The effective search mode that was used for the last suggestion execution. This reflects the actual
+ matching approach that ran, which may differ from the requested mode if a fallback occurred. Returns null
+ if no suggestions have been executed yet.
+
 ### filteredByFolder
 
 **Type:** boolean
@@ -87,6 +95,16 @@ Use this method to obtain a list of personalized search phrases
  that the current user entered recently.
 
  The user is being identified by the CQuotient tracking cookie.
+
+### searchMode
+
+**Type:** String
+
+The search mode that was requested for the next suggestion execution via setSearchMode(String),
+ or null if no mode was explicitly requested. This reflects the caller's requested preference, not the
+ mode that actually ran — the requested mode is non-authoritative and "semantic" may still be demoted to
+ "lexical" by the search router. Use getEffectiveSearchMode() to obtain the mode that was
+ actually used.
 
 ## Constructor Summary
 
@@ -124,6 +142,12 @@ Returns a ContentSuggestions container for the current search phrase.
 
 Returns a CustomSuggestions container for the current search phrase.
 
+### getEffectiveSearchMode
+
+**Signature:** `getEffectiveSearchMode() : String`
+
+Returns the effective search mode that was used for the last suggestion execution.
+
 ### getPopularSearchPhrases
 
 **Signature:** `getPopularSearchPhrases() : Iterator`
@@ -141,6 +165,12 @@ Returns a ProductSuggestions container for the current search phrase.
 **Signature:** `getRecentSearchPhrases() : Iterator`
 
 Use this method to obtain a list of personalized search phrases that the current user entered recently.
+
+### getSearchMode
+
+**Signature:** `getSearchMode() : String`
+
+Returns the search mode that was requested for the next suggestion execution via setSearchMode(String), or null if no mode was explicitly requested.
 
 ### isFilteredByFolder
 
@@ -177,6 +207,12 @@ Use this method to setup the maximum number of returned suggested items.
 **Signature:** `setRefinementValues(attributeID : String, values : String) : void`
 
 Sets product suggestion refinement values for an attribute.
+
+### setSearchMode
+
+**Signature:** `setSearchMode(mode : String) : void`
+
+Sets the search mode for the next suggestion execution.
 
 ### setSearchPhrase
 
@@ -271,6 +307,18 @@ setSearchPhrase(String)
 
 ---
 
+### getEffectiveSearchMode
+
+**Signature:** `getEffectiveSearchMode() : String`
+
+**Description:** Returns the effective search mode that was used for the last suggestion execution. This reflects the actual matching approach that ran, which may differ from the requested mode if a fallback occurred. Returns null if no suggestions have been executed yet.
+
+**Returns:**
+
+"semantic" if the query ran against the external search provider, "lexical" if it ran against the native search, or null if no suggestions have been executed yet
+
+---
+
 ### getPopularSearchPhrases
 
 **Signature:** `getPopularSearchPhrases() : Iterator`
@@ -309,6 +357,18 @@ setSearchPhrase(String)
 **Returns:**
 
 a list of recent search phrases of the current user
+
+---
+
+### getSearchMode
+
+**Signature:** `getSearchMode() : String`
+
+**Description:** Returns the search mode that was requested for the next suggestion execution via setSearchMode(String), or null if no mode was explicitly requested. This reflects the caller's requested preference, not the mode that actually ran — the requested mode is non-authoritative and "semantic" may still be demoted to "lexical" by the search router. Use getEffectiveSearchMode() to obtain the mode that was actually used.
+
+**Returns:**
+
+"semantic" or "lexical" if a mode was requested, or null if no mode was requested
 
 ---
 
@@ -383,6 +443,22 @@ True if search suggestions are filtered by the folder of the content asset.
 
 - `attributeID`: The ID of the refinement attribute.
 - `values`: the refinement values to set (delimited by '|') or null to remove all values
+
+---
+
+### setSearchMode
+
+**Signature:** `setSearchMode(mode : String) : void`
+
+**Description:** Sets the search mode for the next suggestion execution. The mode influences the routing decision made by the search router, but is non-authoritative — "semantic" still runs the full routing cascade and may be demoted to "lexical" based on availability and query characteristics.
+
+**Parameters:**
+
+- `mode`: the search mode to request, either "semantic" or "lexical"
+
+**Throws:**
+
+IllegalArgumentException - if the mode is not one of the allowed values
 
 ---
 

@@ -33,6 +33,12 @@ constant for Business Type B2C
 
 constant for Channel Type CallCenter
 
+### CHANNEL_TYPE_CHATGPT
+
+**Type:** Number = 18
+
+constant for Channel Type ChatGPT
+
 ### CHANNEL_TYPE_CUSTOMERSERVICECENTER
 
 **Type:** Number = 11
@@ -50,6 +56,12 @@ constant for Channel Type DSS
 **Type:** Number = 8
 
 constant for Channel Type Facebook Ads
+
+### CHANNEL_TYPE_GEMINI
+
+**Type:** Number = 19
+
+constant for Channel Type Gemini
 
 ### CHANNEL_TYPE_GOOGLE
 
@@ -268,7 +280,8 @@ The channel type defines in which sales channel this order has been created. Thi
  CHANNEL_TYPE_SUBSCRIPTIONS, CHANNEL_TYPE_ONLINERESERVATION,
  CHANNEL_TYPE_CUSTOMERSERVICECENTER, CHANNEL_TYPE_INSTAGRAMCOMMERCE,
  CHANNEL_TYPE_GOOGLE, CHANNEL_TYPE_YOUTUBE, CHANNEL_TYPE_TIKTOK,
- CHANNEL_TYPE_SNAPCHAT, CHANNEL_TYPE_WHATSAPP
+ CHANNEL_TYPE_SNAPCHAT, CHANNEL_TYPE_WHATSAPP, CHANNEL_TYPE_CHATGPT,
+ CHANNEL_TYPE_GEMINI
 
 ### couponLineItems
 
@@ -313,10 +326,14 @@ The customer number of the customer associated with this container.
 
 **Type:** Shipment (Read Only)
 
-The default shipment of the line item container. Every basket and order has a default shipment with the
- id "me". If you call a process that accesses a shipment, and you don't specify the shipment, then the process
- uses the default shipment. You can't remove a default shipment. Calling removeShipment(Shipment) on it
- throws an exception.
+The default shipment of the line item container. Baskets always have a default shipment with ID "me".
+ For orders, this can differ, for example: OrderMgr.createOrder(Basket) removes empty
+ shipments, so if the basket's "me" shipment was empty at order creation, the order has no "me" shipment. In
+ that case, the shipment with the lowest ID is returned as the fallback, or null if the order has
+ no shipments. See Shipment.isDefault() for the matching logic.
+ 
+ Processes that access a shipment use the default shipment when none is specified. The default shipment can't be
+ removed. Calling removeShipment(Shipment) on it throws an exception.
 
 ### etag
 
@@ -1654,7 +1671,7 @@ the type of the business this order has been placed in. or null, if the business
 
 **Signature:** `getChannelType() : EnumValue`
 
-**Description:** The channel type defines in which sales channel this order has been created. This can be used to distinguish order placed through Storefront, Call Center or Marketplace. Possible values are CHANNEL_TYPE_STOREFRONT, CHANNEL_TYPE_CALLCENTER, CHANNEL_TYPE_MARKETPLACE, CHANNEL_TYPE_DSS, CHANNEL_TYPE_STORE, CHANNEL_TYPE_PINTEREST, CHANNEL_TYPE_TWITTER, CHANNEL_TYPE_FACEBOOKADS, CHANNEL_TYPE_SUBSCRIPTIONS, CHANNEL_TYPE_ONLINERESERVATION, CHANNEL_TYPE_CUSTOMERSERVICECENTER, CHANNEL_TYPE_INSTAGRAMCOMMERCE, CHANNEL_TYPE_GOOGLE, CHANNEL_TYPE_YOUTUBE, CHANNEL_TYPE_TIKTOK, CHANNEL_TYPE_SNAPCHAT, CHANNEL_TYPE_WHATSAPP
+**Description:** The channel type defines in which sales channel this order has been created. This can be used to distinguish order placed through Storefront, Call Center or Marketplace. Possible values are CHANNEL_TYPE_STOREFRONT, CHANNEL_TYPE_CALLCENTER, CHANNEL_TYPE_MARKETPLACE, CHANNEL_TYPE_DSS, CHANNEL_TYPE_STORE, CHANNEL_TYPE_PINTEREST, CHANNEL_TYPE_TWITTER, CHANNEL_TYPE_FACEBOOKADS, CHANNEL_TYPE_SUBSCRIPTIONS, CHANNEL_TYPE_ONLINERESERVATION, CHANNEL_TYPE_CUSTOMERSERVICECENTER, CHANNEL_TYPE_INSTAGRAMCOMMERCE, CHANNEL_TYPE_GOOGLE, CHANNEL_TYPE_YOUTUBE, CHANNEL_TYPE_TIKTOK, CHANNEL_TYPE_SNAPCHAT, CHANNEL_TYPE_WHATSAPP, CHANNEL_TYPE_CHATGPT, CHANNEL_TYPE_GEMINI
 
 **Returns:**
 
@@ -1754,11 +1771,11 @@ the customer number of the customer associated with this container.
 
 **Signature:** `getDefaultShipment() : Shipment`
 
-**Description:** Returns the default shipment of the line item container. Every basket and order has a default shipment with the id "me". If you call a process that accesses a shipment, and you don't specify the shipment, then the process uses the default shipment. You can't remove a default shipment. Calling removeShipment(Shipment) on it throws an exception.
+**Description:** Returns the default shipment of the line item container. Baskets always have a default shipment with ID "me". For orders, this can differ, for example: OrderMgr.createOrder(Basket) removes empty shipments, so if the basket's "me" shipment was empty at order creation, the order has no "me" shipment. In that case, the shipment with the lowest ID is returned as the fallback, or null if the order has no shipments. See Shipment.isDefault() for the matching logic. Processes that access a shipment use the default shipment when none is specified. The default shipment can't be removed. Calling removeShipment(Shipment) on it throws an exception.
 
 **Returns:**
 
-the default shipment of the container
+the default shipment of the container, or null if the order has no shipments
 
 ---
 
