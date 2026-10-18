@@ -32,6 +32,12 @@ The default shipping method of the current site applicable to the session curren
 
 ## Method Summary
 
+### applyShipping
+
+**Signature:** `static applyShipping(basket : Basket) : void`
+
+Applies shipping to the given Basket using the platform's shipping hook dispatch logic.
+
 ### applyShippingCost
 
 **Signature:** `static applyShippingCost(lineItemCtnr : LineItemCtnr) : void`
@@ -71,6 +77,22 @@ Returns the shipping cost amount for the specified shipping method and the speci
 ## Method Detail
 
 ## Method Details
+
+### applyShipping
+
+**Signature:** `static applyShipping(basket : Basket) : void`
+
+**Description:** Applies shipping to the given Basket using the platform's shipping hook dispatch logic. This method is intended for use in custom dw.order.calculate hook implementations (e.g., in SFRA or SiteGenesis) that override the default basket calculation. Calling this method instead of directly invoking dw.order.calculateShipping ensures that Commerce App shipping providers registered via sfcc.app.shipping.calculate are invoked when available, with automatic fallback to the legacy dw.order.calculateShipping hook or the platform default shipping calculation. WARNING: Do NOT call this method from within a dw.order.calculateShipping hook implementation, as this will cause infinite recursion. This method is designed to be called from dw.order.calculate hooks only. The dispatch precedence is: sfcc.app.shipping.calculate — if a Commerce App shipping provider is installed. dw.order.calculateShipping — if registered by the storefront. Platform default shipping calculation — using product and shipment shipping cost tables. Typical usage in a custom dw.order.calculate hook: var ShippingMgr = require('dw/order/ShippingMgr'); exports.calculate = function (basket) { // ... product prices, promotions ... ShippingMgr.applyShipping(basket); // ... tax ... basket.updateTotals(); };
+
+**Parameters:**
+
+- `basket`: the basket for which shipping should be calculated.
+
+**Throws:**
+
+NullArgumentException - if basket is null.
+
+---
 
 ### applyShippingCost
 
