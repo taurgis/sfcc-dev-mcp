@@ -81,6 +81,16 @@ Get the price used to calculate the tax for this line item.
 The tax class ID for the line item or null if no tax class ID is associated with the line item. In the
  case where the tax class ID is null, you should use the default tax class ID.
 
+### taxes
+
+**Type:** Collection
+
+The tax items for this line item. When taxes are set via setTaxes(Collection), the line item's
+ tax amount and tax rate are updated as the sum and combined rate of all tax items. The tax items are preserved
+ after order creation and can be retrieved on both baskets and orders.
+ 
+ Access is currently restricted to select pilot customers and controlled via feature toggle.
+
 ### taxRate
 
 **Type:** Number
@@ -152,6 +162,12 @@ Get the price used to calculate the tax for this line item.
 
 Returns the tax class ID for the line item or null if no tax class ID is associated with the line item.
 
+### getTaxes
+
+**Signature:** `getTaxes() : Collection`
+
+Returns the tax items for this line item.
+
 ### getTaxRate
 
 **Signature:** `getTaxRate() : Number`
@@ -199,6 +215,12 @@ Sets the value for the tax of the line item, which is the the tax of the unit be
 **Signature:** `setTaxClassID(aValue : String) : void`
 
 Sets the tax class ID for the line item.
+
+### setTaxes
+
+**Signature:** `setTaxes(taxItems : Collection) : void`
+
+Sets the tax items for this line item.
 
 ### setTaxRate
 
@@ -358,6 +380,23 @@ TaxMgr.getDefaultTaxClassID()
 
 ---
 
+### getTaxes
+
+**Signature:** `getTaxes() : Collection`
+
+**Description:** Returns the tax items for this line item. When taxes are set via setTaxes(Collection), the line item's tax amount and tax rate are updated as the sum and combined rate of all tax items. The tax items are preserved after order creation and can be retrieved on both baskets and orders. Access is currently restricted to select pilot customers and controlled via feature toggle.
+
+**Returns:**
+
+collection of LineItemTax; empty when no tax items are set
+
+**See Also:**
+
+setTaxes(Collection)
+LineItemTax
+
+---
+
 ### getTaxRate
 
 **Signature:** `getTaxRate() : Number`
@@ -446,7 +485,7 @@ Use updatePrice(Money) which sets the base price and also the net price if the l
 
 **Signature:** `setTax(aValue : Money) : void`
 
-**Description:** Sets the value for the tax of the line item, which is the the tax of the unit before applying adjustments, in the purchase currency.
+**Description:** Sets the value for the tax of the line item, which is the the tax of the unit before applying adjustments, in the purchase currency. If tax items are already set (e.g. via setTaxes(Collection)), calling this will clear them.
 
 **Parameters:**
 
@@ -466,11 +505,32 @@ Use updatePrice(Money) which sets the base price and also the net price if the l
 
 ---
 
+### setTaxes
+
+**Signature:** `setTaxes(taxItems : Collection) : void`
+
+**Description:** Sets the tax items for this line item. The container must be a basket. Persists the given items, then aggregates them (sum of tax values, combined tax rate) and updates this line item's tax amount and tax rate accordingly. Each element in the collection must be a LineItemTax, for example created via new LineItemTax(taxId, taxRate, taxValue). Use either multilevel tax items via setTaxes(Collection) or setTax(Money)/setTaxRate(Number)/updateTax(Number, Money)/updateTaxAmount(Money), not both. Access is currently restricted to select pilot customers and controlled via feature toggle. The maximum number of tax items allowed per line item is 10.
+
+**Parameters:**
+
+- `taxItems`: the tax items to set; each element must be a LineItemTax. Maximum 10 items allowed.
+
+**See Also:**
+
+getTaxes()
+LineItemTax
+
+**Throws:**
+
+IllegalArgumentException - if the container is not a basket, or if more than 10 tax items are provided
+
+---
+
 ### setTaxRate
 
 **Signature:** `setTaxRate(taxRate : Number) : void`
 
-**Description:** Sets the tax rate, which is the decimal tax rate to be applied to the product represented by this line item. A value of 0.175 represents a percentage of 17.5%.
+**Description:** Sets the tax rate, which is the decimal tax rate to be applied to the product represented by this line item. A value of 0.175 represents a percentage of 17.5%. If tax items are already set (e.g. via setTaxes(Collection)), calling this will clear them.
 
 **Parameters:**
 
@@ -510,7 +570,7 @@ Use setPriceValue(Number) instead.
 
 **Signature:** `updateTax(taxRate : Number, taxBasis : Money) : void`
 
-**Description:** Updates the tax-related attributes of the line item based on the specified tax rate, the passed tax basis and the "Tax Rounding Mode" order preference. If null is passed as tax rate or tax basis, tax-related attribute fields are set to N/A.
+**Description:** Updates the tax-related attributes of the line item based on the specified tax rate, the passed tax basis and the "Tax Rounding Mode" order preference. If null is passed as tax rate or tax basis, tax-related attribute fields are set to N/A. If tax items are already set (e.g. via setTaxes(Collection)), calling this will clear them.
 
 **Parameters:**
 
@@ -523,7 +583,7 @@ Use setPriceValue(Number) instead.
 
 **Signature:** `updateTaxAmount(tax : Money) : void`
 
-**Description:** Updates tax amount of the line item setting the provided value. Depending on the way how the tax is calculated (based on net or gross price), the corresponding gross or net price is updated accordingly. For tax calculation based on net price, the gross price is calculated by adding the tax to the net price. For tax calculation based on gross price, the net price is calculated by subtracting the tax from the gross price. If null is passed as tax amount, the item tax and resulting net or gross price are set to N/A. Note that tax rate is not calculated and it is not updated.
+**Description:** Updates tax amount of the line item setting the provided value. Depending on the way how the tax is calculated (based on net or gross price), the corresponding gross or net price is updated accordingly. For tax calculation based on net price, the gross price is calculated by adding the tax to the net price. For tax calculation based on gross price, the net price is calculated by subtracting the tax from the gross price. If null is passed as tax amount, the item tax and resulting net or gross price are set to N/A. Note that tax rate is not calculated and it is not updated. If tax items are already set (e.g. via setTaxes(Collection)), calling this will clear them.
 
 **Parameters:**
 
