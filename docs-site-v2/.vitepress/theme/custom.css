@@ -1371,3 +1371,93 @@
     transform: none;
   }
 }
+
+.maintenance-notice {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+  color: #78350f;
+  border-radius: 8px;
+  margin: 12px 0 20px;
+}
+
+.maintenance-notice__inner {
+  padding: 12px 16px;
+}
+
+.maintenance-notice[data-placement='banner'] {
+  border-left: none;
+  border-bottom: 1px solid #f59e0b;
+  border-radius: 0;
+  margin: 0;
+}
+
+.maintenance-notice[data-placement='banner'] .maintenance-notice__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px 18px;
+}
+
+.maintenance-notice p {
+  margin: 0 0 8px;
+  line-height: 1.55;
+}
+
+.maintenance-notice p:last-child {
+  margin-bottom: 0;
+}
+
+.maintenance-notice ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.maintenance-notice a {
+  color: #92400e;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.maintenance-notice a:focus-visible {
+  outline: 2px solid var(--sfcc-focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.maintenance-notice code {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.92em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(120, 53, 15, 0.08);
+}
+
+.dark .maintenance-notice {
+  background: rgba(217, 119, 6, 0.2);
+  border-color: #f59e0b;
+  color: #e5e7eb;
+}
+
+.dark .maintenance-notice a {
+  color: #fde68a;
+}
+
+.dark .maintenance-notice code {
+  background: rgba(0, 0, 0, 0.25);
+  color: #fef3c7;
+}
+
+/* The hero normally pulls itself up under the nav. With a banner above it, keep that pull from covering the banner. Leave the small-screen top padding alone so the quick start card still fits. */
+.VPHome:has(> .maintenance-notice) .VPHero {
+  margin-top: 0;
+}
+
+@media (min-width: 960px) {
+  .VPHome:has(> .maintenance-notice) .VPHero {
+    padding-top: 40px;
+  }
+}
