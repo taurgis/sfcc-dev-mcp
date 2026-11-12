@@ -13,6 +13,7 @@ import QuickStartHero from './components/QuickStartHero.vue';
 import Callout from './components/Callout.vue';
 import HomeSections from './components/HomeSections.vue';
 import NewcomerCTA from './components/NewcomerCTA.vue';
+import MaintenanceNotice from './components/MaintenanceNotice.vue';
 
 export default {
   extends: DefaultTheme,
@@ -30,10 +31,13 @@ export default {
     app.component('Callout', Callout);
     app.component('HomeSections', HomeSections);
     app.component('NewcomerCTA', NewcomerCTA);
+    app.component('MaintenanceNotice', MaintenanceNotice);
   },
   Layout() {
     return h(DefaultTheme.Layout, null, {
-      'home-hero-image': () => h(QuickStartHero)
+      'home-hero-image': () => h(QuickStartHero),
+      'home-hero-before': () => h(MaintenanceNotice, { placement: 'banner' }),
+      'doc-before': () => h(MaintenanceNotice, { placement: 'inline' })
     });
   }
 };

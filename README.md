@@ -1,5 +1,17 @@
 # SFCC Development MCP Server
 
+> [!WARNING]
+> This project is no longer actively maintained. Salesforce now offers an official, much more complete toolkit, and you should switch to the [Agentic B2C Developer Toolkit](https://salesforcecommercecloud.github.io/b2c-developer-tooling/).
+>
+> It is generally available and includes the B2C CLI (`@salesforce/b2c-cli`), the official MCP server (`@salesforce/b2c-dx-mcp`, for example `npx -y @salesforce/b2c-dx-mcp@latest`), agent skills and plugins, and an IDE extension.
+>
+> - [Docs](https://salesforcecommercecloud.github.io/b2c-developer-tooling/)
+> - [MCP guide](https://salesforcecommercecloud.github.io/b2c-developer-tooling/mcp/)
+> - [Repository](https://github.com/SalesforceCommerceCloud/b2c-developer-tooling)
+> - [Salesforce Developers](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-developer-tooling.html)
+>
+> Documentation lookup and development guidance are in the official MCP and its agent skills. Log investigation is in the MCP and the B2C CLI. The script debugger is in the MCP and the IDE extension. You can keep using the current version of this project if you already depend on it.
+
 [![npm version](https://badge.fury.io/js/sfcc-dev-mcp.svg)](https://badge.fury.io/js/sfcc-dev-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
