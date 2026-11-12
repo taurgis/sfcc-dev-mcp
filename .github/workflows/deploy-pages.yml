@@ -1,15 +1,6 @@
 name: Deploy Docs (VitePress)
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'docs-site-v2/**'
-      - '.github/workflows/deploy-pages.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'docs-site-v2/**'
   workflow_dispatch:
 
 permissions:
